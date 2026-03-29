@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "skills": {
+    "opencli": {
+      "source": "joeseesun/opencli-skill",
+      "sourceType": "github",
+      "computedHash": "8593fd00785b896ec8f9b15adb3d82bcc01cb605b426ac3e76db86135898dd11"
+    },
+    "paperclip-ai-orchestration": {
+      "source": "aradotso/trending-skills",
+      "sourceType": "github",
+      "computedHash": "f84c79e795d1b5f5eb5f9171390a7aa5d8dc360ff98e5c1ee8d141844798be02"
+    },
+    "youtube-clipper": {
+      "source": "op7418/youtube-clipper-skill",
+      "sourceType": "github",
+      "computedHash": "73b6412584e9eb75485f096734b6742cb1d56e22bffd8907b17cc877e243d09b"
+    }
+  }
+}

@@ -75,6 +75,15 @@ import {
   agentConfigurationDoc as hermesAgentConfigurationDoc,
   models as hermesModels,
 } from "hermes-paperclip-adapter";
+import {
+  execute as lettaExecute,
+  testEnvironment as lettaTestEnvironment,
+  onHireApproved as lettaOnHireApproved,
+} from "@paperclipai/adapter-letta-cloud/server";
+import {
+  agentConfigurationDoc as lettaAgentConfigurationDoc,
+  models as lettaModels,
+} from "@paperclipai/adapter-letta-cloud";
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
 
@@ -181,6 +190,16 @@ const hermesLocalAdapter: ServerAdapterModule = {
   agentConfigurationDoc: hermesAgentConfigurationDoc,
 };
 
+const lettaCloudAdapter: ServerAdapterModule = {
+  type: "letta_cloud",
+  execute: lettaExecute,
+  testEnvironment: lettaTestEnvironment,
+  onHireApproved: lettaOnHireApproved,
+  models: lettaModels,
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: lettaAgentConfigurationDoc,
+};
+
 const adaptersByType = new Map<string, ServerAdapterModule>(
   [
     claudeLocalAdapter,
@@ -191,6 +210,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     geminiLocalAdapter,
     openclawGatewayAdapter,
     hermesLocalAdapter,
+    lettaCloudAdapter,
     processAdapter,
     httpAdapter,
   ].map((a) => [a.type, a]),
