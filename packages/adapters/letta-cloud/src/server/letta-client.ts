@@ -3,10 +3,16 @@ import type { LettaCloudAdapterConfig, LettaMemoryBlock, LettaTool, LettaAgentSn
 
 const LETTA_CLOUD_BASE = "https://api.letta.com";
 
+/** Strip trailing /v1 suffix — the SDK appends its own version path */
+function resolveBaseUrl(raw: string | undefined): string {
+  const url = raw?.trim() || LETTA_CLOUD_BASE;
+  return url.replace(/\/v\d+\/?$/, "");
+}
+
 export function getLettaClient(config: LettaCloudAdapterConfig): Letta {
   return new Letta({
     apiKey: config.apiKey,
-    baseURL: config.baseUrl?.trim() || LETTA_CLOUD_BASE,
+    baseURL: resolveBaseUrl(config.baseUrl),
   });
 }
 
@@ -14,11 +20,17 @@ export function getLettaClient(config: LettaCloudAdapterConfig): Letta {
 export async function fetchAgentSnapshot(config: LettaCloudAdapterConfig): Promise<LettaAgentSnapshot> {
   const client = getLettaClient(config);
 
-  const [agent, rawBlocks, rawTools] = await Promise.all([
+  const [agent, blocksPage, toolsPage] = await Promise.all([
     client.agents.retrieve(config.agentId),
     client.agents.blocks.list(config.agentId),
     client.agents.tools.list(config.agentId),
   ]);
+
+  // PagePromise — collect all items across pages
+  const rawBlocks: Record<string, unknown>[] = [];
+  for await (const b of blocksPage) rawBlocks.push(b as Record<string, unknown>);
+  const rawTools: Record<string, unknown>[] = [];
+  for await (const t of toolsPage) rawTools.push(t as Record<string, unknown>);
 
   const blocks: LettaMemoryBlock[] = rawBlocks.map((b: Record<string, unknown>) => ({
     id: String(b.id ?? ""),
@@ -29,7 +41,7 @@ export async function fetchAgentSnapshot(config: LettaCloudAdapterConfig): Promi
     limit: typeof b.limit === "number" ? b.limit : undefined,
   }));
 
-  const tools: LettaTool[] = rawTools.map((t: Record<string, unknown>) => ({
+  const tools: LettaTool[] = rawTools.map((t) => ({
     id: String(t.id ?? ""),
     name: String(t.name ?? ""),
     description: t.description ? String(t.description) : undefined,

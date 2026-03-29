@@ -334,6 +334,8 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
     mark: mark as (group: "adapterConfig", field: string, value: unknown) => void,
     models,
     hideInstructionsFile,
+    // Pass the Paperclip agent ID so adapters can call server-side proxy routes
+    agent: !isCreate ? { id: props.agent.id } : undefined,
   };
 
   // Section toggle state — advanced always starts collapsed
