@@ -1,6 +1,7 @@
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import { getLettaClient } from "./letta-client.js";
+import { renderTemplate } from "@paperclipai/adapter-utils/server-utils";
 
 /** Extract user-visible text from a single Letta message object */
 function extractText(msg: Record<string, unknown>): string | null {
@@ -30,12 +31,31 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   }
 
   // The task message is passed via context.message (Paperclip standard)
-  const userMessage =
+  // If not set, fall back to heartbeatPrompt config, then to a sensible default.
+  let userMessage =
     typeof ctx.context.message === "string"
       ? ctx.context.message
       : typeof ctx.context.prompt === "string"
         ? ctx.context.prompt
-        : "Hello";
+        : null;
+
+  // If no explicit message/prompt, use heartbeatPrompt template or default
+  if (!userMessage) {
+    const heartbeatPrompt = config.heartbeatPrompt?.trim();
+    if (heartbeatPrompt) {
+      const templateData = {
+        agentId: ctx.agent?.id ?? "",
+        agentName: ctx.agent?.name ?? "",
+        agent: ctx.agent ?? { id: "", name: "" },
+        runId: ctx.runId ?? "",
+        run: { id: ctx.runId ?? "" },
+        context: ctx.context ?? {},
+      };
+      userMessage = renderTemplate(heartbeatPrompt, templateData);
+    } else {
+      userMessage = "Hello";
+    }
+  }
 
   const client = getLettaClient(config);
 

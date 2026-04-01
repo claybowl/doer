@@ -8,6 +8,7 @@ export function buildLettaCloudConfig(values: CreateConfigValues): Record<string
     model: values.model ?? "",
     temperature: (values as Record<string, unknown>).temperature ?? 0.7,
     maxTokens: (values as Record<string, unknown>).maxTokens ?? 4096,
+    heartbeatPrompt: (values as Record<string, unknown>).heartbeatPrompt ?? "",
   };
 }
 

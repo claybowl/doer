@@ -23,6 +23,14 @@ export interface LettaCloudAdapterConfig {
   // ── Model settings ────────────────────────────────────────────────────────
   temperature?: number;
   maxTokens?: number;
+
+  // ── Heartbeat prompt ──────────────────────────────────────────────────────
+  /**
+   * Template for the user message sent on timer-triggered heartbeats.
+   * Supports {{agent.id}}, {{agent.name}}, {{run.id}}, {{context.*}} etc.
+   * Falls back to "Hello" if empty.
+   */
+  heartbeatPrompt?: string;
 }
 
 export interface LettaMemoryBlock {
