@@ -24,10 +24,21 @@ export interface AdapterConfigFieldsProps {
   hideInstructionsFile?: boolean;
 }
 
-export interface UIAdapterModule {
+export interface StatefulStdoutParser {
+  parseLine: (line: string, ts: string) => import("@paperclipai/adapter-utils").TranscriptEntry[];
+  reset: () => void;
+}
+
+export type StdoutParserFactory = () => StatefulStdoutParser;
+
+export interface TranscriptParserSource {
+  parseStdoutLine: (line: string, ts: string) => import("@paperclipai/adapter-utils").TranscriptEntry[];
+  createStdoutParser?: StdoutParserFactory;
+}
+
+export interface UIAdapterModule extends TranscriptParserSource {
   type: string;
   label: string;
-  parseStdoutLine: (line: string, ts: string) => import("@paperclipai/adapter-utils").TranscriptEntry[];
   ConfigFields: ComponentType<AdapterConfigFieldsProps>;
   buildAdapterConfig: (values: CreateConfigValues) => Record<string, unknown>;
 }

@@ -1,6 +1,7 @@
 import { NavLink } from "@/lib/router";
 import { cn } from "../lib/utils";
 import { useSidebar } from "../context/SidebarContext";
+import { useCompany } from "../context/CompanyContext";
 import type { LucideIcon } from "lucide-react";
 
 interface SidebarNavItemProps {
@@ -31,11 +32,16 @@ export function SidebarNavItem({
   liveCount,
 }: SidebarNavItemProps) {
   const { isMobile, setSidebarOpen } = useSidebar();
+  const { selectedCompany } = useCompany();
+
+  // "/" is a global route that won't get the company prefix applied automatically.
+  // Resolve it to the company's index path so it lands inside the Layout.
+  const resolvedTo = to === "/" && selectedCompany ? `/${selectedCompany.issuePrefix}` : to;
 
   return (
     <NavLink
-      to={to}
-      end={end}
+      to={resolvedTo}
+      end={end ?? to === "/"}
       onClick={() => { if (isMobile) setSidebarOpen(false); }}
       className={({ isActive }) =>
         cn(
