@@ -1575,6 +1575,93 @@ function ConfigurationTab({
   );
 }
 
+/* ---- Letta Heartbeat Prompt Editor ---- */
+
+function LettaHeartbeatPromptEditor({
+  agent,
+  companyId,
+  onDirtyChange,
+}: {
+  agent: Agent;
+  companyId?: string;
+  onDirtyChange: (dirty: boolean) => void;
+  onSaveActionChange: (save: (() => void) | null) => void;
+  onCancelActionChange: (cancel: (() => void) | null) => void;
+  onSavingChange: (saving: boolean) => void;
+}) {
+  const { pushToast } = useToast();
+  const queryClient = useQueryClient();
+  const existing = ((agent.adapterConfig ?? {}) as Record<string, unknown>).heartbeatPrompt;
+  const saved = typeof existing === "string" ? existing : "";
+  const [draft, setDraft] = useState<string>(saved);
+  const isDirty = draft !== saved;
+
+  const saveMutation = useMutation({
+    mutationFn: (prompt: string) =>
+      agentsApi.update(
+        agent.id,
+        { adapterConfig: { ...((agent.adapterConfig ?? {}) as Record<string, unknown>), heartbeatPrompt: prompt } },
+        companyId,
+      ),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(agent.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(agent.urlKey) });
+      pushToast({ title: "Saved", body: "Heartbeat prompt updated.", tone: "success" });
+    },
+    onError: (err) => {
+      const message = err instanceof Error ? err.message : "Could not save heartbeat prompt";
+      pushToast({ title: "Save failed", body: message, tone: "error" });
+    },
+  });
+
+  useEffect(() => { onDirtyChange(isDirty); }, [isDirty, onDirtyChange]);
+
+  return (
+    <div className="max-w-3xl space-y-4">
+      <div>
+        <h3 className="text-sm font-medium mb-1">Heartbeat Prompt</h3>
+        <p className="text-xs text-muted-foreground mb-3">
+          The message sent to this Letta agent each time it runs. Supports template variables:{" "}
+          <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{agentName}}"}</code>,{" "}
+          <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{runId}}"}</code>,{" "}
+          <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{context}}"}</code>.
+          If left blank, the agent receives <code className="text-xs bg-muted px-1 py-0.5 rounded">"Hello"</code>.
+        </p>
+        <textarea
+          className="w-full min-h-[240px] rounded-md border border-input bg-background px-3 py-2 text-sm font-mono resize-y focus:outline-none focus:ring-1 focus:ring-ring"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={`You are ${agent.name}. Check your task queue and take action on the most urgent item.\n\nContext: {{context}}`}
+          spellCheck={false}
+        />
+      </div>
+      <p className="text-xs text-muted-foreground">
+        This prompt is only used when no explicit message is passed to the run (e.g. heartbeats and scheduled triggers).
+        Issues and direct messages override it.
+      </p>
+      {isDirty && (
+        <div className="flex items-center gap-2">
+          <Button
+            size="sm"
+            onClick={() => saveMutation.mutate(draft)}
+            disabled={saveMutation.isPending}
+          >
+            {saveMutation.isPending ? "Saving…" : "Save"}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => setDraft(saved)}
+            disabled={saveMutation.isPending}
+          >
+            Cancel
+          </Button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ---- Prompts Tab ---- */
 
 function PromptsTab({
@@ -1883,6 +1970,19 @@ function PromptsTab({
     document.body.style.cursor = "col-resize";
     document.body.style.userSelect = "none";
   }, [filePanelWidth]);
+
+  if (agent.adapterType === "letta_cloud") {
+    return (
+      <LettaHeartbeatPromptEditor
+        agent={agent}
+        companyId={companyId}
+        onDirtyChange={onDirtyChange}
+        onSaveActionChange={onSaveActionChange}
+        onCancelActionChange={onCancelActionChange}
+        onSavingChange={onSavingChange}
+      />
+    );
+  }
 
   if (!isLocal) {
     return (
