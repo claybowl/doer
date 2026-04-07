@@ -1,14 +1,15 @@
-import type { CreateConfigValues, TranscriptEntry } from "@paperclipai/adapter-utils";
+import type { TranscriptEntry } from "@paperclipai/adapter-utils";
+import type { LettaCreateConfigValues } from "../shared/types.js";
 
-export function buildLettaCloudConfig(values: CreateConfigValues): Record<string, unknown> {
+export function buildLettaCloudConfig(values: LettaCreateConfigValues): Record<string, unknown> {
   return {
-    agentId: (values as Record<string, unknown>).agentId ?? "",
-    apiKey: (values as Record<string, unknown>).apiKey ?? "",
-    baseUrl: (values as Record<string, unknown>).baseUrl ?? "",
+    agentId: values.agentId ?? "",
+    apiKey: values.apiKey ?? "",
+    baseUrl: values.baseUrl ?? "",
     model: values.model ?? "",
-    temperature: (values as Record<string, unknown>).temperature ?? 0.7,
-    maxTokens: (values as Record<string, unknown>).maxTokens ?? 4096,
-    heartbeatPrompt: (values as Record<string, unknown>).heartbeatPrompt ?? "",
+    temperature: values.temperature ?? 0.7,
+    maxTokens: values.maxTokens ?? 4096,
+    heartbeatPrompt: values.heartbeatPrompt ?? "",
   };
 }
 

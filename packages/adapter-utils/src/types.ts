@@ -317,6 +317,40 @@ export interface CLIAdapterModule {
 }
 
 // ---------------------------------------------------------------------------
+// Schema-driven adapter config form types
+// Adapters can expose a config schema via GET /api/adapters/{type}/config-schema.
+// The UI renders the form automatically using SchemaConfigFields.
+// ---------------------------------------------------------------------------
+
+export type ConfigFieldType = "text" | "textarea" | "toggle" | "number" | "select" | "combobox";
+
+export interface ConfigFieldSchema {
+  /** Unique key — maps to the adapterConfig field name */
+  key: string;
+  /** Display label shown in the form */
+  label: string;
+  /** Input type controlling which UI widget is rendered */
+  type: ConfigFieldType;
+  /** Optional hint / placeholder text shown beneath the field */
+  hint?: string;
+  /** Default value applied when the form is first opened in create mode */
+  default?: unknown;
+  /** Options list — required for "select" and "combobox" field types */
+  options?: Array<{ value: string; label: string }>;
+  /**
+   * Arbitrary metadata for advanced field behaviour.
+   * `providerModels` is a well-known key used by combobox fields to
+   * offer a provider-scoped model list: `{ [providerValue]: string[] }`.
+   */
+  meta?: Record<string, unknown>;
+}
+
+export interface AdapterConfigSchema {
+  /** Ordered list of fields to render in the adapter config form */
+  fields: ConfigFieldSchema[];
+}
+
+// ---------------------------------------------------------------------------
 // UI config form values (moved from ui/src/components/AgentConfigForm.tsx)
 // ---------------------------------------------------------------------------
 
@@ -347,4 +381,10 @@ export interface CreateConfigValues {
   maxTurnsPerRun: number;
   heartbeatEnabled: boolean;
   intervalSec: number;
+  /**
+   * Values collected by the schema-driven config form (SchemaConfigFields).
+   * Adapters that return an AdapterConfigSchema from the server receive
+   * their form values here — keyed by ConfigFieldSchema.key.
+   */
+  adapterSchemaValues?: Record<string, unknown>;
 }

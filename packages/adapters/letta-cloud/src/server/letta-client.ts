@@ -28,9 +28,9 @@ export async function fetchAgentSnapshot(config: LettaCloudAdapterConfig): Promi
 
   // PagePromise — collect all items across pages
   const rawBlocks: Record<string, unknown>[] = [];
-  for await (const b of blocksPage) rawBlocks.push(b as Record<string, unknown>);
+  for await (const b of blocksPage) rawBlocks.push(b as unknown as Record<string, unknown>);
   const rawTools: Record<string, unknown>[] = [];
-  for await (const t of toolsPage) rawTools.push(t as Record<string, unknown>);
+  for await (const t of toolsPage) rawTools.push(t as unknown as Record<string, unknown>);
 
   const blocks: LettaMemoryBlock[] = rawBlocks.map((b: Record<string, unknown>) => ({
     id: String(b.id ?? ""),
@@ -52,12 +52,12 @@ export async function fetchAgentSnapshot(config: LettaCloudAdapterConfig): Promi
 
   return {
     agent: {
-      id: String((agent as Record<string, unknown>).id ?? ""),
-      name: String((agent as Record<string, unknown>).name ?? ""),
-      model: String((agent as Record<string, unknown>).model ?? ""),
-      agentType: String((agent as Record<string, unknown>).agent_type ?? ""),
-      system: (agent as Record<string, unknown>).system ? String((agent as Record<string, unknown>).system) : undefined,
-      tags: Array.isArray((agent as Record<string, unknown>).tags) ? ((agent as Record<string, unknown>).tags as unknown[]).map(String) : [],
+      id: String((agent as unknown as Record<string, unknown>).id ?? ""),
+      name: String((agent as unknown as Record<string, unknown>).name ?? ""),
+      model: String((agent as unknown as Record<string, unknown>).model ?? ""),
+      agentType: String((agent as unknown as Record<string, unknown>).agent_type ?? ""),
+      system: (agent as unknown as Record<string, unknown>).system ? String((agent as unknown as Record<string, unknown>).system) : undefined,
+      tags: Array.isArray((agent as unknown as Record<string, unknown>).tags) ? ((agent as unknown as Record<string, unknown>).tags as unknown[]).map(String) : [],
     },
     blocks,
     tools,
@@ -71,17 +71,17 @@ export async function updateMemoryBlock(
   value: string,
 ): Promise<void> {
   const client = getLettaClient(config);
-  await client.agents.blocks.update(config.agentId, blockLabel as "human", { value });
+  await client.agents.blocks.update(blockLabel, { agent_id: config.agentId, value });
 }
 
 /** Attach a tool by tool ID */
 export async function attachTool(config: LettaCloudAdapterConfig, toolId: string): Promise<void> {
   const client = getLettaClient(config);
-  await client.agents.tools.attach(config.agentId, toolId);
+  await client.agents.tools.attach(toolId, { agent_id: config.agentId });
 }
 
 /** Detach a tool by tool ID */
 export async function detachTool(config: LettaCloudAdapterConfig, toolId: string): Promise<void> {
   const client = getLettaClient(config);
-  await client.agents.tools.detach(config.agentId, toolId);
+  await client.agents.tools.detach(toolId, { agent_id: config.agentId });
 }

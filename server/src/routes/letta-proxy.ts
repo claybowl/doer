@@ -33,7 +33,7 @@ export function lettaProxyRoutes(db: Db) {
     if (agent.adapterType !== "letta_cloud") {
       throw new Error(`Agent ${agentId} is not a letta_cloud adapter (got: ${agent.adapterType})`);
     }
-    return agent.adapterConfig as LettaCloudAdapterConfig;
+    return agent.adapterConfig as unknown as LettaCloudAdapterConfig;
   }
 
   function errorStatus(message: string): number {
@@ -46,7 +46,7 @@ export function lettaProxyRoutes(db: Db) {
   /** GET /agents/:papercipAgentId/letta */
   router.get("/:papercipAgentId/letta", async (req: Request, res: Response) => {
     try {
-      const config = await getAgentAdapterConfig(req.params.papercipAgentId);
+      const config = await getAgentAdapterConfig(String(req.params.papercipAgentId));
       const snapshot = await fetchAgentSnapshot(config);
       res.json(snapshot);
     } catch (err: unknown) {
@@ -63,7 +63,7 @@ export function lettaProxyRoutes(db: Db) {
       return;
     }
     try {
-      const config = await getAgentAdapterConfig(req.params.papercipAgentId);
+      const config = await getAgentAdapterConfig(String(req.params.papercipAgentId));
       await updateMemoryBlock(config, blockLabel, value);
       res.json({ ok: true });
     } catch (err: unknown) {
@@ -80,7 +80,7 @@ export function lettaProxyRoutes(db: Db) {
       return;
     }
     try {
-      const config = await getAgentAdapterConfig(req.params.papercipAgentId);
+      const config = await getAgentAdapterConfig(String(req.params.papercipAgentId));
       await attachTool(config, toolId);
       res.json({ ok: true });
     } catch (err: unknown) {
@@ -97,7 +97,7 @@ export function lettaProxyRoutes(db: Db) {
       return;
     }
     try {
-      const config = await getAgentAdapterConfig(req.params.papercipAgentId);
+      const config = await getAgentAdapterConfig(String(req.params.papercipAgentId));
       await detachTool(config, toolId);
       res.json({ ok: true });
     } catch (err: unknown) {

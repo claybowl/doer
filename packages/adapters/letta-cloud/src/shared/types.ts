@@ -56,6 +56,21 @@ export interface LettaTool {
   defaultRequiresApproval?: boolean;
 }
 
+/**
+ * Form values specific to the Letta Cloud adapter configuration UI.
+ * Used by `buildLettaCloudConfig` in the UI adapter — distinct from the
+ * generic `CreateConfigValues` so letta-specific fields are typed correctly.
+ */
+export interface LettaCreateConfigValues {
+  agentId: string;
+  apiKey: string;
+  baseUrl?: string;
+  model?: string;
+  temperature?: number | string;
+  maxTokens?: number | string;
+  heartbeatPrompt?: string;
+}
+
 export interface LettaAgentSnapshot {
   agent: {
     id: string;

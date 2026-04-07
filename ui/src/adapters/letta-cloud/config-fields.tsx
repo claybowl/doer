@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Eye, EyeOff, Plus, Trash2, Lock } from "lucide-react";
-import type { AdapterConfigFieldsProps } from "../types";
+import type { AdapterConfigFieldsProps, CreateConfigValues } from "../types";
 import { Field, DraftInput } from "../../components/agent-config-primitives";
 import type { LettaMemoryBlock, LettaTool } from "@paperclipai/adapter-letta-cloud";
 
@@ -248,15 +248,15 @@ export function LettaCloudConfigFields({
   const [loadError, setLoadError] = useState<string | null>(null);
 
   const agentId = isCreate
-    ? ((values as Record<string, unknown>)?.agentId as string ?? "")
+    ? ((values as unknown as Record<string, unknown>)?.agentId as string ?? "")
     : (eff("adapterConfig", "agentId", String(config?.agentId ?? "")) as string);
 
   const apiKey = isCreate
-    ? ((values as Record<string, unknown>)?.apiKey as string ?? "")
+    ? ((values as unknown as Record<string, unknown>)?.apiKey as string ?? "")
     : (eff("adapterConfig", "apiKey", String(config?.apiKey ?? "")) as string);
 
   const baseUrl = isCreate
-    ? ((values as Record<string, unknown>)?.baseUrl as string ?? "")
+    ? ((values as unknown as Record<string, unknown>)?.baseUrl as string ?? "")
     : (eff("adapterConfig", "baseUrl", String(config?.baseUrl ?? "")) as string);
 
   // Load snapshot when we have agentId + apiKey (edit mode only)
@@ -314,12 +314,12 @@ export function LettaCloudConfigFields({
 
   const setField = (field: string, v: unknown) =>
     isCreate
-      ? set?.({ [field]: v } as Partial<typeof values>)
+      ? set?.({ [field]: v } as unknown as Partial<CreateConfigValues>)
       : mark("adapterConfig", field, v);
 
   const getField = (field: string, fallback: string) =>
     isCreate
-      ? (((values as Record<string, unknown>)?.[field] as string) ?? fallback)
+      ? (((values as unknown as Record<string, unknown>)?.[field] as string) ?? fallback)
       : (eff("adapterConfig", field, fallback) as string);
 
   return (

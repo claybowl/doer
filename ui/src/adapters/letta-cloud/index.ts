@@ -7,5 +7,8 @@ export const lettaCloudUIAdapter: UIAdapterModule = {
   label: "Letta Cloud",
   parseStdoutLine: parseLettaCloudStdoutLine,
   ConfigFields: LettaCloudConfigFields as UIAdapterModule["ConfigFields"],
-  buildAdapterConfig: buildLettaCloudConfig,
+  // Cast required: buildLettaCloudConfig takes LettaCreateConfigValues (its own typed form
+  // values) rather than the generic CreateConfigValues. The runtime form values always
+  // include the letta-specific fields; the cast makes the adapter registration compile.
+  buildAdapterConfig: buildLettaCloudConfig as unknown as UIAdapterModule["buildAdapterConfig"],
 };

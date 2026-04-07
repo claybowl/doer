@@ -126,6 +126,9 @@ export const queryKeys = {
   skills: {
     available: ["skills", "available"] as const,
   },
+  adapters: {
+    all: ["adapters"] as const,
+  },
   plugins: {
     all: ["plugins"] as const,
     examples: ["plugins", "examples"] as const,

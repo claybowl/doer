@@ -39,22 +39,29 @@ describe("parseLettaCloudStdoutLine", () => {
   it("parses a plain assistant message", () => {
     const entries = parseLettaCloudStdoutLine("Hello from DonDog", ts);
     expect(entries.length).toBeGreaterThan(0);
-    expect(entries[0].role).toBe("assistant");
+    expect(entries[0].kind).toBe("assistant");
   });
 
   it("parses a [thinking] prefix as reasoning", () => {
     const entries = parseLettaCloudStdoutLine("[thinking] Evaluating options…", ts);
     expect(entries.length).toBeGreaterThan(0);
-    // Should be marked as thinking/reasoning
     const entry = entries[0];
-    expect(entry.content).toContain("Evaluating options");
+    expect(entry.kind).toBe("thinking");
+    // text field carries the content for thinking entries
+    if (entry.kind === "thinking") {
+      expect(entry.text).toContain("Evaluating options");
+    }
   });
 
   it("parses a [tool: name] prefix as tool call", () => {
     const entries = parseLettaCloudStdoutLine("[tool: create_linear_task] running…", ts);
     expect(entries.length).toBeGreaterThan(0);
     const entry = entries[0];
-    expect(entry.content).toContain("create_linear_task");
+    expect(entry.kind).toBe("tool_call");
+    // name field carries the tool name for tool_call entries
+    if (entry.kind === "tool_call") {
+      expect(entry.name).toContain("create_linear_task");
+    }
   });
 
   it("returns empty array for empty string", () => {

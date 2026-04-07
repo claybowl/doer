@@ -8,7 +8,7 @@ import { fetchAgentSnapshot } from "./letta-client.js";
 export async function testEnvironment(
   ctx: AdapterEnvironmentTestContext,
 ): Promise<AdapterEnvironmentTestResult> {
-  const config = ctx.config as LettaCloudAdapterConfig;
+  const config = ctx.config as unknown as LettaCloudAdapterConfig;
   const testedAt = new Date().toISOString();
 
   if (!config.apiKey?.trim()) {

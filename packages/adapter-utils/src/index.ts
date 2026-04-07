@@ -29,6 +29,9 @@ export type {
   StdoutLineParser,
   CLIAdapterModule,
   CreateConfigValues,
+  ConfigFieldType,
+  ConfigFieldSchema,
+  AdapterConfigSchema,
 } from "./types.js";
 export type {
   SessionCompactionPolicy,

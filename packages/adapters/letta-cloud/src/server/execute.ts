@@ -23,7 +23,7 @@ function extractText(msg: Record<string, unknown>): string | null {
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
-  const config = ctx.config as LettaCloudAdapterConfig;
+  const config = ctx.config as unknown as LettaCloudAdapterConfig;
 
   if (!config.agentId || !config.apiKey) {
     await ctx.onLog("stderr", "[letta-cloud] Missing agentId or apiKey in adapter config\n");
@@ -71,7 +71,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       messages: [{ role: "user", content: userMessage }],
     });
 
-    const messages = (response as Record<string, unknown>).messages;
+    const messages = (response as unknown as Record<string, unknown>).messages;
     if (Array.isArray(messages)) {
       for (const msg of messages as Record<string, unknown>[]) {
         const text = extractText(msg);

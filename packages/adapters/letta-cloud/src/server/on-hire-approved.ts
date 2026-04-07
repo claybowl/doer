@@ -11,7 +11,7 @@ export async function onHireApproved(
   _payload: HireApprovedPayload,
   adapterConfig: Record<string, unknown>,
 ): Promise<HireApprovedHookResult> {
-  const config = adapterConfig as LettaCloudAdapterConfig;
+  const config = adapterConfig as unknown as LettaCloudAdapterConfig;
 
   if (!config.agentId || !config.apiKey) {
     return { ok: true }; // non-fatal — user can still configure manually
