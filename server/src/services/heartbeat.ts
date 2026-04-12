@@ -2429,7 +2429,12 @@ export function heartbeatService(db: Db) {
           },
         });
       };
+      // Cloud adapters (no local sessionCodec) don't use a local workspace —
+      // they run entirely in the cloud. Suppress workspace-fallback warnings for
+      // them so non-technical clients never see internal path noise.
+      const isCloudAdapter = !SESSIONED_LOCAL_ADAPTERS.has(agent.adapterType);
       for (const warning of runtimeWorkspaceWarnings) {
+        if (isCloudAdapter && warning.includes("workspace")) continue;
         const logEntry = formatRuntimeWorkspaceWarningLog(warning);
         await onLog(logEntry.stream, logEntry.chunk);
       }

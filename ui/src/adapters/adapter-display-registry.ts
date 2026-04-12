@@ -89,6 +89,11 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     description: "Local Cursor agent",
     icon: MousePointer2,
   },
+  letta_cloud: {
+    label: "Letta Cloud",
+    description: "Cloud-hosted Letta agent with persistent memory",
+    icon: Bot,
+  },
   openclaw_gateway: {
     label: "OpenClaw Gateway",
     description: "Invoke OpenClaw via gateway protocol",

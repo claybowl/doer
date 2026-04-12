@@ -79,6 +79,8 @@ import {
   execute as lettaExecute,
   testEnvironment as lettaTestEnvironment,
   onHireApproved as lettaOnHireApproved,
+  listLettaSkills,
+  syncLettaSkills,
 } from "@paperclipai/adapter-letta-cloud/server";
 import {
   agentConfigurationDoc as lettaAgentConfigurationDoc,
@@ -195,6 +197,8 @@ const lettaCloudAdapter: ServerAdapterModule = {
   execute: lettaExecute,
   testEnvironment: lettaTestEnvironment,
   onHireApproved: lettaOnHireApproved,
+  listSkills: listLettaSkills,
+  syncSkills: syncLettaSkills,
   models: lettaModels,
   supportsLocalAgentJwt: false,
   agentConfigurationDoc: lettaAgentConfigurationDoc,

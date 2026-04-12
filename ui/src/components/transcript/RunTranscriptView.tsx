@@ -281,6 +281,48 @@ function shouldHideNiceModeStderr(text: string): boolean {
   return normalized.startsWith("[paperclip] skipping saved session resume");
 }
 
+/** True when a stderr message is a warning rather than a hard error. */
+function isStderrWarning(text: string): boolean {
+  const normalized = compactWhitespace(text).toLowerCase();
+  return (
+    normalized.includes("[paperclip] warning:") ||
+    normalized.startsWith("warning:") ||
+    normalized.startsWith("warn:")
+  );
+}
+
+/**
+ * Returns true for system messages that are pure lifecycle noise and should
+ * be silently dropped in nice mode — users don't need to see internal
+ * run/step lifecycle signals.
+ */
+function isLifecycleNoise(text: string): boolean {
+  const normalized = compactWhitespace(text).toLowerCase();
+  // Turn/run/step lifecycle signals
+  if (normalized === "turn started" || normalized === "run started" || normalized === "run completed") return true;
+  if (normalized === "stop" || normalized === "stopped" || normalized === "done") return true;
+  // "step started (ses_xxx)" and "step completed (ses_xxx)" — any capitalisation, optional session ID
+  if (/^step\s+(started|completed)(\s+\([^)]*\))?$/i.test(text.trim())) return true;
+  // Raw session IDs surfaced as standalone messages
+  if (/^ses_[a-z0-9]+$/i.test(text.trim())) return true;
+  return false;
+}
+
+/**
+ * Map internal event label keys to human-readable display strings.
+ * Clients see their agents as colleagues — no jargon.
+ */
+function friendlyEventLabel(label: string): string {
+  switch (label) {
+    case "init":   return "starting";
+    case "system": return "note";
+    case "stderr": return "notice";
+    case "stdout": return "details";
+    case "result": return "done";
+    default:       return label;
+  }
+}
+
 function groupCommandBlocks(blocks: TranscriptBlock[]): TranscriptBlock[] {
   const grouped: TranscriptBlock[] = [];
   let pending: Array<Extract<TranscriptBlock, { type: "command_group" }>["items"][number]> = [];
@@ -412,12 +454,13 @@ export function normalizeTranscript(entries: TranscriptEntry[], streaming: boole
     }
 
     if (entry.kind === "init") {
+      // Session start — show the model in a friendly way, never expose raw session IDs
       blocks.push({
         type: "event",
         ts: entry.ts,
         label: "init",
         tone: "info",
-        text: `model ${entry.model}${entry.sessionId ? ` • session ${entry.sessionId}` : ""}`,
+        text: entry.model ? `Running on ${entry.model}` : "Session started",
       });
       continue;
     }
@@ -437,18 +480,21 @@ export function normalizeTranscript(entries: TranscriptEntry[], streaming: boole
       if (shouldHideNiceModeStderr(entry.text)) {
         continue;
       }
+      // Warnings get amber treatment; only genuine errors go red
+      const isWarning = isStderrWarning(entry.text);
       blocks.push({
         type: "event",
         ts: entry.ts,
         label: "stderr",
-        tone: "error",
+        tone: isWarning ? "warn" : "error",
         text: entry.text,
       });
       continue;
     }
 
     if (entry.kind === "system") {
-      if (compactWhitespace(entry.text).toLowerCase() === "turn started") {
+      // Suppress all internal lifecycle noise — clients don't need to see this
+      if (isLifecycleNoise(entry.text)) {
         continue;
       }
       const activity = parseSystemActivity(entry.text);
@@ -493,6 +539,11 @@ export function normalizeTranscript(entries: TranscriptEntry[], streaming: boole
       activeCommandBlock.result = activeCommandBlock.result
         ? `${activeCommandBlock.result}${activeCommandBlock.result.endsWith("\n") || entry.text.startsWith("\n") ? entry.text : `\n${entry.text}`}`
         : entry.text;
+      continue;
+    }
+
+    // Drop terminal noise that leaks through as stdout
+    if (isLifecycleNoise(entry.text)) {
       continue;
     }
 
@@ -867,7 +918,7 @@ function TranscriptEventRow({
           ) : (
             <div className={cn("whitespace-pre-wrap break-words", compact ? "text-[11px]" : "text-xs")}>
               <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-muted-foreground/70">
-                {block.label}
+                {friendlyEventLabel(block.label)}
               </span>
               {block.text ? <span className="ml-2">{block.text}</span> : null}
             </div>
@@ -898,7 +949,7 @@ function TranscriptStdoutRow({
     <div>
       <div className="flex items-center gap-2">
         <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          stdout
+          details
         </span>
         <button
           type="button"
