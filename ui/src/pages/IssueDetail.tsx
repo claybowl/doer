@@ -28,6 +28,7 @@ import { ScrollToBottom } from "../components/ScrollToBottom";
 import { StatusIcon } from "../components/StatusIcon";
 import { PriorityIcon } from "../components/PriorityIcon";
 import { StatusBadge } from "../components/StatusBadge";
+import { AttachmentPreview } from "../components/AttachmentPreview";
 import { Identity } from "../components/Identity";
 import { PluginSlotMount, PluginSlotOutlet, usePluginSlots } from "@/plugins/slots";
 import { PluginLauncherOutlet } from "@/plugins/launchers";
@@ -650,7 +651,6 @@ export function IssueDetail() {
     }
   };
 
-  const isImageAttachment = (attachment: IssueAttachment) => attachment.contentType.startsWith("image/");
   const attachmentList = attachments ?? [];
   const hasAttachments = attachmentList.length > 0;
   const attachmentUploadButton = (
@@ -976,16 +976,7 @@ export function IssueDetail() {
               <p className="text-[11px] text-muted-foreground">
                 {attachment.contentType} · {(attachment.byteSize / 1024).toFixed(1)} KB
               </p>
-              {isImageAttachment(attachment) && (
-                <a href={attachment.contentPath} target="_blank" rel="noreferrer">
-                  <img
-                    src={attachment.contentPath}
-                    alt={attachment.originalFilename ?? "attachment"}
-                    className="mt-2 max-h-56 rounded border border-border object-contain bg-accent/10"
-                    loading="lazy"
-                  />
-                </a>
-              )}
+              <AttachmentPreview attachment={attachment} />
             </div>
           ))}
         </div>

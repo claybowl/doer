@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import multer from "multer";
 import type { Db } from "@paperclipai/db";
@@ -1499,6 +1500,16 @@ export function issueRoutes(db: Db, storage: StorageService) {
     }
 
     const actor = getActorInfo(req);
+
+    // Dedup: if the same file (by sha256) is already attached to this issue, return the existing attachment.
+    const incomingSha256 = createHash("sha256").update(file.buffer).digest("hex");
+    const existingAttachments = await svc.listAttachments(issueId);
+    const duplicate = existingAttachments.find((a) => a.sha256 === incomingSha256);
+    if (duplicate) {
+      res.status(200).json(withContentPath(duplicate));
+      return;
+    }
+
     const stored = await storage.putFile({
       companyId,
       namespace: `issues/${issueId}`,
