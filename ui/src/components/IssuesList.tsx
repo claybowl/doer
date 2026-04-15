@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from "@/components/ui/collapsible";
-import { CircleDot, Plus, Filter, ArrowUpDown, Layers, Check, X, ChevronRight, List, Columns3, User, Search } from "lucide-react";
+import { CircleDot, Plus, Filter, ArrowUpDown, Layers, Check, X, ChevronRight, List, Columns3, User, Search, Rows3 } from "lucide-react";
 import { KanbanBoard } from "./KanbanBoard";
 import type { Issue } from "@paperclipai/shared";
 
@@ -47,6 +47,10 @@ export type IssueViewState = {
   groupBy: "status" | "priority" | "assignee" | "none";
   viewMode: "list" | "board";
   collapsedGroups: string[];
+  // Board-specific
+  swimlaneBy: "none" | "assignee" | "priority";
+  collapsedKanbanColumns: string[];
+  wipLimits: Record<string, number>;
 };
 
 const defaultViewState: IssueViewState = {
@@ -60,6 +64,9 @@ const defaultViewState: IssueViewState = {
   groupBy: "none",
   viewMode: "list",
   collapsedGroups: [],
+  swimlaneBy: "none",
+  collapsedKanbanColumns: [],
+  wipLimits: {},
 };
 
 const quickFilterPresets = [
@@ -397,6 +404,43 @@ export function IssuesList({
             </button>
           </div>
 
+          {/* Swimlane toggle (only in board mode) */}
+          {viewState.viewMode === "board" && (
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`text-xs ${viewState.swimlaneBy !== "none" ? "text-blue-600 dark:text-blue-400" : ""}`}
+                  title="Swimlanes"
+                >
+                  <Rows3 className="h-3.5 w-3.5 sm:mr-1" />
+                  <span className="hidden sm:inline">
+                    {viewState.swimlaneBy === "none" ? "Swimlanes" : `By ${viewState.swimlaneBy}`}
+                  </span>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-44 p-1">
+                {(["none", "assignee", "priority"] as const).map((opt) => (
+                  <button
+                    key={opt}
+                    onClick={() => updateView({ swimlaneBy: opt })}
+                    className={`w-full text-left px-2 py-1.5 text-sm rounded flex items-center gap-2 ${
+                      viewState.swimlaneBy === opt
+                        ? "bg-accent text-foreground"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                    }`}
+                  >
+                    {viewState.swimlaneBy === opt && <Check className="h-3.5 w-3.5" />}
+                    <span className={viewState.swimlaneBy === opt ? "" : "ml-5"}>
+                      {opt === "none" ? "No swimlanes" : `By ${opt}`}
+                    </span>
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
+
           {/* Filter */}
           <Popover>
             <PopoverTrigger asChild>
@@ -663,7 +707,24 @@ export function IssuesList({
           issues={filtered}
           agents={agents}
           liveIssueIds={liveIssueIds}
+          wipLimits={viewState.wipLimits}
+          swimlaneBy={viewState.swimlaneBy}
+          collapsedColumns={viewState.collapsedKanbanColumns}
           onUpdateIssue={onUpdateIssue}
+          onToggleColumn={(status) =>
+            updateView({
+              collapsedKanbanColumns: viewState.collapsedKanbanColumns.includes(status)
+                ? viewState.collapsedKanbanColumns.filter((s) => s !== status)
+                : [...viewState.collapsedKanbanColumns, status],
+            })
+          }
+          onSetWipLimit={(status, limit) =>
+            updateView({
+              wipLimits: limit === undefined
+                ? Object.fromEntries(Object.entries(viewState.wipLimits).filter(([k]) => k !== status))
+                : { ...viewState.wipLimits, [status]: limit },
+            })
+          }
         />
       ) : (
         groupedContent.map((group) => (
