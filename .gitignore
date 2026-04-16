@@ -1,6 +1,12 @@
 node_modules/
 dist/
+
+# Environment files — all variants ignored; only *.example templates tracked
 .env
+.env.*
+!.env.example
+!scripts/.env.example
+
 *.tsbuildinfo
 drizzle/meta/
 .vite/
