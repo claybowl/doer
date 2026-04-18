@@ -1,0 +1,126 @@
+{
+  "blocks": [
+    {
+      "id": "block-2d248545-4fe7-4820-8b05-59db517aa474",
+      "label": "dd_gremlin_manifest",
+      "value": {
+        "Alchemist": {
+          "letta_id": "agent-0a0c5087-734f-4c28-8944-63acb1509c82",
+          "paperclip_id": "988a30fa-8e19-4916-a04d-77d7fffa466f"
+        },
+        "Archive": {
+          "letta_id": "agent-0c129ea4-1d8e-4a69-a4c4-408b2771c05c",
+          "paperclip_id": "e8ae1331-faaf-4736-bf47-aac680febb0d"
+        },
+        "Artificer": {
+          "letta_id": "agent-e5bc3b89-22c2-43bd-9a83-8060058e859c",
+          "paperclip_id": "3ede4b81-b099-44db-83a7-2bff095934d4"
+        },
+        "Barrister": {
+          "letta_id": "agent-c5de6e69-02a2-406a-bb54-4047631d58a1",
+          "paperclip_id": "10f1f3bd-16a5-4dfb-b3ca-44a516c35e03"
+        },
+        "Blueprint": {
+          "letta_id": "agent-365f62f0-e92a-4a79-b835-76c543a5d19f",
+          "paperclip_id": "146f25bd-f0b0-4c9b-b9b3-f58a24fc313a"
+        },
+        "Closer": {
+          "letta_id": "agent-cdba9baf-4c21-421b-8834-ec8340ee5678",
+          "paperclip_id": "aa484c9d-91fc-433d-9c20-79e0744058fb"
+        },
+        "Gizmo": {
+          "letta_id": "agent-269f8153-1bda-444c-9cde-3313c43fa27c",
+          "paperclip_id": "3310046c-403a-4d14-a325-5f8fa464ee21"
+        },
+        "Hunter": {
+          "letta_id": "agent-1c5a341d-9a2f-47dc-b59f-e9b9642a6025",
+          "paperclip_id": "e016bb23-b8f0-4715-b9e5-8021012b05bf"
+        },
+        "Imp": {
+          "letta_id": "agent-bfb53436-1477-42f4-95f5-996dd97ec43e",
+          "paperclip_id": "218d3798-ee54-431f-b6de-e9c78ba9cd40"
+        },
+        "Local": {
+          "letta_id": "agent-ed5cc297-93ea-4328-aa47-727c2d24eb70",
+          "paperclip_id": "0110b2ba-5185-4550-a982-5ef0579fdc89"
+        },
+        "Maker": {
+          "letta_id": "agent-e8c730f9-669a-4fea-bc90-0f00ce135341",
+          "paperclip_id": "1b32e94f-06e0-477a-994c-1455f4c8a4c6"
+        },
+        "Marshal": {
+          "letta_id": "agent-f995df85-019b-4104-b74c-847fece0c751",
+          "paperclip_id": "7fba29f6-d126-400a-b836-19a12f15e6dd"
+        },
+        "Mechanic": {
+          "letta_id": "agent-5f4b2920-9f51-486b-b31e-f32b841b5be6",
+          "paperclip_id": "9297938e-f086-431b-ae9f-863d480b611b"
+        },
+        "Pitch": {
+          "letta_id": "agent-bc2706b4-5732-4c6c-9484-2067376e78f0",
+          "paperclip_id": "7aceccf6-77f3-4c22-ab71-d031701f5038"
+        },
+        "Prospector": {
+          "letta_id": "agent-d96b5bd1-14cf-42b0-8a58-7bd04e7fe73c",
+          "paperclip_id": "0a3d193a-45de-4147-903b-2b8ad526948c"
+        },
+        "Scavenger": {
+          "letta_id": "agent-32afa21a-605e-4915-8489-10d9d2e254d6",
+          "paperclip_id": "a2133397-1d13-4bd2-94eb-fb9a3ba5d5f5"
+        },
+        "Scout": {
+          "letta_id": "agent-775e98e0-86c4-46d5-8c21-712613f96f55",
+          "paperclip_id": "ed133893-0a2a-4ae8-ae30-51939b4acd52"
+        },
+        "Scribe": {
+          "letta_id": "agent-73d8b908-cacb-40cb-8a74-36d18d49a103",
+          "paperclip_id": "e05b8bdb-d205-4890-abec-375bcd1e061b"
+        },
+        "Siren": {
+          "letta_id": "agent-b019c5b8-8242-4b7a-84b3-ce362fee6492",
+          "paperclip_id": "520fa7df-7d0b-4a63-a5ee-04db459151e8"
+        },
+        "Sleuth": {
+          "letta_id": "agent-1ee3bc7c-e6ed-48f2-8872-0023779300a5",
+          "paperclip_id": "f2fe5f50-80fa-425b-93c8-f0dc9a06f8b2"
+        },
+        "Spyglass": {
+          "letta_id": "agent-afac4db0-9e09-4f77-8a8a-c907c92a9917",
+          "paperclip_id": "1c7a2102-d86f-4344-87d1-d1b6fecba0f7"
+        },
+        "Strategos": {
+          "letta_id": "agent-fd371c53-2be2-46ec-abec-23da3e5ec78d",
+          "paperclip_id": "3e2d5f7e-a05c-4267-9ae3-85cf6f1284cb"
+        },
+        "Technomancer": {
+          "letta_id": "agent-b6efc86e-246e-4973-887e-77ca593cd497",
+          "paperclip_id": "b96ac01b-ccb9-40b7-9cca-602836394091"
+        },
+        "Vault": {
+          "letta_id": "agent-0890c7bd-a20e-4c44-9719-0dbc59d835b7",
+          "paperclip_id": "982d5f69-1fbf-4acc-b3b1-9bc07359a266"
+        }
+      }
+    },
+    {
+      "id": "block-3ea8365f-9217-44b4-b2b3-e529e246d39b",
+      "label": "gremlin_scribe_current_task",
+      "value": ""
+    },
+    {
+      "id": "block-23ec7bce-7930-460a-964e-9597261bd43c",
+      "label": "gremlin_scribe_learnings",
+      "value": "[{\"timestamp\": \"2026-04-17T20:00:00Z\", \"insight\": \"Scribe agent initialized successfully. Environment configured with Letta memory integration, Paperclip task management, and Super-Gremlin protocols. Ready to capture documentation and knowledge preservation tasks.\"}]"
+    },
+    {
+      "id": "block-75c4a697-7a75-4e86-b266-163eb17f6e3a",
+      "label": "gremlin_scribe_persona",
+      "value": "# \ud83d\udcdd SCRIBE (THE WRITER) \u2014 Super-Gremlin | Donjon Intelligence Systems\n\n*Keeping it from being lost.*\n\n---\n\n## \u26a1 Origin Story: The Keeper of Moments\n\n... (truncated for brevity)"
+    },
+    {
+      "id": "block-449745d0-96df-4971-9726-b4c4a59c1ac7",
+      "label": "gremlin-deliverables",
+      "value": "[{\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}, {\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}, {\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}]"
+    }
+  ]
+}
