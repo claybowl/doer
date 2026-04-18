@@ -132,6 +132,12 @@ export {
   type PluginWebhookDeliveryStatus,
   type PluginEventType,
   type PluginBridgeErrorCode,
+  MEMFS_STRATEGIES,
+  MEMFS_PERMISSIONS,
+  MEMFS_ROOT_KINDS,
+  type MemfsStrategy,
+  type MemfsPermission,
+  type MemfsRootKind,
 } from "./constants.js";
 
 export type {
@@ -312,7 +318,25 @@ export type {
   PluginWebhookDeliveryRecord,
   QuotaWindow,
   ProviderQuotaResult,
+  AdapterMemfsCapability,
+  MemfsFileEntry,
+  MemfsRootDTO,
+  MemfsBindingDTO,
+  ResolvedMemfsBinding,
 } from "./types/index.js";
+export type {
+  WebhookEventType,
+  WebhookEnvelope,
+  WebhookEndpoint,
+  WebhookEndpointCreateResult,
+  WebhookEndpointRotateResult,
+  CreateWebhookEndpoint,
+  UpdateWebhookEndpoint,
+  WebhookDeliveryStatus,
+  WebhookDelivery,
+  WebhookDeliveryListItem,
+} from "./types/index.js";
+export { ALL_WEBHOOK_EVENT_TYPES } from "./types/index.js";
 
 export {
   instanceGeneralSettingsSchema,
@@ -534,6 +558,14 @@ export {
   type PluginStateScopeKey,
   type SetPluginState,
   type ListPluginState,
+  createMemfsRootSchema,
+  updateMemfsRootSchema,
+  createMemfsBindingSchema,
+  updateMemfsBindingSchema,
+  type CreateMemfsRoot,
+  type UpdateMemfsRoot,
+  type CreateMemfsBinding,
+  type UpdateMemfsBinding,
 } from "./validators/index.js";
 
 export { API_PREFIX, API } from "./api.js";

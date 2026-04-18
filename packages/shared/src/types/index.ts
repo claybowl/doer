@@ -1,4 +1,11 @@
 export type { Company } from "./company.js";
+export type {
+  AdapterMemfsCapability,
+  MemfsFileEntry,
+  MemfsRootDTO,
+  MemfsBindingDTO,
+  ResolvedMemfsBinding,
+} from "./memfs.js";
 export type { InstanceExperimentalSettings, InstanceGeneralSettings, InstanceSettings } from "./instance.js";
 export type {
   CompanySkillSourceType,
@@ -192,3 +199,16 @@ export type {
   PluginJobRunRecord,
   PluginWebhookDeliveryRecord,
 } from "./plugin.js";
+export type {
+  WebhookEventType,
+  WebhookEnvelope,
+  WebhookEndpoint,
+  WebhookEndpointCreateResult,
+  WebhookEndpointRotateResult,
+  CreateWebhookEndpoint,
+  UpdateWebhookEndpoint,
+  WebhookDeliveryStatus,
+  WebhookDelivery,
+  WebhookDeliveryListItem,
+} from "./webhook.js";
+export { ALL_WEBHOOK_EVENT_TYPES } from "./webhook.js";

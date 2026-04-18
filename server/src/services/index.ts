@@ -30,3 +30,25 @@ export { notifyHireApproved, type NotifyHireApprovedInput } from "./hire-hook.js
 export { publishLiveEvent, subscribeCompanyLiveEvents } from "./live-events.js";
 export { reconcilePersistedRuntimeServicesOnStartup } from "./workspace-runtime.js";
 export { createStorageServiceFromConfig, getStorageService } from "../storage/index.js";
+export {
+  generateWebhookSecret,
+  hashSecret,
+  verifySecretHash,
+  signWebhookPayload,
+  verifyInboundSignature,
+  SECRET_GRACE_PERIOD_MS,
+} from "./webhook-signer.js";
+export { dispatchWebhook } from "./webhook-dispatcher.js";
+export {
+  enqueueDelivery,
+  processDueDeliveries,
+  attemptDelivery,
+} from "./webhook-retry-scheduler.js";
+export {
+  webhookEventEmitter,
+  type TaskEventData,
+  type AgentEventData,
+  type WorkspaceMemberEventData,
+  type CommentEventData,
+  type WebhookEventDataMap,
+} from "./webhook-event-emitter.js";
