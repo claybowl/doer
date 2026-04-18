@@ -55,3 +55,7 @@ export { pluginEntities } from "./plugin_entities.js";
 export { pluginJobs, pluginJobRuns } from "./plugin_jobs.js";
 export { pluginWebhookDeliveries } from "./plugin_webhooks.js";
 export { pluginLogs } from "./plugin_logs.js";
+export { memfsRoots, type MemfsRootRow, type MemfsRootInsert } from "./memfs_roots.js";
+export { memfsBindings, type MemfsBindingRow, type MemfsBindingInsert } from "./memfs_bindings.js";
+export { webhookEndpoints } from "./webhook_endpoints.js";
+export { webhookDeliveries, type WebhookDeliveryStatus } from "./webhook_deliveries.js";
