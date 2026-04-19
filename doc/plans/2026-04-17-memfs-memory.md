@@ -2,19 +2,19 @@
 
 **Status:** Draft for review
 **Author:** Clay + #1
-**Target:** V1 — adapter-agnostic memfs memory surface in Paperclip
+**Target:** V1 — adapter-agnostic memfs memory surface in Doer
 
 ---
 
 ## Overview
 
-Paperclip agents need a shared memory substrate that transcends the adapter they run under. Today, memory on a Letta-Cloud agent lives as core-memory blocks (streamed into the agent config tab) and, increasingly, as memfs files on disk at `~/.letta`. Agents running under other adapters (`claude-local`, `codex-local`, `cursor-local`, etc.) have no first-class way to consume that same memory.
+Doer agents need a shared memory substrate that transcends the adapter they run under. Today, memory on a Letta-Cloud agent lives as core-memory blocks (streamed into the agent config tab) and, increasingly, as memfs files on disk at `~/.letta`. Agents running under other adapters (`claude-local`, `codex-local`, `cursor-local`, etc.) have no first-class way to consume that same memory.
 
-This plan introduces a **first-class memfs layer at the agent level**, with each adapter declaring *how* it ingests memory via a pluggable strategy. `~/.letta` remains the filesystem source of truth. Paperclip owns bindings, display, and strategy routing; it does not own the content.
+This plan introduces a **first-class memfs layer at the agent level**, with each adapter declaring *how* it ingests memory via a pluggable strategy. `~/.letta` remains the filesystem source of truth. Doer owns bindings, display, and strategy routing; it does not own the content.
 
 ## Key V1 Decisions
 
-1. **`~/.letta` is the source of truth.** Paperclip does not host a git repo, object store, or Postgres-backed content store. A `MemfsStore` interface wraps the filesystem; `LocalFsStore` is the only V1 implementation.
+1. **`~/.letta` is the source of truth.** Doer does not host a git repo, object store, or Postgres-backed content store. A `MemfsStore` interface wraps the filesystem; `LocalFsStore` is the only V1 implementation.
 2. **Strategy pattern at the adapter layer.** Each adapter declares a `AdapterMemfsCapability` with supported strategies and a default. Per-agent bindings can override the default.
 3. **V1 ships two strategies only:** `native-letta` (read-only passthrough for Letta Cloud) and `fs-mount` (symlink per-agent memory into the adapter's working directory, for Claude/Codex/Cursor/OpenCode).
 4. **Postgres stores bindings, not content.** Two new tables: `memfs_bindings` and `memfs_roots`.
@@ -30,7 +30,7 @@ This plan introduces a **first-class memfs layer at the agent level**, with each
 - **Not** a knowledge graph.
 - **Not** a multi-tenant cloud-hosted memory service. Runs against a local filesystem path only.
 - **Not** cross-agent write coordination. Reads only in V1.
-- **Not** writes from Paperclip MCP or REST surface. Letta remains the writer.
+- **Not** writes from Doer MCP or REST surface. Letta remains the writer.
 
 ---
 
@@ -66,10 +66,10 @@ The root path is configurable via env var `MEMFS_ROOT` (defaults to `~/.letta`).
 // packages/shared/src/memfs.ts
 
 export type MemfsStrategy =
-  | "native-letta"          // Letta's own memory runtime owns read/write; Paperclip observes
+  | "native-letta"          // Letta's own memory runtime owns read/write; Doer observes
   | "fs-mount"              // Symlink agent memory path into adapter working dir
-  | "mcp-server"            // [V2] Paperclip exposes memfs as MCP; agent connects
-  | "tool-callable"         // [V3] Paperclip exposes REST; adapter registers as custom tool
+  | "mcp-server"            // [V2] Doer exposes memfs as MCP; agent connects
+  | "tool-callable"         // [V3] Doer exposes REST; adapter registers as custom tool
   | "system-prompt-inject"  // [V3] Stuff memory into boot prompt (for light adapters)
   | "none";
 
@@ -94,8 +94,8 @@ export interface AdapterMemfsCapability {
 
 ### Strategy semantics
 
-- **`native-letta`** — Paperclip reads from `~/.letta/agents/<id>/memory/**` for display and audit; Letta's own runtime handles reads/writes during agent execution. No filesystem manipulation from Paperclip.
-- **`fs-mount`** — At agent execution start, Paperclip's `ExecutionWorkspaceService` creates a symlink from `~/.letta/agents/<agent-id>/memory/` into a known path inside the adapter's working directory (e.g., `.memory/`). The adapter's agent reads/writes normally via its own file tools. Symlink is scoped to the agent's own memory plus any SHARED paths bound to the agent.
+- **`native-letta`** — Doer reads from `~/.letta/agents/<id>/memory/**` for display and audit; Letta's own runtime handles reads/writes during agent execution. No filesystem manipulation from Doer.
+- **`fs-mount`** — At agent execution start, Doer's `ExecutionWorkspaceService` creates a symlink from `~/.letta/agents/<agent-id>/memory/` into a known path inside the adapter's working directory (e.g., `.memory/`). The adapter's agent reads/writes normally via its own file tools. Symlink is scoped to the agent's own memory plus any SHARED paths bound to the agent.
 - **`none`** — No binding. Adapter ignores memfs.
 - **Deferred strategies** (`mcp-server`, `tool-callable`, `system-prompt-inject`) — spec only in V1; no implementation.
 
@@ -237,7 +237,7 @@ server/src/services/memfs/
 ├── binding-resolver.ts      # resolve effective strategy for (agent, path)
 └── strategies/
     ├── index.ts
-    ├── native-letta.ts      # no-op mount logic; Paperclip only observes
+    ├── native-letta.ts      # no-op mount logic; Doer only observes
     └── fs-mount.ts          # symlink provisioning at execution start
 ```
 
@@ -272,7 +272,7 @@ for (const binding of bindings) {
 
 For V1:
 - `native-letta.mount` → no-op.
-- `fs-mount.mount` → create symlink `${workspace}/${binding.mountAs ?? '.memory'}/${binding.label}` → `${root.rootPath}/${binding.pathPrefix}`. Permission `read` is enforced at the filesystem layer via mount flags where possible, and at the strategy layer as a soft guard (V1 does not yet write from Paperclip).
+- `fs-mount.mount` → create symlink `${workspace}/${binding.mountAs ?? '.memory'}/${binding.label}` → `${root.rootPath}/${binding.pathPrefix}`. Permission `read` is enforced at the filesystem layer via mount flags where possible, and at the strategy layer as a soft guard (V1 does not yet write from Doer).
 
 ---
 

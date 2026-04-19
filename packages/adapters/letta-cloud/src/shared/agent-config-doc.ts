@@ -1,7 +1,7 @@
 export const agentConfigurationDoc = `
 # Letta Cloud Adapter
 
-Connect any Letta Cloud agent to Paperclip by providing an Agent ID and API key.
+Connect any Letta Cloud agent to Doer by providing an Agent ID and API key.
 Memory blocks are loaded live and editable directly from the config panel.
 
 ## Connection
@@ -34,7 +34,7 @@ You can attach/detach tools by providing a Letta Tool ID.
 ## Running the Agent
 
 Tasks sent to this agent are delivered as user messages to the Letta agent via the
-Letta Cloud messages API. Responses are streamed back to the Paperclip transcript.
+Letta Cloud messages API. Responses are streamed back to the Doer transcript.
 
 ## Examples
 

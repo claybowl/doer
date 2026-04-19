@@ -10,9 +10,9 @@ describe("log redaction", () => {
     const userName = "paperclipuser";
     const maskedUserName = maskUserNameForLogs(userName);
     const input = [
-      `cwd=/Users/${userName}/paperclip`,
+      `cwd=/Users/${userName}/doer`,
       `home=/home/${userName}/workspace`,
-      `win=C:\\Users\\${userName}\\paperclip`,
+      `win=C:\\Users\\${userName}\\doer`,
     ].join("\n");
 
     const result = redactCurrentUserText(input, {
@@ -20,9 +20,9 @@ describe("log redaction", () => {
       homeDirs: [`/Users/${userName}`, `/home/${userName}`, `C:\\Users\\${userName}`],
     });
 
-    expect(result).toContain(`cwd=/Users/${maskedUserName}/paperclip`);
+    expect(result).toContain(`cwd=/Users/${maskedUserName}/doer`);
     expect(result).toContain(`home=/home/${maskedUserName}/workspace`);
-    expect(result).toContain(`win=C:\\Users\\${maskedUserName}\\paperclip`);
+    expect(result).toContain(`win=C:\\Users\\${maskedUserName}\\doer`);
     expect(result).not.toContain(userName);
   });
 
@@ -46,8 +46,8 @@ describe("log redaction", () => {
     const userName = "paperclipuser";
     const maskedUserName = maskUserNameForLogs(userName);
     const result = redactCurrentUserValue({
-      cwd: `/Users/${userName}/paperclip`,
-      prompt: `open /Users/${userName}/paperclip/ui`,
+      cwd: `/Users/${userName}/doer`,
+      prompt: `open /Users/${userName}/doer/ui`,
       nested: {
         author: userName,
       },
@@ -58,8 +58,8 @@ describe("log redaction", () => {
     });
 
     expect(result).toEqual({
-      cwd: `/Users/${maskedUserName}/paperclip`,
-      prompt: `open /Users/${maskedUserName}/paperclip/ui`,
+      cwd: `/Users/${maskedUserName}/doer`,
+      prompt: `open /Users/${maskedUserName}/doer/ui`,
       nested: {
         author: maskedUserName,
       },
@@ -68,7 +68,7 @@ describe("log redaction", () => {
   });
 
   it("skips redaction when disabled", () => {
-    const input = "cwd=/Users/paperclipuser/paperclip";
+    const input = "cwd=/Users/paperclipuser/doer";
     expect(redactCurrentUserText(input, { enabled: false })).toBe(input);
   });
 });

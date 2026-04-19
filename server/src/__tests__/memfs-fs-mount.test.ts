@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import type { ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { ResolvedMemfsBinding } from "@doerai/shared";
 import { resolveMemfsStrategies } from "../services/memfs/strategies/index.js";
 import { fsMountStrategy } from "../services/memfs/strategies/fs-mount.js";
 
@@ -45,8 +45,8 @@ describe("memfs fs-mount strategy", () => {
   let workingDir: string;
 
   beforeEach(async () => {
-    rootDir = await mkTempDir("paperclip-memfs-root-");
-    workingDir = await mkTempDir("paperclip-memfs-cwd-");
+    rootDir = await mkTempDir("doer-memfs-root-");
+    workingDir = await mkTempDir("doer-memfs-cwd-");
   });
 
   afterEach(async () => {
@@ -155,8 +155,8 @@ describe("resolveMemfsStrategies orchestrator", () => {
   let workingDir: string;
 
   beforeEach(async () => {
-    rootDir = await mkTempDir("paperclip-memfs-orch-root-");
-    workingDir = await mkTempDir("paperclip-memfs-orch-cwd-");
+    rootDir = await mkTempDir("doer-memfs-orch-root-");
+    workingDir = await mkTempDir("doer-memfs-orch-cwd-");
   });
 
   afterEach(async () => {

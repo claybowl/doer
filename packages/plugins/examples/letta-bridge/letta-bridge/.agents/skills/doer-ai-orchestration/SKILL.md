@@ -1,22 +1,22 @@
 ---
-name: paperclip-ai-orchestration
-description: Skill for using Paperclip — open-source orchestration platform for running autonomous AI-agent companies with org charts, budgets, governance, and heartbeats.
+name: doer-ai-orchestration
+description: Skill for using Doer — open-source orchestration platform for running autonomous AI-agent companies with org charts, budgets, governance, and heartbeats.
 triggers:
-  - set up paperclip for my ai company
-  - orchestrate multiple ai agents with paperclip
-  - configure agents and goals in paperclip
-  - add a new agent to my paperclip company
-  - monitor ai agent costs and budgets in paperclip
-  - create a company with paperclip orchestration
+  - set up doer for my ai company
+  - orchestrate multiple ai agents with doer
+  - configure agents and goals in doer
+  - add a new agent to my doer company
+  - monitor ai agent costs and budgets in doer
+  - create a company with doer orchestration
   - heartbeat scheduling for ai agents
-  - manage multi-agent workflows with paperclip
+  - manage multi-agent workflows with doer
 ---
 
-# Paperclip AI Orchestration
+# Doer AI Orchestration
 
 > Skill by [ara.so](https://ara.so) — Daily 2026 Skills collection.
 
-Paperclip is an open-source Node.js + React platform that runs a **company made of AI agents**. It provides org charts, goal alignment, ticket-based task management, budget enforcement, heartbeat scheduling, governance, and a full audit log — so you manage business outcomes instead of individual agent sessions.
+Doer is an open-source Node.js + React platform that runs a **company made of AI agents**. It provides org charts, goal alignment, ticket-based task management, budget enforcement, heartbeat scheduling, governance, and a full audit log — so you manage business outcomes instead of individual agent sessions.
 
 ---
 
@@ -25,7 +25,7 @@ Paperclip is an open-source Node.js + React platform that runs a **company made 
 ### Quickstart (recommended)
 
 ```bash
-npx paperclipai onboard --yes
+npx doerai onboard --yes
 ```
 
 This clones the repo, installs dependencies, seeds an embedded PostgreSQL database, and starts the server.
@@ -33,8 +33,8 @@ This clones the repo, installs dependencies, seeds an embedded PostgreSQL databa
 ### Manual setup
 
 ```bash
-git clone https://github.com/paperclipai/paperclip.git
-cd paperclip
+git clone https://github.com/doerai/doer.git
+cd doer
 pnpm install
 pnpm dev
 ```
@@ -47,11 +47,11 @@ The API server starts at `http://localhost:3100`. An embedded PostgreSQL databas
 
 ### Production setup
 
-Point Paperclip at an external Postgres instance and object storage via environment variables:
+Point Doer at an external Postgres instance and object storage via environment variables:
 
 ```bash
 # .env
-DATABASE_URL=postgresql://user:password@host:5432/paperclip
+DATABASE_URL=postgresql://user:password@host:5432/doer
 STORAGE_BUCKET=your-s3-bucket
 STORAGE_REGION=us-east-1
 AWS_ACCESS_KEY_ID=$AWS_ACCESS_KEY_ID
@@ -70,7 +70,7 @@ pnpm start            # Start production server
 pnpm db:migrate       # Run pending database migrations
 pnpm db:seed          # Seed demo data
 pnpm test             # Run test suite
-npx paperclipai onboard --yes   # Full automated onboarding
+npx doerai onboard --yes   # Full automated onboarding
 ```
 
 ---
@@ -92,14 +92,14 @@ npx paperclipai onboard --yes   # Full automated onboarding
 
 ## REST API
 
-The Paperclip API is served at `http://localhost:3100/api/v1`.
+The Doer API is served at `http://localhost:3100/api/v1`.
 
 ### Authentication
 
 ```typescript
 // All requests require a bearer token
 const headers = {
-  'Authorization': `Bearer ${process.env.PAPERCLIP_API_KEY}`,
+  'Authorization': `Bearer ${process.env.DOER_API_KEY}`,
   'Content-Type': 'application/json',
 };
 ```
@@ -209,7 +209,7 @@ await fetch(`http://localhost:3100/api/v1/tasks/${taskId}/messages`, {
 
 ### Report Agent Cost
 
-Agents self-report token usage; Paperclip enforces budget atomically:
+Agents self-report token usage; Doer enforces budget atomically:
 
 ```typescript
 await fetch(`http://localhost:3100/api/v1/agents/${agentId}/cost`, {
@@ -245,14 +245,14 @@ const { instructions, tasks } = await fetch(
 Wrap the REST API for cleaner agent integration:
 
 ```typescript
-// lib/paperclip-client.ts
+// lib/doer-client.ts
 export class PaperclipClient {
   private base: string;
   private headers: Record<string, string>;
 
   constructor(
-    base = process.env.PAPERCLIP_BASE_URL ?? 'http://localhost:3100',
-    apiKey = process.env.PAPERCLIP_API_KEY ?? '',
+    base = process.env.DOER_BASE_URL ?? 'http://localhost:3100',
+    apiKey = process.env.DOER_API_KEY ?? '',
   ) {
     this.base = `${base}/api/v1`;
     this.headers = {
@@ -268,7 +268,7 @@ export class PaperclipClient {
     });
     if (!res.ok) {
       const body = await res.text();
-      throw new Error(`Paperclip API ${res.status}: ${body}`);
+      throw new Error(`Doer API ${res.status}: ${body}`);
     }
     return res.json() as Promise<T>;
   }
@@ -298,16 +298,16 @@ export class PaperclipClient {
 
 ---
 
-## Building an Agent That Works With Paperclip
+## Building an Agent That Works With Doer
 
-A minimal agent loop that integrates with Paperclip:
+A minimal agent loop that integrates with Doer:
 
 ```typescript
 // agent.ts
-import { PaperclipClient } from './lib/paperclip-client';
+import { PaperclipClient } from './lib/doer-client';
 
 const client = new PaperclipClient();
-const AGENT_ID = process.env.PAPERCLIP_AGENT_ID!;
+const AGENT_ID = process.env.DOER_AGENT_ID!;
 
 async function runHeartbeat() {
   console.log('[agent] heartbeat ping');
@@ -332,12 +332,12 @@ async function runHeartbeat() {
       console.log(`[agent] task ${task.id} done`);
     } catch (err) {
       console.error(`[agent] task ${task.id} failed`, err);
-      // Paperclip will reassign or escalate based on governance rules
+      // Doer will reassign or escalate based on governance rules
     }
   }
 }
 
-// Heartbeat is usually driven by Paperclip's cron, but you can also self-poll:
+// Heartbeat is usually driven by Doer's cron, but you can also self-poll:
 setInterval(runHeartbeat, 60_000);
 runHeartbeat();
 ```
@@ -346,10 +346,10 @@ runHeartbeat();
 
 ## Registering an HTTP Agent (any language)
 
-Any process reachable over HTTP can be an agent. Paperclip sends a POST to your endpoint:
+Any process reachable over HTTP can be an agent. Doer sends a POST to your endpoint:
 
 ```typescript
-// Paperclip calls POST /work on your agent with this shape:
+// Doer calls POST /work on your agent with this shape:
 interface PaperclipWorkPayload {
   agent_id: string;
   task: {
@@ -423,7 +423,7 @@ await fetch(`http://localhost:3100/api/v1/agents/${agentId}/config/rollback`, {
 
 ```bash
 # Required
-PAPERCLIP_API_KEY=                  # Your API key for the Paperclip server
+DOER_API_KEY=                  # Your API key for the Doer server
 
 # Database (defaults to embedded Postgres in dev)
 DATABASE_URL=                        # postgresql://user:pass@host:5432/db
@@ -440,8 +440,8 @@ PORT=3100
 BASE_URL=http://localhost:3100
 
 # Agent-side (used inside agent processes)
-PAPERCLIP_BASE_URL=http://localhost:3100
-PAPERCLIP_AGENT_ID=                  # The agent's UUID from Paperclip
+DOER_BASE_URL=http://localhost:3100
+DOER_AGENT_ID=                  # The agent's UUID from Doer
 ```
 
 ---
@@ -477,7 +477,7 @@ await fetch(`http://localhost:3100/api/v1/tasks/${taskId}/messages`, {
     content: `@${designerAgentId} Can you review the UI for this feature?`,
   }),
 });
-// Paperclip delivers the mention as a trigger to the designer agent's next heartbeat
+// Doer delivers the mention as a trigger to the designer agent's next heartbeat
 ```
 
 ### Pattern: Export a company template (Clipmart)
@@ -488,19 +488,19 @@ const blob = await fetch(
   { headers }
 ).then(r => r.blob());
 
-// Saves a .paperclip bundle with secrets scrubbed
-fs.writeFileSync('my-saas-company.paperclip', Buffer.from(await blob.arrayBuffer()));
+// Saves a .doer bundle with secrets scrubbed
+fs.writeFileSync('my-saas-company.doer', Buffer.from(await blob.arrayBuffer()));
 ```
 
 ### Pattern: Import a company template
 
 ```typescript
 const form = new FormData();
-form.append('file', fs.createReadStream('my-saas-company.paperclip'));
+form.append('file', fs.createReadStream('my-saas-company.doer'));
 
 await fetch('http://localhost:3100/api/v1/companies/import', {
   method: 'POST',
-  headers: { Authorization: `Bearer ${process.env.PAPERCLIP_API_KEY}` },
+  headers: { Authorization: `Bearer ${process.env.DOER_API_KEY}` },
   body: form,
 });
 ```
@@ -512,7 +512,7 @@ await fetch('http://localhost:3100/api/v1/companies/import', {
 | Problem | Fix |
 |---|---|
 | `ECONNREFUSED localhost:3100` | Server not running. Run `pnpm dev` first. |
-| `401 Unauthorized` | Check `PAPERCLIP_API_KEY` is set and matches server config. |
+| `401 Unauthorized` | Check `DOER_API_KEY` is set and matches server config. |
 | Agent never wakes up | Verify `heartbeat.enabled: true` and cron expression is valid. Check server logs for scheduler errors. |
 | Budget exhausted immediately | `monthly_usd` budget too low or tokens_in/tokens_out are being over-reported. Check `POST /agents/:id/cost` payloads. |
 | Task stuck in `open` | Agent may be offline or heartbeat misconfigured. Check `/api/v1/agents/:id/status`. |
@@ -524,7 +524,7 @@ await fetch('http://localhost:3100/api/v1/companies/import', {
 
 ## Resources
 
-- **Docs:** https://paperclip.ing/docs
-- **GitHub:** https://github.com/paperclipai/paperclip
+- **Docs:** https://doer.donjon.agency/docs
+- **GitHub:** https://github.com/doerai/doer
 - **Discord:** https://discord.gg/m4HZY7xNG3
-- **Clipmart (company templates):** https://paperclip.ing/clipmart *(coming soon)*
+- **Clipmart (company templates):** https://doer.donjon.agency/clipmart *(coming soon)*

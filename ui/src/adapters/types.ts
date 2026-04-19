@@ -1,8 +1,8 @@
 import type { ComponentType } from "react";
-import type { CreateConfigValues } from "@paperclipai/adapter-utils";
+import type { CreateConfigValues } from "@doerai/adapter-utils";
 
 // Re-export shared types so local consumers don't need to change imports
-export type { TranscriptEntry, StdoutLineParser, CreateConfigValues } from "@paperclipai/adapter-utils";
+export type { TranscriptEntry, StdoutLineParser, CreateConfigValues } from "@doerai/adapter-utils";
 
 export interface AdapterConfigFieldsProps {
   mode: "create" | "edit";
@@ -25,14 +25,14 @@ export interface AdapterConfigFieldsProps {
 }
 
 export interface StatefulStdoutParser {
-  parseLine: (line: string, ts: string) => import("@paperclipai/adapter-utils").TranscriptEntry[];
+  parseLine: (line: string, ts: string) => import("@doerai/adapter-utils").TranscriptEntry[];
   reset: () => void;
 }
 
 export type StdoutParserFactory = () => StatefulStdoutParser;
 
 export interface TranscriptParserSource {
-  parseStdoutLine: (line: string, ts: string) => import("@paperclipai/adapter-utils").TranscriptEntry[];
+  parseStdoutLine: (line: string, ts: string) => import("@doerai/adapter-utils").TranscriptEntry[];
   createStdoutParser?: StdoutParserFactory;
 }
 

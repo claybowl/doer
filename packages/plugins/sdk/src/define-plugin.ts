@@ -1,5 +1,5 @@
 /**
- * `definePlugin` — the top-level helper for authoring a Paperclip plugin.
+ * `definePlugin` — the top-level helper for authoring a Doer plugin.
  *
  * Plugin authors call `definePlugin()` and export the result as the default
  * export from their worker entrypoint. The host imports the worker module,
@@ -11,7 +11,7 @@
  * @example
  * ```ts
  * // dist/worker.ts
- * import { definePlugin } from "@paperclipai/plugin-sdk";
+ * import { definePlugin } from "@doerai/plugin-sdk";
  *
  * export default definePlugin({
  *   async setup(ctx) {
@@ -221,7 +221,7 @@ export interface PaperclipPlugin {
 // ---------------------------------------------------------------------------
 
 /**
- * Define a Paperclip plugin.
+ * Define a Doer plugin.
  *
  * Call this function in your worker entrypoint and export the result as the
  * default export. The host will import the module and call lifecycle methods
@@ -232,7 +232,7 @@ export interface PaperclipPlugin {
  *
  * @example
  * ```ts
- * import { definePlugin } from "@paperclipai/plugin-sdk";
+ * import { definePlugin } from "@doerai/plugin-sdk";
  *
  * export default definePlugin({
  *   async setup(ctx) {

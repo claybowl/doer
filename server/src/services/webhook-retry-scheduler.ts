@@ -17,9 +17,9 @@
  */
 
 import { and, eq, isNull, lte, or } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
-import { webhookDeliveries, webhookEndpoints } from "@paperclipai/db";
-import type { WebhookDeliveryStatus } from "@paperclipai/shared";
+import type { Db } from "@doerai/db";
+import { webhookDeliveries, webhookEndpoints } from "@doerai/db";
+import type { WebhookDeliveryStatus } from "@doerai/shared";
 import { logger } from "../middleware/logger.js";
 import { dispatchWebhook } from "./webhook-dispatcher.js";
 

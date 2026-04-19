@@ -1,4 +1,4 @@
-import { definePlugin, runWorker } from "@paperclipai/plugin-sdk";
+import { definePlugin, runWorker } from "@doerai/plugin-sdk";
 import type { LettaAgent, LettaMessage } from "./types.js";
 
 // Letta API client
@@ -191,7 +191,7 @@ const plugin = definePlugin({
 
 		// --- Events ---
 		ctx.events.on("agent.created", async (event) => {
-			ctx.logger.info("Paperclip agent created", { agentId: event.entityId });
+			ctx.logger.info("Doer agent created", { agentId: event.entityId });
 		});
 	},
 

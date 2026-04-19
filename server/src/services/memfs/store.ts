@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { MemfsFileEntry } from "@paperclipai/shared";
+import type { MemfsFileEntry } from "@doerai/shared";
 
 /**
  * Backend-agnostic interface for reading memfs content.
@@ -9,7 +9,7 @@ import type { MemfsFileEntry } from "@paperclipai/shared";
  * V2+ may add GitHostedStore, McpProxyStore, etc. (see plan doc).
  *
  * Writes are intentionally not in the V1 surface — Letta remains the writer
- * while we ship read-only Paperclip visibility.
+ * while we ship read-only Doer visibility.
  */
 export interface MemfsStore {
   /**

@@ -1,4 +1,4 @@
-import type { TranscriptEntry } from "@paperclipai/adapter-utils";
+import type { TranscriptEntry } from "@doerai/adapter-utils";
 import type { LettaCreateConfigValues } from "../shared/types.js";
 
 export function buildLettaCloudConfig(values: LettaCreateConfigValues): Record<string, unknown> {

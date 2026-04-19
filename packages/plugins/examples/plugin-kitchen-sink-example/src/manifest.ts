@@ -1,4 +1,4 @@
-import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
+import type { PaperclipPluginManifestV1 } from "@doerai/plugin-sdk";
 import {
   DEFAULT_CONFIG,
   EXPORT_NAMES,
@@ -16,8 +16,8 @@ const manifest: PaperclipPluginManifestV1 = {
   apiVersion: 1,
   version: PLUGIN_VERSION,
   displayName: "Kitchen Sink (Example)",
-  description: "Reference plugin that demonstrates the current Paperclip plugin API surface, UI surfaces, bridge actions, events, jobs, webhooks, tools, local workspace access, and runtime diagnostics in one place.",
-  author: "Paperclip",
+  description: "Reference plugin that demonstrates the current Doer plugin API surface, UI surfaces, bridge actions, events, jobs, webhooks, tools, local workspace access, and runtime diagnostics in one place.",
+  author: "Doer",
   categories: ["ui", "automation", "workspace", "connector"],
   capabilities: [
     "companies.read",
@@ -158,7 +158,7 @@ const manifest: PaperclipPluginManifestV1 = {
     {
       name: TOOL_NAMES.companySummary,
       displayName: "Kitchen Sink Company Summary",
-      description: "Summarizes the current company using the Paperclip domain APIs.",
+      description: "Summarizes the current company using the Doer domain APIs.",
       parametersSchema: {
         type: "object",
         properties: {},

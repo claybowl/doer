@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Eye, EyeOff, Plus, Trash2, Lock } from "lucide-react";
 import type { AdapterConfigFieldsProps, CreateConfigValues } from "../types";
 import { Field, DraftInput } from "../../components/agent-config-primitives";
-import type { LettaMemoryBlock, LettaTool } from "@paperclipai/adapter-letta-cloud";
+import type { LettaMemoryBlock, LettaTool } from "@doerai/adapter-letta-cloud";
 
 // ─── Shared input style ───────────────────────────────────────────────────────
 const inputClass =

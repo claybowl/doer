@@ -15,7 +15,7 @@ import {
   type RealizedExecutionWorkspace,
 } from "../services/workspace-runtime.ts";
 import { resolvePaperclipConfigPath } from "../paths.ts";
-import type { WorkspaceOperation } from "@paperclipai/shared";
+import type { WorkspaceOperation } from "@doerai/shared";
 import type { WorkspaceOperationRecorder } from "../services/workspace-operations.ts";
 
 const execFileAsync = promisify(execFile);
@@ -26,10 +26,10 @@ async function runGit(cwd: string, args: string[]) {
 }
 
 async function createTempRepo() {
-  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-repo-"));
+  const repoRoot = await fs.mkdtemp(path.join(os.tmpdir(), "doer-worktree-repo-"));
   await runGit(repoRoot, ["init"]);
-  await runGit(repoRoot, ["config", "user.email", "paperclip@example.com"]);
-  await runGit(repoRoot, ["config", "user.name", "Paperclip Test"]);
+  await runGit(repoRoot, ["config", "user.email", "doer@example.com"]);
+  await runGit(repoRoot, ["config", "user.name", "Doer Test"]);
   await fs.writeFile(path.join(repoRoot, "README.md"), "hello\n", "utf8");
   await runGit(repoRoot, ["add", "README.md"]);
   await runGit(repoRoot, ["commit", "-m", "Initial commit"]);
@@ -123,10 +123,10 @@ afterEach(async () => {
       leasedRunIds.delete(runId);
     }),
   );
-  delete process.env.PAPERCLIP_CONFIG;
-  delete process.env.PAPERCLIP_HOME;
-  delete process.env.PAPERCLIP_INSTANCE_ID;
-  delete process.env.PAPERCLIP_WORKTREES_DIR;
+  delete process.env.DOER_CONFIG;
+  delete process.env.DOER_HOME;
+  delete process.env.DOER_INSTANCE_ID;
+  delete process.env.DOER_WORKTREES_DIR;
   delete process.env.DATABASE_URL;
 });
 
@@ -164,7 +164,7 @@ describe("realizeExecutionWorkspace", () => {
     expect(first.strategy).toBe("git_worktree");
     expect(first.created).toBe(true);
     expect(first.branchName).toBe("PAP-447-add-worktree-support");
-    expect(first.cwd).toContain(path.join(".paperclip", "worktrees"));
+    expect(first.cwd).toContain(path.join(".doer", "worktrees"));
     await expect(fs.stat(path.join(first.cwd, ".git"))).resolves.toBeTruthy();
 
     const second = await realizeExecutionWorkspace({
@@ -207,9 +207,9 @@ describe("realizeExecutionWorkspace", () => {
       [
         "#!/usr/bin/env bash",
         "set -euo pipefail",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_BRANCH\" > .paperclip-provision-branch",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_BASE_CWD\" > .paperclip-provision-base",
-        "printf '%s\\n' \"$PAPERCLIP_WORKSPACE_CREATED\" > .paperclip-provision-created",
+        "printf '%s\\n' \"$DOER_WORKSPACE_BRANCH\" > .doer-provision-branch",
+        "printf '%s\\n' \"$DOER_WORKSPACE_BASE_CWD\" > .doer-provision-base",
+        "printf '%s\\n' \"$DOER_WORKSPACE_CREATED\" > .doer-provision-created",
       ].join("\n"),
       "utf8",
     );
@@ -244,13 +244,13 @@ describe("realizeExecutionWorkspace", () => {
       },
     });
 
-    await expect(fs.readFile(path.join(workspace.cwd, ".paperclip-provision-branch"), "utf8")).resolves.toBe(
+    await expect(fs.readFile(path.join(workspace.cwd, ".doer-provision-branch"), "utf8")).resolves.toBe(
       "PAP-448-run-provision-command\n",
     );
-    await expect(fs.readFile(path.join(workspace.cwd, ".paperclip-provision-base"), "utf8")).resolves.toBe(
+    await expect(fs.readFile(path.join(workspace.cwd, ".doer-provision-base"), "utf8")).resolves.toBe(
       `${repoRoot}\n`,
     );
-    await expect(fs.readFile(path.join(workspace.cwd, ".paperclip-provision-created"), "utf8")).resolves.toBe(
+    await expect(fs.readFile(path.join(workspace.cwd, ".doer-provision-created"), "utf8")).resolves.toBe(
       "true\n",
     );
 
@@ -282,22 +282,22 @@ describe("realizeExecutionWorkspace", () => {
       },
     });
 
-    await expect(fs.readFile(path.join(reused.cwd, ".paperclip-provision-created"), "utf8")).resolves.toBe("false\n");
+    await expect(fs.readFile(path.join(reused.cwd, ".doer-provision-created"), "utf8")).resolves.toBe("false\n");
   });
 
-  it("writes an isolated repo-local Paperclip config and worktree branding when provisioning", async () => {
+  it("writes an isolated repo-local Doer config and worktree branding when provisioning", async () => {
     const repoRoot = await createTempRepo();
     const previousCwd = process.cwd();
-    const paperclipHome = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktree-home-"));
-    const isolatedWorktreeHome = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-worktrees-"));
+    const paperclipHome = await fs.mkdtemp(path.join(os.tmpdir(), "doer-worktree-home-"));
+    const isolatedWorktreeHome = await fs.mkdtemp(path.join(os.tmpdir(), "doer-worktrees-"));
     const instanceId = "worktree-base";
     const sharedConfigDir = path.join(paperclipHome, "instances", instanceId);
     const sharedConfigPath = path.join(sharedConfigDir, "config.json");
     const sharedEnvPath = path.join(sharedConfigDir, ".env");
 
-    process.env.PAPERCLIP_HOME = paperclipHome;
-    process.env.PAPERCLIP_INSTANCE_ID = instanceId;
-    process.env.PAPERCLIP_WORKTREES_DIR = isolatedWorktreeHome;
+    process.env.DOER_HOME = paperclipHome;
+    process.env.DOER_INSTANCE_ID = instanceId;
+    process.env.DOER_WORKTREES_DIR = isolatedWorktreeHome;
 
     await fs.mkdir(sharedConfigDir, { recursive: true });
     await fs.writeFile(
@@ -342,7 +342,7 @@ describe("realizeExecutionWorkspace", () => {
               baseDir: path.join(sharedConfigDir, "storage"),
             },
             s3: {
-              bucket: "paperclip",
+              bucket: "doer",
               region: "us-east-1",
               prefix: "",
               forcePathStyle: false,
@@ -361,7 +361,7 @@ describe("realizeExecutionWorkspace", () => {
       ) + "\n",
       "utf8",
     );
-    await fs.writeFile(sharedEnvPath, 'DATABASE_URL="postgres://worktree:test@db.example.com:6543/paperclip"\n', "utf8");
+    await fs.writeFile(sharedEnvPath, 'DATABASE_URL="postgres://worktree:test@db.example.com:6543/doer"\n', "utf8");
 
     await fs.mkdir(path.join(repoRoot, "scripts"), { recursive: true });
     await fs.copyFile(
@@ -400,8 +400,8 @@ describe("realizeExecutionWorkspace", () => {
         },
       });
 
-      const configPath = path.join(workspace.cwd, ".paperclip", "config.json");
-      const envPath = path.join(workspace.cwd, ".paperclip", ".env");
+      const configPath = path.join(workspace.cwd, ".doer", "config.json");
+      const envPath = path.join(workspace.cwd, ".doer", ".env");
       const envContents = await fs.readFile(envPath, "utf8");
       const configContents = JSON.parse(await fs.readFile(configPath, "utf8"));
       const configStats = await fs.lstat(configPath);
@@ -420,12 +420,12 @@ describe("realizeExecutionWorkspace", () => {
         path.join(expectedInstanceRoot, "secrets", "master.key"),
       );
       expect(envContents).not.toContain("DATABASE_URL=");
-      expect(envContents).toContain(`PAPERCLIP_HOME=${JSON.stringify(isolatedWorktreeHome)}`);
-      expect(envContents).toContain(`PAPERCLIP_INSTANCE_ID=${JSON.stringify(expectedInstanceId)}`);
-      expect(envContents).toContain(`PAPERCLIP_CONFIG=${JSON.stringify(configPath)}`);
-      expect(envContents).toContain("PAPERCLIP_IN_WORKTREE=true");
+      expect(envContents).toContain(`DOER_HOME=${JSON.stringify(isolatedWorktreeHome)}`);
+      expect(envContents).toContain(`DOER_INSTANCE_ID=${JSON.stringify(expectedInstanceId)}`);
+      expect(envContents).toContain(`DOER_CONFIG=${JSON.stringify(configPath)}`);
+      expect(envContents).toContain("DOER_IN_WORKTREE=true");
       expect(envContents).toContain(
-        `PAPERCLIP_WORKTREE_NAME=${JSON.stringify("PAP-885-show-worktree-banner")}`,
+        `DOER_WORKTREE_NAME=${JSON.stringify("PAP-885-show-worktree-banner")}`,
       );
 
       process.chdir(workspace.cwd);
@@ -736,7 +736,7 @@ describe("realizeExecutionWorkspace", () => {
 
 describe("ensureRuntimeServicesForRun", () => {
   it("reuses shared runtime services across runs and starts a new service after release", async () => {
-    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-runtime-workspace-"));
+    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "doer-runtime-workspace-"));
     const workspace = buildWorkspace(workspaceRoot);
     const serviceCommand =
       "node -e \"require('node:http').createServer((req,res)=>res.end('ok')).listen(Number(process.env.PORT), '127.0.0.1')\"";
@@ -834,8 +834,8 @@ describe("ensureRuntimeServicesForRun", () => {
     expect(third[0]?.id).not.toBe(first[0]?.id);
   });
 
-  it("does not leak parent Paperclip instance env into runtime service commands", async () => {
-    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-runtime-env-"));
+  it("does not leak parent Doer instance env into runtime service commands", async () => {
+    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "doer-runtime-env-"));
     const workspace = buildWorkspace(workspaceRoot);
     const envCapturePath = path.join(workspaceRoot, "captured-env.json");
     const serviceCommand = [
@@ -844,9 +844,9 @@ describe("ensureRuntimeServicesForRun", () => {
         [
           "const fs = require('node:fs');",
           `fs.writeFileSync(${JSON.stringify(envCapturePath)}, JSON.stringify({`,
-          "paperclipConfig: process.env.PAPERCLIP_CONFIG ?? null,",
-          "paperclipHome: process.env.PAPERCLIP_HOME ?? null,",
-          "paperclipInstanceId: process.env.PAPERCLIP_INSTANCE_ID ?? null,",
+          "paperclipConfig: process.env.DOER_CONFIG ?? null,",
+          "paperclipHome: process.env.DOER_HOME ?? null,",
+          "paperclipInstanceId: process.env.DOER_INSTANCE_ID ?? null,",
           "databaseUrl: process.env.DATABASE_URL ?? null,",
           "customEnv: process.env.RUNTIME_CUSTOM_ENV ?? null,",
           "port: process.env.PORT ?? null,",
@@ -856,10 +856,10 @@ describe("ensureRuntimeServicesForRun", () => {
       ),
     ].join(" ");
 
-    process.env.PAPERCLIP_CONFIG = "/tmp/base-paperclip-config.json";
-    process.env.PAPERCLIP_HOME = "/tmp/base-paperclip-home";
-    process.env.PAPERCLIP_INSTANCE_ID = "base-instance";
-    process.env.DATABASE_URL = "postgres://shared-db.example.com/paperclip";
+    process.env.DOER_CONFIG = "/tmp/base-doer-config.json";
+    process.env.DOER_HOME = "/tmp/base-doer-home";
+    process.env.DOER_INSTANCE_ID = "base-instance";
+    process.env.DATABASE_URL = "postgres://shared-db.example.com/doer";
 
     const runId = "run-env";
     leasedRunIds.add(runId);
@@ -915,7 +915,7 @@ describe("ensureRuntimeServicesForRun", () => {
   });
 
   it("stops execution workspace runtime services by executionWorkspaceId", async () => {
-    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-runtime-stop-"));
+    const workspaceRoot = await fs.mkdtemp(path.join(os.tmpdir(), "doer-runtime-stop-"));
     const workspace = buildWorkspace(workspaceRoot);
     const runId = "run-stop";
     leasedRunIds.add(runId);
@@ -969,7 +969,7 @@ describe("ensureRuntimeServicesForRun", () => {
   });
 
   it("does not stop services in sibling directories when matching by workspace cwd", async () => {
-    const workspaceParent = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-runtime-sibling-"));
+    const workspaceParent = await fs.mkdtemp(path.join(os.tmpdir(), "doer-runtime-sibling-"));
     const targetWorkspaceRoot = path.join(workspaceParent, "project");
     const siblingWorkspaceRoot = path.join(workspaceParent, "project-extended", "service");
     await fs.mkdir(targetWorkspaceRoot, { recursive: true });

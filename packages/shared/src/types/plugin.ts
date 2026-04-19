@@ -172,7 +172,7 @@ export interface PluginLauncherDeclaration {
 }
 
 /**
- * Lower-bound semver requirement for the Paperclip host.
+ * Lower-bound semver requirement for the Doer host.
  *
  * The host should reject installation when its running version is lower than
  * the declared minimum.

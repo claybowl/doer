@@ -1,13 +1,13 @@
 status: completed
 output: ## Executive Summary
 
-The Letta bridge already exists as a **plugin** (not a full adapter). To achieve "OpenClaw-level" integration, we need to build a **dedicated Letta adapter** following the same pattern as `@paperclipai/adapter-openclaw-gateway`.
+The Letta bridge already exists as a **plugin** (not a full adapter). To achieve "OpenClaw-level" integration, we need to build a **dedicated Letta adapter** following the same pattern as `@doerai/adapter-openclaw-gateway`.
 
 ## Current State
 
 **Existing Letta Bridge Plugin:**
-- Location: `/paperclip/packages/plugins/examples/letta-bridge/`
-- Type: Paperclip plugin (not adapter)
+- Location: `/doer/packages/plugins/examples/letta-bridge/`
+- Type: Doer plugin (not adapter)
 - Capabilities:
   - Lists Letta agents via UI page
   - Syncs agents from Letta cloud
@@ -15,8 +15,8 @@ The Letta bridge already exists as a **plugin** (not a full adapter). To achieve
   - Sends messages to Letta agents
 
 **OpenClaw Adapter Pattern:**
-- Location: `/paperclip/packages/adapters/openclaw-gateway/`
-- Type: Full Paperclip adapter
+- Location: `/doer/packages/adapters/openclaw-gateway/`
+- Type: Full Doer adapter
 - Structure:
   - `src/server/` - Server-side execution logic
   - `src/ui/` - UI config building
@@ -32,7 +32,7 @@ The Letta bridge already exists as a **plugin** (not a full adapter). To achieve
 | **Execution Model** | Messages via plugin API | Native adapter execution |
 | **Skills Support** | Limited | Full skill registry + sync |
 | **Session Management** | External | Integrated session codec |
-| **Heartbeat Support** | No | Yes - true Paperclip agents |
+| **Heartbeat Support** | No | Yes - true Doer agents |
 
 ## Implementation Path
 
@@ -72,13 +72,13 @@ const lettaAdapter: ServerAdapterModule = {
 
 **2. Execution Logic (`src/server/execute.ts`):**
 - Connect to Letta MCP/WebSocket endpoint
-- Translate Paperclip heartbeat → Letta messages
+- Translate Doer heartbeat → Letta messages
 - Handle streaming responses
-- Map Letta memory blocks ↔ Paperclip context
+- Map Letta memory blocks ↔ Doer context
 
 **3. Session Codec (`src/server/session.ts`):**
-- Encode Paperclip session state into Letta memory
-- Decode Letta memory into Paperclip context
+- Encode Doer session state into Letta memory
+- Decode Letta memory into Doer context
 
 **4. UI Config (`src/ui/index.ts`):**
 - Build adapter config for Letta connection
@@ -95,7 +95,7 @@ const lettaAdapter: ServerAdapterModule = {
 Letta agents expose capabilities via **MCP (Model Context Protocol)**. The adapter should:
 - Connect to Letta's MCP endpoint
 - Discover available tools from Letta agents
-- Map MCP tools → Paperclip skills
+- Map MCP tools → Doer skills
 - Support bidirectional tool invocation
 
 ## Technical Spec
@@ -107,19 +107,19 @@ Letta agents expose capabilities via **MCP (Model Context Protocol)**. The adapt
 - `lettaAgentId` - Specific agent to use as "self"
 
 **Execution Flow:**
-1. Paperclip heartbeat triggers adapter
+1. Doer heartbeat triggers adapter
 2. Adapter loads Letta agent via MCP
 3. Transforms task → Letta message format
-4. Streams response back to Paperclip
+4. Streams response back to Doer
 5. Updates agent memory with outcome
 
 ## Recommendation
 
-**Proceed with Phase 1** — scaffold the `@paperclipai/adapter-letta` package following the OpenClaw adapter pattern. The existing Letta bridge plugin proves the API integration works; the adapter elevates it to first-class Paperclip citizenship.
+**Proceed with Phase 1** — scaffold the `@doerai/adapter-letta` package following the OpenClaw adapter pattern. The existing Letta bridge plugin proves the API integration works; the adapter elevates it to first-class Doer citizenship.
 
-**Priority:** High — enables persistent, memory-backed agents in Paperclip
+**Priority:** High — enables persistent, memory-backed agents in Doer
 **Effort:** 3-5 days for MVP
-**Dependencies:** Letta MCP documentation, Paperclip adapter SDK
+**Dependencies:** Letta MCP documentation, Doer adapter SDK
 
 exit: 0
 description: Generate research findings report
@@ -127,13 +127,13 @@ truncated: false
 
 ## Executive Summary
 
-The Letta bridge already exists as a **plugin** (not a full adapter). To achieve "OpenClaw-level" integration, we need to build a **dedicated Letta adapter** following the same pattern as `@paperclipai/adapter-openclaw-gateway`.
+The Letta bridge already exists as a **plugin** (not a full adapter). To achieve "OpenClaw-level" integration, we need to build a **dedicated Letta adapter** following the same pattern as `@doerai/adapter-openclaw-gateway`.
 
 ## Current State
 
 **Existing Letta Bridge Plugin:**
-- Location: `/paperclip/packages/plugins/examples/letta-bridge/`
-- Type: Paperclip plugin (not adapter)
+- Location: `/doer/packages/plugins/examples/letta-bridge/`
+- Type: Doer plugin (not adapter)
 - Capabilities:
   - Lists Letta agents via UI page
   - Syncs agents from Letta cloud
@@ -141,8 +141,8 @@ The Letta bridge already exists as a **plugin** (not a full adapter). To achieve
   - Sends messages to Letta agents
 
 **OpenClaw Adapter Pattern:**
-- Location: `/paperclip/packages/adapters/openclaw-gateway/`
-- Type: Full Paperclip adapter
+- Location: `/doer/packages/adapters/openclaw-gateway/`
+- Type: Full Doer adapter
 - Structure:
   - `src/server/` - Server-side execution logic
   - `src/ui/` - UI config building
@@ -158,7 +158,7 @@ The Letta bridge already exists as a **plugin** (not a full adapter). To achieve
 | **Execution Model** | Messages via plugin API | Native adapter execution |
 | **Skills Support** | Limited | Full skill registry + sync |
 | **Session Management** | External | Integrated session codec |
-| **Heartbeat Support** | No | Yes - true Paperclip agents |
+| **Heartbeat Support** | No | Yes - true Doer agents |
 
 ## Implementation Path
 
@@ -198,13 +198,13 @@ const lettaAdapter: ServerAdapterModule = {
 
 **2. Execution Logic (`src/server/execute.ts`):**
 - Connect to Letta MCP/WebSocket endpoint
-- Translate Paperclip heartbeat → Letta messages
+- Translate Doer heartbeat → Letta messages
 - Handle streaming responses
-- Map Letta memory blocks ↔ Paperclip context
+- Map Letta memory blocks ↔ Doer context
 
 **3. Session Codec (`src/server/session.ts`):**
-- Encode Paperclip session state into Letta memory
-- Decode Letta memory into Paperclip context
+- Encode Doer session state into Letta memory
+- Decode Letta memory into Doer context
 
 **4. UI Config (`src/ui/index.ts`):**
 - Build adapter config for Letta connection
@@ -221,7 +221,7 @@ const lettaAdapter: ServerAdapterModule = {
 Letta agents expose capabilities via **MCP (Model Context Protocol)**. The adapter should:
 - Connect to Letta's MCP endpoint
 - Discover available tools from Letta agents
-- Map MCP tools → Paperclip skills
+- Map MCP tools → Doer skills
 - Support bidirectional tool invocation
 
 ## Technical Spec
@@ -233,16 +233,16 @@ Letta agents expose capabilities via **MCP (Model Context Protocol)**. The adapt
 - `lettaAgentId` - Specific agent to use as "self"
 
 **Execution Flow:**
-1. Paperclip heartbeat triggers adapter
+1. Doer heartbeat triggers adapter
 2. Adapter loads Letta agent via MCP
 3. Transforms task → Letta message format
-4. Streams response back to Paperclip
+4. Streams response back to Doer
 5. Updates agent memory with outcome
 
 ## Recommendation
 
-**Proceed with Phase 1** — scaffold the `@paperclipai/adapter-letta` package following the OpenClaw adapter pattern. The existing Letta bridge plugin proves the API integration works; the adapter elevates it to first-class Paperclip citizenship.
+**Proceed with Phase 1** — scaffold the `@doerai/adapter-letta` package following the OpenClaw adapter pattern. The existing Letta bridge plugin proves the API integration works; the adapter elevates it to first-class Doer citizenship.
 
-**Priority:** High — enables persistent, memory-backed agents in Paperclip
+**Priority:** High — enables persistent, memory-backed agents in Doer
 **Effort:** 3-5 days for MVP
-**Dependencies:** Letta MCP documentation, Paperclip adapter SDK
+**Dependencies:** Letta MCP documentation, Doer adapter SDK

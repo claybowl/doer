@@ -1,7 +1,7 @@
-import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import { getLettaClient } from "./letta-client.js";
-import { renderTemplate } from "@paperclipai/adapter-utils/server-utils";
+import { renderTemplate } from "@doerai/adapter-utils/server-utils";
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -225,7 +225,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     return { exitCode: 1, signal: null, timedOut: false };
   }
 
-  // The task message is passed via context.message (Paperclip standard)
+  // The task message is passed via context.message (Doer standard)
   // If not set, fall back to heartbeatPrompt config, then to a sensible default.
   let userMessage =
     typeof ctx.context.message === "string"

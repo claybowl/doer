@@ -1,7 +1,7 @@
 {
-  "name": "@paperclipai/plugin-kitchen-sink-example",
+  "name": "@doerai/plugin-kitchen-sink-example",
   "version": "0.1.0",
-  "description": "Reference plugin that demonstrates the full Paperclip plugin surface area in one package",
+  "description": "Reference plugin that demonstrates the full Doer plugin surface area in one package",
   "type": "module",
   "private": true,
   "exports": {
@@ -16,11 +16,11 @@
     "prebuild": "node ../../../../scripts/ensure-plugin-build-deps.mjs",
     "build": "tsc && node ./scripts/build-ui.mjs",
     "clean": "rm -rf dist",
-    "typecheck": "pnpm --filter @paperclipai/plugin-sdk build && tsc --noEmit"
+    "typecheck": "pnpm --filter @doerai/plugin-sdk build && tsc --noEmit"
   },
   "dependencies": {
-    "@paperclipai/plugin-sdk": "workspace:*",
-    "@paperclipai/shared": "workspace:*"
+    "@doerai/plugin-sdk": "workspace:*",
+    "@doerai/shared": "workspace:*"
   },
   "devDependencies": {
     "esbuild": "^0.27.3",

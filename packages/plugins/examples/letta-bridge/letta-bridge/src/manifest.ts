@@ -1,11 +1,11 @@
-import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
+import type { PaperclipPluginManifestV1 } from "@doerai/plugin-sdk";
 
 const manifest: PaperclipPluginManifestV1 = {
 	id: "donjon.letta-bridge",
 	apiVersion: 1,
 	version: "0.1.0",
 	displayName: "Letta Import",
-	description: "Import Letta agents into Paperclip",
+	description: "Import Letta agents into Doer",
 	author: "Donjon Intelligence",
 	categories: ["connector", "automation"],
 	capabilities: [

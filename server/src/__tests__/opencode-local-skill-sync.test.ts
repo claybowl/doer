@@ -5,14 +5,14 @@ import { afterEach, describe, expect, it } from "vitest";
 import {
   listOpenCodeSkills,
   syncOpenCodeSkills,
-} from "@paperclipai/adapter-opencode-local/server";
+} from "@doerai/adapter-opencode-local/server";
 
 async function makeTempDir(prefix: string): Promise<string> {
   return fs.mkdtemp(path.join(os.tmpdir(), prefix));
 }
 
 describe("opencode local skill sync", () => {
-  const paperclipKey = "paperclipai/paperclip/paperclip";
+  const paperclipKey = "doerai/doer/doer";
   const cleanupDirs = new Set<string>();
 
   afterEach(async () => {
@@ -20,8 +20,8 @@ describe("opencode local skill sync", () => {
     cleanupDirs.clear();
   });
 
-  it("reports configured Paperclip skills and installs them into the shared Claude/OpenCode skills home", async () => {
-    const home = await makeTempDir("paperclip-opencode-skill-sync-");
+  it("reports configured Doer skills and installs them into the shared Claude/OpenCode skills home", async () => {
+    const home = await makeTempDir("doer-opencode-skill-sync-");
     cleanupDirs.add(home);
 
     const ctx = {
@@ -47,11 +47,11 @@ describe("opencode local skill sync", () => {
 
     const after = await syncOpenCodeSkills(ctx, [paperclipKey]);
     expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".claude", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    expect((await fs.lstat(path.join(home, ".claude", "skills", "doer"))).isSymbolicLink()).toBe(true);
   });
 
-  it("keeps required bundled Paperclip skills installed even when the desired set is emptied", async () => {
-    const home = await makeTempDir("paperclip-opencode-skill-prune-");
+  it("keeps required bundled Doer skills installed even when the desired set is emptied", async () => {
+    const home = await makeTempDir("doer-opencode-skill-prune-");
     cleanupDirs.add(home);
 
     const configuredCtx = {
@@ -85,6 +85,6 @@ describe("opencode local skill sync", () => {
     const after = await syncOpenCodeSkills(clearedCtx, []);
     expect(after.desiredSkills).toContain(paperclipKey);
     expect(after.entries.find((entry) => entry.key === paperclipKey)?.state).toBe("installed");
-    expect((await fs.lstat(path.join(home, ".claude", "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+    expect((await fs.lstat(path.join(home, ".claude", "skills", "doer"))).isSymbolicLink()).toBe(true);
   });
 });

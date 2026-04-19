@@ -21,12 +21,12 @@
 
 import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
-import { webhookEndpoints } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
+import { webhookEndpoints } from "@doerai/db";
 import type {
 	WebhookEventType,
 	WebhookEnvelope,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { logger } from "../middleware/logger.js";
 import { enqueueDelivery } from "./webhook-retry-scheduler.js";
 

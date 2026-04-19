@@ -7,7 +7,7 @@ import {
   type MemfsPermission,
   type MemfsRootDTO,
   type MemfsStrategy,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { memfsApi } from "../../api/memfs";
 import { queryKeys } from "../../lib/queryKeys";
 import { Button } from "@/components/ui/button";

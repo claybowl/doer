@@ -1,7 +1,7 @@
 import type {
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
-} from "@paperclipai/adapter-utils";
+} from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import { fetchAgentSnapshot } from "./letta-client.js";
 

@@ -463,7 +463,7 @@ export type PluginCapability = (typeof PLUGIN_CAPABILITIES)[number];
 
 /**
  * UI extension slot types. Each slot type corresponds to a mount point in the
- * Paperclip UI where plugin components can be rendered.
+ * Doer UI where plugin components can be rendered.
  *
  * @see PLUGIN_SPEC.md §19 — UI Extension Model
  */
@@ -692,7 +692,7 @@ export type PluginBridgeErrorCode = (typeof PLUGIN_BRIDGE_ERROR_CODES)[number];
 /**
  * Memfs strategies describe how an adapter ingests bound memfs content.
  *
- * V1 ships `native-letta` (Letta's own runtime owns reads/writes; Paperclip
+ * V1 ships `native-letta` (Letta's own runtime owns reads/writes; Doer
  * observes) and `fs-mount` (symlink the bound path into the adapter's working
  * directory). Remaining strategies are declared so capability tables stay
  * forward-compatible.

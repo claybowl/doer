@@ -1,9 +1,9 @@
-import type { ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { ResolvedMemfsBinding } from "@doerai/shared";
 import type { MemfsMountStrategy, MemfsMountResult } from "./types.js";
 
 /**
  * `native-letta`: Letta Cloud already ingests memfs files natively via its
- * agent runtime. Paperclip does not need to mount anything — we only record
+ * agent runtime. Doer does not need to mount anything — we only record
  * the binding so Doer can observe/display it.
  *
  * V1 behavior: no-op mount, no-op unmount. Returns success with a descriptive

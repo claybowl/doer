@@ -1,6 +1,6 @@
-import type { PaperclipPluginManifestV1 } from "@paperclipai/plugin-sdk";
+import type { PaperclipPluginManifestV1 } from "@doerai/plugin-sdk";
 
-const PLUGIN_ID = "paperclip-file-browser-example";
+const PLUGIN_ID = "doer-file-browser-example";
 const FILES_SIDEBAR_SLOT_ID = "files-link";
 const FILES_TAB_SLOT_ID = "files-tab";
 const COMMENT_FILE_LINKS_SLOT_ID = "comment-file-links";
@@ -12,7 +12,7 @@ const manifest: PaperclipPluginManifestV1 = {
   version: "0.2.0",
   displayName: "File Browser (Example)",
   description: "Example plugin that adds a Files link under each project in the sidebar, a file browser + editor tab on the project detail page, and per-comment file link annotations with a context menu action to open referenced files.",
-  author: "Paperclip",
+  author: "Doer",
   categories: ["workspace", "ui"],
   capabilities: [
     "ui.sidebar.register",

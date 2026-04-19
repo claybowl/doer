@@ -5,32 +5,32 @@ summary: Onboard, run, doctor, and configure
 
 Instance setup and diagnostics commands.
 
-## `paperclipai run`
+## `doerai run`
 
 One-command bootstrap and start:
 
 ```sh
-pnpm paperclipai run
+pnpm doerai run
 ```
 
 Does:
 
 1. Auto-onboards if config is missing
-2. Runs `paperclipai doctor` with repair enabled
+2. Runs `doerai doctor` with repair enabled
 3. Starts the server when checks pass
 
 Choose a specific instance:
 
 ```sh
-pnpm paperclipai run --instance dev
+pnpm doerai run --instance dev
 ```
 
-## `paperclipai onboard`
+## `doerai onboard`
 
 Interactive first-time setup:
 
 ```sh
-pnpm paperclipai onboard
+pnpm doerai onboard
 ```
 
 First prompt:
@@ -41,22 +41,22 @@ First prompt:
 Start immediately after onboarding:
 
 ```sh
-pnpm paperclipai onboard --run
+pnpm doerai onboard --run
 ```
 
 Non-interactive defaults + immediate start (opens browser on server listen):
 
 ```sh
-pnpm paperclipai onboard --yes
+pnpm doerai onboard --yes
 ```
 
-## `paperclipai doctor`
+## `doerai doctor`
 
 Health checks with optional auto-repair:
 
 ```sh
-pnpm paperclipai doctor
-pnpm paperclipai doctor --repair
+pnpm doerai doctor
+pnpm doerai doctor --repair
 ```
 
 Validates:
@@ -67,51 +67,51 @@ Validates:
 - Storage configuration
 - Missing key files
 
-## `paperclipai configure`
+## `doerai configure`
 
 Update configuration sections:
 
 ```sh
-pnpm paperclipai configure --section server
-pnpm paperclipai configure --section secrets
-pnpm paperclipai configure --section storage
+pnpm doerai configure --section server
+pnpm doerai configure --section secrets
+pnpm doerai configure --section storage
 ```
 
-## `paperclipai env`
+## `doerai env`
 
 Show resolved environment configuration:
 
 ```sh
-pnpm paperclipai env
+pnpm doerai env
 ```
 
-## `paperclipai allowed-hostname`
+## `doerai allowed-hostname`
 
 Allow a private hostname for authenticated/private mode:
 
 ```sh
-pnpm paperclipai allowed-hostname my-tailscale-host
+pnpm doerai allowed-hostname my-tailscale-host
 ```
 
 ## Local Storage Paths
 
 | Data | Default Path |
 |------|-------------|
-| Config | `~/.paperclip/instances/default/config.json` |
-| Database | `~/.paperclip/instances/default/db` |
-| Logs | `~/.paperclip/instances/default/logs` |
-| Storage | `~/.paperclip/instances/default/data/storage` |
-| Secrets key | `~/.paperclip/instances/default/secrets/master.key` |
+| Config | `~/.doer/instances/default/config.json` |
+| Database | `~/.doer/instances/default/db` |
+| Logs | `~/.doer/instances/default/logs` |
+| Storage | `~/.doer/instances/default/data/storage` |
+| Secrets key | `~/.doer/instances/default/secrets/master.key` |
 
 Override with:
 
 ```sh
-PAPERCLIP_HOME=/custom/home PAPERCLIP_INSTANCE_ID=dev pnpm paperclipai run
+DOER_HOME=/custom/home DOER_INSTANCE_ID=dev pnpm doerai run
 ```
 
 Or pass `--data-dir` directly on any command:
 
 ```sh
-pnpm paperclipai run --data-dir ./tmp/paperclip-dev
-pnpm paperclipai doctor --data-dir ./tmp/paperclip-dev
+pnpm doerai run --data-dir ./tmp/doer-dev
+pnpm doerai doctor --data-dir ./tmp/doer-dev
 ```

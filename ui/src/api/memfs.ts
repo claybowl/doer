@@ -6,7 +6,7 @@ import type {
   MemfsRootDTO,
   UpdateMemfsBinding,
   UpdateMemfsRoot,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { api } from "./client";
 
 export const memfsApi = {

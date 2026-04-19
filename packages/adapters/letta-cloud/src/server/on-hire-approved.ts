@@ -1,4 +1,4 @@
-import type { HireApprovedPayload, HireApprovedHookResult } from "@paperclipai/adapter-utils";
+import type { HireApprovedPayload, HireApprovedHookResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import { fetchAgentSnapshot } from "./letta-client.js";
 

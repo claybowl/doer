@@ -2,10 +2,10 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createLocalAgentJwt, verifyLocalAgentJwt } from "../agent-auth-jwt.js";
 
 describe("agent local JWT", () => {
-  const secretEnv = "PAPERCLIP_AGENT_JWT_SECRET";
-  const ttlEnv = "PAPERCLIP_AGENT_JWT_TTL_SECONDS";
-  const issuerEnv = "PAPERCLIP_AGENT_JWT_ISSUER";
-  const audienceEnv = "PAPERCLIP_AGENT_JWT_AUDIENCE";
+  const secretEnv = "DOER_AGENT_JWT_SECRET";
+  const ttlEnv = "DOER_AGENT_JWT_TTL_SECONDS";
+  const issuerEnv = "DOER_AGENT_JWT_ISSUER";
+  const audienceEnv = "DOER_AGENT_JWT_AUDIENCE";
 
   const originalEnv = {
     secret: process.env[secretEnv],
@@ -45,8 +45,8 @@ describe("agent local JWT", () => {
       company_id: "company-1",
       adapter_type: "claude_local",
       run_id: "run-1",
-      iss: "paperclip",
-      aud: "paperclip-api",
+      iss: "doer",
+      aud: "doer-api",
     });
   });
 
@@ -72,8 +72,8 @@ describe("agent local JWT", () => {
     vi.setSystemTime(new Date("2026-01-01T00:00:00.000Z"));
     const token = createLocalAgentJwt("agent-1", "company-1", "codex_local", "run-1");
 
-    process.env[issuerEnv] = "paperclip";
-    process.env[audienceEnv] = "paperclip-api";
+    process.env[issuerEnv] = "doer";
+    process.env[audienceEnv] = "doer-api";
     expect(verifyLocalAgentJwt(token!)).toBeNull();
   });
 });

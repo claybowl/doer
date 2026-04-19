@@ -1,5 +1,5 @@
 import type { UIAdapterModule } from "../types";
-import { buildLettaCloudConfig, parseLettaCloudStdoutLine } from "@paperclipai/adapter-letta-cloud/ui";
+import { buildLettaCloudConfig, parseLettaCloudStdoutLine } from "@doerai/adapter-letta-cloud/ui";
 import { LettaCloudConfigFields } from "./config-fields";
 
 export const lettaCloudUIAdapter: UIAdapterModule = {

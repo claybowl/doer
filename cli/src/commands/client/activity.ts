@@ -1,5 +1,5 @@
 import { Command } from "commander";
-import type { ActivityEvent } from "@paperclipai/shared";
+import type { ActivityEvent } from "@doerai/shared";
 import {
   addCommonClientOptions,
   formatInlineRecord,

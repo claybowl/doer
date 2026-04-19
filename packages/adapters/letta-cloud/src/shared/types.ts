@@ -3,7 +3,7 @@
 export interface LettaCloudAdapterConfig {
   /** Letta Cloud agent ID — format: "agent-<uuid>" */
   agentId: string;
-  /** Letta Cloud API key (stored encrypted by Paperclip) */
+  /** Letta Cloud API key (stored encrypted by Doer) */
   apiKey: string;
   /** Base URL — defaults to https://api.letta.com. Set for self-hosted. */
   baseUrl?: string;

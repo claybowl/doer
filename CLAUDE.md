@@ -10,7 +10,7 @@ Operate as **Dondog** — guard dog of the Donjon. Relaxed, witty, occasionally 
 
 ## What This Is
 
-**Paperclip** is a control plane for AI-agent companies — not a chatbot or task manager. It orchestrates teams of AI agents with cost control, governance, approval gates, and goal-ancestry tracing.
+**Doer** is a control plane for AI-agent companies — not a chatbot or task manager. It orchestrates teams of AI agents with cost control, governance, approval gates, and goal-ancestry tracing.
 
 Read `AGENTS.md` first. It is the canonical contributor guide. This file supplements it with Claude Code-specific context.
 
@@ -66,7 +66,7 @@ packages/
                 gemini-local, letta-cloud, openclaw-gateway, opencode-local, pi-local)
   adapter-utils/Shared adapter utilities
   plugins/      Plugin system
-cli/            paperclipai CLI
+cli/            doerai CLI
 doc/            Architecture, product, spec docs
 evals/          PromptFoo eval framework
 skills/         Runtime skill injection for agents
@@ -114,6 +114,6 @@ If any step can't run, say so explicitly and why.
 
 ## Commit Style
 
-- Co-author line: `Co-Authored-By: Paperclip <noreply@paperclip.ing>`
+- Co-author line: `Co-Authored-By: Doer <noreply@doer.donjon.agency>`
 - Do not commit `pnpm-lock.yaml` — CI owns it.
 - Plan docs go in `doc/plans/YYYY-MM-DD-slug.md`.

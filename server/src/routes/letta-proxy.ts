@@ -13,14 +13,14 @@
 
 import { Router } from "express";
 import type { Request, Response } from "express";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
 import {
   fetchAgentSnapshot,
   updateMemoryBlock,
   attachTool,
   detachTool,
-} from "@paperclipai/adapter-letta-cloud/server";
-import type { LettaCloudAdapterConfig } from "@paperclipai/adapter-letta-cloud";
+} from "@doerai/adapter-letta-cloud/server";
+import type { LettaCloudAdapterConfig } from "@doerai/adapter-letta-cloud";
 import { agentService } from "../services/index.js";
 import { notFound } from "../errors.js";
 

@@ -1,11 +1,11 @@
 import { Router } from "express";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
 import {
   createMemfsRootSchema,
   updateMemfsRootSchema,
   createMemfsBindingSchema,
   updateMemfsBindingSchema,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { validate } from "../middleware/validate.js";
 import { memfsService } from "../services/memfs/memfs-service.js";
 import { logActivity } from "../services/index.js";

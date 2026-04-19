@@ -1,7 +1,7 @@
 import os from "node:os";
 import path from "node:path";
-import type { Db } from "@paperclipai/db";
-import type { MemfsRootKind, ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { Db } from "@doerai/db";
+import type { MemfsRootKind, ResolvedMemfsBinding } from "@doerai/shared";
 import { logger } from "../../middleware/logger.js";
 import { memfsService } from "./memfs-service.js";
 import { resolveMemfsStrategies } from "./strategies/index.js";
@@ -9,7 +9,7 @@ import type { MemfsMountResult } from "./strategies/types.js";
 
 /**
  * Summary of a single successful memfs mount. Attached to adapterEnv as
- * `PAPERCLIP_MEMFS_MOUNTS` (JSON) so downstream gremlins can discover
+ * `DOER_MEMFS_MOUNTS` (JSON) so downstream gremlins can discover
  * their mounted memory roots without hitting the DB.
  */
 export interface MemfsMountSummary {
@@ -26,7 +26,7 @@ export interface ApplyMemfsBindingsInput {
   db: Db;
   agent: { id: string; companyId: string };
   adapterType: string;
-  /** Mutated in-place with LETTA_MEMFS_DIR + PAPERCLIP_MEMFS_MOUNTS on success. */
+  /** Mutated in-place with LETTA_MEMFS_DIR + DOER_MEMFS_MOUNTS on success. */
   adapterEnv: Record<string, string>;
   workingDirectory: string;
   onLog?: (stream: "stdout" | "stderr", chunk: string) => Promise<void> | void;
@@ -49,7 +49,7 @@ export interface ApplyMemfsBindingsResult {
  *    fs-mount binding at `~/.letta/agents/<id>/memory` for backward-compat.
  *  - Successful mounts populate:
  *      - `LETTA_MEMFS_DIR` (first success; backward-compat for gremlin code)
- *      - `PAPERCLIP_MEMFS_MOUNTS` (JSON array of all mounts; forward-compat)
+ *      - `DOER_MEMFS_MOUNTS` (JSON array of all mounts; forward-compat)
  */
 export async function applyMemfsBindingsToWorkspace(
   input: ApplyMemfsBindingsInput,
@@ -63,7 +63,7 @@ export async function applyMemfsBindingsToWorkspace(
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     logger.warn({ err, agentId: agent.id }, "memfs binding lookup failed; continuing without memfs");
-    await onLog?.("stderr", `[paperclip] memfs binding lookup failed (non-fatal): ${msg}\n`);
+    await onLog?.("stderr", `[doer] memfs binding lookup failed (non-fatal): ${msg}\n`);
   }
 
   // Back-compat: if no explicit bindings and LETTA_AGENT_ID is set, synthesize
@@ -75,7 +75,7 @@ export async function applyMemfsBindingsToWorkspace(
       bindings = [synthetic];
       await onLog?.(
         "stdout",
-        `[paperclip] memfs: no bindings found; using legacy fs-mount for LETTA_AGENT_ID=${lettaAgentId}\n`,
+        `[doer] memfs: no bindings found; using legacy fs-mount for LETTA_AGENT_ID=${lettaAgentId}\n`,
       );
     }
   }
@@ -103,11 +103,11 @@ export async function applyMemfsBindingsToWorkspace(
         rootLabel: binding?.rootLabel ?? label,
         pathPrefix: binding?.pathPrefix ?? "",
       });
-      await onLog?.("stdout", `[paperclip] memfs mounted (${result.strategy}): ${result.mountedPath} — ${result.note}\n`);
+      await onLog?.("stdout", `[doer] memfs mounted (${result.strategy}): ${result.mountedPath} — ${result.note}\n`);
     } else {
       await onLog?.(
         "stderr",
-        `[paperclip] memfs mount skipped (${result.strategy}/${result.bindingId}): ${result.note}\n`,
+        `[doer] memfs mount skipped (${result.strategy}/${result.bindingId}): ${result.note}\n`,
       );
     }
   }
@@ -119,7 +119,7 @@ export async function applyMemfsBindingsToWorkspace(
     if (primary) {
       adapterEnv["LETTA_MEMFS_DIR"] = primary.mountedPath;
     }
-    adapterEnv["PAPERCLIP_MEMFS_MOUNTS"] = JSON.stringify(mounted);
+    adapterEnv["DOER_MEMFS_MOUNTS"] = JSON.stringify(mounted);
   }
 
   return { results, mounted };

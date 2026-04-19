@@ -69,7 +69,7 @@ describe("mergeJoinDefaultsPayloadForReplay", () => {
         },
       },
       {
-        paperclipApiUrl: "https://paperclip.example.com",
+        paperclipApiUrl: "https://doer.example.com",
         headers: {
           "x-openclaw-token": "new-token-1234567890",
         },
@@ -83,7 +83,7 @@ describe("mergeJoinDefaultsPayloadForReplay", () => {
     }) as Record<string, unknown>;
 
     expect(normalized.url).toBe("ws://old.example:18789");
-    expect(normalized.paperclipApiUrl).toBe("https://paperclip.example.com");
+    expect(normalized.paperclipApiUrl).toBe("https://doer.example.com");
     expect(normalized.headers).toMatchObject({
       "x-openclaw-token": "new-token-1234567890",
       "x-custom": "keep-me",
