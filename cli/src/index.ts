@@ -20,6 +20,7 @@ import { loadPaperclipEnvFile } from "./config/env.js";
 import { registerWorktreeCommands } from "./commands/worktree.js";
 import { registerPluginCommands } from "./commands/client/plugin.js";
 import { registerClientAuthCommands } from "./commands/client/auth.js";
+import { registerMemfsCommands } from "./commands/client/memfs.js";
 
 const program = new Command();
 const DATA_DIR_OPTION_HELP =
@@ -139,6 +140,7 @@ registerActivityCommands(program);
 registerDashboardCommands(program);
 registerWorktreeCommands(program);
 registerPluginCommands(program);
+registerMemfsCommands(program);
 
 const auth = program.command("auth").description("Authentication and bootstrap utilities");
 

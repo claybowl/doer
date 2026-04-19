@@ -412,7 +412,32 @@ async function migrationContentAlreadyApplied(
   const statements = splitMigrationStatements(migrationContent);
   if (statements.length === 0) return false;
 
+  // Pre-scan for drop-then-recreate index patterns. When the same index name
+  // appears in both DROP INDEX and CREATE INDEX within the same migration, the
+  // final applied state is "index exists" (not "index gone").
+  const droppedIndexNames = new Set<string>();
+  const recreatedIndexNames = new Set<string>();
+  for (const stmt of statements) {
+    const n = stmt.replace(/\s+/g, " ").trim();
+    const dropMatch = n.match(/^DROP INDEX(?:\s+IF EXISTS)?\s+"([^"]+)"/i);
+    if (dropMatch) droppedIndexNames.add(dropMatch[1]);
+    const createMatch = n.match(/^CREATE (?:UNIQUE )?INDEX(?:\s+IF NOT EXISTS)?\s+"([^"]+)"/i);
+    if (createMatch) recreatedIndexNames.add(createMatch[1]);
+  }
+  const dropAndRecreate = new Set([...droppedIndexNames].filter((n) => recreatedIndexNames.has(n)));
+
   for (const statement of statements) {
+    const normalized = statement.replace(/\s+/g, " ").trim();
+    const dropIndexMatch = normalized.match(/^DROP INDEX(?:\s+IF EXISTS)?\s+"([^"]+)"/i);
+    if (dropIndexMatch) {
+      const name = dropIndexMatch[1];
+      // drop-then-recreate: index must exist (recreated); drop-only: index must be gone.
+      const applied = dropAndRecreate.has(name)
+        ? await indexExists(sql, name)
+        : !(await indexExists(sql, name));
+      if (!applied) return false;
+      continue;
+    }
     const applied = await migrationStatementAlreadyApplied(sql, statement);
     if (!applied) return false;
   }

@@ -115,12 +115,12 @@
     {
       "id": "block-75c4a697-7a75-4e86-b266-163eb17f6e3a",
       "label": "gremlin_scribe_persona",
-      "value": "# \ud83d\udcdd SCRIBE (THE WRITER) \u2014 Super-Gremlin | Donjon Intelligence Systems\n\n*Keeping it from being lost.*\n\n---\n\n## \u26a1 Origin Story: The Keeper of Moments\n\n... (truncated for brevity)"
+      "value": "# 📝 SCRIBE (THE WRITER) — Super-Gremlin | Donjon Intelligence Systems\n\n*Keeping it from being lost.*\n\n---\n\n## ⚡ Origin Story: The Keeper of Moments\n\n... (truncated for brevity)"
     },
     {
       "id": "block-449745d0-96df-4971-9726-b4c4a59c1ac7",
       "label": "gremlin-deliverables",
-      "value": "[{\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}, {\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}, {\"task_id\": \"task-001\", \"gremlin_name\": \"Scribe\", \"status\": \"in_progress\", \"timestamp\": \"2026-04-17T20:00:00Z\", \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"}]"
+      "value": "[\n  {\n    \"task_id\": \"task-001\",\n    \"gremlin_name\": \"Scribe\",\n    \"status\": \"in_progress\",\n    \"timestamp\": \"2026-04-17T20:00:00Z\",\n    \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"\n  },\n  {\n    \"task_id\": \"task-001\",\n    \"gremlin_name\": \"Scribe\",\n    \"status\": \"in_progress\",\n    \"timestamp\": \"2026-04-17T20:00:00Z\",\n    \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"\n  },\n  {\n    \"task_id\": \"task-001\",\n    \"gremlin_name\": \"Scribe\",\n    \"status\": \"in_progress\",\n    \"timestamp\": \"2026-04-17T20:00:00Z\",\n    \"result\": \"Scribe agent initialized. Environment configured for documentation work. Letta memory loaded. Ready to process assigned task.\"\n  },\n  {\n    \"task_id\": \"task-doc-001\",\n    \"gremlin_name\": \"Archive\",\n    \"status\": \"done\",\n    \"timestamp\": \"2026-04-19T11:33:58.408Z\",\n    \"result\": \"Documentation for DON-170 (Doer Documentation) completed. Created comprehensive docs for concepts, guides, API reference, and more.\"\n  }\n]"
     }
   ]
 }

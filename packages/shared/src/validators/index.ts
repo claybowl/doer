@@ -10,6 +10,17 @@ export {
 } from "./instance.js";
 
 export {
+  createMemfsRootSchema,
+  updateMemfsRootSchema,
+  createMemfsBindingSchema,
+  updateMemfsBindingSchema,
+  type CreateMemfsRoot,
+  type UpdateMemfsRoot,
+  type CreateMemfsBinding,
+  type UpdateMemfsBinding,
+} from "./memfs.js";
+
+export {
   upsertBudgetPolicySchema,
   resolveBudgetIncidentSchema,
   type UpsertBudgetPolicy,

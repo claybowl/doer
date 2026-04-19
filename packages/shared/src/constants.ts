@@ -688,3 +688,27 @@ export const PLUGIN_BRIDGE_ERROR_CODES = [
   "UNKNOWN",
 ] as const;
 export type PluginBridgeErrorCode = (typeof PLUGIN_BRIDGE_ERROR_CODES)[number];
+
+/**
+ * Memfs strategies describe how an adapter ingests bound memfs content.
+ *
+ * V1 ships `native-letta` (Letta's own runtime owns reads/writes; Paperclip
+ * observes) and `fs-mount` (symlink the bound path into the adapter's working
+ * directory). Remaining strategies are declared so capability tables stay
+ * forward-compatible.
+ */
+export const MEMFS_STRATEGIES = [
+  "native-letta",
+  "fs-mount",
+  "mcp-server",
+  "tool-callable",
+  "system-prompt-inject",
+  "none",
+] as const;
+export type MemfsStrategy = (typeof MEMFS_STRATEGIES)[number];
+
+export const MEMFS_PERMISSIONS = ["read", "read-write"] as const;
+export type MemfsPermission = (typeof MEMFS_PERMISSIONS)[number];
+
+export const MEMFS_ROOT_KINDS = ["local-fs", "mcp", "git-hosted"] as const;
+export type MemfsRootKind = (typeof MEMFS_ROOT_KINDS)[number];

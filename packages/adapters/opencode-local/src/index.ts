@@ -1,6 +1,12 @@
 export const type = "opencode_local";
 export const label = "OpenCode (local)";
 
+// Memfs capability — opencode-local supports fs-mount (symlink into working dir).
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "fs-mount" as const,
+};
+
 export const models: Array<{ id: string; label: string }> = [];
 
 export const agentConfigurationDoc = `# opencode_local agent configuration

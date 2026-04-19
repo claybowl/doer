@@ -1,6 +1,12 @@
 export const type = "claude_local";
 export const label = "Claude Code (local)";
 
+// Memfs capability — claude-local supports fs-mount (symlink into working dir).
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "fs-mount" as const,
+};
+
 export const models = [
   { id: "claude-opus-4-6", label: "Claude Opus 4.6" },
   { id: "claude-sonnet-4-6", label: "Claude Sonnet 4.6" },

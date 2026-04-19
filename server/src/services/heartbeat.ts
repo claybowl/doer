@@ -42,6 +42,7 @@ import {
 import { issueService } from "./issues.js";
 import { executionWorkspaceService } from "./execution-workspaces.js";
 import { workspaceOperationService } from "./workspace-operations.js";
+import { applyMemfsBindingsToWorkspace } from "./memfs/apply.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
   gateProjectExecutionWorkspacePolicy,

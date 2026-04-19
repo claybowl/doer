@@ -330,6 +330,13 @@
       "when": 1745135659000,
       "tag": "0046_silver_webhook_tables",
       "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1776506108303,
+      "tag": "0047_thick_iceman",
+      "breakpoints": true
     }
   ]
 }

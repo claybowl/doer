@@ -24,6 +24,7 @@ import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
 import { AgentConfigForm } from "../components/AgentConfigForm";
 import { PageTabBar } from "../components/PageTabBar";
+import { MemfsBindingsPanel } from "../components/memfs/MemfsBindingsPanel";
 import { adapterLabels, roleLabels, help } from "../components/agent-config-primitives";
 import { MarkdownEditor } from "../components/MarkdownEditor";
 import { assetsApi } from "../api/assets";
@@ -222,12 +223,13 @@ function scrollToContainerBottom(container: ScrollContainer, behavior: ScrollBeh
   container.scrollTo({ top: container.scrollHeight, behavior });
 }
 
-type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "runs" | "budget";
+type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "memory" | "runs" | "budget";
 
 function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "instructions" || value === "prompts") return "instructions";
   if (value === "configure" || value === "configuration") return "configuration";
   if (value === "skills") return "skills";
+  if (value === "memory") return "memory";
   if (value === "budget") return "budget";
   if (value === "runs") return value;
   return "dashboard";
@@ -647,11 +649,13 @@ export function AgentDetail() {
           ? "configuration"
           : activeView === "skills"
             ? "skills"
-            : activeView === "runs"
-              ? "runs"
-              : activeView === "budget"
-                ? "budget"
-              : "dashboard";
+            : activeView === "memory"
+              ? "memory"
+              : activeView === "runs"
+                ? "runs"
+                : activeView === "budget"
+                  ? "budget"
+                  : "dashboard";
     if (routeAgentRef !== canonicalAgentRef || urlTab !== canonicalTab) {
       navigate(`/agents/${canonicalAgentRef}/${canonicalTab}`, { replace: true });
       return;
@@ -770,6 +774,8 @@ export function AgentDetail() {
         crumbs.push({ label: "Configuration" });
       // } else if (activeView === "skills") { // TODO: bring back later
       //   crumbs.push({ label: "Skills" });
+      } else if (activeView === "memory") {
+        crumbs.push({ label: "Memory" });
       } else if (activeView === "runs") {
         crumbs.push({ label: "Runs" });
       } else if (activeView === "budget") {
@@ -912,6 +918,7 @@ export function AgentDetail() {
               { value: "instructions", label: "Instructions" },
               { value: "skills", label: "Skills" },
               { value: "configuration", label: "Configuration" },
+              { value: "memory", label: "Memory" },
               { value: "runs", label: "Runs" },
               { value: "budget", label: "Budget" },
             ]}
@@ -1025,6 +1032,15 @@ export function AgentDetail() {
           agent={agent}
           companyId={resolvedCompanyId ?? undefined}
         />
+      )}
+
+      {activeView === "memory" && resolvedCompanyId && (
+        <div className="max-w-3xl">
+          <MemfsBindingsPanel
+            companyId={resolvedCompanyId}
+            agentId={agent.id}
+          />
+        </div>
       )}
 
       {activeView === "runs" && (

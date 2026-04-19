@@ -1,6 +1,12 @@
 export const type = "pi_local";
 export const label = "Pi (local)";
 
+// Memfs capability — Pi has file tools and a local working dir; fs-mount should work.
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "fs-mount" as const,
+};
+
 export const models: Array<{ id: string; label: string }> = [];
 
 export const agentConfigurationDoc = `# pi_local agent configuration

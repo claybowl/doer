@@ -1,6 +1,12 @@
 export const type = "openclaw_gateway";
 export const label = "OpenClaw Gateway";
 
+// Memfs capability — remote gateway. V3 target for system-prompt-inject / tool-callable.
+export const memfsCapability = {
+  supported: ["none"] as const,
+  default: "none" as const,
+};
+
 export const models: { id: string; label: string }[] = [];
 
 export const agentConfigurationDoc = `# openclaw_gateway agent configuration

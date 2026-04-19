@@ -2,6 +2,12 @@ export const type = "cursor";
 export const label = "Cursor CLI (local)";
 export const DEFAULT_CURSOR_LOCAL_MODEL = "auto";
 
+// Memfs capability — cursor-local supports fs-mount (symlink into working dir).
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "fs-mount" as const,
+};
+
 const CURSOR_FALLBACK_MODEL_IDS = [
   "auto",
   "composer-1.5",

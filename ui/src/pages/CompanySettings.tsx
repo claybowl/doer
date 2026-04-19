@@ -15,6 +15,7 @@ import {
   ToggleField,
   HintIcon
 } from "../components/agent-config-primitives";
+import { MemfsRootsPanel } from "../components/memfs/MemfsRootsPanel";
 
 type AgentSnippetInput = {
   onboardingTextUrl: string;
@@ -462,6 +463,9 @@ export function CompanySettings() {
           )}
         </div>
       </div>
+
+      {/* Memory Roots */}
+      {selectedCompanyId && <MemfsRootsPanel companyId={selectedCompanyId} />}
 
       {/* Import / Export */}
       <div className="space-y-4">

@@ -95,6 +95,15 @@ export const queryKeys = {
     list: (companyId: string) => ["secrets", companyId] as const,
     providers: (companyId: string) => ["secret-providers", companyId] as const,
   },
+  memfs: {
+    roots: (companyId: string) => ["memfs", "roots", companyId] as const,
+    rootFiles: (companyId: string, rootId: string, prefix?: string) =>
+      ["memfs", "files", companyId, rootId, prefix ?? ""] as const,
+    bindingsForCompany: (companyId: string) =>
+      ["memfs", "bindings", "company", companyId] as const,
+    bindingsForAgent: (companyId: string, agentId: string) =>
+      ["memfs", "bindings", "agent", companyId, agentId] as const,
+  },
   dashboard: (companyId: string) => ["dashboard", companyId] as const,
   sidebarBadges: (companyId: string) => ["sidebar-badges", companyId] as const,
   activity: (companyId: string) => ["activity", companyId] as const,

@@ -2,6 +2,13 @@ export const type = "gemini_local";
 export const label = "Gemini CLI (local)";
 export const DEFAULT_GEMINI_LOCAL_MODEL = "auto";
 
+// Memfs capability — Gemini CLI file-tool behavior with symlinks not yet verified.
+// fs-mount is in the supported set for opt-in experiments; default is none until confirmed.
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "none" as const,
+};
+
 export const models = [
   { id: DEFAULT_GEMINI_LOCAL_MODEL, label: "Auto" },
   { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro" },

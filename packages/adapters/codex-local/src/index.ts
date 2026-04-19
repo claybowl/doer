@@ -3,6 +3,12 @@ export const label = "Codex (local)";
 export const DEFAULT_CODEX_LOCAL_MODEL = "gpt-5.3-codex";
 export const DEFAULT_CODEX_LOCAL_BYPASS_APPROVALS_AND_SANDBOX = true;
 
+// Memfs capability — codex-local supports fs-mount (symlink into working dir).
+export const memfsCapability = {
+  supported: ["fs-mount", "none"] as const,
+  default: "fs-mount" as const,
+};
+
 export const models = [
   { id: "gpt-5.4", label: "gpt-5.4" },
   { id: DEFAULT_CODEX_LOCAL_MODEL, label: DEFAULT_CODEX_LOCAL_MODEL },
