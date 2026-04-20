@@ -212,3 +212,4 @@ export type {
   WebhookDeliveryListItem,
 } from "./webhook.js";
 export { ALL_WEBHOOK_EVENT_TYPES } from "./webhook.js";
+export type { OversightData, OversightAgent, OversightGoal, OversightActivityEvent } from "./oversight.js";
