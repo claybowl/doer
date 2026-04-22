@@ -218,6 +218,10 @@
   from { transform: translateX(8px); opacity: 0; }
   to   { transform: translateX(0); opacity: 1; }
 }
+@keyframes fw-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
 @keyframes fw-stack-pop {
   0%   { transform: translateY(10px) scale(.95); opacity: 0; }
   60%  { transform: translateY(-2px) scale(1.02); opacity: 1; }

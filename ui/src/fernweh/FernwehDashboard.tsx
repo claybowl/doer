@@ -133,24 +133,21 @@ export function FernwehDashboard() {
     refetchInterval: 30_000,
   });
 
-  if (!selectedCompany) {
-    return (
-      <div style={{ padding: 40, color: "var(--ink-dim)" }}>
-        <p>Select a company to view the command deck.</p>
-      </div>
-    );
-  }
-
+  // NOTE: all hooks must run on every render (React hooks rule). Keep them
+  // above any conditional return. Derived values that don't need memoization
+  // can live below the early return.
   const summary = dashboardQuery.data;
   const agents = agentsQuery.data ?? [];
   const liveRuns = liveRunsQuery.data ?? [];
   const recentRuns = recentRunsQuery.data ?? [];
   const recentIssues = recentIssuesQuery.data ?? [];
+
   const agentNameById = React.useMemo(() => {
     const m = new Map<string, string>();
     for (const a of agents) m.set(a.id, a.name);
     return m;
   }, [agents]);
+
   const sortedRecentIssues = React.useMemo(() => {
     return [...recentIssues].sort((a, b) => {
       const ad = a.updatedAt ? new Date(a.updatedAt).getTime() : 0;
@@ -158,11 +155,6 @@ export function FernwehDashboard() {
       return bd - ad;
     });
   }, [recentIssues]);
-
-  const liveRunsByAgent = new Map<string, number>();
-  for (const r of liveRuns) {
-    liveRunsByAgent.set(r.agentId, (liveRunsByAgent.get(r.agentId) ?? 0) + 1);
-  }
 
   // Build a tiny sparkline of recent run counts per hour bucket (last 12 hours)
   const sparkValues = React.useMemo(() => {
@@ -178,6 +170,19 @@ export function FernwehDashboard() {
     }
     return buckets;
   }, [recentRuns]);
+
+  if (!selectedCompany) {
+    return (
+      <div style={{ padding: 40, color: "var(--ink-dim)" }}>
+        <p>Select a company to view the command deck.</p>
+      </div>
+    );
+  }
+
+  const liveRunsByAgent = new Map<string, number>();
+  for (const r of liveRuns) {
+    liveRunsByAgent.set(r.agentId, (liveRunsByAgent.get(r.agentId) ?? 0) + 1);
+  }
 
   return (
     <div
