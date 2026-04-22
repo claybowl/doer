@@ -1,0 +1,37 @@
+{
+  "name": "@doerai/plugin-delivered",
+  "version": "0.1.0",
+  "description": "Magazine-style showcase of shipped agent work. Replaces the in-tree /oversight feature as a portable Doer plugin mounted at /delivered.",
+  "type": "module",
+  "private": true,
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "paperclipPlugin": {
+    "manifest": "./dist/manifest.js",
+    "worker": "./dist/worker.js",
+    "ui": "./dist/ui/"
+  },
+  "scripts": {
+    "prebuild": "node ../../../../scripts/ensure-plugin-build-deps.mjs",
+    "build": "tsc && node ./scripts/build-ui.mjs",
+    "clean": "rm -rf dist",
+    "typecheck": "pnpm --filter @doerai/plugin-sdk build && tsc --noEmit"
+  },
+  "dependencies": {
+    "@doerai/plugin-sdk": "workspace:*",
+    "@doerai/shared": "workspace:*"
+  },
+  "devDependencies": {
+    "esbuild": "^0.27.3",
+    "@types/node": "^24.6.0",
+    "@types/react": "^19.0.8",
+    "@types/react-dom": "^19.0.3",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "typescript": "^5.7.3"
+  },
+  "peerDependencies": {
+    "react": ">=18"
+  }
+}

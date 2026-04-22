@@ -337,7 +337,6 @@ export type {
   WebhookDeliveryListItem,
 } from "./types/index.js";
 export { ALL_WEBHOOK_EVENT_TYPES } from "./types/index.js";
-export type { OversightData, OversightAgent, OversightGoal, OversightActivityEvent } from "./types/index.js";
 
 export {
   instanceGeneralSettingsSchema,
