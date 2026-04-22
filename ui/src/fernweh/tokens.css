@@ -1,0 +1,293 @@
+/* ============================================================
+   Fernweh — design tokens for three aesthetic directions.
+   SCOPED: all selectors are gated on [data-fernweh] so this
+   stylesheet cannot leak into the existing Doer UI.
+
+   Wrap any Fernweh subtree with:
+     <div data-fernweh data-look="atrium" data-theme="light">…</div>
+
+   data-look:  atrium | telegraph | meridian
+   data-theme: light  | dark
+============================================================ */
+
+[data-fernweh] {
+  /* Primitive tokens shared across all looks/themes */
+  --fw-radius-xs: 4px;
+  --fw-radius-sm: 6px;
+  --fw-radius-md: 10px;
+  --fw-radius-lg: 14px;
+  --fw-radius-xl: 22px;
+
+  --fw-ease: cubic-bezier(.22,.61,.36,1);
+  --fw-ease-spring: cubic-bezier(.34,1.3,.64,1);
+
+  --fw-font-sans: 'Inter Tight', ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --fw-font-display: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --fw-font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Aliased tokens — overridden by look+theme blocks below */
+  --bg: oklch(0.98 0.008 80);
+  --bg-raised: oklch(0.995 0.005 80);
+  --bg-sunken: oklch(0.955 0.012 80);
+  --ink: oklch(0.20 0.015 60);
+  --ink-dim: oklch(0.45 0.012 70);
+  --ink-faint: oklch(0.62 0.008 70);
+  --line: oklch(0.90 0.012 75);
+  --line-soft: oklch(0.94 0.01 75);
+  --accent: oklch(0.58 0.15 30);
+  --accent-soft: oklch(0.94 0.04 40);
+  --pulse: oklch(0.62 0.15 160);
+  --pulse-soft: oklch(0.93 0.04 160);
+  --warn: oklch(0.72 0.14 70);
+  --danger: oklch(0.55 0.18 25);
+  --font-display-active: var(--fw-font-display);
+  --font-body-active: var(--fw-font-sans);
+}
+
+/* ---------------- ATRIUM (editorial, warm neutral) ---------------- */
+[data-fernweh][data-look="atrium"][data-theme="light"] {
+  --bg: oklch(0.98 0.008 80);
+  --bg-raised: oklch(0.995 0.005 80);
+  --bg-sunken: oklch(0.955 0.012 80);
+  --ink: oklch(0.20 0.015 60);
+  --ink-dim: oklch(0.45 0.012 70);
+  --ink-faint: oklch(0.62 0.008 70);
+  --line: oklch(0.90 0.012 75);
+  --line-soft: oklch(0.94 0.01 75);
+  --accent: oklch(0.58 0.15 30);
+  --accent-soft: oklch(0.94 0.04 40);
+  --pulse: oklch(0.62 0.15 160);
+  --pulse-soft: oklch(0.93 0.04 160);
+  --warn: oklch(0.72 0.14 70);
+  --danger: oklch(0.55 0.18 25);
+  --font-display-active: var(--fw-font-display);
+  --font-body-active: var(--fw-font-sans);
+}
+[data-fernweh][data-look="atrium"][data-theme="dark"] {
+  --bg: oklch(0.17 0.012 60);
+  --bg-raised: oklch(0.21 0.014 60);
+  --bg-sunken: oklch(0.14 0.01 60);
+  --ink: oklch(0.94 0.012 80);
+  --ink-dim: oklch(0.70 0.012 75);
+  --ink-faint: oklch(0.52 0.01 70);
+  --line: oklch(0.28 0.012 60);
+  --line-soft: oklch(0.23 0.01 60);
+  --accent: oklch(0.74 0.14 35);
+  --accent-soft: oklch(0.30 0.06 40);
+  --pulse: oklch(0.78 0.16 160);
+  --pulse-soft: oklch(0.28 0.06 160);
+  --warn: oklch(0.80 0.14 80);
+  --danger: oklch(0.70 0.17 25);
+  --font-display-active: var(--fw-font-display);
+  --font-body-active: var(--fw-font-sans);
+}
+
+/* ---------------- TELEGRAPH (mono command-deck) ---------------- */
+[data-fernweh][data-look="telegraph"][data-theme="dark"] {
+  --bg: oklch(0.14 0.008 240);
+  --bg-raised: oklch(0.175 0.01 240);
+  --bg-sunken: oklch(0.11 0.008 240);
+  --ink: oklch(0.93 0.012 150);
+  --ink-dim: oklch(0.68 0.02 150);
+  --ink-faint: oklch(0.50 0.015 200);
+  --line: oklch(0.25 0.012 220);
+  --line-soft: oklch(0.20 0.01 220);
+  --accent: oklch(0.82 0.18 150);
+  --accent-soft: oklch(0.30 0.08 150);
+  --pulse: oklch(0.82 0.18 150);
+  --pulse-soft: oklch(0.30 0.08 150);
+  --warn: oklch(0.78 0.16 85);
+  --danger: oklch(0.70 0.18 25);
+  --font-display-active: var(--fw-font-mono);
+  --font-body-active: var(--fw-font-mono);
+}
+[data-fernweh][data-look="telegraph"][data-theme="light"] {
+  --bg: oklch(0.97 0.005 120);
+  --bg-raised: oklch(0.99 0.003 120);
+  --bg-sunken: oklch(0.93 0.008 120);
+  --ink: oklch(0.18 0.012 200);
+  --ink-dim: oklch(0.45 0.012 200);
+  --ink-faint: oklch(0.62 0.01 200);
+  --line: oklch(0.86 0.012 160);
+  --line-soft: oklch(0.91 0.01 160);
+  --accent: oklch(0.48 0.17 150);
+  --accent-soft: oklch(0.90 0.06 150);
+  --pulse: oklch(0.48 0.17 150);
+  --pulse-soft: oklch(0.90 0.06 150);
+  --warn: oklch(0.60 0.14 70);
+  --danger: oklch(0.52 0.18 25);
+  --font-display-active: var(--fw-font-mono);
+  --font-body-active: var(--fw-font-mono);
+}
+
+/* ---------------- MERIDIAN (soft-pro with color) ---------------- */
+[data-fernweh][data-look="meridian"][data-theme="light"] {
+  --bg: oklch(0.985 0.004 260);
+  --bg-raised: oklch(1 0 0);
+  --bg-sunken: oklch(0.96 0.006 260);
+  --ink: oklch(0.22 0.02 270);
+  --ink-dim: oklch(0.48 0.02 270);
+  --ink-faint: oklch(0.65 0.015 270);
+  --line: oklch(0.90 0.01 260);
+  --line-soft: oklch(0.94 0.008 260);
+  --accent: oklch(0.56 0.17 265);
+  --accent-soft: oklch(0.93 0.04 265);
+  --pulse: oklch(0.62 0.16 200);
+  --pulse-soft: oklch(0.92 0.04 200);
+  --warn: oklch(0.72 0.14 70);
+  --danger: oklch(0.58 0.20 20);
+  --font-display-active: var(--fw-font-sans);
+  --font-body-active: var(--fw-font-sans);
+}
+[data-fernweh][data-look="meridian"][data-theme="dark"] {
+  --bg: oklch(0.17 0.014 270);
+  --bg-raised: oklch(0.21 0.016 270);
+  --bg-sunken: oklch(0.13 0.012 270);
+  --ink: oklch(0.94 0.008 260);
+  --ink-dim: oklch(0.70 0.012 260);
+  --ink-faint: oklch(0.55 0.01 260);
+  --line: oklch(0.28 0.014 270);
+  --line-soft: oklch(0.23 0.012 270);
+  --accent: oklch(0.76 0.14 265);
+  --accent-soft: oklch(0.30 0.07 265);
+  --pulse: oklch(0.80 0.13 200);
+  --pulse-soft: oklch(0.30 0.06 200);
+  --warn: oklch(0.80 0.14 80);
+  --danger: oklch(0.72 0.18 20);
+  --font-display-active: var(--fw-font-sans);
+  --font-body-active: var(--fw-font-sans);
+}
+
+/* ---------------- Base (scoped to fernweh root) ---------------- */
+[data-fernweh] {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-body-active);
+  font-feature-settings: 'ss01', 'cv11';
+  -webkit-font-smoothing: antialiased;
+  font-size: 14px;
+  line-height: 1.45;
+  transition: background .4s var(--fw-ease), color .4s var(--fw-ease);
+}
+
+[data-fernweh] button { font: inherit; color: inherit; background: none; border: 0; cursor: pointer; padding: 0; }
+[data-fernweh] input,
+[data-fernweh] textarea { font: inherit; color: inherit; }
+[data-fernweh] a { color: inherit; text-decoration: none; }
+[data-fernweh] *, [data-fernweh] *::before, [data-fernweh] *::after { box-sizing: border-box; }
+
+[data-fernweh] ::selection { background: var(--accent-soft); color: var(--ink); }
+
+/* Scrollbars */
+[data-fernweh] *::-webkit-scrollbar { width: 10px; height: 10px; }
+[data-fernweh] *::-webkit-scrollbar-track { background: transparent; }
+[data-fernweh] *::-webkit-scrollbar-thumb { background: var(--line); border-radius: 10px; border: 2px solid var(--bg); }
+[data-fernweh] *::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
+
+/* ---------------- Utility primitives ---------------- */
+[data-fernweh] .fw-display { font-family: var(--font-display-active); letter-spacing: -0.02em; }
+[data-fernweh] .fw-mono { font-family: var(--fw-font-mono); }
+[data-fernweh] .fw-uc { text-transform: uppercase; letter-spacing: 0.08em; font-size: 11px; }
+[data-fernweh] .fw-hairline { border-top: 1px solid var(--line); }
+
+[data-fernweh] .fw-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 500;
+  background: var(--bg-sunken); color: var(--ink-dim);
+  border: 1px solid var(--line);
+}
+[data-fernweh] .fw-chip.accent { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+[data-fernweh] .fw-chip.pulse  { background: var(--pulse-soft); color: var(--pulse); border-color: transparent; }
+[data-fernweh] .fw-chip.warn   { color: var(--warn); }
+[data-fernweh] .fw-chip.danger { color: var(--danger); }
+
+[data-fernweh] .fw-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; display: inline-block; }
+[data-fernweh] .fw-dot.pulsing { animation: fw-pulse 1.6s var(--fw-ease) infinite; }
+
+@keyframes fw-pulse {
+  0%   { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  70%  { box-shadow: 0 0 0 6px transparent; opacity: .6; }
+  100% { box-shadow: 0 0 0 0 transparent; opacity: 1; }
+}
+@keyframes fw-rise {
+  from { transform: translateY(6px); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes fw-slide-in-right {
+  from { transform: translateX(8px); opacity: 0; }
+  to   { transform: translateX(0); opacity: 1; }
+}
+@keyframes fw-stack-pop {
+  0%   { transform: translateY(10px) scale(.95); opacity: 0; }
+  60%  { transform: translateY(-2px) scale(1.02); opacity: 1; }
+  100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+@keyframes fw-ekg {
+  0%, 100% { transform: scaleY(1); }
+  50%      { transform: scaleY(1.4); }
+}
+@keyframes fw-shimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Telegraph CRT/scanline overlay (subtle, scoped to fernweh root) */
+[data-fernweh][data-look="telegraph"] {
+  position: relative;
+}
+[data-fernweh][data-look="telegraph"]::after {
+  content: '';
+  position: absolute; inset: 0; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(
+    to bottom,
+    transparent 0 2px,
+    rgba(255,255,255,0.014) 2px 3px
+  );
+  mix-blend-mode: overlay;
+}
+[data-fernweh][data-look="telegraph"][data-theme="light"]::after { opacity: 0.5; }
+
+/* shared card */
+[data-fernweh] .fw-card {
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--fw-radius-lg);
+  transition: border-color .2s var(--fw-ease), transform .2s var(--fw-ease);
+}
+[data-fernweh][data-look="telegraph"] .fw-card { border-radius: var(--fw-radius-xs); }
+[data-fernweh] .fw-card:hover { border-color: var(--ink-faint); }
+
+/* Tweaks panel */
+[data-fernweh] .fw-tweaks {
+  position: fixed;
+  bottom: 16px; right: 16px;
+  z-index: 1000;
+  width: 280px;
+  background: var(--bg-raised);
+  border: 1px solid var(--line);
+  border-radius: var(--fw-radius-lg);
+  padding: 14px;
+  box-shadow: 0 20px 40px -20px rgba(0,0,0,0.25), 0 4px 12px -6px rgba(0,0,0,0.15);
+  font-family: var(--fw-font-sans);
+  transform: translateY(8px); opacity: 0; pointer-events: none;
+  transition: transform .3s var(--fw-ease), opacity .3s var(--fw-ease);
+}
+[data-fernweh] .fw-tweaks.open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+[data-fernweh] .fw-tweaks h4 { margin: 0 0 10px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-faint); font-weight: 600; }
+[data-fernweh] .fw-tweaks .group { margin-bottom: 14px; }
+[data-fernweh] .fw-tweaks .row { display: flex; gap: 6px; }
+[data-fernweh] .fw-tweaks .opt {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--bg);
+  font-size: 12px;
+  color: var(--ink-dim);
+  cursor: pointer;
+  text-align: center;
+  transition: all .15s var(--fw-ease);
+}
+[data-fernweh] .fw-tweaks .opt:hover { color: var(--ink); border-color: var(--ink-faint); }
+[data-fernweh] .fw-tweaks .opt.active { background: var(--accent-soft); color: var(--accent); border-color: transparent; }

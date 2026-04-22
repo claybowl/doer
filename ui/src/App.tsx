@@ -46,6 +46,8 @@ import { BoardClaimPage } from "./pages/BoardClaim";
 import { CliAuthPage } from "./pages/CliAuth";
 import { InviteLandingPage } from "./pages/InviteLanding";
 import { NotFoundPage } from "./pages/NotFound";
+import { FernwehShell } from "./fernweh/FernwehShell";
+import { FernwehDashboard } from "./fernweh/FernwehDashboard";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -346,6 +348,9 @@ export function App() {
           <Route path="projects/:projectId/issues/:filter" element={<UnprefixedBoardRedirect />} />
           <Route path="projects/:projectId/configuration" element={<UnprefixedBoardRedirect />} />
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
+          <Route path=":companyPrefix/fernweh" element={<FernwehShell />}>
+            <Route index element={<FernwehDashboard />} />
+          </Route>
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}
           </Route>
