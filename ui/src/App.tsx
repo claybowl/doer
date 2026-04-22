@@ -50,6 +50,8 @@ import { FernwehShell } from "./fernweh/FernwehShell";
 import { FernwehDashboard } from "./fernweh/FernwehDashboard";
 import { FernwehOrgChart } from "./fernweh/FernwehOrgChart";
 import { FernwehAgents } from "./fernweh/FernwehAgents";
+import { FernwehWork } from "./fernweh/FernwehWork";
+import { FernwehActivity } from "./fernweh/FernwehActivity";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -354,6 +356,8 @@ export function App() {
             <Route index element={<FernwehDashboard />} />
             <Route path="org" element={<FernwehOrgChart />} />
             <Route path="agents" element={<FernwehAgents />} />
+            <Route path="work" element={<FernwehWork />} />
+            <Route path="activity" element={<FernwehActivity />} />
           </Route>
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}
