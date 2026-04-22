@@ -64,6 +64,14 @@ export function FernwehShell() {
 
   const company = selectedCompany ?? companies.find((c) => c.issuePrefix === prefix) ?? companies[0] ?? null;
 
+  // Defensive fallbacks — if the tokens stylesheet ever fails to resolve
+  // (stale bundle, unsupported color-space, attr-selector mismatch) we still
+  // paint a legible surface instead of pitch black.
+  const fallbackBg = theme === "dark" ? "#121418" : "#fafafa";
+  const fallbackInk = theme === "dark" ? "#e8e8ec" : "#1b1c20";
+  const fallbackSunken = theme === "dark" ? "#0e1014" : "#f1f1f2";
+  const fallbackLine = theme === "dark" ? "#2a2d33" : "#e4e4e7";
+
   return (
     <div
       data-fernweh
@@ -76,13 +84,15 @@ export function FernwehShell() {
         gridTemplateColumns: "240px 1fr",
         overflow: "hidden",
         zIndex: 1,
+        background: `var(--bg, ${fallbackBg})`,
+        color: `var(--ink, ${fallbackInk})`,
       }}
     >
       {/* Sidebar */}
       <aside
         style={{
-          background: "var(--bg-sunken)",
-          borderRight: "1px solid var(--line)",
+          background: `var(--bg-sunken, ${fallbackSunken})`,
+          borderRight: `1px solid var(--line, ${fallbackLine})`,
           display: "flex",
           flexDirection: "column",
           padding: "20px 14px",
@@ -208,7 +218,7 @@ export function FernwehShell() {
       <main
         style={{
           overflow: "auto",
-          background: "var(--bg)",
+          background: `var(--bg, ${fallbackBg})`,
         }}
       >
         <Outlet context={{ look, theme }} />
