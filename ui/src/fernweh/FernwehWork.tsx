@@ -1,6 +1,7 @@
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCompany } from "@/context/CompanyContext";
+import { useToast } from "@/context/ToastContext";
 import { issuesApi } from "@/api/issues";
 import { agentsApi } from "@/api/agents";
 import { queryKeys } from "@/lib/queryKeys";
@@ -13,7 +14,13 @@ import {
   formatRelative,
   Field,
 } from "./utils";
-import type { Agent, Issue } from "@doerai/shared";
+import type {
+  Agent,
+  Issue,
+  IssueComment,
+  IssuePriority,
+  IssueStatus,
+} from "@doerai/shared";
 
 /* ------------------------------------------------------------------
    Lane definitions — collapse the 7 IssueStatus values into 4 lanes.
@@ -43,6 +50,588 @@ function shortPriority(p: string): "P0" | "P1" | "P2" | "P3" | string {
   if (p === "medium") return "P2";
   if (p === "low") return "P3";
   return p;
+}
+
+const STATUS_OPTIONS: { value: IssueStatus; label: string; color: string }[] = [
+  { value: "backlog", label: "Backlog", color: "var(--ink-faint)" },
+  { value: "todo", label: "Todo", color: "var(--ink-dim)" },
+  { value: "in_progress", label: "In progress", color: "var(--accent)" },
+  { value: "in_review", label: "In review", color: "var(--warn)" },
+  { value: "blocked", label: "Blocked", color: "var(--danger)" },
+  { value: "done", label: "Done", color: "var(--pulse)" },
+  { value: "cancelled", label: "Cancelled", color: "var(--ink-faint)" },
+];
+
+const PRIORITY_OPTIONS: { value: IssuePriority; label: string; color: string; hint: string }[] = [
+  { value: "critical", label: "Critical", color: "var(--danger)", hint: "P0" },
+  { value: "high", label: "High", color: "var(--warn)", hint: "P1" },
+  { value: "medium", label: "Medium", color: "var(--accent)", hint: "P2" },
+  { value: "low", label: "Low", color: "var(--ink-faint)", hint: "P3" },
+];
+
+/* ------------------------------------------------------------------
+   Hooks / helpers
+------------------------------------------------------------------ */
+function useClickOutside<T extends HTMLElement>(
+  ref: React.RefObject<T | null>,
+  handler: () => void,
+  enabled: boolean,
+) {
+  React.useEffect(() => {
+    if (!enabled) return;
+    const onClick = (e: MouseEvent) => {
+      if (!ref.current) return;
+      if (ref.current.contains(e.target as Node)) return;
+      handler();
+    };
+    window.addEventListener("mousedown", onClick);
+    return () => window.removeEventListener("mousedown", onClick);
+  }, [ref, handler, enabled]);
+}
+
+function errMessage(err: unknown, fallback: string): string {
+  if (err instanceof Error) return err.message;
+  if (typeof err === "string") return err;
+  return fallback;
+}
+
+/* ------------------------------------------------------------------
+   Picker — generic single-select dropdown
+------------------------------------------------------------------ */
+type PickerOption<V> = {
+  value: V;
+  label: string;
+  hint?: string;
+  color?: string;
+  avatarName?: string;
+};
+
+function Picker<V extends string>({
+  placeholder,
+  value,
+  options,
+  onChange,
+  disabled,
+  emptyLabel,
+  width,
+}: {
+  placeholder?: string;
+  value: V | null;
+  options: PickerOption<V>[];
+  onChange: (next: V | null) => void;
+  disabled?: boolean;
+  emptyLabel?: string;
+  width?: number;
+}) {
+  const [open, setOpen] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+  useClickOutside(ref, () => setOpen(false), open);
+
+  const current = options.find((o) => o.value === value);
+
+  return (
+    <div ref={ref} style={{ position: "relative", display: "inline-block", minWidth: width }}>
+      <button
+        onClick={() => !disabled && setOpen((o) => !o)}
+        disabled={disabled}
+        style={{
+          display: "inline-flex",
+          alignItems: "center",
+          gap: 6,
+          padding: "6px 10px",
+          borderRadius: 6,
+          border: "1px solid var(--line)",
+          background: "var(--bg-raised)",
+          color: current ? "var(--ink)" : "var(--ink-dim)",
+          fontSize: 12,
+          cursor: disabled ? "not-allowed" : "pointer",
+          opacity: disabled ? 0.6 : 1,
+          width: "100%",
+          justifyContent: "space-between",
+        }}
+      >
+        <span style={{ display: "inline-flex", alignItems: "center", gap: 6, minWidth: 0 }}>
+          {current?.avatarName ? (
+            <Avatar name={current.avatarName} size={16} />
+          ) : current?.color ? (
+            <span style={{ width: 8, height: 8, borderRadius: 999, background: current.color, flexShrink: 0 }} />
+          ) : null}
+          <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+            {current?.label ?? placeholder ?? "Select…"}
+          </span>
+        </span>
+        <Icon
+          d={I.chevron}
+          size={10}
+          style={{
+            color: "var(--ink-faint)",
+            transform: open ? "rotate(90deg)" : undefined,
+            transition: "transform .1s var(--fw-ease)",
+          }}
+        />
+      </button>
+      {open ? (
+        <div
+          style={{
+            position: "absolute",
+            top: "calc(100% + 4px)",
+            left: 0,
+            minWidth: "100%",
+            maxHeight: 280,
+            overflowY: "auto",
+            background: "var(--bg-raised)",
+            border: "1px solid var(--line)",
+            borderRadius: 8,
+            boxShadow: "0 4px 16px rgba(0,0,0,0.14)",
+            padding: 4,
+            zIndex: 50,
+          }}
+        >
+          {emptyLabel ? (
+            <button
+              onClick={() => {
+                onChange(null);
+                setOpen(false);
+              }}
+              style={{
+                width: "100%",
+                display: "flex",
+                alignItems: "center",
+                gap: 8,
+                padding: "6px 8px",
+                border: "none",
+                borderRadius: 6,
+                background: value === null ? "var(--accent-soft)" : "transparent",
+                color: "var(--ink-dim)",
+                fontSize: 12,
+                fontStyle: "italic",
+                cursor: "pointer",
+                textAlign: "left",
+              }}
+              onMouseEnter={(e) => {
+                if (value !== null) e.currentTarget.style.background = "var(--bg-sunken)";
+              }}
+              onMouseLeave={(e) => {
+                if (value !== null) e.currentTarget.style.background = "transparent";
+              }}
+            >
+              {emptyLabel}
+            </button>
+          ) : null}
+          {options.map((opt) => {
+            const active = opt.value === value;
+            return (
+              <button
+                key={opt.value}
+                onClick={() => {
+                  onChange(opt.value);
+                  setOpen(false);
+                }}
+                style={{
+                  width: "100%",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  padding: "6px 8px",
+                  border: "none",
+                  borderRadius: 6,
+                  background: active ? "var(--accent-soft)" : "transparent",
+                  color: active ? "var(--accent)" : "var(--ink)",
+                  fontSize: 12,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  whiteSpace: "nowrap",
+                }}
+                onMouseEnter={(e) => {
+                  if (!active) e.currentTarget.style.background = "var(--bg-sunken)";
+                }}
+                onMouseLeave={(e) => {
+                  if (!active) e.currentTarget.style.background = "transparent";
+                }}
+              >
+                {opt.avatarName ? (
+                  <Avatar name={opt.avatarName} size={16} />
+                ) : opt.color ? (
+                  <span
+                    style={{
+                      width: 8,
+                      height: 8,
+                      borderRadius: 999,
+                      background: opt.color,
+                      flexShrink: 0,
+                    }}
+                  />
+                ) : null}
+                <span>{opt.label}</span>
+                {opt.hint ? (
+                  <span
+                    style={{
+                      marginLeft: "auto",
+                      fontSize: 10,
+                      color: "var(--ink-faint)",
+                      fontFamily: "var(--fw-font-mono)",
+                    }}
+                  >
+                    {opt.hint}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Inline title / description editors
+------------------------------------------------------------------ */
+function InlineTitleEdit({
+  value,
+  onSave,
+  pending,
+}: {
+  value: string;
+  onSave: (v: string) => void;
+  pending?: boolean;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(value);
+  React.useEffect(() => setDraft(value), [value]);
+
+  if (editing) {
+    return (
+      <input
+        autoFocus
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          const trimmed = draft.trim();
+          if (trimmed && trimmed !== value) onSave(trimmed);
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+          if (e.key === "Escape") {
+            setDraft(value);
+            setEditing(false);
+          }
+        }}
+        style={{
+          width: "100%",
+          border: "1px solid var(--accent)",
+          borderRadius: 6,
+          padding: "6px 8px",
+          fontSize: 18,
+          fontWeight: 600,
+          fontFamily: "var(--font-display-active)",
+          background: "var(--bg)",
+          color: "var(--ink)",
+          outline: "none",
+          margin: 0,
+        }}
+      />
+    );
+  }
+
+  return (
+    <h2
+      onClick={() => setEditing(true)}
+      className="fw-display"
+      title="Click to edit"
+      style={{
+        margin: 0,
+        fontSize: 18,
+        fontWeight: 600,
+        lineHeight: 1.3,
+        cursor: "text",
+        padding: "1px 8px",
+        marginLeft: -8,
+        borderRadius: 6,
+        transition: "background .1s var(--fw-ease)",
+        opacity: pending ? 0.6 : 1,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = "var(--bg-raised)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = "transparent";
+      }}
+    >
+      {value || "Untitled"}
+    </h2>
+  );
+}
+
+function InlineDescriptionEdit({
+  value,
+  onSave,
+  pending,
+}: {
+  value: string | null;
+  onSave: (v: string) => void;
+  pending?: boolean;
+}) {
+  const [editing, setEditing] = React.useState(false);
+  const [draft, setDraft] = React.useState(value ?? "");
+  React.useEffect(() => setDraft(value ?? ""), [value]);
+
+  if (editing) {
+    return (
+      <textarea
+        autoFocus
+        value={draft}
+        onChange={(e) => setDraft(e.target.value)}
+        onBlur={() => {
+          if (draft !== (value ?? "")) onSave(draft);
+          setEditing(false);
+        }}
+        onKeyDown={(e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            e.preventDefault();
+            e.currentTarget.blur();
+          }
+          if (e.key === "Escape") {
+            setDraft(value ?? "");
+            setEditing(false);
+          }
+        }}
+        rows={6}
+        style={{
+          width: "100%",
+          border: "1px solid var(--accent)",
+          borderRadius: 6,
+          padding: "8px 10px",
+          fontSize: 13,
+          lineHeight: 1.55,
+          background: "var(--bg)",
+          color: "var(--ink)",
+          outline: "none",
+          resize: "vertical",
+          fontFamily: "inherit",
+        }}
+      />
+    );
+  }
+
+  return (
+    <p
+      onClick={() => setEditing(true)}
+      title="Click to edit (⌘↵ to save)"
+      style={{
+        margin: 0,
+        fontSize: 13,
+        lineHeight: 1.55,
+        color: value ? "var(--ink-dim)" : "var(--ink-faint)",
+        whiteSpace: "pre-wrap",
+        cursor: "text",
+        padding: 8,
+        borderRadius: 6,
+        border: "1px dashed transparent",
+        fontStyle: value ? "normal" : "italic",
+        opacity: pending ? 0.6 : 1,
+        transition: "all .1s var(--fw-ease)",
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.borderColor = "var(--line)";
+        e.currentTarget.style.background = "var(--bg-raised)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.borderColor = "transparent";
+        e.currentTarget.style.background = "transparent";
+      }}
+    >
+      {value || "Add a description…"}
+    </p>
+  );
+}
+
+/* ------------------------------------------------------------------
+   Comment composer + thread
+------------------------------------------------------------------ */
+function CommentComposer({
+  onSubmit,
+  pending,
+}: {
+  onSubmit: (body: string, reopen: boolean, interrupt: boolean) => void;
+  pending: boolean;
+}) {
+  const [body, setBody] = React.useState("");
+  const [reopen, setReopen] = React.useState(false);
+  const [interrupt, setInterrupt] = React.useState(false);
+
+  const canSubmit = body.trim().length > 0 && !pending;
+
+  return (
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: 8,
+        padding: 10,
+        border: "1px solid var(--line)",
+        borderRadius: 8,
+        background: "var(--bg-raised)",
+      }}
+    >
+      <textarea
+        value={body}
+        onChange={(e) => setBody(e.target.value)}
+        placeholder="Leave a comment… (⌘↵ to send)"
+        rows={3}
+        onKeyDown={(e) => {
+          if ((e.metaKey || e.ctrlKey) && e.key === "Enter" && canSubmit) {
+            e.preventDefault();
+            onSubmit(body.trim(), reopen, interrupt);
+            setBody("");
+            setReopen(false);
+            setInterrupt(false);
+          }
+        }}
+        style={{
+          border: "none",
+          outline: "none",
+          background: "transparent",
+          color: "var(--ink)",
+          fontSize: 13,
+          lineHeight: 1.5,
+          resize: "vertical",
+          fontFamily: "inherit",
+        }}
+      />
+      <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+        <label
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 11,
+            color: "var(--ink-dim)",
+            cursor: "pointer",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={reopen}
+            onChange={(e) => setReopen(e.target.checked)}
+            style={{ accentColor: "var(--accent)" }}
+          />
+          Reopen if done
+        </label>
+        <label
+          style={{
+            display: "inline-flex",
+            alignItems: "center",
+            gap: 6,
+            fontSize: 11,
+            color: "var(--ink-dim)",
+            cursor: "pointer",
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={interrupt}
+            onChange={(e) => setInterrupt(e.target.checked)}
+            style={{ accentColor: "var(--accent)" }}
+          />
+          Interrupt run
+        </label>
+        <button
+          onClick={() => {
+            if (!canSubmit) return;
+            onSubmit(body.trim(), reopen, interrupt);
+            setBody("");
+            setReopen(false);
+            setInterrupt(false);
+          }}
+          disabled={!canSubmit}
+          style={{
+            marginLeft: "auto",
+            padding: "5px 12px",
+            borderRadius: 6,
+            border: "1px solid var(--accent)",
+            background: canSubmit ? "var(--accent)" : "var(--bg-sunken)",
+            color: canSubmit ? "var(--bg)" : "var(--ink-faint)",
+            fontSize: 12,
+            fontWeight: 500,
+            cursor: canSubmit ? "pointer" : "not-allowed",
+          }}
+        >
+          {pending ? "Sending…" : "Send"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function CommentsThread({
+  comments,
+  agents,
+  loading,
+}: {
+  comments: IssueComment[];
+  agents: Map<string, Agent>;
+  loading: boolean;
+}) {
+  if (loading && comments.length === 0) {
+    return (
+      <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Loading comments…</span>
+    );
+  }
+  if (comments.length === 0) {
+    return (
+      <span style={{ fontSize: 12, color: "var(--ink-faint)", fontStyle: "italic" }}>
+        No comments yet.
+      </span>
+    );
+  }
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+      {comments.map((c) => {
+        const author = c.authorAgentId ? agents.get(c.authorAgentId) ?? null : null;
+        const displayName = author?.name ?? (c.authorUserId ? "User" : "System");
+        return (
+          <div
+            key={c.id}
+            style={{
+              display: "flex",
+              gap: 10,
+              padding: 10,
+              borderRadius: 8,
+              background: "var(--bg-raised)",
+              border: "1px solid var(--line-soft)",
+            }}
+          >
+            <Avatar name={displayName} size={24} />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginBottom: 4 }}>
+                <span style={{ fontSize: 12, fontWeight: 500 }}>{displayName}</span>
+                <span style={{ fontSize: 10, color: "var(--ink-faint)" }}>
+                  {formatRelative(c.createdAt)}
+                </span>
+              </div>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: 12.5,
+                  lineHeight: 1.55,
+                  color: "var(--ink-dim)",
+                  whiteSpace: "pre-wrap",
+                  wordBreak: "break-word",
+                }}
+              >
+                {c.body}
+              </p>
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
 }
 
 /* ------------------------------------------------------------------
@@ -85,10 +674,7 @@ function IssueCard({
     >
       {/* Top row: identifier + priority + blocked flag */}
       <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-        <span
-          className="fw-mono"
-          style={{ fontSize: 10, color: "var(--ink-faint)" }}
-        >
+        <span className="fw-mono" style={{ fontSize: 10, color: "var(--ink-faint)" }}>
           {issue.identifier ?? issue.id.slice(0, 6)}
         </span>
         <PriorityChip priority={shortPriority(issue.priority)} />
@@ -120,7 +706,14 @@ function IssueCard({
       </span>
 
       {/* Footer */}
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: 8,
+        }}
+      >
         <div style={{ display: "flex", alignItems: "center", gap: 6, minWidth: 0 }}>
           {assignee ? (
             <>
@@ -230,31 +823,159 @@ function Lane({
 }
 
 /* ------------------------------------------------------------------
-   Detail drawer
+   Interactive detail drawer
 ------------------------------------------------------------------ */
-function IssueDrawer({
+function InteractiveIssueDrawer({
   issue,
+  agents,
   byId,
+  companyId,
   companyPrefix,
   onClose,
 }: {
   issue: Issue | null;
+  agents: Agent[];
   byId: Map<string, Agent>;
+  companyId: string;
   companyPrefix: string;
   onClose: () => void;
 }) {
+  const queryClient = useQueryClient();
+  const { pushToast } = useToast();
+
   React.useEffect(() => {
     if (!issue) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        // Ignore Escape while user is editing a field (let the field cancel first).
+        const target = e.target as HTMLElement | null;
+        if (target && (target.tagName === "INPUT" || target.tagName === "TEXTAREA")) return;
+        onClose();
+      }
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [issue, onClose]);
 
+  /* -------- Issue update mutation (optimistic) -------- */
+  const updateMutation = useMutation<Issue, Error, Partial<Issue>, { prev?: Issue[] }>({
+    mutationFn: async (patch) => {
+      if (!issue) throw new Error("No issue selected");
+      return issuesApi.update(issue.id, patch as Record<string, unknown>);
+    },
+    onMutate: async (patch) => {
+      if (!issue) return {};
+      const key = queryKeys.issues.list(companyId);
+      await queryClient.cancelQueries({ queryKey: key });
+      const prev = queryClient.getQueryData<Issue[]>(key);
+      if (prev) {
+        queryClient.setQueryData<Issue[]>(
+          key,
+          prev.map((i) => (i.id === issue.id ? { ...i, ...patch } : i)),
+        );
+      }
+      return { prev };
+    },
+    onError: (err, _patch, ctx) => {
+      if (ctx?.prev) {
+        queryClient.setQueryData(queryKeys.issues.list(companyId), ctx.prev);
+      }
+      pushToast({
+        title: "Update failed",
+        body: errMessage(err, "Server rejected the change."),
+        tone: "error",
+      });
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) });
+    },
+  });
+
+  /* -------- Comments -------- */
+  const commentsQuery = useQuery({
+    queryKey: issue ? queryKeys.issues.comments(issue.id) : ["issues", "comments", "none"],
+    queryFn: () => issuesApi.listComments(issue!.id),
+    enabled: !!issue,
+    refetchInterval: 20_000,
+  });
+
+  const addCommentMutation = useMutation<
+    IssueComment,
+    Error,
+    { body: string; reopen?: boolean; interrupt?: boolean }
+  >({
+    mutationFn: ({ body, reopen, interrupt }) => {
+      if (!issue) throw new Error("No issue selected");
+      return issuesApi.addComment(issue.id, body, reopen, interrupt);
+    },
+    onSuccess: () => {
+      if (!issue) return;
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.comments(issue.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) });
+      pushToast({ title: "Comment added", tone: "success" });
+    },
+    onError: (err) => {
+      pushToast({
+        title: "Comment failed",
+        body: errMessage(err, "Could not post comment."),
+        tone: "error",
+      });
+    },
+  });
+
+  /* -------- Checkout / release -------- */
+  const checkoutMutation = useMutation<Issue, Error, string>({
+    mutationFn: (agentId) => {
+      if (!issue) throw new Error("No issue selected");
+      return issuesApi.checkout(issue.id, agentId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) });
+      pushToast({ title: "Checked out", tone: "success" });
+    },
+    onError: (err) => {
+      pushToast({
+        title: "Checkout failed",
+        body: errMessage(err, "Could not check out."),
+        tone: "error",
+      });
+    },
+  });
+
+  const releaseMutation = useMutation<Issue, Error, void>({
+    mutationFn: () => {
+      if (!issue) throw new Error("No issue selected");
+      return issuesApi.release(issue.id);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(companyId) });
+      pushToast({ title: "Released", tone: "success" });
+    },
+    onError: (err) => {
+      pushToast({
+        title: "Release failed",
+        body: errMessage(err, "Could not release."),
+        tone: "error",
+      });
+    },
+  });
+
   if (!issue) return null;
 
   const assignee = issue.assigneeAgentId ? byId.get(issue.assigneeAgentId) ?? null : null;
+  const updatePending = updateMutation.isPending;
+  const comments = commentsQuery.data ?? [];
+  const checkedOut = !!issue.checkoutRunId;
+
+  const assigneeOptions: PickerOption<string>[] = agents
+    .slice()
+    .sort((a, b) => a.name.localeCompare(b.name))
+    .map((a) => ({
+      value: a.id,
+      label: a.name,
+      hint: a.title ?? a.role,
+      avatarName: a.name,
+    }));
 
   return (
     <>
@@ -263,8 +984,8 @@ function IssueDrawer({
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.35)",
-          backdropFilter: "blur(2px)",
+          background: "rgba(0,0,0,0.32)",
+          backdropFilter: "blur(4px)",
           zIndex: 40,
           animation: "fw-fade-in .15s var(--fw-ease)",
         }}
@@ -277,7 +998,7 @@ function IssueDrawer({
           top: 0,
           right: 0,
           bottom: 0,
-          width: "min(560px, 92vw)",
+          width: "min(620px, 94vw)",
           background: "var(--bg, #fafafa)",
           borderLeft: "1px solid var(--line)",
           boxShadow: "-12px 0 32px rgba(0,0,0,0.18)",
@@ -304,13 +1025,20 @@ function IssueDrawer({
               </span>
               <StatusChip status={issue.status} />
               <PriorityChip priority={shortPriority(issue.priority)} />
+              {checkedOut ? (
+                <span
+                  className="fw-chip"
+                  style={{ color: "var(--accent)", borderColor: "var(--accent)", fontSize: 10 }}
+                >
+                  checked out
+                </span>
+              ) : null}
             </div>
-            <h2
-              className="fw-display"
-              style={{ margin: 0, fontSize: 18, fontWeight: 600, lineHeight: 1.3 }}
-            >
-              {issue.title ?? "Untitled"}
-            </h2>
+            <InlineTitleEdit
+              value={issue.title ?? ""}
+              onSave={(next) => updateMutation.mutate({ title: next })}
+              pending={updatePending}
+            />
           </div>
           <button
             onClick={onClose}
@@ -324,46 +1052,129 @@ function IssueDrawer({
               cursor: "pointer",
               display: "flex",
               alignItems: "center",
+              flexShrink: 0,
             }}
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
+            <Icon d={I.x} size={12} />
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ flex: 1, overflowY: "auto", padding: "18px 24px 24px", display: "flex", flexDirection: "column", gap: 18 }}>
-          {issue.description ? (
-            <Field label="Description">
-              <p
-                style={{
-                  margin: 0,
-                  fontSize: 13,
-                  lineHeight: 1.55,
-                  color: "var(--ink-dim)",
-                  whiteSpace: "pre-wrap",
-                }}
-              >
-                {issue.description}
-              </p>
-            </Field>
-          ) : null}
-
-          <Field label="Assignee">
-            {assignee ? (
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <Avatar name={assignee.name} size={22} />
-                <span style={{ fontSize: 13 }}>{assignee.name}</span>
-                <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
-                  · {assignee.title ?? assignee.role}
-                </span>
-              </div>
-            ) : (
-              <span style={{ fontSize: 13, color: "var(--ink-dim)" }}>unassigned</span>
-            )}
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "18px 24px 24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+          }}
+        >
+          {/* Description */}
+          <Field label="Description">
+            <InlineDescriptionEdit
+              value={issue.description}
+              onSave={(next) => updateMutation.mutate({ description: next || null })}
+              pending={updatePending}
+            />
           </Field>
 
+          {/* Status / Priority / Assignee pickers */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "1fr 1fr",
+              gap: 14,
+            }}
+          >
+            <Field label="Status">
+              <Picker<IssueStatus>
+                value={issue.status}
+                options={STATUS_OPTIONS}
+                onChange={(next) => {
+                  if (!next || next === issue.status) return;
+                  updateMutation.mutate({ status: next });
+                }}
+              />
+            </Field>
+            <Field label="Priority">
+              <Picker<IssuePriority>
+                value={issue.priority}
+                options={PRIORITY_OPTIONS}
+                onChange={(next) => {
+                  if (!next || next === issue.priority) return;
+                  updateMutation.mutate({ priority: next });
+                }}
+              />
+            </Field>
+          </div>
+
+          <Field label="Assignee">
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <Picker<string>
+                value={issue.assigneeAgentId}
+                options={assigneeOptions}
+                placeholder="Unassigned"
+                emptyLabel="— Unassign"
+                onChange={(next) =>
+                  updateMutation.mutate({ assigneeAgentId: next ?? null })
+                }
+                width={260}
+              />
+              {assignee ? (
+                <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
+                  {assignee.title ?? assignee.role} · {assignee.adapterType}
+                </span>
+              ) : null}
+            </div>
+          </Field>
+
+          {/* Checkout / release */}
+          {assignee ? (
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {checkedOut ? (
+                <button
+                  onClick={() => releaseMutation.mutate()}
+                  disabled={releaseMutation.isPending}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: "1px solid var(--line)",
+                    background: "var(--bg-raised)",
+                    color: "var(--ink)",
+                    fontSize: 12,
+                    cursor: releaseMutation.isPending ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {releaseMutation.isPending ? "Releasing…" : "Release"}
+                </button>
+              ) : (
+                <button
+                  onClick={() => checkoutMutation.mutate(assignee.id)}
+                  disabled={checkoutMutation.isPending}
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 6,
+                    border: "1px solid var(--accent)",
+                    background: "var(--accent)",
+                    color: "var(--bg)",
+                    fontSize: 12,
+                    fontWeight: 500,
+                    cursor: checkoutMutation.isPending ? "not-allowed" : "pointer",
+                  }}
+                >
+                  {checkoutMutation.isPending ? "Checking out…" : "Checkout"}
+                </button>
+              )}
+              <span style={{ fontSize: 11, color: "var(--ink-faint)", alignSelf: "center" }}>
+                {checkedOut
+                  ? "Held by a run. Release to let other agents pick it up."
+                  : "Lock the issue to this assignee."}
+              </span>
+            </div>
+          ) : null}
+
+          {/* Timestamps */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 14 }}>
             <Field label="Started">
               <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>
@@ -376,38 +1187,71 @@ function IssueDrawer({
               </span>
             </Field>
             <Field label="Updated">
-              <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>{formatRelative(issue.updatedAt)}</span>
+              <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>
+                {formatRelative(issue.updatedAt)}
+              </span>
             </Field>
             <Field label="Created">
-              <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>{formatRelative(issue.createdAt)}</span>
+              <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>
+                {formatRelative(issue.createdAt)}
+              </span>
             </Field>
           </div>
 
           {issue.projectId ? (
             <Field label="Project">
-              <span className="fw-mono" style={{ fontSize: 11, color: "var(--ink-faint)" }}>
+              <a
+                href={`/${companyPrefix}/projects/${issue.projectId}`}
+                className="fw-mono"
+                style={{
+                  fontSize: 11,
+                  color: "var(--ink-dim)",
+                  textDecoration: "none",
+                  borderBottom: "1px dashed var(--line)",
+                  paddingBottom: 1,
+                }}
+              >
                 {issue.projectId}
-              </span>
+              </a>
             </Field>
           ) : null}
 
-          <div style={{ marginTop: 8, display: "flex", gap: 8 }}>
+          {/* Comments */}
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
+              Comments ({comments.length})
+            </span>
+            <CommentsThread
+              comments={comments}
+              agents={byId}
+              loading={commentsQuery.isLoading}
+            />
+            <CommentComposer
+              onSubmit={(body, reopen, interrupt) =>
+                addCommentMutation.mutate({ body, reopen, interrupt })
+              }
+              pending={addCommentMutation.isPending}
+            />
+          </div>
+
+          {/* Escape hatch to classic */}
+          <div style={{ marginTop: 8, display: "flex", gap: 8, flexWrap: "wrap" }}>
             <a
               href={`/${companyPrefix}/issues/${issue.identifier ?? issue.id}`}
               style={{
                 fontSize: 12,
                 padding: "6px 12px",
-                borderRadius: 8,
+                borderRadius: 6,
                 border: "1px solid var(--line)",
                 background: "var(--bg-raised)",
-                color: "var(--ink)",
+                color: "var(--ink-dim)",
                 textDecoration: "none",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: 6,
               }}
             >
-              Open in classic UI <Icon d={I.arrow} size={11} />
+              Open full view in classic <Icon d={I.arrow} size={11} />
             </a>
           </div>
         </div>
@@ -458,8 +1302,12 @@ export function FernwehWork() {
     return issues.filter((issue) => {
       if (priorityFilter !== "all" && issue.priority !== priorityFilter) return false;
       if (q) {
-        const assignee = issue.assigneeAgentId ? agentById.get(issue.assigneeAgentId)?.name ?? "" : "";
-        const hay = [issue.title ?? "", issue.identifier ?? "", assignee].join(" ").toLowerCase();
+        const assignee = issue.assigneeAgentId
+          ? agentById.get(issue.assigneeAgentId)?.name ?? ""
+          : "";
+        const hay = [issue.title ?? "", issue.identifier ?? "", assignee]
+          .join(" ")
+          .toLowerCase();
         if (!hay.includes(q)) return false;
       }
       return true;
@@ -490,7 +1338,7 @@ export function FernwehWork() {
 
   const selected = selectedId ? issues.find((i) => i.id === selectedId) ?? null : null;
 
-  if (!selectedCompany) {
+  if (!selectedCompany || !companyId) {
     return (
       <div style={{ padding: 40, color: "var(--ink-dim)" }}>
         <p>Select a company to view work.</p>
@@ -513,12 +1361,23 @@ export function FernwehWork() {
       }}
     >
       {/* Header */}
-      <header style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16, flexWrap: "wrap" }}>
+      <header
+        style={{
+          display: "flex",
+          alignItems: "baseline",
+          justifyContent: "space-between",
+          gap: 16,
+          flexWrap: "wrap",
+        }}
+      >
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
             Work
           </span>
-          <h1 className="fw-display" style={{ fontSize: 28, fontWeight: 600, margin: 0, letterSpacing: "-0.02em" }}>
+          <h1
+            className="fw-display"
+            style={{ fontSize: 28, fontWeight: 600, margin: 0, letterSpacing: "-0.02em" }}
+          >
             {selectedCompany.name}
           </h1>
         </div>
@@ -654,13 +1513,17 @@ export function FernwehWork() {
         }}
       >
         <Icon d={I.issues} size={11} />
-        <span>Click a card for detail · Esc to close · refetches every 30s.</span>
+        <span>
+          Click a card for detail · Esc to close · Click title / description to edit · refetches every 30s.
+        </span>
       </footer>
 
       {/* Drawer */}
-      <IssueDrawer
+      <InteractiveIssueDrawer
         issue={selected}
+        agents={agents}
         byId={agentById}
+        companyId={companyId}
         companyPrefix={companyPrefix}
         onClose={() => setSelectedId(null)}
       />
