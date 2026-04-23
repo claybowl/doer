@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { NavLink, useParams } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { dashboardApi } from "@/api/dashboard";
 import { agentsApi } from "@/api/agents";
@@ -87,6 +88,61 @@ function Stat({
   );
 }
 
+function QuickAction({
+  to,
+  icon,
+  label,
+  hint,
+}: {
+  to: string;
+  icon: string;
+  label: string;
+  hint?: string;
+}) {
+  return (
+    <NavLink
+      to={to}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: 10,
+        padding: "12px 14px",
+        borderRadius: 10,
+        border: "1px solid var(--line)",
+        background: "var(--bg-raised)",
+        color: "var(--ink)",
+        textDecoration: "none",
+        transition: "all .15s var(--fw-ease)",
+      }}
+    >
+      <div
+        style={{
+          width: 28,
+          height: 28,
+          borderRadius: 8,
+          background: "color-mix(in oklab, var(--accent) 10%, var(--bg-sunken))",
+          border: "1px solid color-mix(in oklab, var(--accent) 25%, var(--line))",
+          color: "var(--accent)",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          flexShrink: 0,
+        }}
+      >
+        <Icon d={icon} size={13} />
+      </div>
+      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
+        {hint ? (
+          <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{hint}</span>
+        ) : null}
+      </div>
+      <div style={{ flex: 1 }} />
+      <Icon d={I.arrow} size={12} style={{ color: "var(--ink-faint)" }} />
+    </NavLink>
+  );
+}
+
 function pulseStatus(agent: Agent): FwStatus {
   if (agent.status === "running" || agent.status === "active") return "running";
   if (agent.status === "paused" || agent.status === "terminated" || agent.status === "pending_approval") return "paused";
@@ -95,8 +151,10 @@ function pulseStatus(agent: Agent): FwStatus {
 }
 
 export function FernwehDashboard() {
+  const { companyPrefix } = useParams<{ companyPrefix: string }>();
   const { selectedCompany } = useCompany();
   const companyId = selectedCompany?.id;
+  const prefix = companyPrefix ?? selectedCompany?.issuePrefix ?? "";
 
   const dashboardQuery = useQuery({
     queryKey: companyId ? queryKeys.dashboard(companyId) : ["dashboard", "none"],
@@ -199,7 +257,7 @@ export function FernwehDashboard() {
       <header style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16 }}>
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-            Command deck
+            HQ
           </span>
           <h1 className="fw-display" style={{ fontSize: 28, fontWeight: 600, margin: 0, letterSpacing: "-0.02em" }}>
             {selectedCompany.name}
@@ -210,6 +268,24 @@ export function FernwehDashboard() {
             <span className="fw-dot pulsing" /> {liveRuns.length} live
           </span>
           <span className="fw-chip">{agents.length} agents</span>
+          <NavLink
+            to={`/${prefix}/agents/new`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              border: "1px solid var(--accent)",
+            }}
+          >
+            <Icon d={I.plus} size={11} />
+            <span>New Agent</span>
+          </NavLink>
         </div>
       </header>
 
@@ -248,6 +324,42 @@ export function FernwehDashboard() {
           }
         />
       </div>
+
+      {/* Quick Actions */}
+      <Section title="Quick Actions" hint="jump to">
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
+            gap: 10,
+          }}
+        >
+          <QuickAction
+            to={`/${prefix}/agents/new`}
+            icon={I.plus}
+            label="New Agent"
+            hint="Hire a specialist"
+          />
+          <QuickAction
+            to={`/${prefix}/routines`}
+            icon={I.bolt}
+            label="New Routine"
+            hint="Schedule a workflow"
+          />
+          <QuickAction
+            to={`/${prefix}/fernweh/activity`}
+            icon={I.activity}
+            label="View Activity"
+            hint="What's happening now"
+          />
+          <QuickAction
+            to={`/${prefix}/fernweh/org`}
+            icon={I.org}
+            label="Org Chart"
+            hint="Team topology"
+          />
+        </div>
+      </Section>
 
       {/* Activity row */}
       <Section

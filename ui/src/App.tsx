@@ -48,9 +48,11 @@ import { InviteLandingPage } from "./pages/InviteLanding";
 import { NotFoundPage } from "./pages/NotFound";
 import { FernwehShell } from "./fernweh/FernwehShell";
 import { FernwehDashboard } from "./fernweh/FernwehDashboard";
+import { FernwehHome } from "./fernweh/FernwehHome";
 import { FernwehOrgChart } from "./fernweh/FernwehOrgChart";
 import { FernwehAgents } from "./fernweh/FernwehAgents";
 import { FernwehWork } from "./fernweh/FernwehWork";
+import { FernwehInbox } from "./fernweh/FernwehInbox";
 import { FernwehActivity } from "./fernweh/FernwehActivity";
 import { FernwehApprovals } from "./fernweh/FernwehApprovals";
 import { FernwehCosts } from "./fernweh/FernwehCosts";
@@ -357,6 +359,8 @@ export function App() {
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
           <Route path=":companyPrefix/fernweh" element={<FernwehShell />}>
             <Route index element={<FernwehDashboard />} />
+            <Route path="home" element={<FernwehHome />} />
+            <Route path="inbox" element={<FernwehInbox />} />
             <Route path="org" element={<FernwehOrgChart />} />
             <Route path="agents" element={<FernwehAgents />} />
             <Route path="work" element={<FernwehWork />} />

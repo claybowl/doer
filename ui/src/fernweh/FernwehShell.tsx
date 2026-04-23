@@ -34,7 +34,9 @@ interface NavItemDef {
 
 function buildNav(prefix: string): NavItemDef[] {
   return [
-    { to: `/${prefix}/fernweh`, label: "Command", icon: I.home },
+    { to: `/${prefix}/fernweh/home`, label: "Home", icon: I.home },
+    { to: `/${prefix}/fernweh`, label: "HQ", icon: I.bolt },
+    { to: `/${prefix}/fernweh/inbox`, label: "Inbox", icon: I.stack },
     { to: `/${prefix}/fernweh/org`, label: "Org Chart", icon: I.org },
     { to: `/${prefix}/fernweh/agents`, label: "Agents", icon: I.agents },
     { to: `/${prefix}/fernweh/work`, label: "Work", icon: I.issues },
