@@ -11,6 +11,7 @@ import {
   StatusChip,
   formatRelative,
   formatCents,
+  Field,
   type FwStatus,
 } from "./utils";
 import type { Agent } from "@doerai/shared";
@@ -265,17 +266,6 @@ function DetailDrawer({
         </div>
       </aside>
     </>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-        {label}
-      </span>
-      {children}
-    </div>
   );
 }
 

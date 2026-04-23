@@ -11,6 +11,7 @@ import {
   PriorityChip,
   StatusChip,
   formatRelative,
+  Field,
 } from "./utils";
 import type { Agent, Issue } from "@doerai/shared";
 
@@ -412,17 +413,6 @@ function IssueDrawer({
         </div>
       </aside>
     </>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-        {label}
-      </span>
-      {children}
-    </div>
   );
 }
 

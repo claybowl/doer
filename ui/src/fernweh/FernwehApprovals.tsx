@@ -342,10 +342,10 @@ function ApprovalDrawer({
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0,0,0,0.35)",
+          background: "rgba(0,0,0,0.32)",
           backdropFilter: "blur(4px)",
-          zIndex: 50,
-          animation: "fw-fade-in .16s var(--fw-ease)",
+          zIndex: 40,
+          animation: "fw-fade-in .15s var(--fw-ease)",
         }}
       />
       <aside
@@ -359,7 +359,7 @@ function ApprovalDrawer({
           borderLeft: "1px solid var(--line)",
           display: "flex",
           flexDirection: "column",
-          zIndex: 51,
+          zIndex: 41,
           animation: "fw-slide-in-right .22s var(--fw-ease)",
           overflow: "hidden",
         }}

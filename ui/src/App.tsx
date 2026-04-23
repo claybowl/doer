@@ -53,6 +53,8 @@ import { FernwehAgents } from "./fernweh/FernwehAgents";
 import { FernwehWork } from "./fernweh/FernwehWork";
 import { FernwehActivity } from "./fernweh/FernwehActivity";
 import { FernwehApprovals } from "./fernweh/FernwehApprovals";
+import { FernwehCosts } from "./fernweh/FernwehCosts";
+import { FernwehMemory } from "./fernweh/FernwehMemory";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -359,7 +361,9 @@ export function App() {
             <Route path="agents" element={<FernwehAgents />} />
             <Route path="work" element={<FernwehWork />} />
             <Route path="activity" element={<FernwehActivity />} />
+            <Route path="memory" element={<FernwehMemory />} />
             <Route path="approvals" element={<FernwehApprovals />} />
+            <Route path="costs" element={<FernwehCosts />} />
           </Route>
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}

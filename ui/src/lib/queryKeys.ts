@@ -99,6 +99,8 @@ export const queryKeys = {
     roots: (companyId: string) => ["memfs", "roots", companyId] as const,
     rootFiles: (companyId: string, rootId: string, prefix?: string) =>
       ["memfs", "files", companyId, rootId, prefix ?? ""] as const,
+    rootFileText: (companyId: string, rootId: string, filePath: string) =>
+      ["memfs", "file-text", companyId, rootId, filePath] as const,
     bindingsForCompany: (companyId: string) =>
       ["memfs", "bindings", "company", companyId] as const,
     bindingsForAgent: (companyId: string, agentId: string) =>

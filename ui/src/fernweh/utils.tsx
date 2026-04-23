@@ -302,3 +302,266 @@ export function formatCents(cents: number): string {
   if (dollars >= 1000) return `$${(dollars / 1000).toFixed(1)}k`;
   return `$${dollars.toFixed(2)}`;
 }
+
+// ---------- Field (label + value) ----------
+export function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+      <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
+        {label}
+      </span>
+      {children}
+    </div>
+  );
+}
+
+// ---------- EmptyState ----------
+export function EmptyState({
+  icon,
+  title,
+  subtitle,
+  action,
+}: {
+  icon?: string;
+  title: string;
+  subtitle?: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div
+      className="fw-card"
+      style={{
+        padding: "40px 28px",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        gap: 10,
+        textAlign: "center",
+      }}
+    >
+      {icon ? (
+        <div
+          style={{
+            width: 36,
+            height: 36,
+            borderRadius: 10,
+            background: "var(--bg-sunken)",
+            border: "1px solid var(--line)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "var(--ink-faint)",
+            marginBottom: 4,
+          }}
+        >
+          <Icon d={icon} size={16} />
+        </div>
+      ) : null}
+      <span style={{ fontSize: 14, fontWeight: 500, color: "var(--ink)" }}>
+        {title}
+      </span>
+      {subtitle ? (
+        <span style={{ fontSize: 12, color: "var(--ink-dim)", maxWidth: 360 }}>
+          {subtitle}
+        </span>
+      ) : null}
+      {action ? <div style={{ marginTop: 6 }}>{action}</div> : null}
+    </div>
+  );
+}
+
+// ---------- LoadingState ----------
+export function LoadingState({ label = "Loading…" }: { label?: string }) {
+  return (
+    <div
+      style={{
+        padding: "40px 28px",
+        color: "var(--ink-faint)",
+        fontSize: 13,
+        textAlign: "center",
+      }}
+    >
+      {label}
+    </div>
+  );
+}
+
+// ---------- ErrorState ----------
+export function ErrorState({
+  error,
+  hint,
+}: {
+  error: unknown;
+  hint?: string;
+}) {
+  const msg =
+    error instanceof Error
+      ? error.message
+      : typeof error === "string"
+      ? error
+      : "Something went wrong.";
+  return (
+    <div
+      className="fw-card"
+      style={{
+        padding: "18px 20px",
+        borderColor: "var(--danger)",
+        background: "color-mix(in oklab, var(--danger) 6%, var(--bg-raised))",
+        display: "flex",
+        flexDirection: "column",
+        gap: 4,
+      }}
+    >
+      <span className="fw-uc" style={{ color: "var(--danger)" }}>
+        Error
+      </span>
+      <span style={{ fontSize: 13, color: "var(--ink)" }}>{msg}</span>
+      {hint ? (
+        <span style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 2 }}>
+          {hint}
+        </span>
+      ) : null}
+    </div>
+  );
+}
+
+// ---------- Drawer ----------
+// Unified right-hand drawer with backdrop-click + Esc close. z-index pair 40/41.
+export function Drawer({
+  open,
+  onClose,
+  title,
+  eyebrow,
+  width = 560,
+  children,
+  footer,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: React.ReactNode;
+  eyebrow?: React.ReactNode;
+  width?: number;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}) {
+  React.useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <>
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0,0,0,0.32)",
+          backdropFilter: "blur(4px)",
+          zIndex: 40,
+          animation: "fw-fade-in .15s var(--fw-ease)",
+        }}
+      />
+      <aside
+        style={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: `min(${width}px, 92vw)`,
+          background: "var(--bg)",
+          borderLeft: "1px solid var(--line)",
+          zIndex: 41,
+          display: "flex",
+          flexDirection: "column",
+          animation: "fw-slide-in-right .22s var(--fw-ease)",
+        }}
+      >
+        <div
+          style={{
+            padding: "18px 22px",
+            borderBottom: "1px solid var(--line)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 12,
+          }}
+        >
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+            {eyebrow ? (
+              <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
+                {eyebrow}
+              </span>
+            ) : null}
+            <span
+              className="fw-display"
+              style={{
+                fontSize: 18,
+                fontWeight: 600,
+                overflow: "hidden",
+                textOverflow: "ellipsis",
+                whiteSpace: "nowrap",
+              }}
+            >
+              {title}
+            </span>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            style={{
+              width: 28,
+              height: 28,
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink-dim)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              cursor: "pointer",
+              flexShrink: 0,
+            }}
+          >
+            <Icon d={I.x} size={12} />
+          </button>
+        </div>
+        <div
+          style={{
+            flex: 1,
+            overflowY: "auto",
+            padding: "18px 22px 24px",
+            display: "flex",
+            flexDirection: "column",
+            gap: 18,
+          }}
+        >
+          {children}
+        </div>
+        {footer ? (
+          <div
+            style={{
+              padding: "12px 22px",
+              borderTop: "1px solid var(--line)",
+              background: "var(--bg-sunken)",
+            }}
+          >
+            {footer}
+          </div>
+        ) : null}
+      </aside>
+    </>
+  );
+}

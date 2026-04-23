@@ -11,6 +11,7 @@ import {
   I,
   StatusDot,
   formatRelative,
+  Field,
   type FwStatus,
   type HeartbeatAmp,
 } from "./utils";
@@ -432,17 +433,6 @@ function RunDrawer({
         </div>
       </aside>
     </>
-  );
-}
-
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
-  return (
-    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-      <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-        {label}
-      </span>
-      {children}
-    </div>
   );
 }
 
