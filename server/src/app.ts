@@ -30,6 +30,11 @@ import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { lettaProxyRoutes } from "./routes/letta-proxy.js";
 import { memfsRoutes } from "./routes/memfs.js";
+import {
+  deliverableRoutes,
+  shareTokenRoutes,
+  portalRoutes,
+} from "./routes/deliverables.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { applyUiBranding } from "./ui-branding.js";
@@ -159,6 +164,9 @@ export async function createApp(
   api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
   api.use(memfsRoutes(db));
+  api.use(deliverableRoutes(db, opts.storageService));
+  api.use(shareTokenRoutes(db));
+  api.use(portalRoutes(db, opts.storageService));
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);
