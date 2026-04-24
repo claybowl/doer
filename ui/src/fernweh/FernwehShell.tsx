@@ -45,6 +45,7 @@ function buildNav(prefix: string): NavItemDef[] {
     { to: `/${prefix}/fernweh/work`, label: "Work", icon: I.issues },
     { to: `/${prefix}/fernweh/activity`, label: "Activity", icon: I.activity },
     { to: `/${prefix}/fernweh/memory`, label: "Memory", icon: I.brain },
+    { to: `/${prefix}/fernweh/outputs`, label: "Outputs", icon: I.check },
     { to: `/${prefix}/fernweh/approvals`, label: "Approvals", icon: I.shield },
     { to: `/${prefix}/fernweh/costs`, label: "Costs", icon: I.dollar },
   ];

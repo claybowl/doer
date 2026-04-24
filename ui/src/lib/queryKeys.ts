@@ -137,6 +137,16 @@ export const queryKeys = {
   skills: {
     available: ["skills", "available"] as const,
   },
+  deliverables: {
+    list: (
+      companyId: string,
+      filters?: Record<string, string | boolean | number | undefined>,
+    ) => ["deliverables", companyId, filters ?? {}] as const,
+    detail: (id: string) => ["deliverables", "detail", id] as const,
+  },
+  shareTokens: {
+    list: (companyId: string) => ["share-tokens", companyId] as const,
+  },
   adapters: {
     all: ["adapters"] as const,
   },

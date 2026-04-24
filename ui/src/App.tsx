@@ -62,6 +62,7 @@ import { FernwehRoutines } from "./fernweh/FernwehRoutines";
 import { FernwehProjects } from "./fernweh/FernwehProjects";
 import { FernwehAgentDetail } from "./fernweh/FernwehAgentDetail";
 import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
+import { FernwehDeliverables } from "./fernweh/FernwehDeliverables";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
 import { queryKeys } from "./lib/queryKeys";
@@ -377,6 +378,7 @@ export function App() {
             <Route path="work" element={<FernwehWork />} />
             <Route path="activity" element={<FernwehActivity />} />
             <Route path="memory" element={<FernwehMemory />} />
+            <Route path="outputs" element={<FernwehDeliverables />} />
             <Route path="goals" element={<FernwehGoals />} />
             <Route path="projects" element={<FernwehProjects />} />
             <Route path="routines" element={<FernwehRoutines />} />
