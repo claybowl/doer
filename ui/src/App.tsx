@@ -57,6 +57,13 @@ import { FernwehActivity } from "./fernweh/FernwehActivity";
 import { FernwehApprovals } from "./fernweh/FernwehApprovals";
 import { FernwehCosts } from "./fernweh/FernwehCosts";
 import { FernwehMemory } from "./fernweh/FernwehMemory";
+import { FernwehGoals } from "./fernweh/FernwehGoals";
+import { FernwehRoutines } from "./fernweh/FernwehRoutines";
+import { FernwehProjects } from "./fernweh/FernwehProjects";
+import { FernwehAgentDetail } from "./fernweh/FernwehAgentDetail";
+import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ApiHealthBanner } from "./components/ApiHealthBanner";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
 import { useDialog } from "./context/DialogContext";
@@ -318,7 +325,9 @@ function NoCompaniesStartPage() {
 export function App() {
   return (
     <>
-      <Routes>
+      <ApiHealthBanner />
+      <ErrorBoundary>
+        <Routes>
         <Route path="auth" element={<AuthPage />} />
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
@@ -363,9 +372,14 @@ export function App() {
             <Route path="inbox" element={<FernwehInbox />} />
             <Route path="org" element={<FernwehOrgChart />} />
             <Route path="agents" element={<FernwehAgents />} />
+            <Route path="agents/new" element={<FernwehNewAgent />} />
+            <Route path="agents/:agentId" element={<FernwehAgentDetail />} />
             <Route path="work" element={<FernwehWork />} />
             <Route path="activity" element={<FernwehActivity />} />
             <Route path="memory" element={<FernwehMemory />} />
+            <Route path="goals" element={<FernwehGoals />} />
+            <Route path="projects" element={<FernwehProjects />} />
+            <Route path="routines" element={<FernwehRoutines />} />
             <Route path="approvals" element={<FernwehApprovals />} />
             <Route path="costs" element={<FernwehCosts />} />
           </Route>
@@ -374,7 +388,8 @@ export function App() {
           </Route>
           <Route path="*" element={<NotFoundPage scope="global" />} />
         </Route>
-      </Routes>
+        </Routes>
+      </ErrorBoundary>
       <OnboardingWizard />
     </>
   );
