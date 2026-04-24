@@ -22,6 +22,7 @@ import {
   type FwStatus,
   type HeartbeatAmp,
 } from "./utils";
+import { OutputsSection } from "./OutputsSection";
 
 /* ============================================================
    FernwehAgentDetail — dedicated detail page for a single agent.
@@ -591,6 +592,18 @@ export function FernwehAgentDetail() {
           </div>
         )}
       </Section>
+
+      {/* Outputs produced by this agent */}
+      {companyId ? (
+        <OutputsSection
+          companyId={companyId}
+          prefix={prefix}
+          filter={{ agentId: agent.id }}
+          title="Outputs"
+          hint="files this agent has produced"
+          limit={8}
+        />
+      ) : null}
 
       {/* Footer metadata */}
       <footer

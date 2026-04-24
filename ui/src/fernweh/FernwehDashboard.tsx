@@ -21,6 +21,7 @@ import {
   type HeartbeatAmp,
 } from "./utils";
 import type { Agent } from "@doerai/shared";
+import { OutputsSection } from "./OutputsSection";
 
 function Section({
   title,
@@ -486,6 +487,17 @@ export function FernwehDashboard() {
           )}
         </div>
       </Section>
+
+      {/* Recent outputs across all agents */}
+      {companyId ? (
+        <OutputsSection
+          companyId={companyId}
+          prefix={prefix}
+          title="Recent outputs"
+          hint="files your agents produced"
+          limit={5}
+        />
+      ) : null}
 
       {/* Live runs strip */}
       {liveRuns.length > 0 ? (

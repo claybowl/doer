@@ -589,6 +589,14 @@ export function FernwehDeliverables() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedId = searchParams.get("output");
 
+  // Scope filters passed via URL (set by "View all" links from Agent
+  // detail / Work drawer / Projects drawer). These narrow the query
+  // server-side; kind + visibility filters apply on top locally.
+  const scopeAgentId = searchParams.get("agentId") ?? undefined;
+  const scopeIssueId = searchParams.get("issueId") ?? undefined;
+  const scopeProjectId = searchParams.get("projectId") ?? undefined;
+  const hasScope = !!(scopeAgentId || scopeIssueId || scopeProjectId);
+
   const [kindFilter, setKindFilter] = React.useState<KindFilter>("all");
   const [visibilityFilter, setVisibilityFilter] =
     React.useState<VisibilityFilter>("all");
@@ -612,10 +620,16 @@ export function FernwehDeliverables() {
           : visibilityFilter === "private"
           ? false
           : undefined,
+      agentId: scopeAgentId,
+      issueId: scopeIssueId,
+      projectId: scopeProjectId,
     }),
     queryFn: () =>
       deliverablesApi.list(companyId!, {
         kind: kindFilter !== "all" ? kindFilter : undefined,
+        agentId: scopeAgentId,
+        issueId: scopeIssueId,
+        projectId: scopeProjectId,
         clientVisible:
           visibilityFilter === "visible"
             ? true
@@ -714,6 +728,56 @@ export function FernwehDeliverables() {
           </p>
         </div>
       </header>
+
+      {/* Scope banner — visible when arrived via "View all" from an entity */}
+      {hasScope ? (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: 10,
+            padding: "8px 12px",
+            borderRadius: 8,
+            background: "color-mix(in oklab, var(--accent) 8%, var(--bg-raised))",
+            border: "1px solid var(--accent)",
+            fontSize: 12,
+            color: "var(--ink)",
+          }}
+        >
+          <span>
+            Scoped to{" "}
+            {scopeAgentId
+              ? `agent ${agentById.get(scopeAgentId)?.name ?? scopeAgentId.slice(0, 8)}`
+              : scopeProjectId
+              ? `project ${projects.find((p) => p.id === scopeProjectId)?.name ?? scopeProjectId.slice(0, 8)}`
+              : scopeIssueId
+              ? `issue ${scopeIssueId.slice(0, 8)}`
+              : "—"}
+            . Showing only outputs from this source.
+          </span>
+          <button
+            onClick={() => {
+              const next = new URLSearchParams(searchParams);
+              next.delete("agentId");
+              next.delete("issueId");
+              next.delete("projectId");
+              setSearchParams(next, { replace: true });
+            }}
+            style={{
+              padding: "4px 10px",
+              borderRadius: 6,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink-dim)",
+              fontSize: 11,
+              cursor: "pointer",
+            }}
+          >
+            Clear scope
+          </button>
+        </div>
+      ) : null}
 
       {/* Filters */}
       <div style={{ display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>

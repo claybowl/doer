@@ -14,6 +14,7 @@ import {
   formatRelative,
   Field,
 } from "./utils";
+import { OutputsSection } from "./OutputsSection";
 import type {
   Agent,
   Issue,
@@ -1215,6 +1216,17 @@ function InteractiveIssueDrawer({
               </a>
             </Field>
           ) : null}
+
+          {/* Outputs attached to this issue */}
+          <OutputsSection
+            companyId={companyId}
+            prefix={companyPrefix}
+            filter={{ issueId: issue.id }}
+            title="Outputs"
+            hint="files your agents produced for this issue"
+            limit={5}
+            flush
+          />
 
           {/* Comments */}
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>

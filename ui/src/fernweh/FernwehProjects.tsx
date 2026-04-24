@@ -20,6 +20,7 @@ import {
   StatusChip,
   formatRelative,
 } from "./utils";
+import { OutputsSection } from "./OutputsSection";
 
 /* ============================================================
    FernwehProjects — Wave-A parity port of Projects + ProjectDetail.
@@ -471,6 +472,17 @@ function ProjectDetailDrawer({
               </div>
             </div>
           ) : null}
+
+          {/* Outputs linked to this project */}
+          <OutputsSection
+            companyId={companyId}
+            prefix={prefix}
+            filter={{ projectId: project.id }}
+            title="Outputs"
+            hint="files produced for this project"
+            limit={5}
+            flush
+          />
 
           {/* Metadata */}
           <div
