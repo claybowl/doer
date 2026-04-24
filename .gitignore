@@ -38,6 +38,18 @@ server/src/**/*.d.ts
 server/src/**/*.d.ts.map
 tmp/
 
+# macOS Finder / iCloud / Dropbox duplicate-file ghosts
+# Pattern: Finder suffixes copies with " 2", " 3", " copy", " copy 2". These
+# silently re-enter the repo and break `db:migrate` (duplicate SQL files),
+# confuse bundlers, and double-register test suites. Kill on sight.
+# If you ever need a legit file with "* 2.*" in its name, reconsider the name.
+* 2.*
+* 3.*
+* 4.*
+* copy.*
+* copy 2.*
+* copy 3.*
+
 # Editor / tool temp files
 *.tmp
 .vscode/
