@@ -63,6 +63,7 @@ import { FernwehProjects } from "./fernweh/FernwehProjects";
 import { FernwehAgentDetail } from "./fernweh/FernwehAgentDetail";
 import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
 import { FernwehDeliverables } from "./fernweh/FernwehDeliverables";
+import { PortalPage } from "./portal/PortalPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
 import { queryKeys } from "./lib/queryKeys";
@@ -333,6 +334,7 @@ export function App() {
         <Route path="board-claim/:token" element={<BoardClaimPage />} />
         <Route path="cli-auth/:id" element={<CliAuthPage />} />
         <Route path="invite/:token" element={<InviteLandingPage />} />
+        <Route path="portal/:token" element={<PortalPage />} />
 
         <Route element={<CloudAccessGate />}>
           <Route index element={<CompanyRootRedirect />} />
