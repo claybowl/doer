@@ -85,3 +85,163 @@ export async function detachTool(config: LettaCloudAdapterConfig, toolId: string
   const client = getLettaClient(config);
   await client.agents.tools.detach(toolId, { agent_id: config.agentId });
 }
+
+// ---------------------------------------------------------------------------
+// Deliverable tool
+//
+// Letta tools run server-side in Letta's sandbox, so they can't reach a
+// Doer server sitting on the user's localhost. We register a no-op stub
+// that just echoes its arguments back; the Doer adapter observes the
+// tool_call_message event in the execution stream and handles file storage
+// itself (via HTTP POST to /api/companies/:id/deliverables on the same
+// machine the adapter runs on).
+//
+// One tool per Letta account is enough — all letta_cloud agents on a given
+// Letta API key share it via the registry. `ensureDeliverableTool` does a
+// get-or-create: look up by name, create if missing, return the id.
+// ---------------------------------------------------------------------------
+
+export const DELIVERABLE_TOOL_NAME = "produce_deliverable";
+
+/**
+ * Python source the Letta sandbox runs when the agent calls
+ * `produce_deliverable(...)`. Intentionally a no-op: it returns a short
+ * accepted-receipt that the Letta agent can reason about. The REAL work
+ * (decoding bytes, writing to Doer storage, inserting the deliverable row)
+ * happens in the Doer adapter's execute.ts stream handler, which sees the
+ * tool_call_message event and has access to the adapter's HTTP client +
+ * auth token to POST directly to the Doer server running on localhost.
+ *
+ * We deliberately do NOT try to do any HTTP from this Python: Letta's
+ * sandbox couldn't reach Clay's localhost even if we wanted it to.
+ */
+const DELIVERABLE_TOOL_SOURCE = `def produce_deliverable(
+    kind: str,
+    filename: str,
+    title: str,
+    file_content_base64: str,
+    description: str = None,
+    issue_id: str = None,
+    project_id: str = None,
+) -> dict:
+    """Publish a file your agent produced as a Doer Output so the user
+    can see and download it from Fernweh.
+
+    The file content must be base64-encoded bytes of a real file (.docx,
+    .xlsx, .pdf, .pptx, .png, .jpg, .csv, .html, .json). The Doer adapter
+    stores the file server-side when it observes this tool call; you just
+    pass the arguments.
+
+    Args:
+        kind: One of "docx", "xlsx", "pdf", "pptx", "md", "png", "jpg",
+              "csv", "html", "json", "other".
+        filename: The display name, e.g. "Q4-Brief.docx". Keep it human.
+        title: Human-facing title, may differ from filename.
+        file_content_base64: The file bytes, base64-encoded.
+        description: Optional short sentence describing the file.
+        issue_id: Optional Doer issue UUID. If this output was produced
+                  for a specific issue, attach it here.
+        project_id: Optional Doer project UUID.
+
+    Returns:
+        An accepted-receipt dict. The actual deliverable row is created
+        by the Doer adapter asynchronously after this call returns.
+    """
+    return {
+        "status": "accepted",
+        "kind": kind,
+        "filename": filename,
+        "title": title,
+    }
+`;
+
+const DELIVERABLE_TOOL_ARGS_SCHEMA: Record<string, unknown> = {
+  type: "object",
+  required: ["kind", "filename", "title", "file_content_base64"],
+  properties: {
+    kind: {
+      type: "string",
+      enum: [
+        "docx",
+        "xlsx",
+        "pdf",
+        "pptx",
+        "md",
+        "png",
+        "jpg",
+        "csv",
+        "html",
+        "json",
+        "other",
+      ],
+      description:
+        "File format. The Doer server assigns the MIME type from this; don't guess.",
+    },
+    filename: {
+      type: "string",
+      description: "Display filename the user will see, e.g. 'Q4-Brief.docx'.",
+    },
+    title: {
+      type: "string",
+      description: "Human-facing title, may differ from filename.",
+    },
+    file_content_base64: {
+      type: "string",
+      description: "File bytes, base64-encoded.",
+    },
+    description: {
+      type: ["string", "null"],
+      description: "Optional short summary sentence.",
+    },
+    issue_id: {
+      type: ["string", "null"],
+      description: "Optional Doer issue UUID this output relates to.",
+    },
+    project_id: {
+      type: ["string", "null"],
+      description: "Optional Doer project UUID this output relates to.",
+    },
+  },
+};
+
+/**
+ * Get-or-create the shared `produce_deliverable` tool in Letta.
+ *
+ * Scope: tools live per-Letta-account (per API key). This is idempotent —
+ * callers can invoke on every agent hire without creating duplicates. If
+ * the tool already exists by name, we return its id without modification;
+ * if it doesn't, we create it.
+ */
+export async function ensureDeliverableTool(
+  config: LettaCloudAdapterConfig,
+): Promise<string> {
+  const client = getLettaClient(config);
+
+  // Listing is paginated; iterate until we find a match by name.
+  const existingPage = await client.tools.list({ name: DELIVERABLE_TOOL_NAME });
+  for await (const tool of existingPage) {
+    const rec = tool as unknown as Record<string, unknown>;
+    if (typeof rec.name === "string" && rec.name === DELIVERABLE_TOOL_NAME) {
+      const id = typeof rec.id === "string" ? rec.id : null;
+      if (id) return id;
+    }
+  }
+
+  const created = await client.tools.create({
+    source_code: DELIVERABLE_TOOL_SOURCE,
+    source_type: "python",
+    description:
+      "Publish a file (base64) as a Doer Output. The Doer adapter stores the bytes server-side by observing this tool call; this Python is a no-op receipt.",
+    args_json_schema: DELIVERABLE_TOOL_ARGS_SCHEMA,
+    tags: ["doer", "deliverable"],
+    return_char_limit: 512,
+  });
+  const rec = created as unknown as Record<string, unknown>;
+  const id = typeof rec.id === "string" ? rec.id : null;
+  if (!id) {
+    throw new Error(
+      "Letta returned a created tool with no id; cannot register produce_deliverable",
+    );
+  }
+  return id;
+}

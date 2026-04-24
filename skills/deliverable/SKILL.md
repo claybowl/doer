@@ -129,7 +129,11 @@ Notes: `ws.column_dimensions["A"].width = 20` for manual widths. Use multiple sh
 
 ## Publish the file to Outputs
 
-Once the file exists on disk, POST it to the Outputs endpoint so the Doer user can find and download it from the Outputs page in Fernweh.
+Once the file exists on disk (or in memory, for cloud agents), publish it so the Doer user can find and download it from the Outputs page in Fernweh. **The path depends on your adapter type.**
+
+### For local-execution agents (`claude_local`, `codex_local`, `opencode_local`, `cursor`, etc.)
+
+POST the file via multipart to the Outputs endpoint:
 
 ```bash
 FILE_PATH="/tmp/q4-strategy-brief.docx"
@@ -156,7 +160,29 @@ curl -X POST "$DOER_API_URL/api/companies/$DOER_COMPANY_ID/deliverables" \
   $ISSUE_ID_ARG
 ```
 
-On success you'll get back JSON with the created deliverable (`id`, `storagePath`, `clientVisible: false`, etc.). The file is now stored in Doer's object store with a SHA-256 checksum and will appear in Fernweh → Deliverables.
+On success you'll get back JSON with the created deliverable (`id`, `storagePath`, `clientVisible: false`, etc.). The file is now stored in Doer's object store with a SHA-256 checksum and will appear in Fernweh → Outputs.
+
+### For Letta Cloud agents (`letta_cloud`)
+
+Letta Cloud agents run in Letta's sandbox — you can't `curl` the user's localhost from there. Instead, Doer has registered a tool called `produce_deliverable` on your agent. Call it like any other tool:
+
+```
+produce_deliverable(
+  kind="docx",
+  filename="Q4-Brief.docx",
+  title="Q4 Strategy Brief — Acme Corp",
+  file_content_base64="<base64 of the docx bytes>",
+  description="Executive summary plus three strategic initiatives.",
+  issue_id="<uuid-or-None>",
+  project_id="<uuid-or-None>"
+)
+```
+
+You generate the file bytes in Python (via `python-docx` / `openpyxl` / etc.) and base64-encode them inside the agent, then pass that string as `file_content_base64`. The tool itself is a stub — it returns `{"status": "accepted", ...}` to your agent. Doer's adapter observes the tool call, decodes the content, stores the file, and creates the Output row on its own side.
+
+Size constraint: the base64 content flows through Letta's model context, so keep files reasonably small (docx/xlsx reports < ~500 KB are safe; large PDFs or media may exceed Letta's message size limits).
+
+On success the Output will appear in Fernweh → Outputs within seconds. No response comes back with the final row; check there if you need the id.
 
 ### Fields you control
 

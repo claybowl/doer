@@ -1,7 +1,124 @@
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
-import { getLettaClient } from "./letta-client.js";
-import { renderTemplate } from "@doerai/adapter-utils/server-utils";
+import { getLettaClient, DELIVERABLE_TOOL_NAME } from "./letta-client.js";
+import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
+
+/**
+ * Handle a `produce_deliverable` tool call by POSTing the decoded file to
+ * the Doer API. This runs fire-and-forget: Letta has already executed the
+ * stub tool and will continue the agent's reasoning regardless. The
+ * returned promise is tracked so the adapter can await completion at end
+ * of run and surface failures in logs.
+ *
+ * We do the work here — in the adapter, on the user's localhost — because
+ * Letta's cloud sandbox can't reach the user's Doer server. That's the
+ * whole reason for the adapter-side interception pattern.
+ */
+async function postDeliverableFromToolCall(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<void> {
+  const kind = typeof args.kind === "string" ? args.kind : null;
+  const filename = typeof args.filename === "string" ? args.filename : null;
+  const title = typeof args.title === "string" ? args.title : null;
+  const contentB64 =
+    typeof args.file_content_base64 === "string" ? args.file_content_base64 : null;
+
+  if (!kind || !filename || !title || !contentB64) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] produce_deliverable missing required fields; skipping`,
+      { kind, filename, title, hasContent: !!contentB64 },
+    );
+    return;
+  }
+
+  let bytes: Buffer;
+  try {
+    bytes = Buffer.from(contentB64, "base64");
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] produce_deliverable base64 decode failed:`,
+      err instanceof Error ? err.message : err,
+    );
+    return;
+  }
+  if (bytes.length === 0) {
+    // eslint-disable-next-line no-console
+    console.warn(`[letta-cloud] produce_deliverable: decoded content is empty`);
+    return;
+  }
+
+  const env = buildPaperclipEnv(ctx.agent);
+  const apiUrl = env.DOER_API_URL;
+  if (!apiUrl) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] No DOER_API_URL resolved; cannot post deliverable`,
+    );
+    return;
+  }
+
+  const form = new FormData();
+  // The server infers contentType from `kind` — we just label the blob
+  // with something sane. application/octet-stream is the safe fallback.
+  form.append(
+    "file",
+    new Blob([new Uint8Array(bytes)], { type: "application/octet-stream" }),
+    filename,
+  );
+  form.append("kind", kind);
+  form.append("filename", filename);
+  form.append("title", title);
+  if (typeof args.description === "string" && args.description.trim()) {
+    form.append("description", args.description);
+  }
+  if (typeof args.issue_id === "string" && args.issue_id.trim()) {
+    form.append("issueId", args.issue_id);
+  }
+  if (typeof args.project_id === "string" && args.project_id.trim()) {
+    form.append("projectId", args.project_id);
+  }
+
+  const headers: Record<string, string> = {};
+  if (ctx.authToken) {
+    headers.Authorization = `Bearer ${ctx.authToken}`;
+  }
+  // Carry the run id so the deliverable row is attributed to this run.
+  headers["X-Doer-Run-Id"] = ctx.runId;
+
+  const endpoint = `${apiUrl.replace(/\/+$/, "")}/api/companies/${ctx.agent.companyId}/deliverables`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      body: form,
+      headers,
+    });
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      await ctx.onLog(
+        "stderr",
+        `[deliverable] POST ${endpoint} -> ${res.status} ${bodyText.slice(0, 400)}\n`,
+      );
+      return;
+    }
+    const body = (await res.json().catch(() => null)) as {
+      id?: string;
+      title?: string;
+    } | null;
+    await ctx.onLog(
+      "stdout",
+      `[deliverable] stored id=${body?.id ?? "?"} title=${JSON.stringify(body?.title ?? title)}\n`,
+    );
+  } catch (err) {
+    await ctx.onLog(
+      "stderr",
+      `[deliverable] POST failed: ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+  }
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -94,6 +211,13 @@ async function executeStreaming(
   let cachedTokens = 0;
   let stepCount = 0;
 
+  // Accumulator for async-fire work triggered by tool calls we intercept
+  // (notably `produce_deliverable`). We await all of these after the
+  // Letta stream closes so the adapter doesn't return before file uploads
+  // finish — otherwise the caller could see a "run complete" event before
+  // the deliverable row is inserted.
+  const pendingSideEffects: Promise<void>[] = [];
+
   for await (const chunk of stream) {
     const rec = chunk as unknown as Record<string, unknown>;
     const messageType = String(rec.message_type ?? "");
@@ -131,6 +255,23 @@ async function executeStreaming(
             const toolCallId = typeof call.tool_call_id === "string" ? call.tool_call_id : undefined;
             const input = parseToolArgs(call.arguments ?? call.input);
             await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
+
+            // Interception: when the agent calls `produce_deliverable`,
+            // Letta's sandbox runs a no-op stub. The REAL work happens
+            // here — we decode the base64 file bytes and POST to the
+            // Doer server on localhost. Fire-and-track: don't block the
+            // stream, but await at the end so the run doesn't "finish"
+            // before the deliverable row exists.
+            if (
+              name === DELIVERABLE_TOOL_NAME &&
+              input &&
+              typeof input === "object" &&
+              !Array.isArray(input)
+            ) {
+              pendingSideEffects.push(
+                postDeliverableFromToolCall(ctx, input as Record<string, unknown>),
+              );
+            }
           }
         }
         break;
@@ -199,6 +340,13 @@ async function executeStreaming(
         await emit(ctx, { type: "unknown", messageType, raw: safeStringify(rec) });
         break;
     }
+  }
+
+  // Drain any pending deliverable uploads before reporting success. We
+  // use Promise.allSettled so a failing upload doesn't reject the whole
+  // run — individual failures already log to stderr via ctx.onLog.
+  if (pendingSideEffects.length > 0) {
+    await Promise.allSettled(pendingSideEffects);
   }
 
   return {
