@@ -1,34 +1,35 @@
 ---
 name: deliverable
 description: >
-  Produce real files (.docx, .xlsx, .pdf, .pptx, .png, .csv) as client-
-  visible deliverables, not markdown. Use this skill ANY time your work
-  output will be seen by a non-technical client or reader. Covers the
-  scratch-vs-deliverable distinction, inline Python recipes for the two
-  most common formats (Word + Excel), and how to promote a produced file
-  to the Doer Deliverables table so it shows up in Fernweh and the client
-  Portal.
+  Produce real files (.docx, .xlsx, .pdf, .pptx, .png, .csv) as your
+  published output, not markdown. Use this skill ANY time your work
+  output will be seen by a human user — the Doer user who assigned
+  you the task, anyone they share it with, or anyone downloading it
+  later from the Outputs page. Covers the scratch-vs-output
+  distinction, inline Python recipes for the two most common formats
+  (Word + Excel), and how to promote a produced file to the Doer
+  Outputs list so it shows up in Fernweh and is downloadable.
 ---
 
 # Deliverable Skill
 
 ## The rule
 
-Clients expect **files** — the kind they open in Word, Excel, Preview, or Keynote. They do NOT want markdown. Markdown is for scratch, planning, and inter-agent communication. Any output a human client will see needs to be a real file in an industry-standard format.
+Human users expect **files** — the kind they open in Word, Excel, Preview, or Keynote. They do NOT want markdown dumped into an issue comment. Markdown is for scratch, planning, and inter-agent communication. Any output a human will download from the Outputs page needs to be a real file in an industry-standard format.
 
 | Audience | Output |
 |---|---|
 | Other agents, internal notes, planning | `.md` is fine — keep it in your workspace |
-| A human client, a reader outside Doer | Produce a real file: `.docx` / `.xlsx` / `.pdf` / `.pptx` / `.csv` / `.png` |
+| The Doer user, or anyone they share the file with | Produce a real file: `.docx` / `.xlsx` / `.pdf` / `.pptx` / `.csv` / `.png` |
 
-If you're unsure, default to a file. Producing a client-facing deliverable as markdown is treated as a correctness bug.
+If you're unsure, default to a file. Producing a user-facing output as markdown is treated as a correctness bug.
 
 ## When this skill activates
 
-- You've been asked to write a report, brief, proposal, summary, analysis, executive memo, or any other client-visible prose → **produce a `.docx`**.
+- You've been asked to write a report, brief, proposal, summary, analysis, executive memo, or any other prose the user will read outside a chat transcript → **produce a `.docx`**.
 - You've been asked to build a tracker, roster, ledger, spreadsheet, budget, forecast, metrics snapshot, or table → **produce an `.xlsx`**.
 - You've been asked to produce a presentation or deck → **produce a `.pptx`**.
-- You've been asked to extract data for a client download → **produce a `.csv`**.
+- You've been asked to extract data for download → **produce a `.csv`**.
 - You've been asked to show a chart, diagram, or visualization inline → **produce a `.png`** (plus the raw data as `.csv` if useful).
 
 ## Produce the file
@@ -126,9 +127,9 @@ Notes: `ws.column_dimensions["A"].width = 20` for manual widths. Use multiple sh
 - **`.csv`** — standard library `csv.writer` is fine. Add UTF-8 BOM if Excel will read it: `open("file.csv", "w", encoding="utf-8-sig")`.
 - **`.png`** charts — use `matplotlib` (`plt.savefig("/tmp/chart.png", dpi=144, bbox_inches="tight")`).
 
-## Promote the file to a Deliverable
+## Publish the file to Outputs
 
-Once the file exists on disk, POST it to the Deliverables endpoint so it shows up in Fernweh and becomes shareable via the client Portal.
+Once the file exists on disk, POST it to the Outputs endpoint so the Doer user can find and download it from the Outputs page in Fernweh.
 
 ```bash
 FILE_PATH="/tmp/q4-strategy-brief.docx"
@@ -174,7 +175,7 @@ On success you'll get back JSON with the created deliverable (`id`, `storagePath
 ### Fields you do NOT control
 
 - `storagePath`, `contentType`, `sizeBytes`, `checksumSha256` — server-assigned from the upload.
-- `clientVisible` — defaults `false`. A human (Clay / team) flips it to true in Fernweh before any client sees it. Opt-in is deliberate.
+- `clientVisible` — defaults `false`. The Doer user reviews the output in Fernweh and flips it to `true` (Publish) before minting a share link. You can always download your own outputs in draft; publishing only controls shareability.
 - `producedByAgentId`, `producedByRunId` — server pulls from your run JWT.
 
 ### Idempotency
@@ -183,11 +184,11 @@ The server enforces a unique `storage_path` per deliverable. If you call the end
 
 ## What NOT to do
 
-- ❌ Return the report as inline markdown in an issue comment and call it a deliverable.
+- ❌ Return the report as inline markdown in an issue comment and call it done.
 - ❌ Save the file to `/tmp` and never POST it — it won't show up anywhere.
 - ❌ Use `application/octet-stream` as a kind. Use the specific kind; the server sets content-type.
-- ❌ Upload a `.md` file as a client deliverable unless the client specifically asked for markdown source (rare).
-- ❌ Flip `clientVisible: true` yourself via `PATCH`. That's a human call.
+- ❌ Upload a `.md` file as a user-facing output unless the user specifically asked for markdown source (rare).
+- ❌ Flip `clientVisible: true` yourself via `PATCH`. Publishing is a human call — the user reviews your draft first.
 - ❌ Post the same file multiple times hoping one will "stick" — each call creates a new row.
 
 ## If something fails
@@ -201,6 +202,6 @@ The server enforces a unique `storage_path` per deliverable. If you call the end
 
 1. Write the file on disk with the right library (`python-docx`, `openpyxl`, `reportlab`, `python-pptx`, etc.).
 2. `curl -F file=@path …` to `POST /api/companies/$DOER_COMPANY_ID/deliverables` with `kind`, `filename`, `title`, and (when available) `issueId` / `projectId`.
-3. Tell the human in an issue comment: "Deliverable `<title>` is ready in Fernweh; `clientVisible` defaults off until you flip it."
+3. Tell the human in an issue comment: "Output `<title>` is ready in Fernweh → Outputs. It's in draft; publish it there if you want to mint a share link."
 
-Markdown is for us. Files are for them.
+Markdown is for us. Files are for the user.
