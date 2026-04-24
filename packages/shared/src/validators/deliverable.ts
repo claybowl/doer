@@ -2,22 +2,19 @@ import { z } from "zod";
 import { DELIVERABLE_KINDS } from "../constants.js";
 
 /**
- * Payload an agent posts to promote a file to a deliverable.
+ * Metadata fields that accompany a multipart file upload when an agent
+ * (or the UI) posts a new deliverable. The file bytes come via the
+ * multipart `file` field; the server stores those bytes through the
+ * existing StorageService and assigns its own `storagePath` (objectKey),
+ * `contentType`, `sizeBytes`, and `checksumSha256`.
  *
- * `storagePath` is trusted but validated: must be non-empty and must NOT
- * contain path traversal components (`..`, double slashes). Server further
- * constrains it to be inside the agent's own company memfs root.
+ * All values arrive as multipart strings and should be coerced where
+ * needed. For the JSON-only variant of this endpoint (not yet exposed
+ * in v1), the same schema applies after normal JSON parsing.
  */
 export const createDeliverableSchema = z.object({
   kind: z.enum(DELIVERABLE_KINDS),
   filename: z.string().min(1).max(256),
-  storagePath: z
-    .string()
-    .min(1)
-    .refine(
-      (p) => !p.split("/").some((seg) => seg === "." || seg === ".."),
-      "storagePath must not contain path traversal components",
-    ),
   title: z.string().min(1).max(256),
   description: z.string().max(2048).nullable().optional(),
 
@@ -25,7 +22,34 @@ export const createDeliverableSchema = z.object({
   issueId: z.string().uuid().nullable().optional(),
   routineRunId: z.string().uuid().nullable().optional(),
 
-  metadata: z.record(z.string(), z.unknown()).optional(),
+  // Accept either a real object or a JSON-stringified one (multipart forms
+  // can't carry nested objects natively).
+  metadata: z
+    .union([
+      z.record(z.string(), z.unknown()),
+      z
+        .string()
+        .transform((s, ctx) => {
+          try {
+            const parsed = JSON.parse(s);
+            if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+              return parsed as Record<string, unknown>;
+            }
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "metadata must be a JSON object",
+            });
+            return z.NEVER;
+          } catch {
+            ctx.addIssue({
+              code: z.ZodIssueCode.custom,
+              message: "metadata must be valid JSON",
+            });
+            return z.NEVER;
+          }
+        }),
+    ])
+    .optional(),
 });
 export type CreateDeliverable = z.infer<typeof createDeliverableSchema>;
 

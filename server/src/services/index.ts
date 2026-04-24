@@ -8,6 +8,7 @@ export { projectService } from "./projects.js";
 export { issueService, type IssueFilters } from "./issues.js";
 export { issueApprovalService } from "./issue-approvals.js";
 export { goalService } from "./goals.js";
+export { deliverableService, type CreateDeliverableInput } from "./deliverables.js";
 export { activityService, type ActivityFilters } from "./activity.js";
 export { approvalService } from "./approvals.js";
 export { budgetService } from "./budgets.js";

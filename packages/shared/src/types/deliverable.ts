@@ -43,11 +43,13 @@ export interface Deliverable {
 export interface DeliverableListItem extends Deliverable {}
 
 /**
- * Payload an agent posts to promote a file to a deliverable.
+ * Metadata an agent (or the UI) posts alongside a multipart file upload
+ * when creating a deliverable. The file bytes go in the multipart `file`
+ * field; the server handles storage via the existing StorageService and
+ * fills in `storagePath` (objectKey), `contentType`, `sizeBytes`, and
+ * `checksumSha256` from the upload result.
  *
- * Server resolves `contentType` from `kind` via DELIVERABLE_CONTENT_TYPES.
- * Server computes `sizeBytes` and `checksumSha256` by reading `storagePath`.
- * `clientVisible` defaults false.
+ * `clientVisible` defaults false (opt-in).
  *
  * At least one of `projectId` / `issueId` / `routineRunId` SHOULD be set,
  * but the API doesn't enforce — stand-alone deliverables are legal.
@@ -55,7 +57,6 @@ export interface DeliverableListItem extends Deliverable {}
 export interface CreateDeliverablePayload {
   kind: DeliverableKind;
   filename: string;
-  storagePath: string;
   title: string;
   description?: string | null;
 
