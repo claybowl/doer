@@ -448,6 +448,13 @@ export const PLUGIN_CAPABILITIES = [
   "webhooks.receive",
   "http.outbound",
   "secrets.read-ref",
+  // Memfs — reserved for future host enforcement. Plugins declare "memfs.read"
+  // as documentation today; direct Node fs reads under ~/.letta/agents/** are
+  // allowed for first-party plugins. When third-party plugin isolation lands,
+  // the host will gate memfs access behind this capability string with zero
+  // manifest-side changes required. See
+  // doc/plans/2026-04-21-wiki-graph-plugin.md.
+  "memfs.read",
   // Agent Tools
   "agent.tools.register",
   // UI
@@ -712,3 +719,65 @@ export type MemfsPermission = (typeof MEMFS_PERMISSIONS)[number];
 
 export const MEMFS_ROOT_KINDS = ["local-fs", "mcp", "git-hosted"] as const;
 export type MemfsRootKind = (typeof MEMFS_ROOT_KINDS)[number];
+
+/**
+ * Deliverable kinds — what formats Doer agents can promote as client-visible
+ * files. v1 ships docx + xlsx for claude_local; other formats slot in as
+ * additional skill recipes land. Intentionally text-typed in the DB so
+ * adding a kind doesn't require a migration.
+ */
+export const DELIVERABLE_KINDS = [
+  "docx",
+  "xlsx",
+  "pdf",
+  "pptx",
+  "md",
+  "png",
+  "jpg",
+  "csv",
+  "html",
+  "json",
+  "other",
+] as const;
+export type DeliverableKind = (typeof DELIVERABLE_KINDS)[number];
+
+/**
+ * Canonical MIME types per DeliverableKind. Agents should pass `kind` and
+ * the server fills in `contentType` from this map — saves the agent from
+ * guessing MIME strings and prevents mismatches like text/plain for .docx.
+ */
+export const DELIVERABLE_CONTENT_TYPES: Record<DeliverableKind, string> = {
+  docx: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+  xlsx: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+  pdf: "application/pdf",
+  pptx: "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+  md: "text/markdown; charset=utf-8",
+  png: "image/png",
+  jpg: "image/jpeg",
+  csv: "text/csv; charset=utf-8",
+  html: "text/html; charset=utf-8",
+  json: "application/json",
+  other: "application/octet-stream",
+};
+
+/**
+ * Default retention policy for soft-deleted or never-promoted deliverables.
+ * v1 does not run GC; value is documentation + a forward-compatible knob
+ * for v1.1 cleanup workers.
+ */
+export const DELIVERABLE_DEFAULT_RETENTION_DAYS = 90;
+
+/**
+ * Portal branding defaults — used when `company_branding` row is absent or
+ * a field is null. Sourced from the Donjon brand palette (graphite +
+ * indigo + ember). Font stack intentionally safe-subset — portal doesn't
+ * load arbitrary @font-face.
+ */
+export const PORTAL_BRANDING_DEFAULTS = {
+  primaryColor: "oklch(0.58 0.15 30)", // Donjon ember
+  accentColor: "oklch(0.62 0.15 260)", // Donjon indigo
+  backgroundColor: "oklch(0.17 0.012 60)", // Donjon graphite
+  surfaceColor: "oklch(0.21 0.014 60)",
+  fontFamily:
+    "'Inter Tight', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
+} as const;

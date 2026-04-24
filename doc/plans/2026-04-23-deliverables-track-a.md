@@ -2,8 +2,24 @@
 
 **Plan date:** 2026-04-23
 **Owner:** #1 (with Clay)
-**Branch:** `deliverables-track-a` (to be cut from `fernweh-additive-route`)
-**Status:** Planning · pending Clay's nod before implementation
+**Branch:** `deliverables-track-a` (cut from `fernweh-additive-route` @ `b9e2c55e`)
+**Status:** 🟢 Implementation started
+
+## Progress
+
+- **Day 1 landed (2026-04-23):** schema (`deliverables`, `deliverable_share_tokens`, `company_portal_branding`), shared types, constants (`DELIVERABLE_KINDS`, `DELIVERABLE_CONTENT_TYPES`, `PORTAL_BRANDING_DEFAULTS`), Zod validators. Typecheck clean on `@doerai/shared` + `@doerai/db`. Migration pending `pnpm db:generate`.
+- **Naming note:** used `companyPortalBranding` (not `companyBranding`) to disambiguate from the existing basic branding fields on the `companies` table.
+
+## Decisions locked (2026-04-23)
+
+1. **Storage root** — deliverables live inside memfs at
+   `$DOER_MEMFS_ROOT/<companyId>/deliverables/<deliverableId>/<filename>`. No separate root.
+2. **`clientVisible` default on promotion** — **opt-in** (default `false`); Clay flips
+   visible before any client sees it.
+3. **Portal branding** — Donjon palette baseline, **with per-company branding config
+   from v1** (small scope bump from v1.1 to v1). New `company_branding` row per company;
+   logo reuses existing `company_logos` table.
+4. **Test deliverable** — "Weekly Doer Ops Brief" (.docx) + "Doer Agent Roster" (.xlsx).
 
 ---
 

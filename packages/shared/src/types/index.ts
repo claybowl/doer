@@ -212,3 +212,20 @@ export type {
   WebhookDeliveryListItem,
 } from "./webhook.js";
 export { ALL_WEBHOOK_EVENT_TYPES } from "./webhook.js";
+export type {
+  Deliverable,
+  DeliverableListItem,
+  DeliverableListQuery,
+  CreateDeliverablePayload,
+  UpdateDeliverablePayload,
+  DeliverableDownloadResponse,
+  DeliverableShareToken,
+  DeliverableShareTokenScope,
+  CreateDeliverableShareTokenPayload,
+  PortalResolveResponse,
+} from "./deliverable.js";
+export type {
+  CompanyPortalBranding,
+  ResolvedPortalBranding,
+  UpdateCompanyPortalBrandingPayload,
+} from "./branding.js";
