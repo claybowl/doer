@@ -18,7 +18,7 @@ CREATE TABLE "deliverable_share_tokens" (
 	"token" text NOT NULL,
 	"label" text,
 	"scope" jsonb NOT NULL,
-	"created_by_user_id" uuid,
+	"created_by_user_id" text,
 	"expires_at" timestamp with time zone,
 	"revoked_at" timestamp with time zone,
 	"last_accessed_at" timestamp with time zone,

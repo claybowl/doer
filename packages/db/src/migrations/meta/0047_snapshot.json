@@ -4207,7 +4207,7 @@
         },
         "created_by_user_id": {
           "name": "created_by_user_id",
-          "type": "uuid",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },

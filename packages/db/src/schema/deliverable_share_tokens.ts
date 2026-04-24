@@ -11,6 +11,10 @@ import {
 import { companies } from "./companies.js";
 import { authUsers } from "./auth.js";
 
+// NOTE: authUsers.id is `text` (Better Auth convention), not uuid. Any FK
+// to user ids must be `text` too, otherwise Postgres rejects the FK with
+// "incompatible types: uuid and text".
+
 /**
  * Share tokens for the client Portal.
  *
@@ -42,7 +46,7 @@ export const deliverableShareTokens = pgTable(
 
     scope: jsonb("scope").notNull(),
 
-    createdByUserId: uuid("created_by_user_id").references(() => authUsers.id, {
+    createdByUserId: text("created_by_user_id").references(() => authUsers.id, {
       onDelete: "set null",
     }),
 
