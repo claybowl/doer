@@ -155,6 +155,40 @@ const DELIVERABLE_TOOL_SOURCE = `def produce_deliverable(
     }
 `;
 
+/**
+ * Rich tool description — this is the authoritative guidance the model
+ * sees for every Letta agent on every reasoning turn. Letta agents have
+ * no skill-file mechanism (unlike Claude Code), so the tool description
+ * IS the instruction surface. Keep it short and direct; the agent
+ * reads this alongside the JSON args schema when deciding what to call.
+ */
+const DELIVERABLE_TOOL_DESCRIPTION = `Publish a file as a Doer Output so the human user can download it from Fernweh.
+
+WHEN TO USE:
+Any time you produce user-facing content the human will read OUTSIDE a chat transcript. Reports, briefs, proposals, summaries, analyses, spreadsheets, trackers, rosters, presentations, extracts. If the user asked for "a document", "a report", "a spreadsheet", or any specific file format, use this tool. Do NOT return that content as markdown in the conversation — that's scratch, not a deliverable.
+
+WHEN NOT TO USE:
+Internal planning notes, thinking-out-loud, inter-agent coordination, or short conversational answers. Those stay as normal messages.
+
+HOW TO OBTAIN file_content_base64:
+Generate the file in Python (python-docx for .docx, openpyxl for .xlsx, reportlab for .pdf, python-pptx for .pptx), save to bytes, then base64-encode. Typical Python:
+
+    from docx import Document
+    from io import BytesIO
+    import base64
+    doc = Document()
+    doc.add_heading("Your title", level=1)
+    doc.add_paragraph("Body text...")
+    buf = BytesIO()
+    doc.save(buf)
+    file_content_base64 = base64.b64encode(buf.getvalue()).decode("ascii")
+
+SIZE: keep files under ~500 KB. Base64 content flows through Letta's model context; huge files will exceed message size limits.
+
+VISIBILITY: outputs land as "draft" by default. The human reviews in Fernweh and publishes before sharing — do NOT try to auto-publish.
+
+LINK TO WORK: if your current task is tied to an issue, pass its UUID as issue_id so the output attaches to it in Fernweh.`;
+
 const DELIVERABLE_TOOL_ARGS_SCHEMA: Record<string, unknown> = {
   type: "object",
   required: ["kind", "filename", "title", "file_content_base64"],
@@ -189,17 +223,25 @@ const DELIVERABLE_TOOL_ARGS_SCHEMA: Record<string, unknown> = {
       type: "string",
       description: "File bytes, base64-encoded.",
     },
+    // Letta's pydantic-based schema parser rejects JSON Schema's
+    // ["string", "null"] union syntax. For optional/nullable fields,
+    // use "type": "string" and rely on being absent from `required` —
+    // the Python signature uses `= None` defaults so the agent knows
+    // these are skippable. Empirically confirmed against api.letta.com.
     description: {
-      type: ["string", "null"],
-      description: "Optional short summary sentence.",
+      type: "string",
+      description:
+        "Optional short summary sentence. Omit if you don't have one.",
     },
     issue_id: {
-      type: ["string", "null"],
-      description: "Optional Doer issue UUID this output relates to.",
+      type: "string",
+      description:
+        "Optional Doer issue UUID this output relates to. Omit if not tied to an issue.",
     },
     project_id: {
-      type: ["string", "null"],
-      description: "Optional Doer project UUID this output relates to.",
+      type: "string",
+      description:
+        "Optional Doer project UUID this output relates to. Omit if not tied to a project.",
     },
   },
 };
@@ -230,8 +272,7 @@ export async function ensureDeliverableTool(
   const created = await client.tools.create({
     source_code: DELIVERABLE_TOOL_SOURCE,
     source_type: "python",
-    description:
-      "Publish a file (base64) as a Doer Output. The Doer adapter stores the bytes server-side by observing this tool call; this Python is a no-op receipt.",
+    description: DELIVERABLE_TOOL_DESCRIPTION,
     args_json_schema: DELIVERABLE_TOOL_ARGS_SCHEMA,
     tags: ["doer", "deliverable"],
     return_char_limit: 512,
