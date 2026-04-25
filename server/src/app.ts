@@ -37,6 +37,7 @@ import {
 } from "./routes/deliverables.js";
 import { pluginRoutes } from "./routes/plugins.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
+import { billingRoutes } from "./routes/billing.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -167,6 +168,7 @@ export async function createApp(
   api.use(deliverableRoutes(db, opts.storageService));
   api.use(shareTokenRoutes(db));
   api.use(portalRoutes(db, opts.storageService));
+  api.use(billingRoutes(db));
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);
