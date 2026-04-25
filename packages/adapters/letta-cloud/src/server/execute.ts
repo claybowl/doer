@@ -218,30 +218,110 @@ async function executeStreaming(
   // the deliverable row is inserted.
   const pendingSideEffects: Promise<void>[] = [];
 
+  // ----------------------------------------------------------------------
+  // Stream-token accumulator
+  // ----------------------------------------------------------------------
+  // We request `stream_tokens: true` from Letta because it gives us live,
+  // typewriter-style streaming during the run. The downside is each chunk
+  // becomes a separate message_type event (often a partial word — "ng" +
+  // "rok", "Heart" + "beat"). If we naively emit each chunk as its own
+  // assistant_message / reasoning_message event, the Doer transcript UI
+  // renders each as a sibling node and inserts whitespace between, so
+  // users see "Heart beat" instead of "Heartbeat" everywhere.
+  //
+  // Fix: accumulate consecutive chunks of the same kind (and same Letta
+  // message id, when present), emit one consolidated event when the kind
+  // changes, when a new logical message starts, when a non-streamable
+  // event arrives (tool calls, returns, errors, etc.), or when the
+  // stream ends.
+  type StreamKind = "assistant" | "reasoning";
+  type StreamBuffer = {
+    kind: StreamKind;
+    messageId: string | null;
+    text: string;
+  };
+  let streamBuffer: StreamBuffer | null = null;
+
+  async function flushStreamBuffer(): Promise<void> {
+    if (!streamBuffer || streamBuffer.text.length === 0) {
+      streamBuffer = null;
+      return;
+    }
+    if (streamBuffer.kind === "assistant") {
+      await emit(ctx, {
+        type: "assistant_message",
+        content: streamBuffer.text,
+      });
+    } else {
+      await emit(ctx, {
+        type: "reasoning_message",
+        content: streamBuffer.text,
+      });
+    }
+    streamBuffer = null;
+  }
+
+  // Helper: append `text` to the buffer, opening a new buffer or flushing
+  // the previous one when the kind / messageId changes.
+  async function appendToStreamBuffer(
+    kind: StreamKind,
+    messageId: string | null,
+    text: string,
+  ): Promise<void> {
+    if (text.length === 0) return;
+    if (
+      streamBuffer &&
+      (streamBuffer.kind !== kind || streamBuffer.messageId !== messageId)
+    ) {
+      await flushStreamBuffer();
+    }
+    if (!streamBuffer) {
+      streamBuffer = { kind, messageId, text: "" };
+    }
+    streamBuffer.text += text;
+  }
+
+  // Streamable Letta message_types — anything else is a logical break and
+  // forces the buffer to drain BEFORE we run that event's handler so the
+  // ordering of events the UI sees stays correct (assistant text before
+  // the tool call it triggered, etc.).
+  const STREAMABLE_TYPES = new Set(["assistant_message", "reasoning_message"]);
+
   for await (const chunk of stream) {
     const rec = chunk as unknown as Record<string, unknown>;
     const messageType = String(rec.message_type ?? "");
 
+    // Drain accumulated streaming chunks before any non-streamable event
+    // so the consumer sees them in the correct interleaved order.
+    if (!STREAMABLE_TYPES.has(messageType) && streamBuffer) {
+      await flushStreamBuffer();
+    }
+
     switch (messageType) {
       case "assistant_message": {
         const text = extractAssistantContent(rec.content);
-        if (text) {
-          await emit(ctx, { type: "assistant_message", content: text });
-        }
+        const messageId =
+          typeof rec.id === "string" ? rec.id : null;
+        await appendToStreamBuffer("assistant", messageId, text);
         break;
       }
 
       case "reasoning_message": {
-        const reasoning = typeof rec.reasoning === "string" ? rec.reasoning : "";
-        if (reasoning) {
-          await emit(ctx, { type: "reasoning_message", content: reasoning });
-        }
+        const reasoning =
+          typeof rec.reasoning === "string" ? rec.reasoning : "";
+        const messageId =
+          typeof rec.id === "string" ? rec.id : null;
+        await appendToStreamBuffer("reasoning", messageId, reasoning);
         break;
       }
 
       case "hidden_reasoning_message": {
-        // Redacted reasoning — show that the agent is thinking
-        await emit(ctx, { type: "reasoning_message", content: "(reasoning redacted by model)" });
+        // Redacted reasoning — emit as a single line, not buffered. The
+        // pre-loop drain already flushed any pending streamable chunks.
+        await emit(ctx, {
+          type: "reasoning_message",
+          content: "(reasoning redacted by model)",
+        });
         break;
       }
 
@@ -340,6 +420,13 @@ async function executeStreaming(
         await emit(ctx, { type: "unknown", messageType, raw: safeStringify(rec) });
         break;
     }
+  }
+
+  // Final drain of the streaming accumulator — there may be a trailing
+  // assistant_message or reasoning_message that wasn't followed by a
+  // non-streamable event before the stream closed.
+  if (streamBuffer) {
+    await flushStreamBuffer();
   }
 
   // Drain any pending deliverable uploads before reporting success. We

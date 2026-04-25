@@ -16,7 +16,7 @@
  * only where missing.
  */
 
-const DOER = process.env.DOER_API_URL ?? "http://localhost:3101";
+const DOER = process.env.DOER_API_URL ?? "http://localhost:3100";
 const COMPANY_ID =
   process.env.DOER_COMPANY_ID ?? "27b25893-0ff4-4d81-b45b-9631e04b769a";
 
