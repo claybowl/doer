@@ -177,12 +177,30 @@ export function stripeBillingService(db: Db) {
     return stripe.webhooks.constructEvent(rawBody, signature, process.env.STRIPE_WEBHOOK_SECRET);
   }
 
+  async function getUsageSummary(companyId: string) {
+    const [company] = await db.select().from(companies).where(eq(companies.id, companyId));
+    if (!company) throw new Error("Company not found");
+
+    const plan = (company.plan ?? "free") as Plan;
+    const limits = PLAN_LIMITS[plan];
+
+    return {
+      plan,
+      planStatus: company.planStatus,
+      trialEndsAt: company.trialEndsAt,
+      currentPeriodEnd: company.currentPeriodEnd,
+      gracePeriodEnd: company.gracePeriodEnd,
+      limits,
+    };
+  }
+
   return {
     createCheckoutSession,
     createPortalSession,
     processWebhookEvent,
     constructWebhookEvent,
     syncSubscription,
+    getUsageSummary,
     PLAN_LIMITS,
   };
 }

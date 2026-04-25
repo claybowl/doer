@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Db } from "@doerai/db";
 import { z } from "zod";
 import { stripeBillingService } from "../services/stripe-billing.js";
-import { assertCompanyAccess } from "./authz.js";
+import { assertCompanyAccess, assertBoard } from "./authz.js";
 import { validate } from "../middleware/validate.js";
 
 const createCheckoutSchema = z.object({
@@ -20,12 +20,14 @@ export function billingRoutes(db: Db) {
   const billing = stripeBillingService(db);
 
   // POST /api/companies/:companyId/billing/create-checkout-session
+  // Requires human board user (workspace admin) — agents must not initiate billing
   router.post(
     "/companies/:companyId/billing/create-checkout-session",
     validate(createCheckoutSchema),
     async (req, res, next) => {
       try {
         const companyId = req.params.companyId as string;
+        assertBoard(req);
         assertCompanyAccess(req, companyId);
         const { priceId, successUrl, cancelUrl } = req.body as z.infer<typeof createCheckoutSchema>;
         const url = await billing.createCheckoutSession({ companyId, priceId, successUrl, cancelUrl });
@@ -37,12 +39,14 @@ export function billingRoutes(db: Db) {
   );
 
   // POST /api/companies/:companyId/billing/create-portal-session
+  // Requires human board user (workspace admin)
   router.post(
     "/companies/:companyId/billing/create-portal-session",
     validate(createPortalSchema),
     async (req, res, next) => {
       try {
         const companyId = req.params.companyId as string;
+        assertBoard(req);
         assertCompanyAccess(req, companyId);
         const { returnUrl } = req.body as z.infer<typeof createPortalSchema>;
         const url = await billing.createPortalSession({ companyId, returnUrl });
@@ -52,6 +56,19 @@ export function billingRoutes(db: Db) {
       }
     },
   );
+
+  // GET /api/companies/:companyId/billing/usage
+  // Returns current billing plan + usage for the workspace
+  router.get("/companies/:companyId/billing/usage", async (req, res, next) => {
+    try {
+      const companyId = req.params.companyId as string;
+      assertCompanyAccess(req, companyId);
+      const usage = await billing.getUsageSummary(companyId);
+      res.json(usage);
+    } catch (err) {
+      next(err);
+    }
+  });
 
   // POST /api/billing/webhook — PUBLIC, no auth, signature-verified
   router.post("/billing/webhook", async (req, res) => {
