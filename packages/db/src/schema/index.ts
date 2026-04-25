@@ -62,3 +62,5 @@ export { webhookDeliveries, type WebhookDeliveryStatus } from "./webhook_deliver
 export { deliverables } from "./deliverables.js";
 export { deliverableShareTokens } from "./deliverable_share_tokens.js";
 export { companyPortalBranding } from "./company_branding.js";
+export { usageRecords } from "./billing_usage_records.js";
+export { processedStripeEvents } from "./processed_stripe_events.js";

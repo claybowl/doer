@@ -17,6 +17,15 @@ export const companies = pgTable(
       .notNull()
       .default(true),
     brandColor: text("brand_color"),
+    // Stripe billing fields
+    stripeCustomerId: text("stripe_customer_id").unique(),
+    plan: text("plan").notNull().default("free"),
+    planStatus: text("plan_status").notNull().default("active"),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+    trialEndsAt: timestamp("trial_ends_at", { withTimezone: true }),
+    currentPeriodEnd: timestamp("current_period_end", { withTimezone: true }),
+    seatCount: integer("seat_count").notNull().default(1),
+    gracePeriodEnd: timestamp("grace_period_end", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },
