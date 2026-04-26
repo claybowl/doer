@@ -4,6 +4,16 @@ import os from "node:os";
 import path from "node:path";
 import { testEnvironment } from "@doerai/adapter-opencode-local/server";
 
+// testEnvironment runs an `opencode models` probe with a 20-second
+// internal timeout (see packages/adapters/opencode-local/src/server/models.ts
+// MODELS_DISCOVERY_TIMEOUT_MS). On busy machines the probe can take the
+// full 20s before bailing, plus ~1-2s for setup/cleanup. Vitest's
+// default 5s per-test timeout cuts that off and surfaces as a "Test
+// timed out in 5000ms" failure unrelated to the actual code under
+// test. Bump per-test timeout to 30s to outlast the probe ceiling
+// without masking a real hang.
+const TEST_TIMEOUT_MS = 30_000;
+
 describe("opencode_local environment diagnostics", () => {
   it("reports a missing working directory as an error when cwd is absolute", async () => {
     const cwd = path.join(
@@ -26,7 +36,7 @@ describe("opencode_local environment diagnostics", () => {
     expect(result.checks.some((check) => check.code === "opencode_cwd_invalid")).toBe(true);
     expect(result.checks.some((check) => check.level === "error")).toBe(true);
     expect(result.status).toBe("fail");
-  });
+  }, TEST_TIMEOUT_MS);
 
   it("treats an empty OPENAI_API_KEY override as missing", async () => {
     const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "doer-opencode-env-empty-key-"));
@@ -57,7 +67,7 @@ describe("opencode_local environment diagnostics", () => {
       }
       await fs.rm(cwd, { recursive: true, force: true });
     }
-  });
+  }, TEST_TIMEOUT_MS);
 
   it("classifies ProviderModelNotFoundError probe output as model-unavailable warning", async () => {
     const cwd = await fs.mkdtemp(path.join(os.tmpdir(), "doer-opencode-env-probe-cwd-"));
@@ -92,5 +102,5 @@ describe("opencode_local environment diagnostics", () => {
       await fs.rm(cwd, { recursive: true, force: true });
       await fs.rm(binDir, { recursive: true, force: true });
     }
-  });
+  }, TEST_TIMEOUT_MS);
 });
