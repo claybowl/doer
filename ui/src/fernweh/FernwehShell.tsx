@@ -204,6 +204,23 @@ export function FernwehShell() {
             <span>Tweaks</span>
           </button>
           <NavLink
+            to={`/${prefix}/fernweh/preferences`}
+            style={({ isActive }) => ({
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              color: isActive ? "var(--ink)" : "var(--ink-dim)",
+              fontSize: 12,
+              background: isActive ? "var(--bg-raised)" : "transparent",
+            })}
+          >
+            <Icon d={I.sliders} size={12} />
+            <span>Preferences</span>
+          </NavLink>
+          <NavLink
             to={`/${prefix}/dashboard`}
             style={{
               display: "flex",
