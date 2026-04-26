@@ -95,7 +95,7 @@ The skeleton typechecks against `@doerai/plugin-sdk`, follows `plugin-delivered`
 
 **Next up (from the plan):**
 
-- **Phase 0** — add `ctx.memfs` to the plugin SDK (0.5 day, prerequisite)
+- **Phase 0** — add `src/memfs/reader.ts` (direct Node `fs` over `~/.letta/agents/**`, honors `.lettaignore`, ~1 hr). SDK extension considered and rejected as premature; see plan doc "Where memfs bytes actually come from — resolved 2026-04-22."
 - **Phase 1.5** — link-only extraction + minimal vis.js render (1 day, first demoable)
 - **Phase 2** — LLM extraction + Karpathy wiki render (2 days)
 - **Phase 3** — Leiden/Louvain communities + god-node report (1 day)

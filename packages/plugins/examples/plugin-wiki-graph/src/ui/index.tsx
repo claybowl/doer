@@ -5,6 +5,7 @@ import {
   type PluginSidebarProps,
 } from "@doerai/plugin-sdk/ui";
 import { DATA_KEYS } from "../constants.js";
+import { GraphView } from "./GraphView.js";
 
 // ---------------------------------------------------------------------------
 // Types mirror the worker wire-format. Keep in sync with worker.ts.
@@ -136,10 +137,15 @@ export function WikiGraphPage(props: PluginPageProps) {
         </section>
       )}
 
-      {hasGraph && (
+      {hasGraph && graph.data && (
         <section style={card}>
-          {/* Phase 2: <GraphView nodes={graph.data.nodes} edges={graph.data.edges} /> */}
-          <p style={{ color: "#9ca3af" }}>Graph render wires up in Phase 2.</p>
+          <GraphView nodes={graph.data.nodes} edges={graph.data.edges} />
+          {graph.data.lastIngestAt && (
+            <p style={{ color: "#6b7280", fontSize: 11, margin: "12px 0 0 0" }}>
+              Last ingest: {new Date(graph.data.lastIngestAt).toLocaleString()} ·{" "}
+              {graph.data.nodes.length} node(s), {graph.data.edges.length} edge(s).
+            </p>
+          )}
         </section>
       )}
     </div>

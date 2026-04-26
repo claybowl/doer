@@ -31,8 +31,12 @@ const manifest: PaperclipPluginManifestV1 = {
     "ui.sidebar.register",
     "metrics.write",
     "jobs.schedule",
-    // TODO (Phase 0): add "memfs.read" once ctx.memfs is exposed by the SDK.
-    // Until then, worker reads directly via Node fs — flagged in plan as risk.
+    // "memfs.read" — documented capability; not host-enforced in V1.
+    // Worker reads ~/.letta/agents/** directly via Node fs (decision
+    // 2026-04-22, doc/plans/2026-04-21-wiki-graph-plugin.md "Where memfs
+    // bytes actually come from — resolved"). Upgrades to capability-gated
+    // client when third-party plugin isolation lands.
+    "memfs.read",
   ],
   entrypoints: {
     worker: "./dist/worker.js",

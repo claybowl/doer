@@ -112,16 +112,31 @@ capabilities: [
 ];
 ```
 
-### Where memfs bytes actually come from — open architectural question
+### Where memfs bytes actually come from — resolved 2026-04-22
 
-The plugin SDK **does not** currently expose a memfs read surface (`PluginContext` has no `memfs` client; see `packages/plugins/sdk/src/types.ts:1097`). Two paths:
+**Decision: the plugin worker reads memfs files directly from disk via Node `fs`.** No SDK extension, no mirror table, no capability-gated client. Doer today is single-tenant and ships only first-party plugins that we control; building a sandbox for a threat model we don't have is premature.
 
-- **Path A — Extend SDK with `ctx.memfs`:** add `PluginMemfsClient` to `PluginContext`, backed by the `memfs_roots` + `memfs_bindings` tables from memfs V1. Capability: `memfs.read`. Cleanest, sandboxed, reusable for future plugins (e.g. a PII lint plugin). Costs ~200–300 LOC in `packages/plugins/sdk` + `server/src/plugins/context-builder.ts` + a handful of tests.
-- **Path B — Direct Node `fs` from the worker:** the plugin worker runs in Doer's server process; Node's `fs` is trivially available. Fast, zero SDK change. Downsides: escapes the plugin sandbox model, sets a precedent for other plugins to do the same, no capability gating, not portable to future out-of-process worker isolation.
+Three options were considered:
 
-**Recommendation:** Path A. It's the right bone to grow. Estimated add: 0.5 day of work; unblocks this plugin and any future memfs-reading plugin cleanly.
+- **Option A — Extend SDK with `ctx.memfs` (capability-gated client).** Clean sandbox story, ~4 hrs of SDK surgery. Rejected as premature: the capability gate is only load-bearing once we run untrusted third-party plugins, and we don't.
+- **Option C — `memfs_files` mirror table + host-side indexer.** DB-native reads, free indexing. Rejected: buys nothing over direct `fs` reads for a wiki-graph use case that already batches ingest runs, and adds a sync job (eager or lazy) we'd have to own.
+- **Option D — Direct Node `fs` from worker (chosen).** Plugin worker is a Node process; `fs/promises` + `fast-glob` are trivially available. `~/.letta/agents/**` is already the source of truth and survives plugin upgrades for free.
 
-This plan assumes Path A.
+**How the plugin finds the files:**
+
+1. **Memfs root resolution** — use the existing `MEMFS_ROOT` env var (already set in the Doer dev env; defaults to `${HOME}/.letta/agents`). For production bindings, a one-line read against `memfs_bindings` gives the per-company root.
+2. **Per-company scoping** — the ingest action takes `companyId`; the worker joins `memfs_bindings` → `memfs_roots` to enumerate only the agents bound to that company. A plugin call with a mismatched `companyId` returns zero files.
+3. **`.lettaignore` filtering** — the reader reads `.lettaignore` (if present) at each root and filters glob results. Honored *before* any LLM extraction runs.
+
+**Manifest contract.** The plugin still declares `"memfs.read"` in its capability list as documentation. Today the host doesn't enforce it; when we stand up third-party plugin isolation in the future, the enforcement point slides in under the same manifest string with zero plugin-side changes. Cheap future-proofing.
+
+**What we give up by not capability-gating today:**
+
+- The manifest's `capabilities` list is documentation, not enforcement, for memfs reads. Acceptable for first-party plugins.
+- A future bad-actor plugin could read arbitrary files under the host process's user. Out of scope for V1 — mitigated by the fact that every plugin in the registry is first-party until we explicitly change that.
+- `.lettaignore` enforcement lives in plugin code rather than the host. Mitigated by putting it in a shared `memfs/reader.ts` helper inside the plugin package; any future memfs-reading plugin imports the same helper.
+
+**When to revisit.** The moment a third-party plugin is proposed for install, this decision gets upgraded to Option A (capability-gated client). Until then, direct `fs` is correct.
 
 ---
 
@@ -216,7 +231,7 @@ Plugin data dir resolved via `ctx.state` (writes land in Doer-managed storage, s
 
 | Risk | Mitigation |
 |------|-----------|
-| Plugin SDK has no memfs surface | Path A (extend SDK with `ctx.memfs`) is a 0.5-day prerequisite; ship it as part of this plan |
+| Plugin SDK has no memfs surface | Resolved 2026-04-22 — plugin reads disk directly via Node `fs`; capability is documented in manifest but not enforced (first-party trust). Upgrade path to capability-gated client preserved. |
 | LLM extraction non-deterministic → graph churn between runs | Stable slugs, SHA-cached per-source extractions, diff-based merges; never delete nodes with no inbound unless source is gone |
 | Token cost unbounded | Per-run cap + per-company monthly cap; cache hit rate displayed in ingest panel |
 | Leiden in JS is fiddly | Ship Louvain fallback (trivially portable); swap to graspologic-js or call out to a Python sidecar in V2 if community quality is weak |
@@ -227,7 +242,11 @@ Plugin data dir resolved via `ctx.state` (writes land in Doer-managed storage, s
 
 ## Rollout
 
-**Phase 0 — SDK extension (0.5 day).** Add `ctx.memfs` + `memfs.read` capability.
+**Phase 0 — Memfs reader helper (~1 hr).** Inside the plugin package, add `src/memfs/reader.ts`:
+- Resolves memfs root from `MEMFS_ROOT` env var (fallback `${HOME}/.letta/agents`), with a one-line `memfs_bindings` lookup for production per-company roots.
+- Exposes `listAgentFiles(companyId, agentId)` and `readAgentFile(companyId, agentId, relPath)` backed by `fs/promises` + `fast-glob`.
+- Honors `.lettaignore` at the root level before returning globs.
+- No SDK changes, no new capability enforcement. Manifest declares `memfs.read` as documentation only.
 
 **Phase 1 — Skeleton + link-only graph (1 day).** Scaffold package, implement link-only extraction, basic graph.json output, minimal vis.js page. Ship this first; validates the plumbing before spending LLM tokens.
 

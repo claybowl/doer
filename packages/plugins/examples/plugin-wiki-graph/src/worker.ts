@@ -1,62 +1,62 @@
+import { createHash } from "node:crypto";
 import {
   definePlugin,
   runWorker,
   type PaperclipPlugin,
   type PluginContext,
 } from "@doerai/plugin-sdk";
-import { ACTION_KEYS, DATA_KEYS, EDGE_TAGS, type EdgeTag } from "./constants.js";
+import { ACTION_KEYS, DATA_KEYS, EDGE_TAGS } from "./constants.js";
+import {
+  extractLinks,
+  type RawEdge,
+  type RawNode,
+} from "./extract/links.js";
+import {
+  buildGraph,
+  deriveStats,
+  type GraphEdge,
+  type GraphNode,
+  type GraphState,
+} from "./graph/build.js";
+import {
+  loadGraph,
+  loadIngestStats,
+  saveGraph,
+  saveIngestStats,
+  type PersistedIngestStats,
+} from "./graph/persist.js";
+import {
+  listAgentFiles,
+  listAllAgentIds,
+  readAgentFile,
+  resolveMemfsRoot,
+} from "./memfs/reader.js";
 
 /**
  * plugin-wiki-graph worker.
  *
- * Phase 1 skeleton. Registers the full data/action surface with stub responses
- * so the UI can be built against the final contract. Real extraction + graph
- * building lands in Phases 2–4 (see doc/plans/2026-04-21-wiki-graph-plugin.md).
+ * Phase 1.5 — link-only extraction lit up end-to-end.
  *
- * Architecture:
- *   - Ingest action walks memfs + gremlin outputs, extracts nodes/edges via
- *     link-parse (free) + LLM (tagged EXTRACTED | INFERRED | AMBIGUOUS), and
- *     writes graph.json + wiki/*.md into the plugin's derived data dir.
- *   - Data handlers serve graph state + wiki pages to the UI.
- *   - Publish action (approval-gated) copies wiki/ into ~/.letta/agents/SHARED/Wiki.
+ * Flow on `runIngest`:
+ *   1. Walk `~/.letta/agents/**` (constrained by company binding later).
+ *   2. For each text file, SHA-256 + parse `[[wiki]]` and `[md](./link.md)`.
+ *   3. Feed raw nodes+edges into `buildGraph` → deterministic `GraphState`.
+ *   4. Persist under `ctx.state` (namespace="wiki-graph", stateKey="graph")
+ *      and stash derived ingest stats for the UI panel.
+ *   5. Activity-log the run so admin/oversight shows it.
+ *
+ * LLM-driven extraction (EXTRACTED | INFERRED | AMBIGUOUS tags beyond
+ * EXTRACTED) lands in Phase 2. Wiki pages + publish-to-memfs land in Phase 4.
+ *
+ * @see doc/plans/2026-04-21-wiki-graph-plugin.md
  */
 
 // ---------------------------------------------------------------------------
-// Wire-format types — shared with the UI (kept here as the source of truth)
+// Wire-format re-exports — GraphNode/Edge/State live in `graph/build.ts`.
+// Wiki types remain here until Phase 2 promotes them to their own module.
 // ---------------------------------------------------------------------------
 
-export type GraphNode = {
-  /** Stable slug: `${kind}:${normalizedTitle}` */
-  id: string;
-  kind: "entity" | "concept" | "agent" | "task" | "source";
-  title: string;
-  /** Weighted degree — higher = hub / god node */
-  degree: number;
-  /** Leiden / Louvain community ID */
-  community: number | null;
-  /** Inbound source file count — zero-means-orphan signal */
-  sourceCount: number;
-};
-
-export type GraphEdge = {
-  from: string;
-  to: string;
-  /** Provenance: how confident we are in this edge */
-  tag: EdgeTag;
-  /** Relation label produced by extractor (free text) */
-  relation: string;
-  /** SHA of the source that produced this edge, for cache busting */
-  sourceSha: string;
-};
-
-export type GraphState = {
-  companyId: string;
-  nodes: GraphNode[];
-  edges: GraphEdge[];
-  lastIngestAt: string | null;
-  tokensSpent: number;
-  cacheHitRate: number;
-};
+export type { GraphEdge, GraphNode, GraphState };
 
 export type WikiPage = {
   slug: string;
@@ -78,15 +78,7 @@ export type WikiIndexEntry = {
   updatedAt: string;
 };
 
-export type IngestStats = {
-  lastRun: string | null;
-  filesProcessed: number;
-  nodesAdded: number;
-  edgesAdded: number;
-  tokensSpent: number;
-  budgetUsd: number;
-  cacheHitRate: number;
-};
+export type IngestStats = PersistedIngestStats;
 
 // ---------------------------------------------------------------------------
 // Param coercion helpers
@@ -101,12 +93,23 @@ function asStringArray(value: unknown): string[] {
 }
 
 // ---------------------------------------------------------------------------
-// Data handlers — Phase 1 stubs return empty/initial state so the UI renders
-// the ingest-panel path. Replaced by real implementations in Phase 2+.
+// Content helpers
 // ---------------------------------------------------------------------------
 
-async function getGraph(ctx: PluginContext, companyId: string): Promise<GraphState> {
-  void ctx;
+function sha256(content: string): string {
+  return createHash("sha256").update(content, "utf8").digest("hex");
+}
+
+/**
+ * Cheap sniff — we only want to run the link extractor on files that look like
+ * human-authored text. Binary blobs (images, parquet, etc.) waste cycles and
+ * also choke the SHA pass if someone drops one in.
+ */
+function looksLikeText(relPath: string): boolean {
+  return /\.(md|mdx|markdown|txt|json|yaml|yml|toml)$/i.test(relPath);
+}
+
+function emptyGraph(companyId: string): GraphState {
   return {
     companyId,
     nodes: [],
@@ -117,21 +120,7 @@ async function getGraph(ctx: PluginContext, companyId: string): Promise<GraphSta
   };
 }
 
-async function getWikiPage(ctx: PluginContext, slug: string): Promise<WikiPage | null> {
-  void ctx;
-  void slug;
-  return null;
-}
-
-async function getWikiIndex(ctx: PluginContext, companyId: string): Promise<WikiIndexEntry[]> {
-  void ctx;
-  void companyId;
-  return [];
-}
-
-async function getIngestStats(ctx: PluginContext, companyId: string): Promise<IngestStats> {
-  void ctx;
-  void companyId;
+function emptyStats(): IngestStats {
   return {
     lastRun: null,
     filesProcessed: 0,
@@ -144,9 +133,37 @@ async function getIngestStats(ctx: PluginContext, companyId: string): Promise<In
 }
 
 // ---------------------------------------------------------------------------
-// Action handlers — Phase 1 stubs emit an activity-log entry and return a
-// deterministic "not-yet-implemented" result. This lets us wire the UI to the
-// full action surface before we ship the real extraction pipeline.
+// Data handlers — read from `ctx.state`. Empty state falls back to defaults
+// so the UI can render its first-run ingest panel.
+// ---------------------------------------------------------------------------
+
+async function getGraph(ctx: PluginContext, companyId: string): Promise<GraphState> {
+  if (!companyId) return emptyGraph(companyId);
+  const stored = await loadGraph(ctx, companyId);
+  return stored ?? emptyGraph(companyId);
+}
+
+async function getWikiPage(ctx: PluginContext, slug: string): Promise<WikiPage | null> {
+  void ctx;
+  void slug;
+  // Phase 4 — wiki rendering lands after LLM summaries.
+  return null;
+}
+
+async function getWikiIndex(ctx: PluginContext, companyId: string): Promise<WikiIndexEntry[]> {
+  void ctx;
+  void companyId;
+  return [];
+}
+
+async function getIngestStats(ctx: PluginContext, companyId: string): Promise<IngestStats> {
+  if (!companyId) return emptyStats();
+  const stored = await loadIngestStats(ctx, companyId);
+  return stored ?? emptyStats();
+}
+
+// ---------------------------------------------------------------------------
+// Action handlers
 // ---------------------------------------------------------------------------
 
 type IngestResult = {
@@ -160,16 +177,115 @@ async function runIngest(
   params: { companyId: string; sources: string[] },
 ): Promise<IngestResult> {
   const runId = `ingest-${Date.now().toString(36)}`;
+  const root = resolveMemfsRoot();
+  const wantsMemfs = params.sources.length === 0 || params.sources.includes("memfs");
+
+  let agentCount = 0;
+  let fileCount = 0;
+  let readFailures = 0;
+  const rawNodes: RawNode[] = [];
+  const rawEdges: RawEdge[] = [];
+
+  if (wantsMemfs) {
+    try {
+      const agentIds = await listAllAgentIds();
+      agentCount = agentIds.length;
+
+      for (const agentId of agentIds) {
+        const files = await listAgentFiles(agentId);
+        for (const entry of files) {
+          fileCount += 1;
+          if (!looksLikeText(entry.path)) continue;
+          let file;
+          try {
+            file = await readAgentFile(agentId, entry.path);
+          } catch (err) {
+            readFailures += 1;
+            ctx.logger.warn("plugin-wiki-graph: readAgentFile failed", {
+              agentId,
+              path: entry.path,
+              err: err instanceof Error ? err.message : String(err),
+            });
+            continue;
+          }
+          if (file == null) continue;
+          const extracted = extractLinks({
+            agentId,
+            path: entry.path,
+            content: file.content,
+            sha: sha256(file.content),
+          });
+          rawNodes.push(...extracted.nodes);
+          rawEdges.push(...extracted.edges);
+        }
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : String(err);
+      ctx.logger.error("plugin-wiki-graph: memfs walk failed", { root, err: message });
+      await ctx.activity.log({
+        companyId: params.companyId,
+        message: `Wiki ingest failed: ${message}`,
+        metadata: {
+          runId,
+          sources: params.sources,
+          memfsRoot: root,
+          kind: "wiki.ingest.error",
+        },
+      });
+      return {
+        runId,
+        status: "error",
+        message: `Memfs walk failed: ${message}`,
+      };
+    }
+  }
+
+  const lastIngestAt = new Date().toISOString();
+  const graph = buildGraph({
+    companyId: params.companyId,
+    rawNodes,
+    rawEdges,
+    lastIngestAt,
+    tokensSpent: 0,
+    cacheHitRate: 0,
+  });
+  const stats = deriveStats(graph);
+
+  if (params.companyId) {
+    await saveGraph(ctx, params.companyId, graph);
+    await saveIngestStats(ctx, params.companyId, {
+      lastRun: lastIngestAt,
+      filesProcessed: stats.filesProcessed,
+      nodesAdded: stats.nodesAdded,
+      edgesAdded: stats.edgesAdded,
+      tokensSpent: 0,
+      budgetUsd: 0,
+      cacheHitRate: 0,
+    });
+  } else {
+    ctx.logger.warn("plugin-wiki-graph: ingest without companyId — graph not persisted");
+  }
+
   await ctx.activity.log({
     companyId: params.companyId,
-    message: `Wiki ingest queued (sources=${params.sources.join(",")})`,
-    metadata: { runId, sources: params.sources, kind: "wiki.ingest.queued" },
+    message: `Wiki ingest ok (agents=${agentCount}, files=${fileCount}, nodes=${stats.nodesAdded}, edges=${stats.edgesAdded})`,
+    metadata: {
+      runId,
+      sources: params.sources,
+      memfsRoot: root,
+      memfsAgentCount: agentCount,
+      memfsFileCount: fileCount,
+      memfsReadFailures: readFailures,
+      nodesAdded: stats.nodesAdded,
+      edgesAdded: stats.edgesAdded,
+      kind: "wiki.ingest.ok",
+    },
   });
+
   return {
     runId,
-    status: "queued",
-    message:
-      "Phase 1 skeleton: ingest is wired but extraction is not yet implemented. See doc/plans/2026-04-21-wiki-graph-plugin.md Phase 2.",
+    status: "ok",
+    message: `Link-only ingest complete: ${stats.nodesAdded} node(s), ${stats.edgesAdded} edge(s) across ${stats.filesProcessed} source file(s).`,
   };
 }
 
@@ -186,7 +302,7 @@ async function runLint(
   return {
     runId,
     status: "queued",
-    message: "Phase 1 skeleton: lint pass not yet implemented. See plan Phase 4.",
+    message: "Phase 1.5: lint pass not yet implemented. See plan Phase 4.",
   };
 }
 
@@ -208,7 +324,7 @@ async function publishToMemfs(
     runId,
     status: "queued",
     message:
-      "Phase 1 skeleton: publish is approval-gated and not yet implemented. See plan Phase 4.",
+      "Phase 1.5: publish is approval-gated and not yet implemented. See plan Phase 4.",
   };
 }
 
@@ -218,7 +334,6 @@ async function publishToMemfs(
 
 const plugin: PaperclipPlugin = definePlugin({
   async setup(ctx) {
-    // Tag types we expose for downstream consumers / debugging.
     ctx.logger.info("plugin-wiki-graph setup", { edgeTags: EDGE_TAGS });
 
     // --- Data handlers ----------------------------------------------------
