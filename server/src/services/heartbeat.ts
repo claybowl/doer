@@ -30,6 +30,7 @@ import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService } from "./secrets.js";
 import { resolveDefaultAgentWorkspaceDir, resolveManagedProjectWorkspaceDir } from "../home-paths.js";
 import { summarizeHeartbeatRunResultJson } from "./heartbeat-run-summary.js";
+import { scanRunForHallucinatedDeliverable } from "./deliverable-scanner.js";
 import {
   buildWorkspaceReadyComment,
   cleanupExecutionWorkspaceArtifacts,
@@ -2693,6 +2694,40 @@ export function heartbeatService(db: Db) {
             exitCode: adapterResult.exitCode,
           },
         });
+
+        // Deferred safety net: scan stdout/stderr for the
+        // hallucinated-deliverable pattern (agent claimed file
+        // production but never called produce_deliverable). Only
+        // checked on successful runs — failed runs already surface
+        // their own error events. Heuristic-based; logs a warning
+        // event on suspicion so a human can audit. Does not block.
+        if (outcome === "succeeded") {
+          try {
+            const scan = scanRunForHallucinatedDeliverable({
+              stdoutExcerpt,
+              stderrExcerpt,
+            });
+            if (scan.suspicious) {
+              await appendRunEvent(finalizedRun, seq++, {
+                eventType: "deliverable.scan.warning",
+                stream: "system",
+                level: "warn",
+                message: scan.reason ?? "Possible hallucinated deliverable.",
+                payload: {
+                  evidence: scan.evidence,
+                },
+              });
+            }
+          } catch (err) {
+            // Scanner failure is non-fatal — we'd rather miss a
+            // detection than break a successful run's finalization.
+            logger.warn(
+              { err, runId: finalizedRun.id },
+              "deliverable scanner failed",
+            );
+          }
+        }
+
         await releaseIssueExecutionAndPromote(finalizedRun);
       }
 
