@@ -51,11 +51,37 @@ function claudeSkillsHome(): string {
   return path.join(os.homedir(), ".claude", "skills");
 }
 
+type OpenCodeSkillEntry = { key: string; runtimeName: string; source: string };
+
+/**
+ * Build a markdown manifest of mounted skills so the prompt can tell the
+ * agent which skills are available and where to read them. Without this,
+ * opencode relies on implicit discovery of `~/.claude/skills/` which has
+ * proven unreliable (Pope Orby smoke test 2026-04-25 — agent claimed
+ * deliverable success without ever reading the deliverable skill).
+ *
+ * Returns "" when no skills are mounted; safe to inject unconditionally.
+ */
+function buildSkillsManifest(skillsHome: string, entries: OpenCodeSkillEntry[]): string {
+  if (entries.length === 0) return "";
+  const lines = entries.map(
+    (e) => `- ${e.key} — read ${path.join(skillsHome, e.runtimeName, "SKILL.md")} when relevant`,
+  );
+  return [
+    "[Available Doer skills]",
+    `The following skills are mounted at ${skillsHome}/. Each is a directory with a SKILL.md describing when and how to use it.`,
+    "",
+    ...lines,
+    "",
+    "If a task involves producing a user-facing file (.docx/.xlsx/.pdf/.pptx/etc.), READ the deliverable SKILL.md first — it explains the produce_deliverable workflow that opencode auto-discovery does not surface.",
+  ].join("\n");
+}
+
 async function ensureOpenCodeSkillsInjected(
   onLog: AdapterExecutionContext["onLog"],
-  skillsEntries: Array<{ key: string; runtimeName: string; source: string }>,
+  skillsEntries: OpenCodeSkillEntry[],
   desiredSkillNames?: string[],
-) {
+): Promise<OpenCodeSkillEntry[]> {
   const skillsHome = claudeSkillsHome();
   await fs.mkdir(skillsHome, { recursive: true });
   const desiredSet = new Set(desiredSkillNames ?? skillsEntries.map((entry) => entry.key));
@@ -87,6 +113,7 @@ async function ensureOpenCodeSkillsInjected(
       );
     }
   }
+  return selectedEntries;
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
@@ -119,11 +146,16 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   await ensureAbsoluteDirectory(cwd, { createIfMissing: true });
   const openCodeSkillEntries = await readPaperclipRuntimeSkillEntries(config, __moduleDir);
   const desiredOpenCodeSkillNames = resolvePaperclipDesiredSkillNames(config, openCodeSkillEntries);
-  await ensureOpenCodeSkillsInjected(
+  const injectedSkillEntries = await ensureOpenCodeSkillsInjected(
     onLog,
     openCodeSkillEntries,
     desiredOpenCodeSkillNames,
   );
+  // Skills are mounted at ~/.claude/skills/ but opencode auto-discovery
+  // is unreliable (Pope Orby smoke test 2026-04-25). Build a manifest
+  // string here and inject into the prompt below so the agent knows
+  // they exist + where to read them.
+  const skillsManifest = buildSkillsManifest(claudeSkillsHome(), injectedSkillEntries);
 
   const envConfig = parseObject(config.env);
   const hasExplicitApiKey =
@@ -272,6 +304,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     const sessionHandoffNote = asString(context.paperclipSessionHandoffMarkdown, "").trim();
     const prompt = joinPromptSections([
       instructionsPrefix,
+      skillsManifest,
       renderedBootstrapPrompt,
       sessionHandoffNote,
       renderedPrompt,
@@ -279,6 +312,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     const promptMetrics = {
       promptChars: prompt.length,
       instructionsChars: instructionsPrefix.length,
+      skillsManifestChars: skillsManifest.length,
       bootstrapPromptChars: renderedBootstrapPrompt.length,
       sessionHandoffChars: sessionHandoffNote.length,
       heartbeatPromptChars: renderedPrompt.length,
