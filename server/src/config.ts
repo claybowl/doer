@@ -50,6 +50,10 @@ export interface Config {
   authBaseUrlMode: AuthBaseUrlMode;
   authPublicBaseUrl: string | undefined;
   authDisableSignUp: boolean;
+  oauthGoogleClientId: string | undefined;
+  oauthGoogleClientSecret: string | undefined;
+  oauthGithubClientId: string | undefined;
+  oauthGithubClientSecret: string | undefined;
   databaseMode: DatabaseMode;
   databaseUrl: string | undefined;
   embeddedPostgresDataDir: string;
@@ -222,6 +226,10 @@ export function loadConfig(): Config {
     authBaseUrlMode,
     authPublicBaseUrl,
     authDisableSignUp,
+    oauthGoogleClientId: process.env.DOER_OAUTH_GOOGLE_CLIENT_ID ?? undefined,
+    oauthGoogleClientSecret: process.env.DOER_OAUTH_GOOGLE_CLIENT_SECRET ?? undefined,
+    oauthGithubClientId: process.env.DOER_OAUTH_GITHUB_CLIENT_ID ?? undefined,
+    oauthGithubClientSecret: process.env.DOER_OAUTH_GITHUB_CLIENT_SECRET ?? undefined,
     databaseMode: fileDatabaseMode,
     databaseUrl: process.env.DATABASE_URL ?? fileDbUrl,
     embeddedPostgresDataDir: resolveHomeAwarePath(

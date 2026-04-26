@@ -73,6 +73,11 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
   const publicUrl = process.env.DOER_PUBLIC_URL ?? baseUrl;
   const isHttpOnly = publicUrl ? publicUrl.startsWith("http://") : false;
 
+  const googleClientId = config.oauthGoogleClientId;
+  const googleClientSecret = config.oauthGoogleClientSecret;
+  const githubClientId = config.oauthGithubClientId;
+  const githubClientSecret = config.oauthGithubClientSecret;
+
   const authConfig = {
     baseURL: baseUrl,
     secret,
@@ -91,6 +96,15 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
       requireEmailVerification: false,
       disableSignUp: config.authDisableSignUp,
     },
+    socialProviders: {
+      ...(googleClientId && googleClientSecret
+        ? { google: { clientId: googleClientId, clientSecret: googleClientSecret } }
+        : {}),
+      ...(githubClientId && githubClientSecret
+        ? { github: { clientId: githubClientId, clientSecret: githubClientSecret } }
+        : {}),
+    },
+    rateLimit: { enabled: true, window: 60, max: 10 },
     ...(isHttpOnly ? { advanced: { useSecureCookies: false } } : {}),
   };
 

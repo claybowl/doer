@@ -71,4 +71,9 @@ export const authApi = {
   signOut: async () => {
     await authPost("/sign-out", {});
   },
+
+  signInOAuth: (provider: "google" | "github", callbackURL?: string) => {
+    const url = `/api/auth/sign-in/${provider}${callbackURL ? `?callbackURL=${encodeURIComponent(callbackURL)}` : ""}`;
+    window.location.href = url;
+  },
 };

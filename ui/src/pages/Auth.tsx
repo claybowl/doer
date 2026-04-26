@@ -60,6 +60,11 @@ export function AuthPage() {
     password.trim().length > 0 &&
     (mode === "sign_in" || (name.trim().length > 0 && password.trim().length >= 8));
 
+  function handleOAuthSignIn(provider: "google" | "github") {
+    const nextEncoded = encodeURIComponent(nextPath);
+    window.location.href = `/api/auth/sign-in/${provider}?callbackURL=${nextEncoded}`;
+  }
+
   if (isSessionLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -87,8 +92,34 @@ export function AuthPage() {
               : "Create an account for this instance. Email confirmation is not required in v1."}
           </p>
 
+          <div className="mt-6 space-y-2">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center rounded-md border border-border bg-transparent px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              onClick={() => handleOAuthSignIn("google")}
+            >
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              className="w-full flex items-center justify-center rounded-md border border-border bg-transparent px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              onClick={() => handleOAuthSignIn("github")}
+            >
+              Continue with GitHub
+            </button>
+          </div>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-2 text-muted-foreground">or continue with email</span>
+            </div>
+          </div>
+
           <form
-            className="mt-6 space-y-4"
+            className="space-y-4"
             method="post"
             action={mode === "sign_up" ? "/api/auth/sign-up/email" : "/api/auth/sign-in/email"}
             onSubmit={(event) => {
