@@ -1,7 +1,68 @@
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
-import { getLettaClient, DELIVERABLE_TOOL_NAME } from "./letta-client.js";
+import {
+  attachTool,
+  DELIVERABLE_TOOL_NAME,
+  ensureDeliverableTool,
+  fetchAgentSnapshot,
+  getLettaClient,
+} from "./letta-client.js";
 import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
+
+// Process-local cache: agents we've verified have produce_deliverable
+// attached. Cleared on adapter restart, which is fine — re-attach is
+// idempotent and runs at most once per agent per server lifetime.
+const deliverableToolVerifiedAgents = new Set<string>();
+
+/**
+ * Self-heal hook: ensure the produce_deliverable tool is registered AND
+ * attached to this agent before we start streaming.
+ *
+ * Why this exists:
+ *   on-hire-approved is the canonical attach point, but agents created
+ *   before that hook shipped (or hires that errored mid-flight) end up
+ *   with the tool missing. Letta agents that lack produce_deliverable
+ *   silently fail file production — the agent calls a non-existent
+ *   tool, gets an error, hallucinates success or loops. Catching this
+ *   at run-time turns a silent failure into a self-healing one.
+ *
+ * Cost: ~one network round-trip per agent per server lifetime. After
+ * verification the agent is cached and subsequent wakes skip entirely.
+ *
+ * Failure mode: non-fatal. If the self-heal fails, we log to stderr
+ * and continue. The run can still produce a useful transcript even
+ * if the deliverable path is broken.
+ */
+async function ensureDeliverableToolAttached(
+  ctx: AdapterExecutionContext,
+  config: LettaCloudAdapterConfig,
+): Promise<void> {
+  if (deliverableToolVerifiedAgents.has(config.agentId)) return;
+  try {
+    const snapshot = await fetchAgentSnapshot(config);
+    const alreadyAttached = snapshot.tools.some(
+      (t) => t.name === DELIVERABLE_TOOL_NAME,
+    );
+    if (alreadyAttached) {
+      deliverableToolVerifiedAgents.add(config.agentId);
+      return;
+    }
+    const toolId = await ensureDeliverableTool(config);
+    await attachTool(config, toolId);
+    await ctx.onLog(
+      "stdout",
+      `[letta-cloud] self-heal: attached ${DELIVERABLE_TOOL_NAME} to ${config.agentId}\n`,
+    );
+    deliverableToolVerifiedAgents.add(config.agentId);
+  } catch (err) {
+    await ctx.onLog(
+      "stderr",
+      `[letta-cloud] self-heal failed for ${config.agentId} (continuing run): ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+    // Don't cache failure — next wake retries. If Letta is just
+    // transiently unhappy, we want to recover on the next attempt.
+  }
+}
 
 /**
  * Handle a `produce_deliverable` tool call by POSTing the decoded file to
@@ -295,6 +356,12 @@ async function executeStreaming(
   userMessage: string,
 ): Promise<AdapterExecutionResult> {
   const client = getLettaClient(config);
+
+  // Self-heal: make sure produce_deliverable is attached before we
+  // start streaming. First wake per agent per server lifetime does
+  // the verification; subsequent wakes are cached. See
+  // ensureDeliverableToolAttached for rationale.
+  await ensureDeliverableToolAttached(ctx, config);
 
   // Emit the user message so the transcript shows the full conversation
   await emit(ctx, { type: "user_message", content: userMessage });
