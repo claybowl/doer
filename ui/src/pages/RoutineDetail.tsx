@@ -52,7 +52,17 @@ import type { RoutineTrigger } from "@doerai/shared";
 
 const concurrencyPolicies = ["coalesce_if_active", "always_enqueue", "skip_if_active"];
 const catchUpPolicies = ["skip_missed", "enqueue_missed_with_cap"];
-const triggerKinds = ["schedule", "webhook"];
+const triggerKinds = ["schedule", "webhook", "api"] as const;
+const triggerKindLabels: Record<string, string> = {
+  schedule: "Schedule (cron)",
+  webhook: "Webhook (HTTP)",
+  api: "API (manual fire)",
+};
+const triggerKindDescriptions: Record<string, string> = {
+  schedule: "Fire on a recurring cron schedule.",
+  webhook: "Fire when an external system POSTs to a public URL with a signed secret.",
+  api: "Fire manually via the routines API. No schedule, no webhook secret.",
+};
 const signingModes = ["bearer", "hmac_sha256"];
 const routineTabs = ["triggers", "runs", "activity"] as const;
 const concurrencyPolicyDescriptions: Record<string, string> = {
@@ -476,7 +486,21 @@ export function RoutineDetail() {
           webhookUrl: result.secretMaterial.webhookUrl,
           webhookSecret: result.secretMaterial.webhookSecret,
         });
+      } else {
+        // Non-webhook (schedule, api) — give the user a small confirmation
+        // since there's no secret banner to signal success.
+        pushToast({
+          title: "Trigger added",
+          tone: "success",
+        });
       }
+      // Reset the create form to defaults so the next add is clean.
+      setNewTrigger({
+        kind: "schedule",
+        cronExpression: "0 10 * * *",
+        signingMode: "bearer",
+        replayWindowSec: "300",
+      });
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.detail(routineId!) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.routines.list(selectedCompanyId!) }),
@@ -671,10 +695,28 @@ export function RoutineDetail() {
       {/* Secret message banner */}
       {secretMessage && (
         <div className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4 space-y-3 text-sm">
-          <div>
-            <p className="font-medium">{secretMessage.title}</p>
-            <p className="text-xs text-muted-foreground">Save this now. Doer will not show the secret value again.</p>
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="font-medium">{secretMessage.title}</p>
+              <p className="text-xs text-muted-foreground">Save this now. Doer will not show the secret value again.</p>
+            </div>
+            <Button
+              variant="ghost"
+              size="icon-xs"
+              className="text-muted-foreground -mt-1"
+              onClick={() => setSecretMessage(null)}
+              aria-label="Dismiss"
+            >
+              <span className="text-lg leading-none">&times;</span>
+            </Button>
           </div>
+          {secretMessage.webhookUrl.startsWith("undefined") && (
+            <div className="rounded border border-amber-500/40 bg-amber-500/10 px-2.5 py-1.5 text-xs text-amber-700 dark:text-amber-300">
+              <strong>DOER_API_URL is not set on the server.</strong> Replace
+              {" "}<code className="rounded bg-amber-500/20 px-1">undefined</code>{" "}
+              with your actual host (e.g. <code className="rounded bg-amber-500/20 px-1">https://your-doer.example.com</code>) before using this URL.
+            </div>
+          )}
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <Input value={secretMessage.webhookUrl} readOnly className="flex-1" />
@@ -893,12 +935,15 @@ export function RoutineDetail() {
                   </SelectTrigger>
                   <SelectContent>
                     {triggerKinds.map((kind) => (
-                      <SelectItem key={kind} value={kind} disabled={kind === "webhook"}>
-                        {kind}{kind === "webhook" ? " — COMING SOON" : ""}
+                      <SelectItem key={kind} value={kind}>
+                        {triggerKindLabels[kind] ?? kind}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                <p className="text-xs text-muted-foreground">
+                  {triggerKindDescriptions[newTrigger.kind]}
+                </p>
               </div>
               {newTrigger.kind === "schedule" && (
                 <div className="md:col-span-2 space-y-1.5">
