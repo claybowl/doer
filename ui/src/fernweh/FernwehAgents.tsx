@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { agentsApi } from "@/api/agents";
 import { queryKeys } from "@/lib/queryKeys";
@@ -361,6 +362,26 @@ export function FernwehAgents() {
               <span className="fw-dot pulsing" /> {counts.running} running
             </span>
           ) : null}
+          <Link
+            to={`/${selectedCompany.issuePrefix}/fernweh/agents/new`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 600,
+              textDecoration: "none",
+              border: "1px solid var(--accent)",
+              transition: "transform .15s var(--fw-ease)",
+            }}
+          >
+            <Icon d={I.bolt} size={12} />
+            <span>New agent</span>
+          </Link>
         </div>
       </header>
 
@@ -437,8 +458,27 @@ export function FernwehAgents() {
 
       {/* Table */}
       {totalAgents === 0 ? (
-        <div className="fw-card" style={{ padding: 40, textAlign: "center", color: "var(--ink-dim)" }}>
-          No agents yet. Hire one from the classic UI to see them here.
+        <div className="fw-card" style={{ padding: 40, textAlign: "center", display: "flex", flexDirection: "column", gap: 12, alignItems: "center", color: "var(--ink-dim)" }}>
+          <span>No agents yet — hire your first one to get started.</span>
+          <Link
+            to={`/${selectedCompany.issuePrefix}/fernweh/agents/new`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "8px 16px",
+              borderRadius: 8,
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 13,
+              fontWeight: 600,
+              textDecoration: "none",
+              border: "1px solid var(--accent)",
+            }}
+          >
+            <Icon d={I.bolt} size={13} />
+            <span>Hire your first agent</span>
+          </Link>
         </div>
       ) : filtered.length === 0 ? (
         <div className="fw-card" style={{ padding: 40, textAlign: "center", color: "var(--ink-dim)" }}>
