@@ -65,6 +65,7 @@ import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
 import { FernwehDeliverables } from "./fernweh/FernwehDeliverables";
 import { FernwehPreferences } from "./fernweh/FernwehPreferences";
 import { FernwehInstanceSettings } from "./fernweh/FernwehInstanceSettings";
+import { FernwehCompanySettings } from "./fernweh/FernwehCompanySettings";
 import { PortalPage } from "./portal/PortalPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
@@ -390,6 +391,7 @@ export function App() {
             <Route path="costs" element={<FernwehCosts />} />
             <Route path="preferences" element={<FernwehPreferences />} />
             <Route path="instance" element={<FernwehInstanceSettings />} />
+            <Route path="company" element={<FernwehCompanySettings />} />
           </Route>
           <Route path=":companyPrefix" element={<Layout />}>
             {boardRoutes()}
