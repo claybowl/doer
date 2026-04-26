@@ -180,6 +180,105 @@ function parseToolArgs(args: unknown): unknown {
   }
 }
 
+/** Read a non-empty string from an unknown value, else null */
+function readNonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Build the user message sent to Letta for this heartbeat.
+ *
+ * Two modes — selected by whether the heartbeat context contains a
+ * task / issue id:
+ *
+ *  - **TASK MODE** — the agent has been woken FOR a specific task.
+ *    The wake message names the task explicitly so the agent's wake
+ *    context (Constitution L1) overrides any memory-block heartbeat
+ *    protocol that would otherwise route the agent into queue review.
+ *    The agent is told to read the issue body and execute it; the
+ *    base heartbeatPrompt template is intentionally NOT included
+ *    (the issue body is the instruction set for this wake).
+ *
+ *  - **QUEUE REVIEW** — no specific task. The agent's existing
+ *    heartbeatPrompt (or "Hello" default) is used, prefixed with a
+ *    short reminder that they should check for issues assigned to
+ *    THEM specifically before doing meta-management work.
+ *
+ * Both modes start with a `[DOER HEARTBEAT — *MODE*]` header so the
+ * agent can tell at a glance which mode it's in.
+ *
+ * Exported for unit testing.
+ */
+export function buildWakeMessage(
+  ctx: AdapterExecutionContext,
+  fallbackUserMessage: string,
+): string {
+  const context = (ctx.context ?? {}) as Record<string, unknown>;
+  const taskKey =
+    readNonEmptyString(context.taskKey) ??
+    readNonEmptyString(context.taskId) ??
+    readNonEmptyString(context.issueId);
+  const wakeReason = readNonEmptyString(context.wakeReason) ?? "unspecified";
+  const wakeCommentId = readNonEmptyString(context.wakeCommentId);
+  const agentName = ctx.agent?.name ?? "agent";
+
+  if (taskKey) {
+    // ── TASK MODE ────────────────────────────────────────────────────
+    // Explicit assignment. Wake context wins; ignore the queue-review
+    // heartbeatPrompt entirely so it can't compete with the issue
+    // body for salience.
+    const lines = [
+      "[DOER HEARTBEAT — TASK MODE]",
+      "You have been assigned a specific task. Focus on it.",
+      "",
+      `YOUR TASK: ${taskKey}`,
+      `WAKE REASON: ${wakeReason}`,
+    ];
+    if (wakeCommentId) {
+      lines.push(`TRIGGERING COMMENT: ${wakeCommentId}`);
+    }
+    lines.push(
+      "",
+      `Read the issue body for ${taskKey} and execute its instructions.`,
+      "Do NOT run queue-review, Chef-signaling, or council protocols",
+      "unless the issue body itself asks for them.",
+      "",
+      "Per your Constitution, the wake context (this message + the issue",
+      `body of ${taskKey}) is the highest-priority instruction. Memory`,
+      "blocks describe your DEFAULT mode of operation — they do not",
+      "override an explicit task assignment.",
+      "",
+      "When you finish: update the issue status (done / blocked /",
+      "needs_human) and add a comment summarizing what you did. If you",
+      "cannot finish in this heartbeat, leave the issue in_progress and",
+      "explain what's blocking you.",
+    );
+    return lines.join("\n");
+  }
+
+  // ── QUEUE REVIEW MODE ──────────────────────────────────────────────
+  // No specific task. Wrap the existing heartbeatPrompt with a short
+  // preamble so the agent doesn't dive straight into meta-management
+  // without first checking if THEY have direct work to do.
+  return [
+    "[DOER HEARTBEAT — QUEUE REVIEW MODE]",
+    `You (${agentName}) have been woken for a general check, not a specific task.`,
+    "",
+    "Before any queue-meta work (counting issues, signaling Chef,",
+    "commenting on stale items), check whether you have issues assigned",
+    "to YOU specifically with status in_progress or todo. Those are",
+    "your direct work — handle the highest-priority one first.",
+    "",
+    "If you have no assigned work, then run your standard heartbeat",
+    "protocol from your work-instructions memory block.",
+    "",
+    "──────────────────────────────────────────────────────────",
+    fallbackUserMessage,
+  ].join("\n");
+}
+
 // ── Emit helpers — one JSON line per stdout write ──────────────────────────
 // The UI parser (`parseLettaCloudStdoutLine`) will parse these back into
 // TranscriptEntry objects for the real-time dashboard transcript.
@@ -460,17 +559,18 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     return { exitCode: 1, signal: null, timedOut: false };
   }
 
-  // The task message is passed via context.message (Doer standard)
-  // If not set, fall back to heartbeatPrompt config, then to a sensible default.
-  let userMessage =
+  // Resolve the base user message: explicit override (context.message
+  // or context.prompt) → rendered heartbeatPrompt template → "Hello".
+  // This becomes the QUEUE-REVIEW body if no task is assigned to this
+  // wake; in TASK MODE it's discarded (issue body is the instruction).
+  let baseMessage =
     typeof ctx.context.message === "string"
       ? ctx.context.message
       : typeof ctx.context.prompt === "string"
         ? ctx.context.prompt
         : null;
 
-  // If no explicit message/prompt, use heartbeatPrompt template or default
-  if (!userMessage) {
+  if (!baseMessage) {
     const heartbeatPrompt = config.heartbeatPrompt?.trim();
     if (heartbeatPrompt) {
       const templateData = {
@@ -481,11 +581,15 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         run: { id: ctx.runId ?? "" },
         context: ctx.context ?? {},
       };
-      userMessage = renderTemplate(heartbeatPrompt, templateData);
+      baseMessage = renderTemplate(heartbeatPrompt, templateData);
     } else {
-      userMessage = "Hello";
+      baseMessage = "Hello";
     }
   }
+
+  // Wrap the base message in a TASK-MODE header (if context names a
+  // task) or a QUEUE-REVIEW preamble. See `buildWakeMessage` for why.
+  const userMessage = buildWakeMessage(ctx, baseMessage);
 
   try {
     await ctx.onMeta?.({
