@@ -40,7 +40,10 @@ const config: ForgeConfig = {
 						endpoint: process.env.S3_ENDPOINT,
 						accessKeyId: process.env.S3_ACCESS_KEY_ID,
 						secretAccessKey: process.env.S3_SECRET_ACCESS_KEY,
-						public: true,
+						// R2-specific: doesn't support ACL headers (caused TLS bad_record_mac
+						// in early testing) and prefers path-style URLs over virtual-host.
+						omitAcl: true,
+						s3ForcePathStyle: true,
 						// Object key layout: <channel>/<platform>/<arch>/<filename>
 						// e.g. beta/darwin/arm64/Doer-0.0.1-darwin-arm64.zip
 						folder: process.env.S3_FOLDER ?? "beta",

@@ -32,11 +32,55 @@ run("pnpm -F ui build", repoRoot);
 if (existsSync(buildDir)) rmSync(buildDir, { recursive: true, force: true });
 mkdirSync(buildDir, { recursive: true });
 
-// 3. pnpm deploy server with prod-only deps into .electron-build/server
-run(`pnpm --filter server deploy --prod ${serverOut}`, repoRoot);
+// 3. pnpm deploy server with prod-only deps into .electron-build/server.
+//    Force install of platform-specific optional deps (notably the right
+//    @embedded-postgres/<os>-<arch>) for the target we're packaging for.
+//    Override via DOER_TARGET_OS / DOER_TARGET_CPU; defaults to host platform.
+const targetOs = process.env.DOER_TARGET_OS ?? process.platform;     // darwin | win32 | linux
+const targetCpu = process.env.DOER_TARGET_CPU ?? process.arch;       // arm64 | x64
+console.log(`[prebuild] target: ${targetOs}/${targetCpu}`);
+run(
+	`pnpm --filter server deploy --prod ` +
+		`--config.supportedArchitectures.os[]=${targetOs} ` +
+		`--config.supportedArchitectures.cpu[]=${targetCpu} ` +
+		serverOut,
+	repoRoot,
+);
 
 // 4. Copy ui-dist into <server>/ui-dist (server's published-location convention)
 cpSync(path.join(repoRoot, "ui/dist"), uiOut, { recursive: true });
+
+// 4b. If cross-bundling for a different platform than the host, fetch and
+//     copy the right @embedded-postgres/<os>-<cpu> native package separately
+//     (pnpm deploy only installs optional deps for the host platform).
+const isCrossPlatform = targetOs !== process.platform || targetCpu !== process.arch;
+if (isCrossPlatform) {
+	// embedded-postgres uses 'windows' instead of Node's 'win32'.
+	const epOsName = targetOs === "win32" ? "windows" : targetOs;
+	const epPkg = `@embedded-postgres/${epOsName}-${targetCpu}`;
+	console.log(`[prebuild] cross-platform target — fetching ${epPkg} natively`);
+	const epVersion = (() => {
+		// Crib version from the host install so versions stay aligned.
+		const hostEpJson = path.join(serverOut, "node_modules", "embedded-postgres", "package.json");
+		const j = JSON.parse(readFileSync(hostEpJson, "utf8"));
+		return j.version;
+	})();
+	const epStaging = path.join(buildDir, ".ep-fetch");
+	rmSync(epStaging, { recursive: true, force: true });
+	mkdirSync(epStaging, { recursive: true });
+	writeFileSync(path.join(epStaging, "package.json"), JSON.stringify({
+		name: "ep-fetch",
+		version: "1.0.0",
+		dependencies: { [epPkg]: epVersion },
+	}));
+	// --force bypasses npm's host-platform check (we WANT the cross-platform binary)
+	run(`npm install --no-audit --no-fund --force --silent`, epStaging);
+	const epSource = path.join(epStaging, "node_modules", ...epPkg.split("/"));
+	const epDest = path.join(serverOut, "node_modules", ...epPkg.split("/"));
+	mkdirSync(path.dirname(epDest), { recursive: true });
+	cpSync(epSource, epDest, { recursive: true });
+	console.log(`[prebuild] copied ${epPkg}@${epVersion} → ${epDest}`);
+}
 
 // 5. Apply publishConfig to all workspace @doerai/* packages so they resolve
 //    to compiled dist/*.js instead of source dist/*.ts (the dev convention).

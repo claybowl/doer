@@ -104,7 +104,17 @@ set -a && source .env.local && set +a
 pnpm --ignore-workspace make
 
 # 3. Publish artifacts to R2
-pnpm --ignore-workspace publish
+#    NOTE (2026-04-26): electron-forge's publish step fails with TLS bad_record_mac
+#    on Clay's machine — see gotcha G8. Workaround: upload via rclone instead.
+#    Once the underlying network/middleware issue is resolved, switch back to:
+#      pnpm --ignore-workspace run release
+rclone copy out/make/zip/darwin/arm64/Doer-darwin-arm64-$VERSION.zip \
+  r2:doer-releases/beta/darwin/arm64/ --progress
+
+# For Windows: zip the unpackaged folder first
+cd out && zip -qr Doer-win32-x64-$VERSION.zip Doer-win32-x64 && cd ..
+rclone copy out/Doer-win32-x64-$VERSION.zip \
+  r2:doer-releases/beta/win32/x64/ --progress
 
 # 4. Tag the release
 cd .. && git tag electron/v$(node -p "require('./desktop/package.json').version") && git push --tags
@@ -149,6 +159,31 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 ---
 
 ## Gotcha log (append as we hit them)
+
+### G9 — Cross-platform postgres native binary uses 'windows' not 'win32'
+**Discovered:** 2026-04-26 during Windows cross-compile
+**Symptom:** `npm install @embedded-postgres/win32-x64` returned 404. The package doesn't exist under that name.
+**Fix:** Use `windows-x64` — embedded-postgres deviates from Node's `process.platform` naming. Map `win32 → windows` when building the package name. Also need `npm install --force` to bypass the `os` field check (the package's package.json says `os: ["win32"]` and refuses to install on darwin/arm64 hosts without the override).
+**Why:** Cross-compiling to Windows needs the Windows-native postgres binary on the build machine — pnpm only installs the host's optional deps by default. We fetch it separately into a temp dir and copy into the deploy output.
+
+### G8 — Use rclone (Go TLS) instead of AWS SDK (Node TLS) for R2 publishing
+**Discovered:** 2026-04-26 during first Phase B publish
+**Symptom:** All AWS-SDK-backed uploads to R2 fail mid-stream with `SSL alert number 20: ssl/tls alert bad record mac`. Tiny uploads (22 bytes) work; sustained streams (>20MB) consistently fail. Same error on Node 22 LTS as Node 25. Same error with single PUT, multipart, sequential and parallel queues.
+**Cause:** A packet-modifying middleware on Clay's machine (likely an antivirus or Network Extension — 4 utun interfaces present) corrupts the late-stream ACK that AWS SDK's `Upload` helper waits on. R2 actually receives the bytes (verified: a "failed" upload appeared in the bucket fully formed), but the SDK reports an error.
+**Fix:** Use `rclone` for the publish step. It uses Go's TLS implementation, which has different fingerprinting than Node's OpenSSL and bypasses whatever's interfering. Sustained 742MB uploads succeed at 10MB/s.
+**Setup:**
+```sh
+brew install rclone
+rclone config create r2 s3 \
+  provider=Cloudflare \
+  access_key_id="$S3_ACCESS_KEY_ID" \
+  secret_access_key="$S3_SECRET_ACCESS_KEY" \
+  endpoint="$S3_ENDPOINT" \
+  region=auto \
+  no_check_bucket=true \
+  --non-interactive
+```
+**Future:** Once the underlying middleware issue is identified and removed (or we move publishing to CI), `electron-forge publish` should work and we can re-enable the publisher-s3 path.
 
 ### G7 — Spawn server with Electron's bundled Node via ELECTRON_RUN_AS_NODE
 **Discovered:** 2026-04-26 during K3p3
