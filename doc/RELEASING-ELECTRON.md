@@ -92,7 +92,13 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 
 ## Gotcha log (append as we hit them)
 
-_(Empty — will fill as Phase A surfaces issues.)_
+### G1 — pnpm + electron-forge requires hoisted node_modules
+**Discovered:** 2026-04-26 during K1 (scratch scaffold build)
+**Symptom:** `pnpm package` fails with `When using pnpm, node-linker must be set to "hoisted"`
+**Fix:** Add `node-linker=hoisted` to the Electron package's local `.npmrc` (NOT global pnpm config — keeps the rest of the monorepo on pnpm's default isolated mode). Then `rm -rf node_modules pnpm-lock.yaml && pnpm install`.
+**Why:** electron-forge's auto-detect-deps step walks a flat `node_modules` tree; pnpm's symlinked default breaks it.
+
+---
 
 Common Electron-port gotchas to watch for:
 - Hardcoded absolute paths (`/Users/...`, `process.cwd()`)
