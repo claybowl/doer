@@ -643,3 +643,10 @@ export {
   type SecretsLocalEncryptedConfig,
   type ConfigMeta,
 } from "./config-schema.js";
+
+export {
+  createWebhookEndpointSchema,
+  updateWebhookEndpointSchema,
+  listWebhookDeliveriesSchema,
+  type ListWebhookDeliveries,
+} from "./validators/webhook.js";

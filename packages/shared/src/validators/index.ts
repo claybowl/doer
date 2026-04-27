@@ -307,3 +307,12 @@ export {
   type SetPluginState,
   type ListPluginState,
 } from "./plugin.js";
+
+export {
+  createWebhookEndpointSchema,
+  updateWebhookEndpointSchema,
+  listWebhookDeliveriesSchema,
+  type CreateWebhookEndpoint,
+  type UpdateWebhookEndpoint,
+  type ListWebhookDeliveries,
+} from "./webhook.js";

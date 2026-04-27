@@ -55,3 +55,4 @@ export {
 } from "./webhook-event-emitter.js";
 export { stripeBillingService, PLAN_LIMITS, type Plan, type PlanStatus } from "./stripe-billing.js";
 export { planEnforcementService, PlanLimitError } from "./plan-enforcement.js";
+export { webhookService } from "./webhooks.js";
