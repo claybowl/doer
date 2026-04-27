@@ -26,13 +26,15 @@ Living runbook for cutting Doer desktop releases. Update as we hit gotchas.
 ## Phases
 
 ### Phase A — Local packaged build (MVP)
-- [ ] Fork `luanroger/electron-shadcn` into `desktop/` (or sibling repo — TBD)
-- [ ] Import Doer `ui/` into renderer
-- [ ] Spawn Express server in main process on app start; kill on quit
-- [ ] Verify `/api/health` returns 200 from inside packaged `.app`
-- [ ] Verify PGlite writes to `app.getPath('userData')`, not CWD
+- [x] **K1** Verify toolchain — scratch scaffold builds .app
+- [x] **K2** Scaffold `desktop/` workspace inside monorepo (hand-rolled, standalone)
+- [x] **K3 (dev mode)** Spawn Express server in Electron main; kill on quit
+- [ ] **K3-prod** Bundle server into packaged .app (extraResources) for prod mode
+- [ ] **K4** Wire Doer `ui/` as renderer; smoke `/api/health` from React
+- [ ] **K4-fix** Resolve Vite ERR_CONNECTION_REFUSED race on first window load
+- [ ] Verify embedded Postgres / PGlite writes to `app.getPath('userData')`, not CWD
 - [ ] Audit for hardcoded paths and CWD assumptions (grep)
-- [ ] Produce unsigned `.app` and `.exe` artifacts locally
+- [ ] **K5** Produce unsigned `.app` and `.exe` artifacts locally
 
 ### Phase B — Auto-update infra (S3)
 - [ ] Provision S3 bucket (proposed: `doer-releases.donjon.agency`)
@@ -91,6 +93,14 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 ---
 
 ## Gotcha log (append as we hit them)
+
+### G3 — Electron's hardened spawn needs absolute paths + correct cwd
+**Discovered:** 2026-04-26 during K3 (server-process.ts)
+**Symptoms:**
+- `spawn /bin/sh ENOENT` when using `shell: true` — Electron's hardened runtime blocks shell-based spawn.
+- `spawn /opt/homebrew/bin/pnpm ENOENT` when the `cwd` doesn't exist (was a bug in our path math: `__dirname` in dev is `desktop/.vite/build/`, so `path.resolve(__dirname, "../..")` lands in `desktop/`, not the monorepo root).
+**Fix:** Walk up from `__dirname` looking for the nearest ancestor that contains a `server/` directory. Use absolute path to pnpm (`/opt/homebrew/bin/pnpm` or `PNPM_BIN` override). No `shell: true`.
+**Listen for `"error"` event on the spawned child** — without it, `ENOENT` failures are silent (only `"exit"` is observed, but the process never even started).
 
 ### G2 — desktop/ stays out of pnpm-workspace.yaml
 **Discovered:** 2026-04-26 during K2 (scaffolding desktop/)
