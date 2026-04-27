@@ -92,6 +92,13 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 
 ## Gotcha log (append as we hit them)
 
+### G2 — desktop/ stays out of pnpm-workspace.yaml
+**Discovered:** 2026-04-26 during K2 (scaffolding desktop/)
+**Symptom:** `pnpm install` from inside `desktop/` got absorbed into the parent monorepo's workspace install; no `node_modules` created locally; electron-forge couldn't run.
+**Fix:** `pnpm install --ignore-workspace` (and same `--ignore-workspace` for all subsequent `pnpm` commands in `desktop/`). This keeps `desktop/` as a standalone package with its own flat (hoisted) `node_modules`, satisfying electron-forge.
+**Why:** `node-linker=hoisted` is a workspace-wide pnpm setting. If we added `desktop/` to `pnpm-workspace.yaml`, the entire monorepo would have to flip to hoisted mode (or fail). Keeping it out is the surgical move.
+**Cross-package wiring (K3+):** when we need `server/` or `ui/` artifacts inside the Electron bundle, build them in their workspace, then copy/import the dist output — don't try to share live source via pnpm symlinks.
+
 ### G1 — pnpm + electron-forge requires hoisted node_modules
 **Discovered:** 2026-04-26 during K1 (scratch scaffold build)
 **Symptom:** `pnpm package` fails with `When using pnpm, node-linker must be set to "hoisted"`
