@@ -3,3 +3,6 @@ out
 .vite
 .electron-build
 *.log
+.env
+.env.local
+.env.*.local

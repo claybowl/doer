@@ -36,12 +36,15 @@ Living runbook for cutting Doer desktop releases. Update as we hit gotchas.
 - [x] Audit complete — server uses DOER_HOME everywhere; passing app.getPath('userData') in packaged mode handles it
 - [x] **K5/K3p6** Unsigned `.app` produced (809MB arm64); boots, serves UI, /api/health green
 
-### Phase B — Auto-update infra (S3)
-- [ ] Provision S3 bucket (proposed: `doer-releases.donjon.agency`)
-- [ ] Configure `electron-updater` with S3 publish target
-- [ ] CI publishes `latest-mac.yml`, `latest.yml`, and signed artifacts on tag push
-- [ ] First-run + subsequent-run update check verified manually
-- [ ] Document version-bump → tag → release flow below
+### Phase B — Auto-update infra (Cloudflare R2 + update-electron-app)
+- [x] Choose tooling — `@electron-forge/publisher-s3` + `update-electron-app` (Path A from plan)
+- [x] Wire `PublisherS3` in forge.config.ts (env-gated; falls through to noop locally)
+- [x] Wire `updateElectronApp` in main.ts (only runs in packaged mode + build-time `__DOER_UPDATE_URL__`)
+- [x] Document Clay's R2 setup checklist (below)
+- [x] Document version-bump → publish → release flow (below)
+- [ ] **Clay:** provision R2 bucket + access keys; provide endpoint, bucket name, public URL
+- [ ] First publish attempt — `pnpm --ignore-workspace make` then `pnpm --ignore-workspace publish`
+- [ ] Bump version, publish v0.0.2, manually verify packaged Doer.app sees the update
 
 ### Phase C — Code signing & notarization (Mac)
 - [ ] Apple Developer Program enrolled and approved
@@ -60,19 +63,72 @@ Living runbook for cutting Doer desktop releases. Update as we hit gotchas.
 
 ---
 
-## Release workflow (placeholder — fill in once Phase B lands)
+## Cloudflare R2 setup (Clay does this once)
+
+1. Sign in to https://dash.cloudflare.com → R2.
+2. **Create bucket:** name `doer-releases`, location auto, no public access yet.
+3. **Settings → Public access:** enable "Public Development URL" (gives a `.r2.dev` URL) OR attach a custom domain (`releases.donjon.agency`).
+4. **R2 → Manage API tokens → Create API token:**
+   - Permission: Object Read & Write
+   - Specify bucket: doer-releases
+   - TTL: forever (or set later)
+   - Save the **Access Key ID** + **Secret Access Key** (only shown once).
+5. **Find the S3 endpoint:** R2 dashboard → bucket settings → "S3 API". Looks like `https://<account-id>.r2.cloudflarestorage.com`.
+6. **Find the public base URL:**
+   - With public dev URL: `https://pub-<hash>.r2.dev` (visible in bucket settings)
+   - With custom domain: `https://releases.donjon.agency`
+7. **Drop into `desktop/.env.local` (gitignored):**
+   ```sh
+   S3_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
+   S3_BUCKET=doer-releases
+   S3_ACCESS_KEY_ID=<from step 4>
+   S3_SECRET_ACCESS_KEY=<from step 4>
+   S3_FOLDER=beta
+   DOER_UPDATE_URL=https://pub-<hash>.r2.dev/beta
+   ```
+8. Sanity check: `aws --endpoint-url $S3_ENDPOINT s3 ls s3://$S3_BUCKET/` (or use `rclone`).
+
+## Release workflow
+
+The full cycle for cutting a beta release once R2 is set up:
+
+```sh
+cd desktop
+
+# 1. Bump version (patch/minor/major)
+npm version patch                            # writes desktop/package.json
+
+# 2. Build + package + make installers (.zip on Mac, .exe on Windows)
+#    Loads .env.local so DOER_UPDATE_URL is baked into the binary at build time.
+set -a && source .env.local && set +a
+pnpm --ignore-workspace make
+
+# 3. Publish artifacts to R2
+pnpm --ignore-workspace publish
+
+# 4. Tag the release
+cd .. && git tag electron/v$(node -p "require('./desktop/package.json').version") && git push --tags
+```
+
+Beta testers running an older version of Doer.app will pick up the update on their next launch (within ~1 hour) and get a "Restart to update" prompt.
+
+### Object layout in R2
+
+The PublisherS3 config writes to `<bucket>/<folder>/<platform>/<arch>/<file>`:
 
 ```
-# Version bump
-pnpm version <patch|minor|major>
-
-# Tag
-git tag electron/v<X.Y.Z>
-git push --tags
-
-# CI builds, signs (when Phase C lands), publishes to S3
-# electron-updater clients pick up on next launch
+doer-releases/
+└── beta/
+    ├── darwin/
+    │   ├── arm64/
+    │   │   ├── Doer-0.0.2-darwin-arm64.zip
+    │   │   └── RELEASES.json
+    │   └── x64/...
+    └── win32/
+        └── x64/...
 ```
+
+`update-electron-app` (StaticStorage mode) reads `<DOER_UPDATE_URL>/<platform>/<arch>/RELEASES.json` to find the latest version + download URL.
 
 ---
 

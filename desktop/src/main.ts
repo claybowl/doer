@@ -1,11 +1,13 @@
 import path from "node:path";
 import { app, BrowserWindow } from "electron";
+import { UpdateSourceType, updateElectronApp } from "update-electron-app";
 import { type ServerHandle, startServer, stopServer } from "./server-process";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 if (require("electron-squirrel-startup")) app.quit();
 
 declare const MAIN_WINDOW_VITE_NAME: string;
+declare const __DOER_UPDATE_URL__: string;
 
 let serverHandle: ServerHandle | null = null;
 
@@ -35,7 +37,31 @@ function createWindow(serverUrl: string | null) {
 	else win.loadURL(loadingHtmlDataUrl("Server failed to start. Check console for logs."));
 }
 
+function maybeStartAutoUpdater() {
+	if (!app.isPackaged) return;
+	const baseUrl = __DOER_UPDATE_URL__;
+	if (!baseUrl) {
+		console.log("[main] auto-updater disabled — DOER_UPDATE_URL was not set at build time");
+		return;
+	}
+	try {
+		updateElectronApp({
+			updateSource: {
+				type: UpdateSourceType.StaticStorage,
+				baseUrl: `${baseUrl}/${process.platform}/${process.arch}`,
+			},
+			updateInterval: "1 hour",
+			logger: console,
+			notifyUser: true,
+		});
+		console.log(`[main] auto-updater enabled — checking ${baseUrl}/${process.platform}/${process.arch}`);
+	} catch (err) {
+		console.error("[main] auto-updater init failed:", err);
+	}
+}
+
 async function bootstrap() {
+	maybeStartAutoUpdater();
 	try {
 		console.log("[main] Spawning server...");
 		serverHandle = await startServer({
