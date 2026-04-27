@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn } from "node:child_process";
+import { existsSync, statSync } from "node:fs";
 import path from "node:path";
 
 const SERVER_LISTENING_PATTERN = /Server listening on \S+:(\d+)/;
@@ -10,44 +11,79 @@ export type ServerHandle = {
 	child: ChildProcess;
 };
 
+type SpawnTarget = {
+	command: string;
+	args: string[];
+	cwd: string;
+	extraEnv: Record<string, string>;
+};
+
 /**
- * Dev-mode only: spawns Doer's Express server from the monorepo source tree.
- *
- * Packaged-mode (.app / .exe) is not yet supported — needs the server bundled
- * into extraResources first. Tracked as K3-prod in doc/RELEASING-ELECTRON.md.
+ * Resolves what to spawn based on whether we're in dev or packaged mode.
+ * - Dev: spawn `pnpm dev` from the monorepo's server/ source.
+ * - Packaged: spawn the bundled server with Electron's bundled Node
+ *   (ELECTRON_RUN_AS_NODE=1 → process.execPath behaves as plain Node).
  */
-export function startDevServer(): Promise<ServerHandle> {
-	// Walk up from .vite/build/ (or wherever main.js lives) to find the monorepo root.
-	// Heuristic: nearest ancestor that contains a "server" directory.
+function resolveSpawnTarget(opts: { isPackaged: boolean; resourcesPath: string; execPath: string }): SpawnTarget {
+	if (opts.isPackaged) {
+		const serverDir = path.join(opts.resourcesPath, "server");
+		const entry = path.join(serverDir, "dist", "index.js");
+		if (!existsSync(entry)) {
+			throw new Error(`Bundled server entry not found at ${entry}`);
+		}
+		return {
+			command: opts.execPath,
+			args: [entry],
+			cwd: serverDir,
+			extraEnv: { ELECTRON_RUN_AS_NODE: "1" },
+		};
+	}
+
+	// Dev: walk up from __dirname looking for sibling server/ dir
 	let serverDir = "";
 	let dir = __dirname;
 	for (let i = 0; i < 6; i++) {
 		const candidate = path.join(dir, "../server");
 		try {
-			require("node:fs").statSync(candidate);
+			statSync(candidate);
 			serverDir = path.resolve(candidate);
 			break;
 		} catch {
 			dir = path.dirname(dir);
 		}
 	}
-	if (!serverDir) {
-		return Promise.reject(new Error(`Could not locate server/ from ${__dirname}`));
-	}
-	console.log(`[main] serverDir resolved to ${serverDir}`);
-
-	// Resolve pnpm from common install locations — Electron's hardened runtime
-	// blocks shell-based spawn and may have a stripped PATH.
+	if (!serverDir) throw new Error(`Could not locate server/ from ${__dirname}`);
 	const pnpmBin = process.env.PNPM_BIN ?? "/opt/homebrew/bin/pnpm";
-	const child = spawn(pnpmBin, ["dev"], {
+	return {
+		command: pnpmBin,
+		args: ["dev"],
 		cwd: serverDir,
+		extraEnv: {},
+	};
+}
+
+export type StartOptions = {
+	isPackaged: boolean;
+	resourcesPath: string;
+	execPath: string;
+	userDataPath: string;
+};
+
+export function startServer(options: StartOptions): Promise<ServerHandle> {
+	const target = resolveSpawnTarget(options);
+	console.log(`[main] spawn target: ${target.command} ${target.args.join(" ")} (cwd=${target.cwd})`);
+
+	const child = spawn(target.command, target.args, {
+		cwd: target.cwd,
 		env: {
 			...process.env,
 			FORCE_COLOR: "0",
-			// Doer's server can host the UI via Vite middleware in-process,
-			// giving us HMR over a single origin (matches packaged-mode behaviour).
-			DOER_UI_DEV_MIDDLEWARE: "true",
+			DOER_UI_DEV_MIDDLEWARE: options.isPackaged ? "false" : "true",
 			SERVE_UI: "true",
+			// Keep all writable state under the OS-blessed userData dir.
+			// In dev this still points to ~/.doer (server's own default).
+			...(options.isPackaged ? { DOER_HOME: options.userDataPath } : {}),
+			...target.extraEnv,
 		},
 		stdio: ["ignore", "pipe", "pipe"],
 	});
@@ -73,7 +109,6 @@ export function startDevServer(): Promise<ServerHandle> {
 				resolve({ port, url: `http://127.0.0.1:${port}`, child });
 			}
 		};
-
 		child.stdout?.on("data", onLine);
 		child.stderr?.on("data", (chunk: Buffer) => {
 			process.stderr.write(`[server] ${chunk.toString()}`);

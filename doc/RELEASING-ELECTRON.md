@@ -29,12 +29,12 @@ Living runbook for cutting Doer desktop releases. Update as we hit gotchas.
 - [x] **K1** Verify toolchain — scratch scaffold builds .app
 - [x] **K2** Scaffold `desktop/` workspace inside monorepo (hand-rolled, standalone)
 - [x] **K3 (dev mode)** Spawn Express server in Electron main; kill on quit
-- [ ] **K3-prod** Bundle server into packaged .app (extraResources) for prod mode
+- [x] **K3-prod** Server bundled into packaged .app via extraResources (pnpm deploy + publishConfig flip)
 - [x] **K4 (dev mode)** Real Doer UI loads via server's `vite-dev-middleware` (single origin, HMR works)
 - [x] **K4-fix** Vite race resolved by loading server URL instead of separate Vite port
-- [ ] Verify embedded Postgres / PGlite writes to `app.getPath('userData')`, not CWD
-- [ ] Audit for hardcoded paths and CWD assumptions (grep)
-- [ ] **K5** Produce unsigned `.app` and `.exe` artifacts locally
+- [x] Embedded Postgres writes to `app.getPath('userData')` via DOER_HOME env var
+- [x] Audit complete — server uses DOER_HOME everywhere; passing app.getPath('userData') in packaged mode handles it
+- [x] **K5/K3p6** Unsigned `.app` produced (809MB arm64); boots, serves UI, /api/health green
 
 ### Phase B — Auto-update infra (S3)
 - [ ] Provision S3 bucket (proposed: `doer-releases.donjon.agency`)
@@ -93,6 +93,23 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 ---
 
 ## Gotcha log (append as we hit them)
+
+### G7 — Spawn server with Electron's bundled Node via ELECTRON_RUN_AS_NODE
+**Discovered:** 2026-04-26 during K3p3
+**Symptom:** Packaged .app has no system pnpm/tsx/node; need a runtime to execute the bundled server.
+**Fix:** Set FuseV1Options.RunAsNode = true and FuseV1Options.EnableNodeOptionsEnvironmentVariable = true in forge.config. Then in main.ts: `spawn(process.execPath, [serverEntry], { env: { ELECTRON_RUN_AS_NODE: "1", ... } })`. Electron's bundled Node runs the server with no extra binary shipped.
+**Side effect:** Slight security relaxation. Acceptable for now; revisit before public launch (Phase D).
+
+### G6 — pnpm deploy doesn't apply publishConfig — must patch package.jsons manually
+**Discovered:** 2026-04-26 during K3p3 (first packaged-mode crash)
+**Symptom:** Packaged server crashed on boot: `ERR_MODULE_NOT_FOUND: Cannot find module '...node_modules/@doerai/db/src/index.ts'`. Workspace packages use the dev convention `exports: { ".": "./src/index.ts" }` and rely on tsx/dev to resolve TS sources directly. publishConfig has the corrected `import: "./dist/index.js"` mapping but pnpm deploy doesn't apply it.
+**Fix:** Walk `<server>/node_modules/@doerai/*/package.json` (following pnpm symlinks via `readlink -f`) and merge `publishConfig` into the root, deleting `publishConfig`. See `desktop/scripts/prebuild.mjs`.
+**Why this works:** The patched package.json now uses the published export shape, so Node's ESM resolver lands on the compiled `dist/*.js` files we built earlier.
+
+### G5 — Build server's transitive deps before deploying
+**Discovered:** 2026-04-26 during K3p3 (second packaged-mode crash)
+**Symptom:** Packaged server crashed on boot: `ERR_MODULE_NOT_FOUND: ...node_modules/@doerai/adapter-claude-local/dist/server/index.js`. The adapters are workspace packages without their own publishConfig — exports already point at dist, but dist hadn't been built.
+**Fix:** Use `pnpm -F 'server...' build` (the `...` means "and deps") in prebuild. This builds all transitive workspace dependencies in topological order. Avoids using `pnpm -r build` which also tries to build unrelated plugin examples that may have errors.
 
 ### G4 — Single-origin via Doer's vite-dev-middleware beats two-port dev
 **Discovered:** 2026-04-26 during K4

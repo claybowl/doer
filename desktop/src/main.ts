@@ -1,6 +1,6 @@
 import path from "node:path";
 import { app, BrowserWindow } from "electron";
-import { type ServerHandle, startDevServer, stopServer } from "./server-process";
+import { type ServerHandle, startServer, stopServer } from "./server-process";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 if (require("electron-squirrel-startup")) app.quit();
@@ -14,9 +14,9 @@ function loadingHtmlDataUrl(message: string): string {
 <style>
 body { font-family: system-ui, sans-serif; background: #0e1116; color: #e6e6e6;
        display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
-.box { text-align: center; }
+.box { text-align: center; padding: 2rem; }
 h1 { margin: 0 0 0.5rem 0; font-weight: 500; }
-p { opacity: 0.6; margin: 0; font-size: 0.9rem; }
+p { opacity: 0.6; margin: 0; font-size: 0.9rem; max-width: 420px; }
 </style></head><body><div class="box"><h1>Doer</h1><p>${message}</p></div></body></html>`;
 	return `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
 }
@@ -29,30 +29,25 @@ function createWindow(serverUrl: string | null) {
 			preload: path.join(__dirname, "preload.js"),
 			contextIsolation: true,
 			nodeIntegration: false,
-			additionalArguments: serverUrl ? [`--doer-server-url=${serverUrl}`] : [],
 		},
 	});
-
-	if (serverUrl) {
-		win.loadURL(serverUrl);
-	} else {
-		win.loadURL(loadingHtmlDataUrl("Server failed to start. See terminal for logs."));
-	}
+	if (serverUrl) win.loadURL(serverUrl);
+	else win.loadURL(loadingHtmlDataUrl("Server failed to start. Check console for logs."));
 }
 
 async function bootstrap() {
-	if (!app.isPackaged) {
-		try {
-			console.log("[main] Spawning dev server...");
-			serverHandle = await startDevServer();
-			console.log(`[main] Server ready at ${serverHandle.url}`);
-		} catch (err) {
-			console.error("[main] Failed to start dev server:", err);
-		}
-	} else {
-		console.warn("[main] Packaged mode: server bundling not yet implemented (K3-prod).");
+	try {
+		console.log("[main] Spawning server...");
+		serverHandle = await startServer({
+			isPackaged: app.isPackaged,
+			resourcesPath: process.resourcesPath,
+			execPath: process.execPath,
+			userDataPath: app.getPath("userData"),
+		});
+		console.log(`[main] Server ready at ${serverHandle.url}`);
+	} catch (err) {
+		console.error("[main] Failed to start server:", err);
 	}
-
 	createWindow(serverHandle?.url ?? null);
 }
 
@@ -70,5 +65,4 @@ app.on("before-quit", () => {
 	stopServer(serverHandle);
 });
 
-// Keep this referenced so the bundler doesn't tree-shake the renderer build entry.
 void MAIN_WINDOW_VITE_NAME;
