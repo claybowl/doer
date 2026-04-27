@@ -5,15 +5,26 @@ import { type ServerHandle, startDevServer, stopServer } from "./server-process"
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 if (require("electron-squirrel-startup")) app.quit();
 
-declare const MAIN_WINDOW_VITE_DEV_SERVER_URL: string | undefined;
 declare const MAIN_WINDOW_VITE_NAME: string;
 
 let serverHandle: ServerHandle | null = null;
 
+function loadingHtmlDataUrl(message: string): string {
+	const html = `<!doctype html><html><head><meta charset="utf-8"><title>Doer</title>
+<style>
+body { font-family: system-ui, sans-serif; background: #0e1116; color: #e6e6e6;
+       display: flex; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+.box { text-align: center; }
+h1 { margin: 0 0 0.5rem 0; font-weight: 500; }
+p { opacity: 0.6; margin: 0; font-size: 0.9rem; }
+</style></head><body><div class="box"><h1>Doer</h1><p>${message}</p></div></body></html>`;
+	return `data:text/html;charset=utf-8,${encodeURIComponent(html)}`;
+}
+
 function createWindow(serverUrl: string | null) {
 	const win = new BrowserWindow({
-		width: 1200,
-		height: 800,
+		width: 1400,
+		height: 900,
 		webPreferences: {
 			preload: path.join(__dirname, "preload.js"),
 			contextIsolation: true,
@@ -22,23 +33,19 @@ function createWindow(serverUrl: string | null) {
 		},
 	});
 
-	if (MAIN_WINDOW_VITE_DEV_SERVER_URL) {
-		win.loadURL(MAIN_WINDOW_VITE_DEV_SERVER_URL);
+	if (serverUrl) {
+		win.loadURL(serverUrl);
 	} else {
-		win.loadFile(path.join(__dirname, `../renderer/${MAIN_WINDOW_VITE_NAME}/index.html`));
+		win.loadURL(loadingHtmlDataUrl("Server failed to start. See terminal for logs."));
 	}
 }
 
 async function bootstrap() {
-	const isPackaged = app.isPackaged;
-	let serverUrl: string | null = null;
-
-	if (!isPackaged) {
+	if (!app.isPackaged) {
 		try {
 			console.log("[main] Spawning dev server...");
 			serverHandle = await startDevServer();
-			serverUrl = serverHandle.url;
-			console.log(`[main] Server ready at ${serverUrl}`);
+			console.log(`[main] Server ready at ${serverHandle.url}`);
 		} catch (err) {
 			console.error("[main] Failed to start dev server:", err);
 		}
@@ -46,7 +53,7 @@ async function bootstrap() {
 		console.warn("[main] Packaged mode: server bundling not yet implemented (K3-prod).");
 	}
 
-	createWindow(serverUrl);
+	createWindow(serverHandle?.url ?? null);
 }
 
 app.whenReady().then(bootstrap);
@@ -62,3 +69,6 @@ app.on("activate", () => {
 app.on("before-quit", () => {
 	stopServer(serverHandle);
 });
+
+// Keep this referenced so the bundler doesn't tree-shake the renderer build entry.
+void MAIN_WINDOW_VITE_NAME;

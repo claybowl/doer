@@ -41,7 +41,14 @@ export function startDevServer(): Promise<ServerHandle> {
 	const pnpmBin = process.env.PNPM_BIN ?? "/opt/homebrew/bin/pnpm";
 	const child = spawn(pnpmBin, ["dev"], {
 		cwd: serverDir,
-		env: { ...process.env, FORCE_COLOR: "0" },
+		env: {
+			...process.env,
+			FORCE_COLOR: "0",
+			// Doer's server can host the UI via Vite middleware in-process,
+			// giving us HMR over a single origin (matches packaged-mode behaviour).
+			DOER_UI_DEV_MIDDLEWARE: "true",
+			SERVE_UI: "true",
+		},
 		stdio: ["ignore", "pipe", "pipe"],
 	});
 

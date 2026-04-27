@@ -30,8 +30,8 @@ Living runbook for cutting Doer desktop releases. Update as we hit gotchas.
 - [x] **K2** Scaffold `desktop/` workspace inside monorepo (hand-rolled, standalone)
 - [x] **K3 (dev mode)** Spawn Express server in Electron main; kill on quit
 - [ ] **K3-prod** Bundle server into packaged .app (extraResources) for prod mode
-- [ ] **K4** Wire Doer `ui/` as renderer; smoke `/api/health` from React
-- [ ] **K4-fix** Resolve Vite ERR_CONNECTION_REFUSED race on first window load
+- [x] **K4 (dev mode)** Real Doer UI loads via server's `vite-dev-middleware` (single origin, HMR works)
+- [x] **K4-fix** Vite race resolved by loading server URL instead of separate Vite port
 - [ ] Verify embedded Postgres / PGlite writes to `app.getPath('userData')`, not CWD
 - [ ] Audit for hardcoded paths and CWD assumptions (grep)
 - [ ] **K5** Produce unsigned `.app` and `.exe` artifacts locally
@@ -93,6 +93,13 @@ Injected at `electron-builder` build time via env vars in CI. Never commit to gi
 ---
 
 ## Gotcha log (append as we hit them)
+
+### G4 — Single-origin via Doer's vite-dev-middleware beats two-port dev
+**Discovered:** 2026-04-26 during K4
+**Symptom:** When Electron loaded its own Vite renderer URL (`localhost:5173`) before the renderer dev server was bound, `loadURL` fired `ERR_CONNECTION_REFUSED`. Adding retries felt brittle.
+**Fix:** Drop the desktop's own renderer entry. Spawn the server with `DOER_UI_DEV_MIDDLEWARE=true SERVE_UI=true` so the server hosts the UI in-process via Vite middleware. Electron always `loadURL(serverHandle.url)`.
+**Why it's better:** Single origin in dev *and* prod (matches packaged-mode behaviour exactly), no race window, HMR still works through the middleware, no second port to manage.
+**Side effect:** electron-forge's renderer pipeline still builds (it expects an entry), but the bundle is unused at runtime. Acceptable cost — we leave a minimal `index.html` + placeholder `renderer.tsx` for the toolchain.
 
 ### G3 — Electron's hardened spawn needs absolute paths + correct cwd
 **Discovered:** 2026-04-26 during K3 (server-process.ts)
