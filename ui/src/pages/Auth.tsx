@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useSearchParams } from "@/lib/router";
+import { useNavigate, useSearchParams, Link } from "@/lib/router";
 import { authApi } from "../api/auth";
 import { queryKeys } from "../lib/queryKeys";
 import { Button } from "@/components/ui/button";
@@ -171,6 +171,16 @@ export function AuthPage() {
                 autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
               />
             </div>
+            {mode === "sign_in" && (
+              <div className="text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            )}
             {error && <p className="text-xs text-destructive">{error}</p>}
             <Button
               type="submit"

@@ -76,4 +76,28 @@ export const authApi = {
     const url = `/api/auth/sign-in/${provider}${callbackURL ? `?callbackURL=${encodeURIComponent(callbackURL)}` : ""}`;
     window.location.href = url;
   },
+
+  forgotPassword: async (email: string) => {
+    await authPost("/forget-password", {
+      email,
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+  },
+
+  resetPassword: async (token: string, newPassword: string) => {
+    await authPost("/reset-password", { token, newPassword });
+  },
+
+  verifyEmail: async (token: string, callbackURL?: string) => {
+    const params = new URLSearchParams({ token });
+    if (callbackURL) params.set("callbackURL", callbackURL);
+    const res = await fetch(`/api/auth/verify-email?${params}`, {
+      credentials: "include",
+    });
+    if (!res.ok) {
+      const payload = await res.json().catch(() => null);
+      const message = (payload as { message?: string } | null)?.message ?? `Verification failed (${res.status})`;
+      throw new Error(message);
+    }
+  },
 };
