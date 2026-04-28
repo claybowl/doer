@@ -31,6 +31,7 @@ import { Webhooks } from "./pages/Webhooks";
 import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
 import { VerifyEmailPage } from "./pages/VerifyEmail";
+import { AgentWizard } from "./pages/AgentWizard";
 import { DesignGuide } from "./pages/DesignGuide";
 import { InstanceGeneralSettings } from "./pages/InstanceGeneralSettings";
 import { InstanceSettings } from "./pages/InstanceSettings";
@@ -170,6 +171,7 @@ function boardRoutes() {
       <Route path="agents/paused" element={<Agents />} />
       <Route path="agents/error" element={<Agents />} />
       <Route path="agents/new" element={<NewAgent />} />
+      <Route path="agents/wizard" element={<AgentWizard />} />
       <Route path="agents/:agentId" element={<AgentDetail />} />
       <Route path="agents/:agentId/:tab" element={<AgentDetail />} />
       <Route path="agents/:agentId/runs/:runId" element={<AgentDetail />} />
