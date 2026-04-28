@@ -11,6 +11,7 @@ import {
   authVerifications,
 } from "@doerai/db";
 import type { Config } from "../config.js";
+import { createMailer } from "../email/mailer.js";
 
 export type BetterAuthSessionUser = {
   id: string;
@@ -78,6 +79,8 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
   const githubClientId = config.oauthGithubClientId;
   const githubClientSecret = config.oauthGithubClientSecret;
 
+  const mailer = createMailer(config);
+
   const authConfig = {
     baseURL: baseUrl,
     secret,
@@ -93,9 +96,34 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
     }),
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      requireEmailVerification: config.authEmailVerificationEnabled,
       disableSignUp: config.authDisableSignUp,
+      ...(config.authEmailPasswordResetEnabled
+        ? {
+            sendResetPassword: async ({ user, url }: { user: { email: string; name?: string | null }; url: string }) => {
+              await mailer.sendMail({
+                to: user.email,
+                subject: "Reset your Doer password",
+                html: `<p>Hi${user.name ? ` ${user.name}` : ""},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${url}">${url}</a></p><p>If you didn't request this, ignore this email.</p>`,
+              });
+            },
+          }
+        : {}),
     },
+    ...(config.authEmailVerificationEnabled
+      ? {
+          emailVerification: {
+            sendVerificationEmail: async ({ user, url }: { user: { email: string; name?: string | null }; url: string }) => {
+              await mailer.sendMail({
+                to: user.email,
+                subject: "Verify your Doer email",
+                html: `<p>Hi${user.name ? ` ${user.name}` : ""},</p><p>Click the link below to verify your email address.</p><p><a href="${url}">${url}</a></p>`,
+              });
+            },
+            autoSignInAfterVerification: true,
+          },
+        }
+      : {}),
     socialProviders: {
       ...(googleClientId && googleClientSecret
         ? { google: { clientId: googleClientId, clientSecret: googleClientSecret } }

@@ -150,6 +150,10 @@ export const queryKeys = {
   adapters: {
     all: ["adapters"] as const,
   },
+  webhooks: {
+    list: (companyId: string) => ["webhooks", companyId] as const,
+    deliveries: (webhookId: string) => ["webhooks", "deliveries", webhookId] as const,
+  },
   plugins: {
     all: ["plugins"] as const,
     examples: ["plugins", "examples"] as const,

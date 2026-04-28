@@ -54,6 +54,14 @@ export interface Config {
   oauthGoogleClientSecret: string | undefined;
   oauthGithubClientId: string | undefined;
   oauthGithubClientSecret: string | undefined;
+  smtpHost: string | undefined;
+  smtpPort: number;
+  smtpUser: string | undefined;
+  smtpPass: string | undefined;
+  smtpFrom: string;
+  smtpSecure: boolean;
+  authEmailVerificationEnabled: boolean;
+  authEmailPasswordResetEnabled: boolean;
   databaseMode: DatabaseMode;
   databaseUrl: string | undefined;
   embeddedPostgresDataDir: string;
@@ -230,6 +238,14 @@ export function loadConfig(): Config {
     oauthGoogleClientSecret: process.env.DOER_OAUTH_GOOGLE_CLIENT_SECRET ?? undefined,
     oauthGithubClientId: process.env.DOER_OAUTH_GITHUB_CLIENT_ID ?? undefined,
     oauthGithubClientSecret: process.env.DOER_OAUTH_GITHUB_CLIENT_SECRET ?? undefined,
+    smtpHost: process.env.DOER_SMTP_HOST ?? undefined,
+    smtpPort: Number(process.env.DOER_SMTP_PORT) || 587,
+    smtpUser: process.env.DOER_SMTP_USER ?? undefined,
+    smtpPass: process.env.DOER_SMTP_PASS ?? undefined,
+    smtpFrom: process.env.DOER_SMTP_FROM ?? 'Doer <noreply@doer.local>',
+    smtpSecure: process.env.DOER_SMTP_SECURE === 'true',
+    authEmailVerificationEnabled: process.env.DOER_AUTH_EMAIL_VERIFICATION === 'true',
+    authEmailPasswordResetEnabled: process.env.DOER_AUTH_EMAIL_RESET === 'true',
     databaseMode: fileDatabaseMode,
     databaseUrl: process.env.DATABASE_URL ?? fileDbUrl,
     embeddedPostgresDataDir: resolveHomeAwarePath(
