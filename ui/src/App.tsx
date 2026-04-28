@@ -32,6 +32,7 @@ import { ForgotPasswordPage } from "./pages/ForgotPassword";
 import { ResetPasswordPage } from "./pages/ResetPassword";
 import { VerifyEmailPage } from "./pages/VerifyEmail";
 import { AgentWizard } from "./pages/AgentWizard";
+import { LandingPage } from "./pages/LandingPage";
 import { DesignGuide } from "./pages/DesignGuide";
 import { InstanceGeneralSettings } from "./pages/InstanceGeneralSettings";
 import { InstanceSettings } from "./pages/InstanceSettings";
@@ -340,6 +341,7 @@ export function App() {
       <ApiHealthBanner />
       <ErrorBoundary>
         <Routes>
+        <Route path="landing" element={<LandingPage />} />
         <Route path="auth" element={<AuthPage />} />
         <Route path="forgot-password" element={<ForgotPasswordPage />} />
         <Route path="reset-password" element={<ResetPasswordPage />} />
