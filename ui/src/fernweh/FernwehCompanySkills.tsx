@@ -689,12 +689,12 @@ export function FernwehCompanySkills() {
   }, [skills, filter]);
 
   const handleSelect = (id: string) => {
-    navigate(`/${prefix}/fernweh/company/skills/${id}`);
+    navigate(`/${prefix}/company/skills/${id}`);
   };
 
   const handleCreated = (newSkillId: string) => {
     setShowCreate(false);
-    navigate(`/${prefix}/fernweh/company/skills/${newSkillId}`);
+    navigate(`/${prefix}/company/skills/${newSkillId}`);
   };
 
   return (

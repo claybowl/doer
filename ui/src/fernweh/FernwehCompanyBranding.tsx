@@ -10,7 +10,7 @@ import { Icon, I, ErrorState, LoadingState } from "./utils";
 
 /* ============================================================
    FernwehCompanyBranding — identity + visual brand settings.
-   Route: /:companyPrefix/fernweh/company/branding
+   Route: /:companyPrefix/company/branding
 
    Two sections:
    1. Identity  — name, description  (save button)
@@ -297,7 +297,7 @@ export function FernwehCompanyBranding() {
       {/* Header */}
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
         <button
-          onClick={() => navigate(`/${prefix}/fernweh/company`)}
+          onClick={() => navigate(`/${prefix}/company`)}
           style={{ background: "none", border: "none", cursor: "pointer", color: "var(--ink-dim)", padding: 0, display: "flex", alignItems: "center" }}
         >
           <Icon d={I.arrow} size={14} style={{ transform: "rotate(180deg)" }} />

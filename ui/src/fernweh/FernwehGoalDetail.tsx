@@ -23,7 +23,7 @@ import {
 
 /* ============================================================
    FernwehGoalDetail — detail view for a single goal.
-   Route: /:companyPrefix/fernweh/goals/:goalId
+   Route: /:companyPrefix/goals/:goalId
 ============================================================ */
 
 function Section({
@@ -147,7 +147,7 @@ export function FernwehGoalDetail() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${companyPrefix}/fernweh/goals`}
+          to={`/${companyPrefix}/goals`}
           style={{ color: "var(--ink-dim)", textDecoration: "none", fontSize: 14 }}
         >
           ← Goals
@@ -272,7 +272,7 @@ export function FernwehGoalDetail() {
               </div>
             </div>
             <NavLink
-              to={`/${companyPrefix}/fernweh/agents/${ownerAgent.id}`}
+              to={`/${companyPrefix}/agents/${ownerAgent.id}`}
               style={{ fontSize: 13, color: "var(--accent)", textDecoration: "none" }}
             >
               Open ↗
@@ -287,7 +287,7 @@ export function FernwehGoalDetail() {
       <Section label="Parent Goal">
         {parentGoal ? (
           <NavLink
-            to={`/${companyPrefix}/fernweh/goals/${parentGoal.id}`}
+            to={`/${companyPrefix}/goals/${parentGoal.id}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -323,7 +323,7 @@ export function FernwehGoalDetail() {
             {childGoals.map((child, idx) => (
               <NavLink
                 key={child.id}
-                to={`/${companyPrefix}/fernweh/goals/${child.id}`}
+                to={`/${companyPrefix}/goals/${child.id}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -362,7 +362,7 @@ export function FernwehGoalDetail() {
             {linkedProjects.map((p, idx) => (
               <NavLink
                 key={p.id}
-                to={`/${companyPrefix}/fernweh/projects/${p.id}`}
+                to={`/${companyPrefix}/projects/${p.id}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
@@ -393,7 +393,7 @@ export function FernwehGoalDetail() {
             {linkedIssues.map((issue, idx) => (
               <NavLink
                 key={issue.id}
-                to={`/${companyPrefix}/fernweh/work/${issue.id}`}
+                to={`/${companyPrefix}/work/${issue.id}`}
                 style={{
                   display: "flex",
                   alignItems: "center",

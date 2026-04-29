@@ -10,7 +10,7 @@ import { ErrorState, LoadingState } from "./utils";
 /* ============================================================
    FernwehExecutionWorkspaceDetail — read-only detail view for
    a single execution workspace.
-   Route: /:companyPrefix/fernweh/execution-workspaces/:workspaceId
+   Route: /:companyPrefix/execution-workspaces/:workspaceId
 ============================================================ */
 
 function statusColor(status: string): string {
@@ -84,7 +84,7 @@ export function FernwehExecutionWorkspaceDetail() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${prefix}/fernweh/execution-workspaces`}
+          to={`/${prefix}/execution-workspaces`}
           style={{ fontSize: 12, color: "var(--ink-faint)", textDecoration: "none" }}
         >
           <span className="fw-uc">← All workspaces</span>
@@ -111,7 +111,7 @@ export function FernwehExecutionWorkspaceDetail() {
         <Row label="Project">
           {ws.projectId ? (
             <NavLink
-              to={`/${prefix}/fernweh/projects/${ws.projectId}`}
+              to={`/${prefix}/projects/${ws.projectId}`}
               style={{ color: "var(--accent)", textDecoration: "none" }}
             >
               <span className="fw-mono" style={{ fontSize: 12 }}>{ws.projectId}</span>
@@ -122,7 +122,7 @@ export function FernwehExecutionWorkspaceDetail() {
         <Row label="Source issue">
           {ws.sourceIssueId ? (
             <NavLink
-              to={`/${prefix}/fernweh/work?issue=${ws.sourceIssueId}`}
+              to={`/${prefix}/work?issue=${ws.sourceIssueId}`}
               style={{ color: "var(--accent)", textDecoration: "none" }}
             >
               <span className="fw-mono" style={{ fontSize: 12 }}>{ws.sourceIssueId}</span>

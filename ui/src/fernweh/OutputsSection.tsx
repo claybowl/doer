@@ -15,7 +15,7 @@ import { Icon, I, formatRelative } from "./utils";
    Each caller passes ONE filter (agentId | issueId | projectId |
    none). The component queries with that filter, handles loading
    / error / empty states, renders a tight 2-line row per output,
-   and deep-links to /:prefix/fernweh/outputs?output=:id so the
+   and deep-links to /:prefix/outputs?output=:id so the
    full detail drawer opens in the canonical place.
 ============================================================ */
 
@@ -101,7 +101,7 @@ export function OutputsSection({
   // Build the "View all" link target. Filtered callers get a pre-filtered
   // Outputs page via the same filter knobs the canonical screen exposes.
   const defaultViewAll = React.useMemo(() => {
-    const base = `/${prefix}/fernweh/outputs`;
+    const base = `/${prefix}/outputs`;
     const params: string[] = [];
     if (filter?.agentId) params.push(`agentId=${filter.agentId}`);
     if (filter?.issueId) params.push(`issueId=${filter.issueId}`);
@@ -170,7 +170,7 @@ export function OutputsSection({
 function OutputRow({ d, prefix }: { d: Deliverable; prefix: string }) {
   return (
     <NavLink
-      to={`/${prefix}/fernweh/outputs?output=${d.id}`}
+      to={`/${prefix}/outputs?output=${d.id}`}
       style={{
         display: "grid",
         gridTemplateColumns: "auto 1fr auto auto",

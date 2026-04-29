@@ -1044,7 +1044,7 @@ function InteractiveIssueDrawer({
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <NavLink
-              to={`/${companyPrefix}/fernweh/work/${issue.id}`}
+              to={`/${companyPrefix}/work/${issue.id}`}
               title="Open full view"
               style={{
                 border: "1px solid var(--line)",

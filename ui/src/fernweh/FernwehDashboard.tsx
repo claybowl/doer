@@ -443,7 +443,7 @@ export function FernwehDashboard() {
               return (
                 <NavLink
                   key={run.id}
-                  to={`/${prefix}/fernweh/agents/${run.agentId}`}
+                  to={`/${prefix}/agents/${run.agentId}`}
                   style={{ textDecoration: "none", color: "inherit" }}
                 >
                   <div
@@ -576,13 +576,13 @@ export function FernwehDashboard() {
             hint="Schedule a workflow"
           />
           <QuickAction
-            to={`/${prefix}/fernweh/activity`}
+            to={`/${prefix}/activity`}
             icon={I.activity}
             label="View Activity"
             hint="What's happening now"
           />
           <QuickAction
-            to={`/${prefix}/fernweh/org`}
+            to={`/${prefix}/org`}
             icon={I.org}
             label="Org Chart"
             hint="Team topology"
@@ -639,8 +639,12 @@ export function FernwehDashboard() {
                   ? (Array.from({ length: 24 }, (_, i) => (i % 3 === 0 ? "work" : "tick")) as HeartbeatAmp[])
                   : (Array.from({ length: 24 }, () => "idle") as HeartbeatAmp[]);
               return (
-                <div
+                <NavLink
                   key={agent.id}
+                  to={`/${prefix}/agents/${agent.id}`}
+                  style={{ textDecoration: "none", color: "inherit", display: "block" }}
+                >
+                <div
                   className="fw-card"
                   style={{
                     padding: 14,
@@ -667,6 +671,7 @@ export function FernwehDashboard() {
                     <span>{liveCount > 0 ? `${liveCount} running` : formatRelative(agent.lastHeartbeatAt)}</span>
                   </div>
                 </div>
+                </NavLink>
               );
             })}
           </div>

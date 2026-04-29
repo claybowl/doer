@@ -86,7 +86,7 @@ export function FernwehCompanySettings() {
           : brandingStats.configured === 0
             ? "Defaults — nothing customized"
             : `${brandingStats.configured} of ${brandingStats.fields} fields customized`,
-      href: `/${prefix}/fernweh/company/branding`,
+      href: `/${prefix}/company/branding`,
     },
     {
       id: "skills",
@@ -99,7 +99,7 @@ export function FernwehCompanySettings() {
         : skillsQuery.error
           ? "—"
           : `${skillsStats.active} attached to agents · ${skillsStats.total} total`,
-      href: `/${prefix}/fernweh/company/skills`,
+      href: `/${prefix}/company/skills`,
     },
     {
       id: "webhooks",
@@ -108,7 +108,7 @@ export function FernwehCompanySettings() {
       description:
         "Outbound HTTP webhooks for events like agent heartbeats, issue state changes, and approvals. Manage endpoints, rotate secrets, and inspect delivery logs.",
       stat: "Manage endpoints",
-      href: `/${prefix}/fernweh/company/webhooks`,
+      href: `/${prefix}/company/webhooks`,
     },
     {
       id: "export",

@@ -352,6 +352,11 @@ function NoCompaniesStartPage() {
   );
 }
 
+function IssueToWorkRedirect() {
+  const { issueId } = useParams<{ issueId: string }>();
+  return <Navigate to={`../work/${issueId}`} replace />;
+}
+
 export function App() {
   return (
     <>
@@ -416,7 +421,7 @@ export function App() {
             <Route path="work" element={<FernwehWork />} />
             <Route path="work/:issueId" element={<FernwehIssueDetail />} />
             <Route path="issues" element={<FernwehIssues />} />
-            <Route path="issues/:issueId" element={<Navigate to="../work/:issueId" replace />} />
+            <Route path="issues/:issueId" element={<IssueToWorkRedirect />} />
             <Route path="activity" element={<FernwehActivity />} />
             <Route path="memory" element={<FernwehMemory />} />
             <Route path="outputs" element={<FernwehDeliverables />} />

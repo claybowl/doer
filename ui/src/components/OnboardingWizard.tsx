@@ -595,8 +595,8 @@ export function OnboardingWizard() {
       closeOnboarding();
       navigate(
         createdCompanyPrefix
-          ? `/${createdCompanyPrefix}/issues/${issueRef}`
-          : `/issues/${issueRef}`
+          ? `/${createdCompanyPrefix}/work/${issueRef}`
+          : `/work/${issueRef}`
       );
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create task");

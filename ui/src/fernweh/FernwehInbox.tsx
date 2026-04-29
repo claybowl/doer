@@ -643,17 +643,17 @@ export function FernwehInbox() {
 
   function openIssue(issue: Issue) {
     // Work screen reads ?issue=:id to open its drawer
-    window.location.href = `/${prefix}/fernweh/work?issue=${issue.id}`;
+    window.location.href = `/${prefix}/work?issue=${issue.id}`;
   }
   function openApproval(_a: Approval) {
-    window.location.href = `/${prefix}/fernweh/approvals`;
+    window.location.href = `/${prefix}/approvals`;
   }
   function openFailedRun(run: HeartbeatRun) {
     const issueId = readIssueIdFromRun(run);
     if (issueId) {
-      window.location.href = `/${prefix}/fernweh/work?issue=${issueId}`;
+      window.location.href = `/${prefix}/work?issue=${issueId}`;
     } else {
-      window.location.href = `/${prefix}/fernweh/activity`;
+      window.location.href = `/${prefix}/activity`;
     }
   }
   function openJoinRequest(_r: JoinRequest) {

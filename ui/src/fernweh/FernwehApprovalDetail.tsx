@@ -23,7 +23,7 @@ import {
 
 /* ============================================================
    FernwehApprovalDetail — dedicated detail page for a single
-   approval. Route: /:companyPrefix/fernweh/approvals/:approvalId
+   approval. Route: /:companyPrefix/approvals/:approvalId
    Parity: review payload, approve / reject / request revision /
    resubmit, comment thread, linked issues. Budget-override
    approvals defer to /costs as in classic.
@@ -319,7 +319,7 @@ export function FernwehApprovalDetail() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${prefix}/fernweh/approvals`}
+          to={`/${prefix}/approvals`}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -455,7 +455,7 @@ export function FernwehApprovalDetail() {
             {linkedIssues.map((issue, idx) => (
               <NavLink
                 key={issue.id}
-                to={`/${prefix}/fernweh/work/${issue.id}`}
+                to={`/${prefix}/work/${issue.id}`}
                 style={{
                   padding: "10px 14px",
                   display: "grid",
@@ -524,7 +524,7 @@ export function FernwehApprovalDetail() {
             <p style={{ margin: 0, fontSize: 13, color: "var(--ink-dim)" }}>
               Resolve this budget stop from the budget controls on{" "}
               <NavLink
-                to={`/${prefix}/fernweh/costs`}
+                to={`/${prefix}/costs`}
                 style={{ color: "var(--accent)" }}
               >
                 Costs
@@ -661,7 +661,7 @@ export function FernwehApprovalDetail() {
 
           {linkedAgentId ? (
             <NavLink
-              to={`/${prefix}/fernweh/agents/${linkedAgentId}`}
+              to={`/${prefix}/agents/${linkedAgentId}`}
               style={{
                 fontSize: 11,
                 color: "var(--ink-faint)",

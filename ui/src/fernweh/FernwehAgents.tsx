@@ -172,7 +172,7 @@ function DetailDrawer({
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <Link
-              to={`/${companyPrefix}/fernweh/agents/${agent.id}`}
+              to={`/${companyPrefix}/agents/${agent.id}`}
               onClick={onClose}
               style={{
                 fontSize: 11,
@@ -383,7 +383,7 @@ export function FernwehAgents() {
             </span>
           ) : null}
           <Link
-            to={`/${selectedCompany.issuePrefix}/fernweh/agents/new`}
+            to={`/${selectedCompany.issuePrefix}/agents/new`}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -481,7 +481,7 @@ export function FernwehAgents() {
         <div className="fw-card" style={{ padding: 40, textAlign: "center", display: "flex", flexDirection: "column", gap: 12, alignItems: "center", color: "var(--ink-dim)" }}>
           <span>No agents yet — hire your first one to get started.</span>
           <Link
-            to={`/${selectedCompany.issuePrefix}/fernweh/agents/new`}
+            to={`/${selectedCompany.issuePrefix}/agents/new`}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -559,7 +559,7 @@ export function FernwehAgents() {
                   <Avatar name={agent.name} size={28} />
                   <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
                     <Link
-                      to={`/${selectedCompany!.issuePrefix}/fernweh/agents/${agent.id}`}
+                      to={`/${selectedCompany!.issuePrefix}/agents/${agent.id}`}
                       onClick={(e) => e.stopPropagation()}
                       style={{
                         fontSize: 13,

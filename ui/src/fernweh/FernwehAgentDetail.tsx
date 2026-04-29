@@ -40,8 +40,8 @@ import { MemfsBindingsPanel } from "@/components/memfs/MemfsBindingsPanel";
 
 /* ============================================================
    FernwehAgentDetail — full-parity agent detail page.
-   Route: /:companyPrefix/fernweh/agents/:agentId
-          /:companyPrefix/fernweh/agents/:agentId/:tab
+   Route: /:companyPrefix/agents/:agentId
+          /:companyPrefix/agents/:agentId/:tab
 
    Tabs: overview | instructions | skills | configuration | memory | runs | budget
 ============================================================ */
@@ -136,7 +136,7 @@ function TabBar({
         return (
           <NavLink
             key={tab.id}
-            to={`/${prefix}/fernweh/agents/${agentId}/${tab.id}`}
+            to={`/${prefix}/agents/${agentId}/${tab.id}`}
             style={{
               padding: "8px 14px",
               fontSize: 13,
@@ -813,7 +813,7 @@ function RunsTab({
           return (
             <NavLink
               key={run.id}
-              to={`/${prefix}/fernweh/agents/${agentId}/runs/${run.id}`}
+              to={`/${prefix}/agents/${agentId}/runs/${run.id}`}
               style={{
                 padding: "11px 16px",
                 display: "grid",
@@ -1071,7 +1071,7 @@ function OverviewTab({
             {runs.slice(0, 8).map((run, idx) => (
               <NavLink
                 key={run.id}
-                to={`/${prefix}/fernweh/agents/${agent.id}/runs`}
+                to={`/${prefix}/agents/${agent.id}/runs`}
                 style={{
                   padding: "10px 14px",
                   display: "grid",
@@ -1111,7 +1111,7 @@ function OverviewTab({
         title="Assigned issues"
         hint={`${issues.length}`}
         right={
-          <NavLink to={`/${prefix}/fernweh/work`} style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}>
+          <NavLink to={`/${prefix}/work`} style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}>
             Open board
           </NavLink>
         }
@@ -1125,7 +1125,7 @@ function OverviewTab({
             {issues.slice(0, 10).map((issue, idx) => (
               <NavLink
                 key={issue.id}
-                to={`/${prefix}/fernweh/work?issue=${issue.id}`}
+                to={`/${prefix}/work?issue=${issue.id}`}
                 style={{
                   padding: "10px 14px",
                   display: "grid",
@@ -1228,7 +1228,7 @@ export function FernwehAgentDetail() {
     mutationFn: () => agentsApi.invoke(agentId!, companyId),
     onSuccess: (run) => {
       qc.invalidateQueries({ queryKey: ["heartbeats", "agent", agentId ?? "none"] });
-      navigate(`/${prefix}/fernweh/agents/${agentId}/runs/${run.id}`);
+      navigate(`/${prefix}/agents/${agentId}/runs/${run.id}`);
     },
   });
 
@@ -1312,7 +1312,7 @@ export function FernwehAgentDetail() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${prefix}/fernweh/agents`}
+          to={`/${prefix}/agents`}
           style={{ display: "inline-flex", alignItems: "center", gap: 6, fontSize: 12, color: "var(--ink-faint)", textDecoration: "none" }}
         >
           <Icon d={I.arrow} size={11} style={{ transform: "rotate(180deg)" }} />

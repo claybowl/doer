@@ -289,7 +289,7 @@ function RoutineDetailDrawer({
         <>
           {/* Open full page */}
           <NavLink
-            to={`/${prefix}/fernweh/routines/${routine.id}`}
+            to={`/${prefix}/routines/${routine.id}`}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -332,7 +332,7 @@ function RoutineDetailDrawer({
                 <span style={{ fontSize: 13 }}>{assignee.name}</span>
               </div>
               <NavLink
-                to={`/${prefix}/fernweh/agents`}
+                to={`/${prefix}/agents`}
                 style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}
               >
                 Open agent
@@ -459,6 +459,8 @@ export function FernwehRoutines() {
   const [searchParams, setSearchParams] = useSearchParams();
   const selectedId = searchParams.get("routine");
   const [filter, setFilter] = React.useState<StatusFilter>("all");
+  const [showCreate, setShowCreate] = React.useState(false);
+  const [newName, setNewName] = React.useState("");
 
   const setSelected = React.useCallback(
     (id: string | null) => {
@@ -469,6 +471,17 @@ export function FernwehRoutines() {
     },
     [searchParams, setSearchParams],
   );
+
+  const qc = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: () => routinesApi.create(companyId!, { title: newName.trim() }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.routines.list(companyId!) });
+      setShowCreate(false);
+      setNewName("");
+    },
+  });
 
   const routinesQuery = useQuery({
     queryKey: queryKeys.routines.list(companyId!),
@@ -529,21 +542,108 @@ export function FernwehRoutines() {
             Scheduled & triggered workflows
           </h1>
         </div>
-        <NavLink
-          to={`/${prefix}/routines`}
-          style={{
-            fontSize: 11,
-            color: "var(--ink-faint)",
-            textDecoration: "none",
-            padding: "6px 10px",
-            borderRadius: 8,
-            border: "1px solid var(--line)",
-            background: "var(--bg-raised)",
-          }}
-        >
-          Open classic routines
-        </NavLink>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <NavLink
+            to={`/${prefix}/routines`}
+            style={{
+              fontSize: 11,
+              color: "var(--ink-faint)",
+              textDecoration: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+            }}
+          >
+            Open classic routines
+          </NavLink>
+          <button
+            onClick={() => setShowCreate((v) => !v)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--accent)",
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            <Icon d={I.plus} size={11} />
+            New Routine
+          </button>
+        </div>
       </header>
+
+      {/* Inline create form */}
+      {showCreate ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (newName.trim() && !createMutation.isPending) createMutation.mutate();
+          }}
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <input
+            autoFocus
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            placeholder="Routine name…"
+            style={{
+              flex: 1,
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink)",
+              fontSize: 13,
+              fontFamily: "inherit",
+              outline: "none",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!newName.trim() || createMutation.isPending}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid var(--accent)",
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: !newName.trim() || createMutation.isPending ? "not-allowed" : "pointer",
+              opacity: !newName.trim() || createMutation.isPending ? 0.5 : 1,
+            }}
+          >
+            {createMutation.isPending ? "Creating…" : "Create"}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setShowCreate(false); setNewName(""); }}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "transparent",
+              color: "var(--ink-dim)",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </button>
+          {createMutation.error ? (
+            <span style={{ fontSize: 12, color: "var(--danger)" }}>
+              {createMutation.error instanceof Error ? createMutation.error.message : "Failed to create routine"}
+            </span>
+          ) : null}
+        </form>
+      ) : null}
 
       {/* Filter pills */}
       <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>

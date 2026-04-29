@@ -23,6 +23,7 @@ interface FormState {
   adapterType: AgentAdapterType;
   budgetDollars: string;
   description: string;
+  model: string;
 }
 
 const INITIAL: FormState = {
@@ -32,6 +33,7 @@ const INITIAL: FormState = {
   adapterType: "claude_local",
   budgetDollars: "100",
   description: "",
+  model: "",
 };
 
 // Plain-English helper for adapter labels.
@@ -73,13 +75,14 @@ export function FernwehNewAgent() {
         adapterType: form.adapterType,
         budgetMonthlyCents: Number.isFinite(budgetCents) ? budgetCents : 0,
         capabilities: form.description.trim() || null,
+        adapterConfig: form.adapterType === "opencode_local" && form.model ? { model: form.model.trim() } : undefined,
       });
     },
     onSuccess: (agent) => {
       if (companyId) {
         qc.invalidateQueries({ queryKey: queryKeys.agents.list(companyId) });
       }
-      navigate(`/${prefix}/fernweh/agents/${agent.id}`);
+      navigate(`/${prefix}/agents/${agent.id}`);
     },
   });
 
@@ -87,6 +90,7 @@ export function FernwehNewAgent() {
     !!companyId &&
     form.name.trim().length > 0 &&
     Number.isFinite(parseFloat(form.budgetDollars)) &&
+    (form.adapterType !== "opencode_local" || form.model.trim().length > 0) &&
     !createMutation.isPending;
 
   if (!companyId) {
@@ -111,7 +115,7 @@ export function FernwehNewAgent() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${prefix}/fernweh/agents`}
+          to={`/${prefix}/agents`}
           style={{
             display: "inline-flex",
             alignItems: "center",
@@ -207,6 +211,18 @@ export function FernwehNewAgent() {
           </FormField>
         </div>
 
+        {form.adapterType === "opencode_local" && (
+          <FormField label="Model" required hint='provider/model format — e.g. "anthropic/claude-sonnet-4-5"'>
+            <input
+              value={form.model}
+              onChange={(e) => set("model", e.target.value)}
+              placeholder="anthropic/claude-sonnet-4-5"
+              required
+              style={fieldStyle}
+            />
+          </FormField>
+        )}
+
         <FormField label="Monthly budget ($)" hint="drives the auto-pause threshold">
           <input
             type="number"
@@ -239,7 +255,7 @@ export function FernwehNewAgent() {
           }}
         >
           <NavLink
-            to={`/${prefix}/fernweh/agents`}
+            to={`/${prefix}/agents`}
             style={{
               padding: "8px 14px",
               borderRadius: 8,

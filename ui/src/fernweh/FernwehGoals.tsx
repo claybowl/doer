@@ -273,7 +273,7 @@ function GoalDetailDrawer({
         <>
           {/* Open full page */}
           <NavLink
-            to={`/${prefix}/fernweh/goals/${goal.id}`}
+            to={`/${prefix}/goals/${goal.id}`}
             style={{
               display: "inline-flex",
               alignItems: "center",
@@ -522,6 +522,8 @@ export function FernwehGoals() {
   const selectedId = searchParams.get("goal");
 
   const [levelFilter, setLevelFilter] = React.useState<LevelFilter>("all");
+  const [showCreate, setShowCreate] = React.useState(false);
+  const [newTitle, setNewTitle] = React.useState("");
 
   const setSelected = React.useCallback(
     (id: string | null) => {
@@ -532,6 +534,18 @@ export function FernwehGoals() {
     },
     [searchParams, setSearchParams],
   );
+
+  const qc = useQueryClient();
+
+  const createMutation = useMutation({
+    mutationFn: () =>
+      goalsApi.create(companyId!, { title: newTitle.trim(), level: "company" as GoalLevel, status: "planned" as GoalStatus }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.goals.list(companyId!) });
+      setShowCreate(false);
+      setNewTitle("");
+    },
+  });
 
   const goalsQuery = useQuery({
     queryKey: queryKeys.goals.list(companyId!),
@@ -594,20 +608,41 @@ export function FernwehGoals() {
             Objectives & ancestry
           </h1>
         </div>
-        <NavLink
-          to={`/${prefix}/goals`}
-          style={{
-            fontSize: 11,
-            color: "var(--ink-faint)",
-            textDecoration: "none",
-            padding: "6px 10px",
-            borderRadius: 8,
-            border: "1px solid var(--line)",
-            background: "var(--bg-raised)",
-          }}
-        >
-          Open classic goals
-        </NavLink>
+        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+          <NavLink
+            to={`/${prefix}/goals`}
+            style={{
+              fontSize: 11,
+              color: "var(--ink-faint)",
+              textDecoration: "none",
+              padding: "6px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+            }}
+          >
+            Open classic goals
+          </NavLink>
+          <button
+            onClick={() => setShowCreate((v) => !v)}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--accent)",
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: "pointer",
+            }}
+          >
+            <Icon d={I.plus} size={11} />
+            New Goal
+          </button>
+        </div>
       </header>
 
       {/* Level filter pills */}
@@ -654,6 +689,72 @@ export function FernwehGoals() {
         })}
       </div>
 
+      {/* Inline create form */}
+      {showCreate ? (
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (newTitle.trim() && !createMutation.isPending) createMutation.mutate();
+          }}
+          style={{ display: "flex", alignItems: "center", gap: 8 }}
+        >
+          <input
+            autoFocus
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder="Goal title…"
+            style={{
+              flex: 1,
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink)",
+              fontSize: 13,
+              fontFamily: "inherit",
+              outline: "none",
+            }}
+          />
+          <button
+            type="submit"
+            disabled={!newTitle.trim() || createMutation.isPending}
+            style={{
+              padding: "8px 14px",
+              borderRadius: 8,
+              border: "1px solid var(--accent)",
+              background: "var(--accent)",
+              color: "var(--bg)",
+              fontSize: 12,
+              fontWeight: 500,
+              cursor: !newTitle.trim() || createMutation.isPending ? "not-allowed" : "pointer",
+              opacity: !newTitle.trim() || createMutation.isPending ? 0.5 : 1,
+            }}
+          >
+            {createMutation.isPending ? "Creating…" : "Create"}
+          </button>
+          <button
+            type="button"
+            onClick={() => { setShowCreate(false); setNewTitle(""); }}
+            style={{
+              padding: "8px 12px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "transparent",
+              color: "var(--ink-dim)",
+              fontSize: 12,
+              cursor: "pointer",
+            }}
+          >
+            Cancel
+          </button>
+          {createMutation.error ? (
+            <span style={{ fontSize: 12, color: "var(--danger)" }}>
+              {createMutation.error instanceof Error ? createMutation.error.message : "Failed to create goal"}
+            </span>
+          ) : null}
+        </form>
+      ) : null}
+
       {/* Tree / List */}
       <div className="fw-card" style={{ padding: 8, minHeight: 120 }}>
         {goalsQuery.isLoading ? (
@@ -664,7 +765,7 @@ export function FernwehGoals() {
           <EmptyState
             icon={I.bolt}
             title={levelFilter === "all" ? "No goals yet" : `No goals at level "${LEVEL_LABEL[levelFilter as GoalLevel]}"`}
-            subtitle="Goals create ancestry for projects and issues. Create one in classic Goals for now — Fernweh-native create is next."
+            subtitle="Goals create ancestry for projects and issues. Create your first goal above."
           />
         ) : (
           <div style={{ display: "flex", flexDirection: "column", gap: 2 }}>

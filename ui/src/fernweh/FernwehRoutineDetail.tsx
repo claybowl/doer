@@ -18,7 +18,7 @@ import {
 
 /* ============================================================
    FernwehRoutineDetail — detail view for a single routine.
-   Route: /:companyPrefix/fernweh/routines/:routineId
+   Route: /:companyPrefix/routines/:routineId
 ============================================================ */
 
 function Section({
@@ -100,7 +100,7 @@ export function FernwehRoutineDetail() {
       {/* Back link */}
       <div>
         <NavLink
-          to={`/${companyPrefix}/fernweh/routines`}
+          to={`/${companyPrefix}/routines`}
           style={{ color: "var(--ink-dim)", textDecoration: "none", fontSize: 14 }}
         >
           ← Routines
@@ -215,7 +215,7 @@ export function FernwehRoutineDetail() {
               </div>
             </div>
             <NavLink
-              to={`/${companyPrefix}/fernweh/agents/${routine.assignee.id}`}
+              to={`/${companyPrefix}/agents/${routine.assignee.id}`}
               style={{ fontSize: 13, color: "var(--accent)", textDecoration: "none" }}
             >
               Open ↗
@@ -292,7 +292,7 @@ export function FernwehRoutineDetail() {
       <Section label="Active Issue">
         {routine.activeIssue ? (
           <NavLink
-            to={`/${companyPrefix}/fernweh/work/${routine.activeIssue.id}`}
+            to={`/${companyPrefix}/work/${routine.activeIssue.id}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -322,7 +322,7 @@ export function FernwehRoutineDetail() {
       <Section label="Linked Project">
         {routine.project ? (
           <NavLink
-            to={`/${companyPrefix}/fernweh/projects/${routine.project.id}`}
+            to={`/${companyPrefix}/projects/${routine.project.id}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -345,7 +345,7 @@ export function FernwehRoutineDetail() {
       <Section label="Parent Issue">
         {routine.parentIssue ? (
           <NavLink
-            to={`/${companyPrefix}/fernweh/work/${routine.parentIssue.id}`}
+            to={`/${companyPrefix}/work/${routine.parentIssue.id}`}
             style={{
               display: "flex",
               alignItems: "center",
@@ -403,7 +403,7 @@ export function FernwehRoutineDetail() {
                   ) : null}
                   {run.linkedIssue ? (
                     <NavLink
-                      to={`/${companyPrefix}/fernweh/work/${run.linkedIssue.id}`}
+                      to={`/${companyPrefix}/work/${run.linkedIssue.id}`}
                       style={{
                         fontSize: 12,
                         color: "var(--ink-dim)",

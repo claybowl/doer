@@ -405,7 +405,7 @@ function ApprovalDrawer({
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
             <NavLink
-              to={`/${prefix}/fernweh/approvals/${approval.id}`}
+              to={`/${prefix}/approvals/${approval.id}`}
               title="Open full view"
               style={{
                 border: "1px solid var(--line)",

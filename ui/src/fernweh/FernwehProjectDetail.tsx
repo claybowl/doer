@@ -23,7 +23,7 @@ import { OutputsSection } from "./OutputsSection";
 
 /* ============================================================
    FernwehProjectDetail — full page view for a single project.
-   Route: /:companyPrefix/fernweh/projects/:projectId
+   Route: /:companyPrefix/projects/:projectId
 ============================================================ */
 
 const PROJECT_STATUS_LABEL: Record<ProjectStatus, string> = {
@@ -191,7 +191,7 @@ export function FernwehProjectDetail() {
     >
       {/* ── back link ── */}
       <NavLink
-        to={`/${companyPrefix}/fernweh/projects`}
+        to={`/${companyPrefix}/projects`}
         style={{
           display: "inline-flex",
           alignItems: "center",
@@ -383,7 +383,7 @@ export function FernwehProjectDetail() {
               </span>
             </div>
             <NavLink
-              to={`/${companyPrefix}/fernweh/agents/${lead.id}`}
+              to={`/${companyPrefix}/agents/${lead.id}`}
               style={{
                 fontSize: 11,
                 color: "var(--accent)",
@@ -407,7 +407,7 @@ export function FernwehProjectDetail() {
         label={`Goals · ${goalsForProject.length}`}
         right={
           <NavLink
-            to={`/${companyPrefix}/fernweh/goals`}
+            to={`/${companyPrefix}/goals`}
             style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}
           >
             All goals
@@ -421,7 +421,7 @@ export function FernwehProjectDetail() {
             {goalsForProject.map((g) => (
               <NavLink
                 key={g.id}
-                to={`/${companyPrefix}/fernweh/goals?goal=${g.id}`}
+                to={`/${companyPrefix}/goals?goal=${g.id}`}
                 className="fw-card"
                 style={{
                   display: "flex",
@@ -467,7 +467,7 @@ export function FernwehProjectDetail() {
         label={`Issues · ${issuesForProject.length}`}
         right={
           <NavLink
-            to={`/${companyPrefix}/fernweh/work`}
+            to={`/${companyPrefix}/work`}
             style={{ fontSize: 11, color: "var(--accent)", textDecoration: "none" }}
           >
             Work board
@@ -481,7 +481,7 @@ export function FernwehProjectDetail() {
             {issuesForProject.map((issue) => (
               <NavLink
                 key={issue.id}
-                to={`/${companyPrefix}/fernweh/work/${issue.id}`}
+                to={`/${companyPrefix}/work/${issue.id}`}
                 style={{
                   display: "grid",
                   gridTemplateColumns: "auto 1fr auto auto",
