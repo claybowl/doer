@@ -1,4 +1,4 @@
-import { definePlugin, runWorker } from "@paperclipai/plugin-sdk";
+import { definePlugin, runWorker } from "@doerai/plugin-sdk";
 
 const plugin = definePlugin({
   async setup(ctx) {

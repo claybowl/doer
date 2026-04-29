@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { Router, type Request, type Response } from "express";
 import multer from "multer";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
 import {
   addIssueCommentSchema,
   createIssueAttachmentMetadataSchema,
@@ -14,7 +14,7 @@ import {
   updateIssueWorkProductSchema,
   upsertIssueDocumentSchema,
   updateIssueSchema,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import type { StorageService } from "../storage/types.js";
 import { validate } from "../middleware/validate.js";
 import {
@@ -37,6 +37,7 @@ import { assertCompanyAccess, getActorInfo } from "./authz.js";
 import { shouldWakeAssigneeOnCheckout } from "./issues-checkout-wakeup.js";
 import { isAllowedContentType, MAX_ATTACHMENT_BYTES } from "../attachment-types.js";
 import { queueIssueAssignmentWakeup } from "../services/issue-assignment-wakeup.js";
+import { webhookEventEmitter } from "../services/webhook-event-emitter.js";
 
 const MAX_ISSUE_COMMENT_LIMIT = 500;
 
@@ -811,6 +812,17 @@ export function issueRoutes(db: Db, storage: StorageService) {
       requestedByActorId: actor.actorId,
     });
 
+    void webhookEventEmitter.emit(db, issue.companyId, "task.created", {
+      taskId: issue.id,
+      identifier: issue.identifier ?? null,
+      title: issue.title,
+      status: issue.status,
+      priority: issue.priority,
+      assigneeAgentId: issue.assigneeAgentId ?? null,
+      companyId: issue.companyId,
+      updatedAt: issue.updatedAt ? issue.updatedAt.toISOString() : new Date().toISOString(),
+    });
+
     res.status(201).json(issue);
   });
 
@@ -1021,6 +1033,40 @@ export function issueRoutes(db: Db, storage: StorageService) {
           .catch((err) => logger.warn({ err, issueId: issue.id, agentId }, "failed to wake agent on issue update"));
       }
     })();
+
+    // Emit webhook event for status transitions
+    if (issue.status !== existing.status) {
+      const eventType =
+        issue.status === "done" ? "task.completed" :
+        issue.status === "blocked" ? "task.blocked" :
+        issue.status === "cancelled" ? "task.failed" : null;
+      if (eventType) {
+        void webhookEventEmitter.emit(db, issue.companyId, eventType, {
+          taskId: issue.id,
+          identifier: issue.identifier ?? null,
+          title: issue.title,
+          status: issue.status,
+          priority: issue.priority,
+          assigneeAgentId: issue.assigneeAgentId ?? null,
+          companyId: issue.companyId,
+          updatedAt: issue.updatedAt ? issue.updatedAt.toISOString() : new Date().toISOString(),
+        });
+      }
+    }
+
+    // Emit comment.created webhook when a comment was added
+    if (comment) {
+      void webhookEventEmitter.emit(db, issue.companyId, "comment.created", {
+        commentId: comment.id,
+        issueId: issue.id,
+        issueIdentifier: issue.identifier ?? null,
+        authorUserId: actor.actorType === "user" ? actor.actorId : null,
+        authorAgentId: actor.agentId ?? null,
+        companyId: issue.companyId,
+        body: typeof commentBody === "string" ? commentBody.slice(0, 500) : "",
+        createdAt: new Date().toISOString(),
+      });
+    }
 
     res.json({ ...issue, comment });
   });

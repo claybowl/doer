@@ -3,8 +3,8 @@ import path from "node:path";
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
 import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
-import type { BillingType } from "@paperclipai/shared";
+import type { Db } from "@doerai/db";
+import type { BillingType } from "@doerai/shared";
 import {
   agents,
   agentRuntimeState,
@@ -15,7 +15,7 @@ import {
   issues,
   projects,
   projectWorkspaces,
-} from "@paperclipai/db";
+} from "@doerai/db";
 import { conflict, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
 import { publishLiveEvent } from "./live-events.js";
@@ -30,6 +30,7 @@ import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService } from "./secrets.js";
 import { resolveDefaultAgentWorkspaceDir, resolveManagedProjectWorkspaceDir } from "../home-paths.js";
 import { summarizeHeartbeatRunResultJson } from "./heartbeat-run-summary.js";
+import { scanRunForHallucinatedDeliverable } from "./deliverable-scanner.js";
 import {
   buildWorkspaceReadyComment,
   cleanupExecutionWorkspaceArtifacts,
@@ -57,7 +58,7 @@ import {
   hasSessionCompactionThresholds,
   resolveSessionCompactionPolicy,
   type SessionCompactionPolicy,
-} from "@paperclipai/adapter-utils";
+} from "@doerai/adapter-utils";
 
 const MAX_LIVE_LOG_CHUNK_BYTES = 8 * 1024;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT = 1;
@@ -553,7 +554,7 @@ export function shouldResetTaskSessionForWake(
 export function formatRuntimeWorkspaceWarningLog(warning: string) {
   return {
     stream: "stdout" as const,
-    chunk: `[paperclip] ${warning}\n`,
+    chunk: `[doer] ${warning}\n`,
   };
 }
 
@@ -980,7 +981,7 @@ export function heartbeatService(db: Db) {
       readNonEmptyString(latestRun.error);
 
     const handoffMarkdown = [
-      "Paperclip session handoff:",
+      "Doer session handoff:",
       `- Previous session: ${sessionId}`,
       issueId ? `- Issue: ${issueId}` : "",
       `- Rotation reason: ${reason}`,
@@ -2484,7 +2485,7 @@ export function heartbeatService(db: Db) {
         } catch (err) {
           await onLog(
             "stderr",
-            `[paperclip] Failed to post workspace-ready comment: ${err instanceof Error ? err.message : String(err)}\n`,
+            `[doer] Failed to post workspace-ready comment: ${err instanceof Error ? err.message : String(err)}\n`,
           );
         }
       }
@@ -2515,7 +2516,7 @@ export function heartbeatService(db: Db) {
             runId: run.id,
             adapterType: agent.adapterType,
           },
-          "local agent jwt secret missing or invalid; running without injected PAPERCLIP_API_KEY",
+          "local agent jwt secret missing or invalid; running without injected DOER_API_KEY",
         );
       }
       const adapterResult = await adapter.execute({
@@ -2574,7 +2575,7 @@ export function heartbeatService(db: Db) {
           } catch (err) {
             await onLog(
               "stderr",
-              `[paperclip] Failed to post adapter-managed runtime comment: ${err instanceof Error ? err.message : String(err)}\n`,
+              `[doer] Failed to post adapter-managed runtime comment: ${err instanceof Error ? err.message : String(err)}\n`,
             );
           }
         }
@@ -2693,6 +2694,40 @@ export function heartbeatService(db: Db) {
             exitCode: adapterResult.exitCode,
           },
         });
+
+        // Deferred safety net: scan stdout/stderr for the
+        // hallucinated-deliverable pattern (agent claimed file
+        // production but never called produce_deliverable). Only
+        // checked on successful runs — failed runs already surface
+        // their own error events. Heuristic-based; logs a warning
+        // event on suspicion so a human can audit. Does not block.
+        if (outcome === "succeeded") {
+          try {
+            const scan = scanRunForHallucinatedDeliverable({
+              stdoutExcerpt,
+              stderrExcerpt,
+            });
+            if (scan.suspicious) {
+              await appendRunEvent(finalizedRun, seq++, {
+                eventType: "deliverable.scan.warning",
+                stream: "system",
+                level: "warn",
+                message: scan.reason ?? "Possible hallucinated deliverable.",
+                payload: {
+                  evidence: scan.evidence,
+                },
+              });
+            }
+          } catch (err) {
+            // Scanner failure is non-fatal — we'd rather miss a
+            // detection than break a successful run's finalization.
+            logger.warn(
+              { err, runId: finalizedRun.id },
+              "deliverable scanner failed",
+            );
+          }
+        }
+
         await releaseIssueExecutionAndPromote(finalizedRun);
       }
 

@@ -3,14 +3,15 @@ import type { IncomingHttpHeaders } from "node:http";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import { toNodeHandler } from "better-auth/node";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
 import {
   authAccounts,
   authSessions,
   authUsers,
   authVerifications,
-} from "@paperclipai/db";
+} from "@doerai/db";
 import type { Config } from "../config.js";
+import { createMailer } from "../email/mailer.js";
 
 export type BetterAuthSessionUser = {
   id: string;
@@ -67,11 +68,18 @@ export function deriveAuthTrustedOrigins(config: Config): string[] {
 
 export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?: string[]): BetterAuthInstance {
   const baseUrl = config.authBaseUrlMode === "explicit" ? config.authPublicBaseUrl : undefined;
-  const secret = process.env.BETTER_AUTH_SECRET ?? process.env.PAPERCLIP_AGENT_JWT_SECRET ?? "paperclip-dev-secret";
+  const secret = process.env.BETTER_AUTH_SECRET ?? process.env.DOER_AGENT_JWT_SECRET ?? "doer-dev-secret";
   const effectiveTrustedOrigins = trustedOrigins ?? deriveAuthTrustedOrigins(config);
 
-  const publicUrl = process.env.PAPERCLIP_PUBLIC_URL ?? baseUrl;
+  const publicUrl = process.env.DOER_PUBLIC_URL ?? baseUrl;
   const isHttpOnly = publicUrl ? publicUrl.startsWith("http://") : false;
+
+  const googleClientId = config.oauthGoogleClientId;
+  const googleClientSecret = config.oauthGoogleClientSecret;
+  const githubClientId = config.oauthGithubClientId;
+  const githubClientSecret = config.oauthGithubClientSecret;
+
+  const mailer = createMailer(config);
 
   const authConfig = {
     baseURL: baseUrl,
@@ -88,9 +96,43 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
     }),
     emailAndPassword: {
       enabled: true,
-      requireEmailVerification: false,
+      requireEmailVerification: config.authEmailVerificationEnabled,
       disableSignUp: config.authDisableSignUp,
+      ...(config.authEmailPasswordResetEnabled
+        ? {
+            sendResetPassword: async ({ user, url }: { user: { email: string; name?: string | null }; url: string }) => {
+              await mailer.sendMail({
+                to: user.email,
+                subject: "Reset your Doer password",
+                html: `<p>Hi${user.name ? ` ${user.name}` : ""},</p><p>Click the link below to reset your password. This link expires in 1 hour.</p><p><a href="${url}">${url}</a></p><p>If you didn't request this, ignore this email.</p>`,
+              });
+            },
+          }
+        : {}),
     },
+    ...(config.authEmailVerificationEnabled
+      ? {
+          emailVerification: {
+            sendVerificationEmail: async ({ user, url }: { user: { email: string; name?: string | null }; url: string }) => {
+              await mailer.sendMail({
+                to: user.email,
+                subject: "Verify your Doer email",
+                html: `<p>Hi${user.name ? ` ${user.name}` : ""},</p><p>Click the link below to verify your email address.</p><p><a href="${url}">${url}</a></p>`,
+              });
+            },
+            autoSignInAfterVerification: true,
+          },
+        }
+      : {}),
+    socialProviders: {
+      ...(googleClientId && googleClientSecret
+        ? { google: { clientId: googleClientId, clientSecret: googleClientSecret } }
+        : {}),
+      ...(githubClientId && githubClientSecret
+        ? { github: { clientId: githubClientId, clientSecret: githubClientSecret } }
+        : {}),
+    },
+    rateLimit: { enabled: true, window: 60, max: 10 },
     ...(isHttpOnly ? { advanced: { useSecureCookies: false } } : {}),
   };
 

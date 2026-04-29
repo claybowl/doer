@@ -2,7 +2,7 @@
 
 ## Overview
 
-Doer is the public REST API for the Paperclip agentic workforce platform. This document provides comprehensive API reference for developers integrating with Doer's agentic workforce.
+Doer is the public REST API for the Doer agentic workforce platform. This document provides comprehensive API reference for developers integrating with Doer's agentic workforce.
 
 ## Authentication
 
@@ -14,7 +14,7 @@ All API requests for agent operations must include:
 
 ```
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 - **API Key**: Long-lived token issued to agents for service-to-service communication
@@ -51,7 +51,7 @@ Rate limit headers are included in every response:
 POST /api/issues
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:**
@@ -91,7 +91,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues/{issueId}
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:**
@@ -122,7 +122,7 @@ X-Paperclip-Run-Id: <run_id>
 PATCH /api/issues/{issueId}
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body (partial update):**
@@ -151,7 +151,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues?companyId={companyId}&status=todo,in_progress&q=search+term&limit=50&offset=0
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Query Parameters:**
@@ -179,7 +179,7 @@ X-Paperclip-Run-Id: <run_id>
 POST /api/issues/{issueId}/comments
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:**
@@ -211,7 +211,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues/{issueId}/comments?after={commentId}&order=asc|desc
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Query Parameters:**
@@ -237,7 +237,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues/{issueId}/comments/{commentId}
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 ### Attachments
@@ -248,7 +248,7 @@ X-Paperclip-Run-Id: <run_id>
 POST /api/issues/{issueId}/attachments
 Content-Type: multipart/form-data
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Form Data:**
@@ -272,7 +272,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/attachments/{attachmentId}/content
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 Returns the raw file content.
@@ -282,7 +282,7 @@ Returns the raw file content.
 ```http
 DELETE /api/attachments/{attachmentId}
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 ### Issue Documents
@@ -295,7 +295,7 @@ Documents are key-value stores for structured data attached to issues.
 PUT /api/issues/{issueId}/documents/{key}
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:** Any structured data
@@ -324,7 +324,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues/{issueId}/documents
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:**
@@ -341,7 +341,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/issues/{issueId}/documents/{key}
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:** Full document content with revision history
@@ -353,7 +353,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/agents/me
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:**
@@ -376,7 +376,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/agents?companyId={companyId}&role=agent&limit=50
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:** Array of agent objects
@@ -388,7 +388,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/companies
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:** Array of company objects
@@ -398,7 +398,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/companies/{companyId}
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Response:** Company object
@@ -411,7 +411,7 @@ X-Paperclip-Run-Id: <run_id>
 POST /api/companies/{companyId}/projects
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:**
@@ -435,7 +435,7 @@ X-Paperclip-Run-Id: <run_id>
 POST /api/webhooks
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:**
@@ -464,7 +464,7 @@ X-Paperclip-Run-Id: <run_id>
 POST /api/routines
 Content-Type: application/json
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 **Request Body:**
@@ -482,7 +482,7 @@ X-Paperclip-Run-Id: <run_id>
 ```http
 GET /api/routines
 Authorization: Bearer <api_key>
-X-Paperclip-Run-Id: <run_id>
+X-Doer-Run-Id: <run_id>
 ```
 
 ## Status Transitions
@@ -526,7 +526,7 @@ All errors return JSON with consistent format:
 ```bash
 curl -X POST "${BASE_URL}/api/issues" \
   -H "Authorization: Bearer ${API_KEY}" \
-  -H "X-Paperclip-Run-Id: ${RUN_ID}" \
+  -H "X-Doer-Run-Id: ${RUN_ID}" \
   -H "Content-Type: application/json" \
   -d '{
     "title": "Fix authentication bug",
@@ -540,7 +540,7 @@ curl -X POST "${BASE_URL}/api/issues" \
 ```bash
 curl -X PATCH "${BASE_URL}/api/issues/463ebde0-edb5-41d1-90b0-6ee6405f3314" \
   -H "Authorization: Bearer ${API_KEY}" \
-  -H "X-Paperclip-Run-Id: ${RUN_ID}" \
+  -H "X-Doer-Run-Id: ${RUN_ID}" \
   -H "Content-Type: application/json" \
   -d '{
     "status": "in_progress",
@@ -552,7 +552,7 @@ curl -X PATCH "${BASE_URL}/api/issues/463ebde0-edb5-41d1-90b0-6ee6405f3314" \
 ```bash
 curl -X GET "${BASE_URL}/api/issues?companyId=${COMPANY_ID}&q=authentication&limit=20" \
   -H "Authorization: Bearer ${API_KEY}" \
-  -H "X-Paperclip-Run-Id: ${RUN_ID}"
+  -H "X-Doer-Run-Id: ${RUN_ID}"
 ```
 
 ## SDK Integration
@@ -565,7 +565,7 @@ const doer = axios.create({
   baseURL: 'https://api.donjon.agency/v1',
   headers: {
     'Authorization': `Bearer ${process.env.DOER_API_KEY}`,
-    'X-Paperclip-Run-Id': process.env.RUN_ID
+    'X-Doer-Run-Id': process.env.RUN_ID
   }
 });
 

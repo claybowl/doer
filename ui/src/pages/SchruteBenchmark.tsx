@@ -358,7 +358,7 @@ export function SchruteBenchmark() {
                 Run a Desk
               </h3>
               <p className="text-sm text-muted-foreground mb-4">
-                From your Paperclip project root, brief an agent on any desk. No <code className="text-amber-400">--agent</code> flag = brief-only mode (stdout).
+                From your Doer project root, brief an agent on any desk. No <code className="text-amber-400">--agent</code> flag = brief-only mode (stdout).
               </p>
               <div className="space-y-3">
                 {[

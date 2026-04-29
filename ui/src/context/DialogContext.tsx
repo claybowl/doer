@@ -14,6 +14,12 @@ interface NewGoalDefaults {
   parentId?: string;
 }
 
+interface NewRoutineDefaults {
+  projectId?: string;
+  assigneeAgentId?: string;
+  goalId?: string;
+}
+
 interface OnboardingOptions {
   initialStep?: 1 | 2 | 3 | 4;
   companyId?: string;
@@ -31,6 +37,10 @@ interface DialogContextValue {
   newGoalDefaults: NewGoalDefaults;
   openNewGoal: (defaults?: NewGoalDefaults) => void;
   closeNewGoal: () => void;
+  newRoutineOpen: boolean;
+  newRoutineDefaults: NewRoutineDefaults;
+  openNewRoutine: (defaults?: NewRoutineDefaults) => void;
+  closeNewRoutine: () => void;
   newAgentOpen: boolean;
   openNewAgent: () => void;
   closeNewAgent: () => void;
@@ -48,6 +58,8 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const [newProjectOpen, setNewProjectOpen] = useState(false);
   const [newGoalOpen, setNewGoalOpen] = useState(false);
   const [newGoalDefaults, setNewGoalDefaults] = useState<NewGoalDefaults>({});
+  const [newRoutineOpen, setNewRoutineOpen] = useState(false);
+  const [newRoutineDefaults, setNewRoutineDefaults] = useState<NewRoutineDefaults>({});
   const [newAgentOpen, setNewAgentOpen] = useState(false);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [onboardingOptions, setOnboardingOptions] = useState<OnboardingOptions>({});
@@ -78,6 +90,16 @@ export function DialogProvider({ children }: { children: ReactNode }) {
   const closeNewGoal = useCallback(() => {
     setNewGoalOpen(false);
     setNewGoalDefaults({});
+  }, []);
+
+  const openNewRoutine = useCallback((defaults: NewRoutineDefaults = {}) => {
+    setNewRoutineDefaults(defaults);
+    setNewRoutineOpen(true);
+  }, []);
+
+  const closeNewRoutine = useCallback(() => {
+    setNewRoutineOpen(false);
+    setNewRoutineDefaults({});
   }, []);
 
   const openNewAgent = useCallback(() => {
@@ -112,6 +134,10 @@ export function DialogProvider({ children }: { children: ReactNode }) {
         newGoalDefaults,
         openNewGoal,
         closeNewGoal,
+        newRoutineOpen,
+        newRoutineDefaults,
+        openNewRoutine,
+        closeNewRoutine,
         newAgentOpen,
         openNewAgent,
         closeNewAgent,

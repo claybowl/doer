@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { IssueAttachment } from "@paperclipai/shared";
+import type { IssueAttachment } from "@doerai/shared";
 import { MarkdownBody } from "./MarkdownBody";
 import { cn } from "../lib/utils";
 

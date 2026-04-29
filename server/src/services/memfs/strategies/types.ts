@@ -1,4 +1,4 @@
-import type { MemfsStrategy, ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { MemfsStrategy, ResolvedMemfsBinding } from "@doerai/shared";
 
 export interface MemfsMountContext {
   /** Absolute path to the adapter's execution working directory, if any. */

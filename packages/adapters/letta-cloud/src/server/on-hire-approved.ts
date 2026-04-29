@@ -1,6 +1,10 @@
-import type { HireApprovedPayload, HireApprovedHookResult } from "@paperclipai/adapter-utils";
+import type { HireApprovedPayload, HireApprovedHookResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
-import { fetchAgentSnapshot } from "./letta-client.js";
+import {
+  attachTool,
+  ensureDeliverableTool,
+  fetchAgentSnapshot,
+} from "./letta-client.js";
 
 /**
  * On hire: fetch the Letta agent and snapshot its metadata into adapterConfig.
@@ -19,6 +23,31 @@ export async function onHireApproved(
 
   try {
     const snapshot = await fetchAgentSnapshot(config);
+
+    // Ensure the shared `produce_deliverable` tool exists for this Letta
+    // account, then attach it to the freshly-hired agent. This is the
+    // per-agent handshake that lets the agent emit deliverables — without
+    // attach, the agent wouldn't see the tool in its toolset. Fire-and-
+    // log: a failure here shouldn't block the hire; the tool can be
+    // re-attached later via a sync, and most of the agent's work is
+    // possible without deliverables.
+    try {
+      const toolId = await ensureDeliverableTool(config);
+      // Only attach if not already on the agent (Letta would error on
+      // duplicate attach). Snapshot has the current attached-tool list.
+      const alreadyAttached = snapshot.tools.some((t) => t.id === toolId);
+      if (!alreadyAttached) {
+        await attachTool(config, toolId);
+      }
+    } catch (err) {
+      // Log to stderr so it shows up in server boot logs; don't fail the hire.
+      // eslint-disable-next-line no-console
+      console.warn(
+        `[letta-cloud] Could not ensure+attach produce_deliverable tool for agent ${config.agentId}:`,
+        err instanceof Error ? err.message : err,
+      );
+    }
+
     return {
       ok: true,
       detail: {

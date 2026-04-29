@@ -2,18 +2,18 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { execute } from "@paperclipai/adapter-cursor-local/server";
+import { execute } from "@doerai/adapter-cursor-local/server";
 
 async function writeFakeCursorCommand(commandPath: string): Promise<void> {
   const script = `#!/usr/bin/env node
 const fs = require("node:fs");
 
-const capturePath = process.env.PAPERCLIP_TEST_CAPTURE_PATH;
+const capturePath = process.env.DOER_TEST_CAPTURE_PATH;
 const payload = {
   argv: process.argv.slice(2),
   prompt: fs.readFileSync(0, "utf8"),
   paperclipEnvKeys: Object.keys(process.env)
-    .filter((key) => key.startsWith("PAPERCLIP_"))
+    .filter((key) => key.startsWith("DOER_"))
     .sort(),
 };
 if (capturePath) {
@@ -54,8 +54,8 @@ async function createSkillDir(root: string, name: string) {
 }
 
 describe("cursor execute", () => {
-  it("injects paperclip env vars and prompt note by default", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-cursor-execute-"));
+  it("injects doer env vars and prompt note by default", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-cursor-execute-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "agent");
     const capturePath = path.join(root, "capture.json");
@@ -87,9 +87,9 @@ describe("cursor execute", () => {
           cwd: workspace,
           model: "auto",
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -103,22 +103,22 @@ describe("cursor execute", () => {
       expect(result.errorMessage).toBeNull();
 
       const capture = JSON.parse(await fs.readFile(capturePath, "utf8")) as CapturePayload;
-      expect(capture.argv).not.toContain("Follow the paperclip heartbeat.");
+      expect(capture.argv).not.toContain("Follow the doer heartbeat.");
       expect(capture.argv).not.toContain("--mode");
       expect(capture.argv).not.toContain("ask");
       expect(capture.paperclipEnvKeys).toEqual(
         expect.arrayContaining([
-          "PAPERCLIP_AGENT_ID",
-          "PAPERCLIP_API_KEY",
-          "PAPERCLIP_API_URL",
-          "PAPERCLIP_COMPANY_ID",
-          "PAPERCLIP_RUN_ID",
+          "DOER_AGENT_ID",
+          "DOER_API_KEY",
+          "DOER_API_URL",
+          "DOER_COMPANY_ID",
+          "DOER_RUN_ID",
         ]),
       );
-      expect(capture.prompt).toContain("Paperclip runtime note:");
-      expect(capture.prompt).toContain("PAPERCLIP_API_KEY");
-      expect(invocationPrompt).toContain("Paperclip runtime note:");
-      expect(invocationPrompt).toContain("PAPERCLIP_API_URL");
+      expect(capture.prompt).toContain("Doer runtime note:");
+      expect(capture.prompt).toContain("DOER_API_KEY");
+      expect(invocationPrompt).toContain("Doer runtime note:");
+      expect(invocationPrompt).toContain("DOER_API_URL");
     } finally {
       if (previousHome === undefined) {
         delete process.env.HOME;
@@ -130,7 +130,7 @@ describe("cursor execute", () => {
   });
 
   it("passes --mode when explicitly configured", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-cursor-execute-mode-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-cursor-execute-mode-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "agent");
     const capturePath = path.join(root, "capture.json");
@@ -162,9 +162,9 @@ describe("cursor execute", () => {
           model: "auto",
           mode: "ask",
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -188,14 +188,14 @@ describe("cursor execute", () => {
   });
 
   it("injects company-library runtime skills into the Cursor skills home before execution", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-cursor-execute-runtime-skill-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-cursor-execute-runtime-skill-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "agent");
     const runtimeSkillsRoot = path.join(root, "runtime-skills");
     await fs.mkdir(workspace, { recursive: true });
     await writeFakeCursorCommand(commandPath);
 
-    const paperclipDir = await createSkillDir(runtimeSkillsRoot, "paperclip");
+    const paperclipDir = await createSkillDir(runtimeSkillsRoot, "doer");
     const asciiHeartDir = await createSkillDir(runtimeSkillsRoot, "ascii-heart");
 
     const previousHome = process.env.HOME;
@@ -223,10 +223,10 @@ describe("cursor execute", () => {
           model: "auto",
           paperclipRuntimeSkills: [
             {
-              name: "paperclip",
+              name: "doer",
               source: paperclipDir,
               required: true,
-              requiredReason: "Bundled Paperclip skills are always available for local adapters.",
+              requiredReason: "Bundled Doer skills are always available for local adapters.",
             },
             {
               name: "ascii-heart",
@@ -236,7 +236,7 @@ describe("cursor execute", () => {
           paperclipSkillSync: {
             desiredSkills: ["ascii-heart"],
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",

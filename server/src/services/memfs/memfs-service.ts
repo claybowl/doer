@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
-import { agents, memfsBindings, memfsRoots } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
+import { agents, memfsBindings, memfsRoots } from "@doerai/db";
 import type {
   MemfsBindingDTO,
   MemfsFileEntry,
@@ -9,7 +9,7 @@ import type {
   MemfsRootKind,
   MemfsStrategy,
   ResolvedMemfsBinding,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { badRequest, conflict, notFound } from "../../errors.js";
 import { LocalFsStore, type MemfsStore } from "./store.js";
 

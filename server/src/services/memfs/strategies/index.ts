@@ -1,4 +1,4 @@
-import type { MemfsStrategy, ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { MemfsStrategy, ResolvedMemfsBinding } from "@doerai/shared";
 import { fsMountStrategy } from "./fs-mount.js";
 import { nativeLettaStrategy } from "./native-letta.js";
 import type { MemfsMountContext, MemfsMountResult, MemfsMountStrategy } from "./types.js";

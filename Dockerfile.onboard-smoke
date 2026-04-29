@@ -5,11 +5,11 @@ ARG PAPERCLIPAI_VERSION=latest
 ARG HOST_UID=10001
 
 ENV DEBIAN_FRONTEND=noninteractive \
-  PAPERCLIP_HOME=/paperclip \
-  PAPERCLIP_OPEN_ON_LISTEN=false \
+  DOER_HOME=/doer \
+  DOER_OPEN_ON_LISTEN=false \
   HOST=0.0.0.0 \
   PORT=3100 \
-  HOME=/home/paperclip \
+  HOME=/home/doer \
   LANG=en_US.UTF-8 \
   LC_ALL=en_US.UTF-8 \
   NPM_CONFIG_UPDATE_NOTIFIER=false \
@@ -26,15 +26,15 @@ RUN apt-get update \
   && apt-get update \
   && apt-get install -y --no-install-recommends nodejs \
   && locale-gen en_US.UTF-8 \
-  && groupadd --gid 10001 paperclip \
-  && useradd --create-home --shell /bin/bash --uid "${HOST_UID}" --gid 10001 paperclip \
-  && mkdir -p /paperclip /home/paperclip/workspace \
-  && chown -R paperclip:paperclip /paperclip /home/paperclip \
+  && groupadd --gid 10001 doer \
+  && useradd --create-home --shell /bin/bash --uid "${HOST_UID}" --gid 10001 doer \
+  && mkdir -p /doer /home/doer/workspace \
+  && chown -R doer:doer /doer /home/doer \
   && rm -rf /var/lib/apt/lists/*
 
-VOLUME ["/paperclip"]
-WORKDIR /home/paperclip/workspace
+VOLUME ["/doer"]
+WORKDIR /home/doer/workspace
 EXPOSE 3100
-USER paperclip
+USER doer
 
-CMD ["bash", "-lc", "set -euo pipefail; mkdir -p \"$PAPERCLIP_HOME\"; npx --yes \"paperclipai@${PAPERCLIPAI_VERSION}\" onboard --yes --data-dir \"$PAPERCLIP_HOME\""]
+CMD ["bash", "-lc", "set -euo pipefail; mkdir -p \"$DOER_HOME\"; npx --yes \"doerai@${PAPERCLIPAI_VERSION}\" onboard --yes --data-dir \"$DOER_HOME\""]

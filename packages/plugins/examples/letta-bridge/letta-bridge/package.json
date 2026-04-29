@@ -3,12 +3,12 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
-  "description": "A Paperclip plugin",
+  "description": "A Doer plugin",
   "scripts": {
     "build": "node ./esbuild.config.mjs",
     "build:rollup": "rollup -c",
     "dev": "node ./esbuild.config.mjs --watch",
-    "dev:ui": "paperclip-plugin-dev-server --root . --ui-dir dist/ui --port 4177",
+    "dev:ui": "doer-plugin-dev-server --root . --ui-dir dist/ui --port 4177",
     "test": "vitest run --config ./vitest.config.ts",
     "typecheck": "tsc --noEmit"
   },
@@ -18,14 +18,14 @@
     "ui": "./dist/ui/"
   },
   "keywords": [
-    "paperclip",
+    "doer",
     "plugin",
     "connector"
   ],
   "author": "Plugin Author",
   "license": "MIT",
   "dependencies": {
-    "@paperclipai/plugin-sdk": "workspace:*"
+    "@doerai/plugin-sdk": "workspace:*"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.1",

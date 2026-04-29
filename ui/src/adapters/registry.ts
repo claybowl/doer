@@ -8,6 +8,7 @@ import { openCodeLocalUIAdapter } from "./opencode-local";
 import { piLocalUIAdapter } from "./pi-local";
 import { openClawGatewayUIAdapter } from "./openclaw-gateway";
 import { lettaCloudUIAdapter } from "./letta-cloud";
+import { lettaAfOpenCodeUIAdapter } from "./letta-af-opencode";
 import { processUIAdapter } from "./process";
 import { httpUIAdapter } from "./http";
 import { loadDynamicParser, invalidateDynamicParser } from "./dynamic-loader";
@@ -57,6 +58,7 @@ function registerBuiltInUIAdapters() {
     cursorLocalUIAdapter,
     openClawGatewayUIAdapter,
     lettaCloudUIAdapter,
+    lettaAfOpenCodeUIAdapter,
     processUIAdapter,
     httpUIAdapter,
   ]) {

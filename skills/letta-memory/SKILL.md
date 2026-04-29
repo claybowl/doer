@@ -27,7 +27,7 @@ These are pre-injected in your heartbeat environment:
 
 ## Step 1 — Load Your Memory (Do This First, Every Run)
 
-Before checking your Paperclip inbox or doing any work, load your Letta memory blocks.
+Before checking your Doer inbox or doing any work, load your Letta memory blocks.
 Run this at the start of every heartbeat:
 
 ```python
@@ -110,7 +110,7 @@ task_block = next((b for b in blocks if "current_task" in b.get("label", "")), N
 if task_block:
     block_id = task_block["id"]
     new_value = json.dumps({
-        "task_id": "PAPERCLIP_TASK_ID_HERE",   # replace with actual
+        "task_id": "DOER_TASK_ID_HERE",   # replace with actual
         "description": "Brief description of current task",
         "started_at": "ISO_TIMESTAMP_HERE",
         "status": "in_progress"
@@ -141,7 +141,7 @@ base = os.environ.get("LETTA_BASE_URL", "https://api.letta.com/v1").rstrip("/")
 
 learning = {
     "date":       datetime.datetime.utcnow().isoformat(),
-    "task_id":    "TASK_ID",           # The Paperclip issue ID you worked on
+    "task_id":    "TASK_ID",           # The Doer issue ID you worked on
     "domain":     "e.g. web_research", # Short domain tag for future search
     "what_worked": "...",              # Concrete. What approach succeeded?
     "what_failed": "...",              # What did you try that didn't work?

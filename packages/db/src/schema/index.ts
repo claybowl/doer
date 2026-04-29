@@ -59,3 +59,8 @@ export { memfsRoots, type MemfsRootRow, type MemfsRootInsert } from "./memfs_roo
 export { memfsBindings, type MemfsBindingRow, type MemfsBindingInsert } from "./memfs_bindings.js";
 export { webhookEndpoints } from "./webhook_endpoints.js";
 export { webhookDeliveries, type WebhookDeliveryStatus } from "./webhook_deliveries.js";
+export { deliverables } from "./deliverables.js";
+export { deliverableShareTokens } from "./deliverable_share_tokens.js";
+export { companyPortalBranding } from "./company_branding.js";
+export { usageRecords } from "./billing_usage_records.js";
+export { processedStripeEvents } from "./processed_stripe_events.js";

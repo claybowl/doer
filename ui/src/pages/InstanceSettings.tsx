@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock3, ExternalLink, Settings } from "lucide-react";
-import type { InstanceSchedulerHeartbeatAgent } from "@paperclipai/shared";
+import type { InstanceSchedulerHeartbeatAgent } from "@doerai/shared";
 import { Link } from "@/lib/router";
 import { heartbeatsApi } from "../api/heartbeats";
 import { agentsApi } from "../api/agents";
@@ -130,11 +130,66 @@ export function InstanceSettings() {
     },
   });
 
+  const enableAllMutation = useMutation({
+    mutationFn: async (agentRows: InstanceSchedulerHeartbeatAgent[]) => {
+      const disabled = agentRows.filter((a) => !a.heartbeatEnabled);
+      if (disabled.length === 0) return disabled;
+
+      const results = await Promise.allSettled(
+        disabled.map(async (agentRow) => {
+          const agent = await agentsApi.get(agentRow.id, agentRow.companyId);
+          const runtimeConfig = asRecord(agent.runtimeConfig) ?? {};
+          const heartbeat = asRecord(runtimeConfig.heartbeat) ?? {};
+          await agentsApi.update(
+            agentRow.id,
+            {
+              runtimeConfig: {
+                ...runtimeConfig,
+                heartbeat: { ...heartbeat, enabled: true },
+              },
+            },
+            agentRow.companyId,
+          );
+        }),
+      );
+
+      const failures = results.filter((result): result is PromiseRejectedResult => result.status === "rejected");
+      if (failures.length > 0) {
+        const firstError = failures[0]?.reason;
+        const detail = firstError instanceof Error ? firstError.message : "Unknown error";
+        throw new Error(
+          failures.length === 1
+            ? `Failed to enable 1 timer heartbeat: ${detail}`
+            : `Failed to enable ${failures.length} of ${disabled.length} timer heartbeats. First error: ${detail}`,
+        );
+      }
+      return disabled;
+    },
+    onSuccess: async (updatedRows) => {
+      setActionError(null);
+      const companies = new Set(updatedRows.map((row) => row.companyId));
+      await Promise.all([
+        queryClient.invalidateQueries({ queryKey: queryKeys.instance.schedulerHeartbeats }),
+        ...Array.from(companies, (companyId) =>
+          queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(companyId) }),
+        ),
+        ...updatedRows.map((row) =>
+          queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(row.id) }),
+        ),
+      ]);
+    },
+    onError: (error) => {
+      setActionError(error instanceof Error ? error.message : "Failed to enable all heartbeats.");
+    },
+  });
+
   const agents = heartbeatsQuery.data ?? [];
   const activeCount = agents.filter((agent) => agent.schedulerActive).length;
   const disabledCount = agents.length - activeCount;
   const enabledCount = agents.filter((agent) => agent.heartbeatEnabled).length;
+  const disabledHeartbeatCount = agents.length - enabledCount;
   const anyEnabled = enabledCount > 0;
+  const anyDisabled = disabledHeartbeatCount > 0;
 
   const grouped = useMemo(() => {
     const map = new Map<string, { companyName: string; agents: InstanceSchedulerHeartbeatAgent[] }>();
@@ -179,23 +234,42 @@ export function InstanceSettings() {
         <span><span className="font-semibold text-foreground">{activeCount}</span> active</span>
         <span><span className="font-semibold text-foreground">{disabledCount}</span> disabled</span>
         <span><span className="font-semibold text-foreground">{grouped.length}</span> {grouped.length === 1 ? "company" : "companies"}</span>
-        {anyEnabled && (
-          <Button
-            variant="destructive"
-            size="sm"
-            className="ml-auto h-7 text-xs"
-            disabled={disableAllMutation.isPending}
-            onClick={() => {
-              const noun = enabledCount === 1 ? "agent" : "agents";
-              if (!window.confirm(`Disable timer heartbeats for all ${enabledCount} enabled ${noun}?`)) {
-                return;
-              }
-              disableAllMutation.mutate(agents);
-            }}
-          >
-            {disableAllMutation.isPending ? "Disabling..." : "Disable All"}
-          </Button>
-        )}
+        <div className="ml-auto flex items-center gap-2">
+          {anyDisabled && (
+            <Button
+              variant="outline"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={enableAllMutation.isPending}
+              onClick={() => {
+                const noun = disabledHeartbeatCount === 1 ? "agent" : "agents";
+                if (!window.confirm(`Enable timer heartbeats for all ${disabledHeartbeatCount} disabled ${noun}?`)) {
+                  return;
+                }
+                enableAllMutation.mutate(agents);
+              }}
+            >
+              {enableAllMutation.isPending ? "Enabling..." : "Enable All"}
+            </Button>
+          )}
+          {anyEnabled && (
+            <Button
+              variant="destructive"
+              size="sm"
+              className="h-7 text-xs"
+              disabled={disableAllMutation.isPending}
+              onClick={() => {
+                const noun = enabledCount === 1 ? "agent" : "agents";
+                if (!window.confirm(`Disable timer heartbeats for all ${enabledCount} enabled ${noun}?`)) {
+                  return;
+                }
+                disableAllMutation.mutate(agents);
+              }}
+            >
+              {disableAllMutation.isPending ? "Disabling..." : "Disable All"}
+            </Button>
+          )}
+        </div>
       </div>
 
       {actionError && (

@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { inferOpenAiCompatibleBiller, type AdapterExecutionContext, type AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import { inferOpenAiCompatibleBiller, type AdapterExecutionContext, type AdapterExecutionResult } from "@doerai/adapter-utils";
 import {
   asString,
   asNumber,
@@ -19,10 +19,10 @@ import {
   runChildProcess,
   readPaperclipRuntimeSkillEntries,
   resolvePaperclipDesiredSkillNames,
-} from "@paperclipai/adapter-utils/server-utils";
+} from "@doerai/adapter-utils/server-utils";
 import { isOpenCodeUnknownSessionError, parseOpenCodeJsonl } from "./parse.js";
 import { ensureOpenCodeModelConfiguredAndAvailable } from "./models.js";
-import { removeMaintainerOnlySkillSymlinks } from "@paperclipai/adapter-utils/server-utils";
+import { removeMaintainerOnlySkillSymlinks } from "@doerai/adapter-utils/server-utils";
 import { prepareOpenCodeRuntimeConfig } from "./runtime-config.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
@@ -51,11 +51,37 @@ function claudeSkillsHome(): string {
   return path.join(os.homedir(), ".claude", "skills");
 }
 
+type OpenCodeSkillEntry = { key: string; runtimeName: string; source: string };
+
+/**
+ * Build a markdown manifest of mounted skills so the prompt can tell the
+ * agent which skills are available and where to read them. Without this,
+ * opencode relies on implicit discovery of `~/.claude/skills/` which has
+ * proven unreliable (Pope Orby smoke test 2026-04-25 — agent claimed
+ * deliverable success without ever reading the deliverable skill).
+ *
+ * Returns "" when no skills are mounted; safe to inject unconditionally.
+ */
+function buildSkillsManifest(skillsHome: string, entries: OpenCodeSkillEntry[]): string {
+  if (entries.length === 0) return "";
+  const lines = entries.map(
+    (e) => `- ${e.key} — read ${path.join(skillsHome, e.runtimeName, "SKILL.md")} when relevant`,
+  );
+  return [
+    "[Available Doer skills]",
+    `The following skills are mounted at ${skillsHome}/. Each is a directory with a SKILL.md describing when and how to use it.`,
+    "",
+    ...lines,
+    "",
+    "If a task involves producing a user-facing file (.docx/.xlsx/.pdf/.pptx/etc.), READ the deliverable SKILL.md first — it explains the produce_deliverable workflow that opencode auto-discovery does not surface.",
+  ].join("\n");
+}
+
 async function ensureOpenCodeSkillsInjected(
   onLog: AdapterExecutionContext["onLog"],
-  skillsEntries: Array<{ key: string; runtimeName: string; source: string }>,
+  skillsEntries: OpenCodeSkillEntry[],
   desiredSkillNames?: string[],
-) {
+): Promise<OpenCodeSkillEntry[]> {
   const skillsHome = claudeSkillsHome();
   await fs.mkdir(skillsHome, { recursive: true });
   const desiredSet = new Set(desiredSkillNames ?? skillsEntries.map((entry) => entry.key));
@@ -67,7 +93,7 @@ async function ensureOpenCodeSkillsInjected(
   for (const skillName of removedSkills) {
     await onLog(
       "stderr",
-      `[paperclip] Removed maintainer-only OpenCode skill "${skillName}" from ${skillsHome}\n`,
+      `[doer] Removed maintainer-only OpenCode skill "${skillName}" from ${skillsHome}\n`,
     );
   }
   for (const entry of selectedEntries) {
@@ -78,15 +104,16 @@ async function ensureOpenCodeSkillsInjected(
       if (result === "skipped") continue;
       await onLog(
         "stderr",
-        `[paperclip] ${result === "repaired" ? "Repaired" : "Injected"} OpenCode skill "${entry.key}" into ${skillsHome}\n`,
+        `[doer] ${result === "repaired" ? "Repaired" : "Injected"} OpenCode skill "${entry.key}" into ${skillsHome}\n`,
       );
     } catch (err) {
       await onLog(
         "stderr",
-        `[paperclip] Failed to inject OpenCode skill "${entry.key}" into ${skillsHome}: ${err instanceof Error ? err.message : String(err)}\n`,
+        `[doer] Failed to inject OpenCode skill "${entry.key}" into ${skillsHome}: ${err instanceof Error ? err.message : String(err)}\n`,
       );
     }
   }
+  return selectedEntries;
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
@@ -94,7 +121,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   const promptTemplate = asString(
     config.promptTemplate,
-    "You are agent {{agent.id}} ({{agent.name}}). Continue your Paperclip work.",
+    "You are agent {{agent.id}} ({{agent.name}}). Continue your Doer work.",
   );
   const command = asString(config.command, "opencode");
   const model = asString(config.model, "").trim();
@@ -119,17 +146,22 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   await ensureAbsoluteDirectory(cwd, { createIfMissing: true });
   const openCodeSkillEntries = await readPaperclipRuntimeSkillEntries(config, __moduleDir);
   const desiredOpenCodeSkillNames = resolvePaperclipDesiredSkillNames(config, openCodeSkillEntries);
-  await ensureOpenCodeSkillsInjected(
+  const injectedSkillEntries = await ensureOpenCodeSkillsInjected(
     onLog,
     openCodeSkillEntries,
     desiredOpenCodeSkillNames,
   );
+  // Skills are mounted at ~/.claude/skills/ but opencode auto-discovery
+  // is unreliable (Pope Orby smoke test 2026-04-25). Build a manifest
+  // string here and inject into the prompt below so the agent knows
+  // they exist + where to read them.
+  const skillsManifest = buildSkillsManifest(claudeSkillsHome(), injectedSkillEntries);
 
   const envConfig = parseObject(config.env);
   const hasExplicitApiKey =
-    typeof envConfig.PAPERCLIP_API_KEY === "string" && envConfig.PAPERCLIP_API_KEY.trim().length > 0;
+    typeof envConfig.DOER_API_KEY === "string" && envConfig.DOER_API_KEY.trim().length > 0;
   const env: Record<string, string> = { ...buildPaperclipEnv(agent) };
-  env.PAPERCLIP_RUN_ID = runId;
+  env.DOER_RUN_ID = runId;
   const wakeTaskId =
     (typeof context.taskId === "string" && context.taskId.trim().length > 0 && context.taskId.trim()) ||
     (typeof context.issueId === "string" && context.issueId.trim().length > 0 && context.issueId.trim()) ||
@@ -153,19 +185,19 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const linkedIssueIds = Array.isArray(context.issueIds)
     ? context.issueIds.filter((value): value is string => typeof value === "string" && value.trim().length > 0)
     : [];
-  if (wakeTaskId) env.PAPERCLIP_TASK_ID = wakeTaskId;
-  if (wakeReason) env.PAPERCLIP_WAKE_REASON = wakeReason;
-  if (wakeCommentId) env.PAPERCLIP_WAKE_COMMENT_ID = wakeCommentId;
-  if (approvalId) env.PAPERCLIP_APPROVAL_ID = approvalId;
-  if (approvalStatus) env.PAPERCLIP_APPROVAL_STATUS = approvalStatus;
-  if (linkedIssueIds.length > 0) env.PAPERCLIP_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
-  if (effectiveWorkspaceCwd) env.PAPERCLIP_WORKSPACE_CWD = effectiveWorkspaceCwd;
-  if (workspaceSource) env.PAPERCLIP_WORKSPACE_SOURCE = workspaceSource;
-  if (workspaceId) env.PAPERCLIP_WORKSPACE_ID = workspaceId;
-  if (workspaceRepoUrl) env.PAPERCLIP_WORKSPACE_REPO_URL = workspaceRepoUrl;
-  if (workspaceRepoRef) env.PAPERCLIP_WORKSPACE_REPO_REF = workspaceRepoRef;
+  if (wakeTaskId) env.DOER_TASK_ID = wakeTaskId;
+  if (wakeReason) env.DOER_WAKE_REASON = wakeReason;
+  if (wakeCommentId) env.DOER_WAKE_COMMENT_ID = wakeCommentId;
+  if (approvalId) env.DOER_APPROVAL_ID = approvalId;
+  if (approvalStatus) env.DOER_APPROVAL_STATUS = approvalStatus;
+  if (linkedIssueIds.length > 0) env.DOER_LINKED_ISSUE_IDS = linkedIssueIds.join(",");
+  if (effectiveWorkspaceCwd) env.DOER_WORKSPACE_CWD = effectiveWorkspaceCwd;
+  if (workspaceSource) env.DOER_WORKSPACE_SOURCE = workspaceSource;
+  if (workspaceId) env.DOER_WORKSPACE_ID = workspaceId;
+  if (workspaceRepoUrl) env.DOER_WORKSPACE_REPO_URL = workspaceRepoUrl;
+  if (workspaceRepoRef) env.DOER_WORKSPACE_REPO_REF = workspaceRepoRef;
   if (agentHome) env.AGENT_HOME = agentHome;
-  if (workspaceHints.length > 0) env.PAPERCLIP_WORKSPACES_JSON = JSON.stringify(workspaceHints);
+  if (workspaceHints.length > 0) env.DOER_WORKSPACES_JSON = JSON.stringify(workspaceHints);
 
   for (const [key, value] of Object.entries(envConfig)) {
     if (typeof value === "string") env[key] = value;
@@ -176,7 +208,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   // envConfig loop so user overrides cannot disable this guard.
   env.OPENCODE_DISABLE_PROJECT_CONFIG = "true";
   if (!hasExplicitApiKey && authToken) {
-    env.PAPERCLIP_API_KEY = authToken;
+    env.DOER_API_KEY = authToken;
   }
   const preparedRuntimeConfig = await prepareOpenCodeRuntimeConfig({ env, config });
   try {
@@ -212,7 +244,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     if (runtimeSessionId && !canResumeSession) {
       await onLog(
         "stdout",
-        `[paperclip] OpenCode session "${runtimeSessionId}" was saved for cwd "${runtimeSessionCwd}" and will not be resumed in "${cwd}".\n`,
+        `[doer] OpenCode session "${runtimeSessionId}" was saved for cwd "${runtimeSessionCwd}" and will not be resumed in "${cwd}".\n`,
       );
     }
 
@@ -233,7 +265,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         const reason = err instanceof Error ? err.message : String(err);
         await onLog(
           "stdout",
-          `[paperclip] Warning: could not read agent instructions file "${resolvedInstructionsFilePath}": ${reason}\n`,
+          `[doer] Warning: could not read agent instructions file "${resolvedInstructionsFilePath}": ${reason}\n`,
         );
       }
     }
@@ -272,6 +304,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     const sessionHandoffNote = asString(context.paperclipSessionHandoffMarkdown, "").trim();
     const prompt = joinPromptSections([
       instructionsPrefix,
+      skillsManifest,
       renderedBootstrapPrompt,
       sessionHandoffNote,
       renderedPrompt,
@@ -279,6 +312,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     const promptMetrics = {
       promptChars: prompt.length,
       instructionsChars: instructionsPrefix.length,
+      skillsManifestChars: skillsManifest.length,
       bootstrapPromptChars: renderedBootstrapPrompt.length,
       sessionHandoffChars: sessionHandoffNote.length,
       heartbeatPromptChars: renderedPrompt.length,
@@ -403,7 +437,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     ) {
       await onLog(
         "stdout",
-        `[paperclip] OpenCode session "${sessionId}" is unavailable; retrying with a fresh session.\n`,
+        `[doer] OpenCode session "${sessionId}" is unavailable; retrying with a fresh session.\n`,
       );
       const retry = await runAttempt(null);
       return toResult(retry, true);

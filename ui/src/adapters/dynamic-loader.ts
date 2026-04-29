@@ -1,7 +1,7 @@
 /**
  * Dynamic UI parser loading for external adapters.
  *
- * When the Paperclip UI encounters an adapter type that doesn't have a
+ * When the Doer UI encounters an adapter type that doesn't have a
  * built-in parser (e.g., an external adapter loaded via the plugin system),
  * it fetches the parser JS from `/api/adapters/:type/ui-parser.js` and
  * evaluates it to create a `parseStdoutLine` function.
@@ -12,10 +12,10 @@
  *
  * This is the bridge between the server-side plugin system and the client-side
  * UI rendering. Adapter developers ship a `dist/ui-parser.js` with zero
- * runtime dependencies, and Paperclip's UI loads it on demand.
+ * runtime dependencies, and Doer's UI loads it on demand.
  */
 
-import type { TranscriptEntry } from "@paperclipai/adapter-utils";
+import type { TranscriptEntry } from "@doerai/adapter-utils";
 import type { StatefulStdoutParser, StdoutLineParser, StdoutParserFactory } from "./types";
 
 interface DynamicParserModule {

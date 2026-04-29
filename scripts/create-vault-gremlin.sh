@@ -1,19 +1,19 @@
 #!/usr/bin/env bash
 # create-vault-gremlin.sh
-# Creates Vault as a Paperclip agent with opencode_local adapter + Letta memory wiring.
-# Run from the paperclip/ directory with Paperclip running at localhost:3100.
+# Creates Vault as a Doer agent with opencode_local adapter + Letta memory wiring.
+# Run from the doer/ directory with Doer running at localhost:3100.
 #
 # Usage:
-#   cd donjon-paperclip/paperclip
+#   cd donjon-doer/doer
 #   ../scripts/create-vault-gremlin.sh
 
 set -euo pipefail
 
-PAPERCLIP_URL="${PAPERCLIP_URL:-http://localhost:3100}"
+DOER_URL="${DOER_URL:-http://localhost:3100}"
 
 # ── 1. Get company ID ──────────────────────────────────────────────────────────
 echo "→ Fetching company list..."
-COMPANIES=$(curl -sf "$PAPERCLIP_URL/api/companies")
+COMPANIES=$(curl -sf "$DOER_URL/api/companies")
 COMPANY_ID=$(echo "$COMPANIES" | python3 -c "
 import sys, json
 data = json.load(sys.stdin)
@@ -41,13 +41,13 @@ ALFIE_LETTA_ID="agent-95b86955-10c3-4949-99c9-3c4879d6a95e"
 
 if [[ -z "$LETTA_API_KEY" ]]; then
   # Try to read from .env.local
-  ENV_FILE="$REPO_ROOT/paperclip/.env.local"
+  ENV_FILE="$REPO_ROOT/doer/.env.local"
   if [[ -f "$ENV_FILE" ]]; then
     LETTA_API_KEY=$(grep "^LETTA_API_KEY=" "$ENV_FILE" | cut -d= -f2- | tr -d '"')
     echo "   Loaded LETTA_API_KEY from $ENV_FILE"
   else
-    echo "⚠️  LETTA_API_KEY not set. Set it as env var or in paperclip/.env.local"
-    echo "   Continuing — you can update adapter config in the Paperclip board later."
+    echo "⚠️  LETTA_API_KEY not set. Set it as env var or in doer/.env.local"
+    echo "   Continuing — you can update adapter config in the Doer board later."
   fi
 fi
 
@@ -62,7 +62,7 @@ payload = {
     'command': 'opencode',
     'instructionsFilePath': '$AGENTS_MD_PATH',
     'model': 'google/antigravity-claude-sonnet-4-6',
-    'skills': ['paperclip', 'letta-memory', 'gremlin'],
+    'skills': ['doer', 'letta-memory', 'gremlin'],
     'env': {
       'LETTA_API_KEY':    '$LETTA_API_KEY',
       'LETTA_BASE_URL':   '$LETTA_BASE_URL',
@@ -73,7 +73,7 @@ payload = {
       'You are Vault, Super-Gremlin specialist in secrets and sensitive data handling. '
       'Agent ID: {{agent.id}} | Run ID: {{run.id}}. '
       'Follow your AGENTS.md instructions and the injected skills. '
-      'Load your Letta memory first, check your Paperclip inbox, do excellent work.'
+      'Load your Letta memory first, check your Doer inbox, do excellent work.'
     ),
     'timeoutSec': 300,
   },
@@ -85,9 +85,9 @@ payload = {
 print(json.dumps(payload))
 ")
 
-echo "   Payload built. Sending to Paperclip..."
+echo "   Payload built. Sending to Doer..."
 HTTP_STATUS=$(curl -s -o /tmp/vault_create_response.json -w "%{http_code}" \
-  -X POST "$PAPERCLIP_URL/api/companies/$COMPANY_ID/agents" \
+  -X POST "$DOER_URL/api/companies/$COMPANY_ID/agents" \
   -H "Content-Type: application/json" \
   -d "$PAYLOAD")
 
@@ -109,20 +109,20 @@ print(agent.get('id', 'ERROR: no id in response'))
 ")
 
 echo ""
-echo "✅ Vault created in Paperclip!"
-echo "   Paperclip Agent ID: $VAULT_PAPERCLIP_ID"
+echo "✅ Vault created in Doer!"
+echo "   Doer Agent ID: $VAULT_PAPERCLIP_ID"
 echo "   Letta Agent ID:     $VAULT_LETTA_ID"
 echo ""
 echo "── Next steps ──────────────────────────────────────────────────"
-echo "1. Add VAULT_PAPERCLIP_ID to Alfie's env vars in the Paperclip board:"
-echo "   PAPERCLIP_AGENT_VAULT=$VAULT_PAPERCLIP_ID"
+echo "1. Add VAULT_PAPERCLIP_ID to Alfie's env vars in the Doer board:"
+echo "   DOER_AGENT_VAULT=$VAULT_PAPERCLIP_ID"
 echo ""
-echo "2. Add PAPERCLIP_API_URL + PAPERCLIP_COMPANY_ID to Alfie's env:"
-echo "   PAPERCLIP_API_URL=http://localhost:3100"
-echo "   PAPERCLIP_COMPANY_ID=$COMPANY_ID"
+echo "2. Add DOER_API_URL + DOER_COMPANY_ID to Alfie's env:"
+echo "   DOER_API_URL=http://localhost:3100"
+echo "   DOER_COMPANY_ID=$COMPANY_ID"
 echo ""
 echo "3. Test a heartbeat:"
-echo "   npx paperclipai heartbeat run --agent-id $VAULT_PAPERCLIP_ID"
+echo "   npx doerai heartbeat run --agent-id $VAULT_PAPERCLIP_ID"
 echo ""
 echo "4. Or dispatch a test task from Alfie:"
 echo "   dispatch_gremlin('Vault', 'TEST-01', 'Confirm your Letta memory is loading. Read your persona block and archival memory. Report what you find.')"

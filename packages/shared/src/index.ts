@@ -138,6 +138,11 @@ export {
   type MemfsStrategy,
   type MemfsPermission,
   type MemfsRootKind,
+  DELIVERABLE_KINDS,
+  DELIVERABLE_CONTENT_TYPES,
+  DELIVERABLE_DEFAULT_RETENTION_DAYS,
+  PORTAL_BRANDING_DEFAULTS,
+  type DeliverableKind,
 } from "./constants.js";
 
 export type {
@@ -337,6 +342,21 @@ export type {
   WebhookDeliveryListItem,
 } from "./types/index.js";
 export { ALL_WEBHOOK_EVENT_TYPES } from "./types/index.js";
+export type {
+  Deliverable,
+  DeliverableListItem,
+  DeliverableListQuery,
+  CreateDeliverablePayload,
+  UpdateDeliverablePayload,
+  DeliverableDownloadResponse,
+  DeliverableShareToken,
+  DeliverableShareTokenScope,
+  CreateDeliverableShareTokenPayload,
+  PortalResolveResponse,
+  CompanyPortalBranding,
+  ResolvedPortalBranding,
+  UpdateCompanyPortalBrandingPayload,
+} from "./types/index.js";
 
 export {
   instanceGeneralSettingsSchema,
@@ -566,6 +586,17 @@ export {
   type UpdateMemfsRoot,
   type CreateMemfsBinding,
   type UpdateMemfsBinding,
+  createDeliverableSchema,
+  updateDeliverableSchema,
+  deliverableListQuerySchema,
+  shareTokenScopeSchema,
+  createDeliverableShareTokenSchema,
+  type CreateDeliverable,
+  type UpdateDeliverable,
+  type DeliverableListQueryInput,
+  type CreateDeliverableShareToken,
+  updateCompanyPortalBrandingSchema,
+  type UpdateCompanyPortalBranding,
 } from "./validators/index.js";
 
 export { API_PREFIX, API } from "./api.js";
@@ -612,3 +643,10 @@ export {
   type SecretsLocalEncryptedConfig,
   type ConfigMeta,
 } from "./config-schema.js";
+
+export {
+  createWebhookEndpointSchema,
+  updateWebhookEndpointSchema,
+  listWebhookDeliveriesSchema,
+  type ListWebhookDeliveries,
+} from "./validators/webhook.js";

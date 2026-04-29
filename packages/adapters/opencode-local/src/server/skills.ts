@@ -5,14 +5,14 @@ import { fileURLToPath } from "node:url";
 import type {
   AdapterSkillContext,
   AdapterSkillSnapshot,
-} from "@paperclipai/adapter-utils";
+} from "@doerai/adapter-utils";
 import {
   buildPersistentSkillSnapshot,
   ensurePaperclipSkillSymlink,
   readPaperclipRuntimeSkillEntries,
   readInstalledSkillTargets,
   resolvePaperclipDesiredSkillNames,
-} from "@paperclipai/adapter-utils/server-utils";
+} from "@doerai/adapter-utils/server-utils";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -45,7 +45,7 @@ async function buildOpenCodeSkillSnapshot(config: Record<string, unknown>): Prom
     installedDetail: "Installed in the shared Claude/OpenCode skills home.",
     missingDetail: "Configured but not currently linked into the shared Claude/OpenCode skills home.",
     externalConflictDetail: "Skill name is occupied by an external installation in the shared skills home.",
-    externalDetail: "Installed outside Paperclip management in the shared skills home.",
+    externalDetail: "Installed outside Doer management in the shared skills home.",
     warnings: [
       "OpenCode currently uses the shared Claude skills home (~/.claude/skills).",
     ],

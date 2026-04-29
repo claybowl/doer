@@ -3,7 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { MemfsBindingDTO, MemfsRootDTO } from "@paperclipai/shared";
+import type { MemfsBindingDTO, MemfsRootDTO } from "@doerai/shared";
 import { queryKeys } from "../../lib/queryKeys";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { MemfsBindingsPanel } from "./MemfsBindingsPanel";

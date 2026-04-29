@@ -22,15 +22,15 @@ function expandHomePrefix(value: string): string {
 }
 
 function resolvePaperclipHomeDir(): string {
-  const envHome = process.env.PAPERCLIP_HOME?.trim();
+  const envHome = process.env.DOER_HOME?.trim();
   if (envHome) return path.resolve(expandHomePrefix(envHome));
-  return path.resolve(os.homedir(), ".paperclip");
+  return path.resolve(os.homedir(), ".doer");
 }
 
 function resolvePaperclipInstanceId(): string {
-  const raw = process.env.PAPERCLIP_INSTANCE_ID?.trim() || "default";
+  const raw = process.env.DOER_INSTANCE_ID?.trim() || "default";
   if (!/^[a-zA-Z0-9_-]+$/.test(raw)) {
-    throw new Error(`Invalid PAPERCLIP_INSTANCE_ID '${raw}'.`);
+    throw new Error(`Invalid DOER_INSTANCE_ID '${raw}'.`);
   }
   return raw;
 }
@@ -69,7 +69,7 @@ function resolveConnectionString(config: PartialConfig | null): string {
   }
 
   const port = resolveEmbeddedPort(config);
-  return `postgres://paperclip:paperclip@127.0.0.1:${port}/paperclip`;
+  return `postgres://doer:doer@127.0.0.1:${port}/doer`;
 }
 
 function resolveDefaultBackupDir(): string {
@@ -104,7 +104,7 @@ async function main() {
       connectionString,
       backupDir,
       retentionDays,
-      filenamePrefix: "paperclip",
+      filenamePrefix: "doer",
     });
 
     console.log(`Backup saved: ${formatDatabaseBackupResult(result)}`);

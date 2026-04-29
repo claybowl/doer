@@ -5,7 +5,7 @@ import type {
   MemfsRootDTO,
   MemfsRootKind,
   MemfsStrategy,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import {
   addCommonClientOptions,
   formatInlineRecord,

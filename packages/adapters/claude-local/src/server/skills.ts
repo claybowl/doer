@@ -5,12 +5,12 @@ import type {
   AdapterSkillContext,
   AdapterSkillEntry,
   AdapterSkillSnapshot,
-} from "@paperclipai/adapter-utils";
+} from "@doerai/adapter-utils";
 import {
   readPaperclipRuntimeSkillEntries,
   readInstalledSkillTargets,
   resolvePaperclipDesiredSkillNames,
-} from "@paperclipai/adapter-utils/server-utils";
+} from "@doerai/adapter-utils/server-utils";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -42,7 +42,7 @@ async function buildClaudeSkillSnapshot(config: Record<string, unknown>): Promis
     managed: true,
     state: desiredSet.has(entry.key) ? "configured" : "available",
     origin: entry.required ? "paperclip_required" : "company_managed",
-    originLabel: entry.required ? "Required by Paperclip" : "Managed by Paperclip",
+    originLabel: entry.required ? "Required by Doer" : "Managed by Doer",
     readOnly: false,
     sourcePath: entry.source,
     targetPath: null,
@@ -56,7 +56,7 @@ async function buildClaudeSkillSnapshot(config: Record<string, unknown>): Promis
 
   for (const desiredSkill of desiredSkills) {
     if (availableByKey.has(desiredSkill)) continue;
-    warnings.push(`Desired skill "${desiredSkill}" is not available from the Paperclip skills directory.`);
+    warnings.push(`Desired skill "${desiredSkill}" is not available from the Doer skills directory.`);
     entries.push({
       key: desiredSkill,
       runtimeName: null,
@@ -68,7 +68,7 @@ async function buildClaudeSkillSnapshot(config: Record<string, unknown>): Promis
       readOnly: false,
       sourcePath: undefined,
       targetPath: undefined,
-      detail: "Paperclip cannot find this skill in the local runtime skills directory.",
+      detail: "Doer cannot find this skill in the local runtime skills directory.",
     });
   }
 
@@ -86,7 +86,7 @@ async function buildClaudeSkillSnapshot(config: Record<string, unknown>): Promis
       readOnly: true,
       sourcePath: null,
       targetPath: installedEntry.targetPath ?? path.join(skillsHome, name),
-      detail: "Installed outside Paperclip management in the Claude skills home.",
+      detail: "Installed outside Doer management in the Claude skills home.",
     });
   }
 

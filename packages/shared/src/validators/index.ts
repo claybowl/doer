@@ -35,6 +35,23 @@ export {
   type UpdateCompany,
   type UpdateCompanyBranding,
 } from "./company.js";
+
+export {
+  createDeliverableSchema,
+  updateDeliverableSchema,
+  deliverableListQuerySchema,
+  shareTokenScopeSchema,
+  createDeliverableShareTokenSchema,
+  type CreateDeliverable,
+  type UpdateDeliverable,
+  type DeliverableListQueryInput,
+  type CreateDeliverableShareToken,
+} from "./deliverable.js";
+
+export {
+  updateCompanyPortalBrandingSchema,
+  type UpdateCompanyPortalBranding,
+} from "./branding.js";
 export {
   companySkillSourceTypeSchema,
   companySkillTrustLevelSchema,
@@ -290,3 +307,12 @@ export {
   type SetPluginState,
   type ListPluginState,
 } from "./plugin.js";
+
+export {
+  createWebhookEndpointSchema,
+  updateWebhookEndpointSchema,
+  listWebhookDeliveriesSchema,
+  type CreateWebhookEndpoint,
+  type UpdateWebhookEndpoint,
+  type ListWebhookDeliveries,
+} from "./webhook.js";

@@ -320,22 +320,29 @@
     {
       "idx": 45,
       "version": "7",
-      "when": 1776465540633,
-      "tag": "0045_mature_ken_ellis",
-      "breakpoints": true
-    },
-    {
-      "idx": 46,
-      "version": "7",
       "when": 1745135659000,
       "tag": "0046_silver_webhook_tables",
       "breakpoints": true
     },
     {
-      "idx": 47,
+      "idx": 46,
       "version": "7",
       "when": 1776506108303,
       "tag": "0047_thick_iceman",
+      "breakpoints": true
+    },
+    {
+      "idx": 47,
+      "version": "7",
+      "when": 1777049135298,
+      "tag": "0047_sturdy_charles_xavier",
+      "breakpoints": true
+    },
+    {
+      "idx": 48,
+      "version": "7",
+      "when": 1777075450821,
+      "tag": "0048_stripe_billing_schema",
       "breakpoints": true
     }
   ]

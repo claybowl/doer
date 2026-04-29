@@ -99,6 +99,8 @@ export const queryKeys = {
     roots: (companyId: string) => ["memfs", "roots", companyId] as const,
     rootFiles: (companyId: string, rootId: string, prefix?: string) =>
       ["memfs", "files", companyId, rootId, prefix ?? ""] as const,
+    rootFileText: (companyId: string, rootId: string, filePath: string) =>
+      ["memfs", "file-text", companyId, rootId, filePath] as const,
     bindingsForCompany: (companyId: string) =>
       ["memfs", "bindings", "company", companyId] as const,
     bindingsForAgent: (companyId: string, agentId: string) =>
@@ -135,8 +137,22 @@ export const queryKeys = {
   skills: {
     available: ["skills", "available"] as const,
   },
+  deliverables: {
+    list: (
+      companyId: string,
+      filters?: Record<string, string | boolean | number | undefined>,
+    ) => ["deliverables", companyId, filters ?? {}] as const,
+    detail: (id: string) => ["deliverables", "detail", id] as const,
+  },
+  shareTokens: {
+    list: (companyId: string) => ["share-tokens", companyId] as const,
+  },
   adapters: {
     all: ["adapters"] as const,
+  },
+  webhooks: {
+    list: (companyId: string) => ["webhooks", companyId] as const,
+    deliveries: (webhookId: string) => ["webhooks", "deliveries", webhookId] as const,
   },
   plugins: {
     all: ["plugins"] as const,

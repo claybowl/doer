@@ -1,16 +1,16 @@
 ---
 name: create-agent-adapter
 description: >
-  Technical guide for creating a new Paperclip agent adapter. Use when building
+  Technical guide for creating a new Doer agent adapter. Use when building
   a new adapter package, adding support for a new AI coding tool (e.g. a new
   CLI agent, API-based agent, or custom process), or when modifying the adapter
   system. Covers the required interfaces, module structure, registration points,
   and conventions derived from the existing claude-local and codex-local adapters.
 ---
 
-# Creating a Paperclip Agent Adapter
+# Creating a Doer Agent Adapter
 
-An adapter bridges Paperclip's orchestration layer to a specific AI agent runtime (Claude Code, Codex CLI, a custom process, an HTTP endpoint, etc.). Each adapter is a self-contained package that provides implementations for **three consumers**: the server, the UI, and the CLI.
+An adapter bridges Doer's orchestration layer to a specific AI agent runtime (Claude Code, Codex CLI, a custom process, an HTTP endpoint, etc.). Each adapter is a self-contained package that provides implementations for **three consumers**: the server, the UI, and the CLI.
 
 ---
 
@@ -30,7 +30,7 @@ packages/adapters/<name>/
       build-config.ts   # CreateConfigValues -> adapterConfig JSON for agent creation form
     cli/
       index.ts          # CLI exports: formatStdoutEvent
-      format-event.ts   # Colored terminal output for `paperclipai run --watch`
+      format-event.ts   # Colored terminal output for `doerai run --watch`
   package.json
   tsconfig.json
 ```
@@ -45,9 +45,9 @@ Three separate registries consume adapter modules:
 
 ---
 
-## 2. Shared Types (`@paperclipai/adapter-utils`)
+## 2. Shared Types (`@doerai/adapter-utils`)
 
-All adapter interfaces live in `packages/adapter-utils/src/types.ts`. Import from `@paperclipai/adapter-utils` (types) or `@paperclipai/adapter-utils/server-utils` (runtime helpers).
+All adapter interfaces live in `packages/adapter-utils/src/types.ts`. Import from `@doerai/adapter-utils` (types) or `@doerai/adapter-utils/server-utils` (runtime helpers).
 
 ### Core Interfaces
 
@@ -78,7 +78,7 @@ interface AdapterExecutionResult {
   costUsd?: number | null;
   resultJson?: Record<string, unknown> | null;
   summary?: string | null;        // Human-readable summary of what the agent did
-  clearSession?: boolean;         // true = tell Paperclip to forget the stored session
+  clearSession?: boolean;         // true = tell Doer to forget the stored session
 }
 
 interface AdapterSessionCodec {
@@ -186,7 +186,7 @@ packages/adapters/<name>/
 
 ```json
 {
-  "name": "@paperclipai/adapter-<name>",
+  "name": "@doerai/adapter-<name>",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -197,7 +197,7 @@ packages/adapters/<name>/
     "./cli": "./src/cli/index.ts"
   },
   "dependencies": {
-    "@paperclipai/adapter-utils": "workspace:*",
+    "@doerai/adapter-utils": "workspace:*",
     "picocolors": "^1.1.1"
   },
   "devDependencies": {
@@ -232,7 +232,7 @@ export const agentConfigurationDoc = `# my_agent agent configuration
 
 **Writing `agentConfigurationDoc` as routing logic:**
 
-The `agentConfigurationDoc` is read by LLM agents (including Paperclip agents that create other agents). Write it as **routing logic**, not marketing copy. Include concrete "use when" and "don't use when" guidance so an LLM can decide whether this adapter is appropriate for a given task.
+The `agentConfigurationDoc` is read by LLM agents (including Doer agents that create other agents). Write it as **routing logic**, not marketing copy. Include concrete "use when" and "don't use when" guidance so an LLM can decide whether this adapter is appropriate for a given task.
 
 ```ts
 export const agentConfigurationDoc = `# my_agent agent configuration
@@ -265,8 +265,8 @@ This is the most important file. It receives an `AdapterExecutionContext` and mu
 
 **Required behavior:**
 
-1. **Read config** — extract typed values from `ctx.config` using helpers (`asString`, `asNumber`, `asBoolean`, `asStringArray`, `parseObject` from `@paperclipai/adapter-utils/server-utils`)
-2. **Build environment** — call `buildPaperclipEnv(agent)` then layer in `PAPERCLIP_RUN_ID`, context vars (`PAPERCLIP_TASK_ID`, `PAPERCLIP_WAKE_REASON`, `PAPERCLIP_WAKE_COMMENT_ID`, `PAPERCLIP_APPROVAL_ID`, `PAPERCLIP_APPROVAL_STATUS`, `PAPERCLIP_LINKED_ISSUE_IDS`), user env overrides, and auth token
+1. **Read config** — extract typed values from `ctx.config` using helpers (`asString`, `asNumber`, `asBoolean`, `asStringArray`, `parseObject` from `@doerai/adapter-utils/server-utils`)
+2. **Build environment** — call `buildPaperclipEnv(agent)` then layer in `DOER_RUN_ID`, context vars (`DOER_TASK_ID`, `DOER_WAKE_REASON`, `DOER_WAKE_COMMENT_ID`, `DOER_APPROVAL_ID`, `DOER_APPROVAL_STATUS`, `DOER_LINKED_ISSUE_IDS`), user env overrides, and auth token
 3. **Resolve session** — check `runtime.sessionParams` / `runtime.sessionId` for an existing session; validate it's compatible (e.g. same cwd); decide whether to resume or start fresh
 4. **Render prompt** — use `renderTemplate(template, data)` with the template variables: `agentId`, `companyId`, `runId`, `company`, `agent`, `run`, `context`
 5. **Call onMeta** — emit adapter invocation metadata before spawning the process
@@ -279,17 +279,17 @@ This is the most important file. It receives an `AdapterExecutionContext` and mu
 
 | Variable | Source |
 |----------|--------|
-| `PAPERCLIP_AGENT_ID` | `agent.id` |
-| `PAPERCLIP_COMPANY_ID` | `agent.companyId` |
-| `PAPERCLIP_API_URL` | Server's own URL |
-| `PAPERCLIP_RUN_ID` | Current run id |
-| `PAPERCLIP_TASK_ID` | `context.taskId` or `context.issueId` |
-| `PAPERCLIP_WAKE_REASON` | `context.wakeReason` |
-| `PAPERCLIP_WAKE_COMMENT_ID` | `context.wakeCommentId` or `context.commentId` |
-| `PAPERCLIP_APPROVAL_ID` | `context.approvalId` |
-| `PAPERCLIP_APPROVAL_STATUS` | `context.approvalStatus` |
-| `PAPERCLIP_LINKED_ISSUE_IDS` | `context.issueIds` (comma-separated) |
-| `PAPERCLIP_API_KEY` | `authToken` (if no explicit key in config) |
+| `DOER_AGENT_ID` | `agent.id` |
+| `DOER_COMPANY_ID` | `agent.companyId` |
+| `DOER_API_URL` | Server's own URL |
+| `DOER_RUN_ID` | Current run id |
+| `DOER_TASK_ID` | `context.taskId` or `context.issueId` |
+| `DOER_WAKE_REASON` | `context.wakeReason` |
+| `DOER_WAKE_COMMENT_ID` | `context.wakeCommentId` or `context.commentId` |
+| `DOER_APPROVAL_ID` | `context.approvalId` |
+| `DOER_APPROVAL_STATUS` | `context.approvalStatus` |
+| `DOER_LINKED_ISSUE_IDS` | `context.issueIds` (comma-separated) |
+| `DOER_API_KEY` | `authToken` (if no explicit key in config) |
 
 #### `server/parse.ts` — Output Parser
 
@@ -395,7 +395,7 @@ The component must support both `create` mode (using `values`/`set`) and `edit` 
 
 #### `cli/format-event.ts` — Terminal Formatter
 
-Pretty-prints stdout lines for `paperclipai run --watch`. Use `picocolors` for coloring.
+Pretty-prints stdout lines for `doerai run --watch`. Use `picocolors` for coloring.
 
 ```ts
 import pc from "picocolors";
@@ -416,15 +416,15 @@ After creating the adapter package, register it in all three consumers:
 ### 4.1 Server Registry (`server/src/adapters/registry.ts`)
 
 ```ts
-import { execute as myExecute, sessionCodec as mySessionCodec } from "@paperclipai/adapter-my-agent/server";
-import { agentConfigurationDoc as myDoc, models as myModels } from "@paperclipai/adapter-my-agent";
+import { execute as myExecute, sessionCodec as mySessionCodec } from "@doerai/adapter-my-agent/server";
+import { agentConfigurationDoc as myDoc, models as myModels } from "@doerai/adapter-my-agent";
 
 const myAgentAdapter: ServerAdapterModule = {
   type: "my_agent",
   execute: myExecute,
   sessionCodec: mySessionCodec,
   models: myModels,
-  supportsLocalAgentJwt: true,  // true if agent can use Paperclip API
+  supportsLocalAgentJwt: true,  // true if agent can use Doer API
   agentConfigurationDoc: myDoc,
 };
 
@@ -448,9 +448,9 @@ With `ui/src/adapters/my-agent/index.ts`:
 
 ```ts
 import type { UIAdapterModule } from "../types";
-import { parseMyAgentStdoutLine } from "@paperclipai/adapter-my-agent/ui";
+import { parseMyAgentStdoutLine } from "@doerai/adapter-my-agent/ui";
 import { MyAgentConfigFields } from "./config-fields";
-import { buildMyAgentConfig } from "@paperclipai/adapter-my-agent/ui";
+import { buildMyAgentConfig } from "@doerai/adapter-my-agent/ui";
 
 export const myAgentUIAdapter: UIAdapterModule = {
   type: "my_agent",
@@ -464,7 +464,7 @@ export const myAgentUIAdapter: UIAdapterModule = {
 ### 4.3 CLI Registry (`cli/src/adapters/registry.ts`)
 
 ```ts
-import { printMyAgentStreamEvent } from "@paperclipai/adapter-my-agent/cli";
+import { printMyAgentStreamEvent } from "@doerai/adapter-my-agent/cli";
 
 const myAgentCLIAdapter: CLIAdapterModule = {
   type: "my_agent",
@@ -488,7 +488,7 @@ Sessions allow agents to maintain conversation context across runs. The system i
 - `sessionCodec.deserialize()` converts stored params back for the next run
 - `sessionCodec.getDisplayId()` extracts a human-readable session ID for the UI
 - **cwd-aware resume**: if the session was created in a different cwd than the current config, skip resuming (prevents cross-project session contamination)
-- **Unknown session retry**: if resume fails with a "session not found" error, retry with a fresh session and return `clearSession: true` so Paperclip wipes the stale session
+- **Unknown session retry**: if resume fails with a "session not found" error, retry with a fresh session and return `clearSession: true` so Doer wipes the stale session
 
 If the agent runtime supports any form of context compaction or conversation compression (e.g. Claude Code's automatic context management, or Codex's `previous_response_id` chaining), lean on it. Adapters that support session resume get compaction for free — the agent runtime handles context window management internally across resumes.
 
@@ -513,7 +513,7 @@ if (sessionId && !proc.timedOut && exitCode !== 0 && isUnknownSessionError(outpu
 
 ## 6. Server-Utils Helpers
 
-Import from `@paperclipai/adapter-utils/server-utils`:
+Import from `@doerai/adapter-utils/server-utils`:
 
 | Helper | Purpose |
 |--------|---------|
@@ -524,7 +524,7 @@ Import from `@paperclipai/adapter-utils/server-utils`:
 | `parseObject(val)` | Safe `Record<string, unknown>` extraction |
 | `parseJson(str)` | Safe JSON.parse returning `Record` or null |
 | `renderTemplate(tmpl, data)` | `{{path.to.value}}` template rendering |
-| `buildPaperclipEnv(agent)` | Standard `PAPERCLIP_*` env vars |
+| `buildPaperclipEnv(agent)` | Standard `DOER_*` env vars |
 | `redactEnvForLogs(env)` | Redact sensitive keys for onMeta |
 | `ensureAbsoluteDirectory(cwd)` | Validate cwd exists and is absolute |
 | `ensureCommandResolvable(cmd, cwd, env)` | Validate command is in PATH |
@@ -537,7 +537,7 @@ Import from `@paperclipai/adapter-utils/server-utils`:
 
 ### Naming
 - Adapter type: `snake_case` (e.g. `claude_local`, `codex_local`)
-- Package name: `@paperclipai/adapter-<kebab-name>`
+- Package name: `@doerai/adapter-<kebab-name>`
 - Package directory: `packages/adapters/<kebab-name>/`
 
 ### Config Parsing
@@ -548,7 +548,7 @@ Import from `@paperclipai/adapter-utils/server-utils`:
 ### Prompt Templates
 - Support `promptTemplate` for every run
 - Use `renderTemplate()` with the standard variable set
-- Default prompt: `"You are agent {{agent.id}} ({{agent.name}}). Continue your Paperclip work."`
+- Default prompt: `"You are agent {{agent.id}} ({{agent.name}}). Continue your Doer work."`
 
 ### Error Handling
 - Differentiate timeout vs process error vs parse failure
@@ -561,17 +561,17 @@ Import from `@paperclipai/adapter-utils/server-utils`:
 - Call `onMeta(...)` before spawning to record invocation details
 - Use `redactEnvForLogs()` when including env in meta
 
-### Paperclip Skills Injection
+### Doer Skills Injection
 
-Paperclip ships shared skills (in the repo's top-level `skills/` directory) that agents need at runtime — things like the `paperclip` API skill and the `paperclip-create-agent` workflow skill. Each adapter is responsible for making these skills discoverable by its agent runtime **without polluting the agent's working directory**.
+Doer ships shared skills (in the repo's top-level `skills/` directory) that agents need at runtime — things like the `doer` API skill and the `doer-create-agent` workflow skill. Each adapter is responsible for making these skills discoverable by its agent runtime **without polluting the agent's working directory**.
 
-**The constraint:** never copy or symlink skills into the agent's `cwd`. The cwd is the user's project checkout — writing `.claude/skills/` or any other files into it would contaminate the repo with Paperclip internals, break git status, and potentially leak into commits.
+**The constraint:** never copy or symlink skills into the agent's `cwd`. The cwd is the user's project checkout — writing `.claude/skills/` or any other files into it would contaminate the repo with Doer internals, break git status, and potentially leak into commits.
 
 **The pattern:** create a clean, isolated location for skills and tell the agent runtime to look there.
 
 **How claude-local does it:**
 
-1. At execution time, create a fresh tmpdir: `mkdtemp("paperclip-skills-")`
+1. At execution time, create a fresh tmpdir: `mkdtemp("doer-skills-")`
 2. Inside it, create `.claude/skills/` (the directory structure Claude Code expects)
 3. Symlink each skill directory from the repo's `skills/` into the tmpdir's `.claude/skills/`
 4. Pass the tmpdir to Claude Code via `--add-dir <tmpdir>` — this makes Claude Code discover the skills as if they were registered in that directory, without touching the agent's actual cwd
@@ -580,14 +580,14 @@ Paperclip ships shared skills (in the repo's top-level `skills/` directory) that
 ```ts
 // From claude-local execute.ts
 async function buildSkillsDir(): Promise<string> {
-  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-skills-"));
+  const tmp = await fs.mkdtemp(path.join(os.tmpdir(), "doer-skills-"));
   const target = path.join(tmp, ".claude", "skills");
   await fs.mkdir(target, { recursive: true });
-  const entries = await fs.readdir(PAPERCLIP_SKILLS_DIR, { withFileTypes: true });
+  const entries = await fs.readdir(DOER_SKILLS_DIR, { withFileTypes: true });
   for (const entry of entries) {
     if (entry.isDirectory()) {
       await fs.symlink(
-        path.join(PAPERCLIP_SKILLS_DIR, entry.name),
+        path.join(DOER_SKILLS_DIR, entry.name),
         path.join(target, entry.name),
       );
     }
@@ -604,7 +604,7 @@ args.push("--add-dir", skillsDir);
 
 **How codex-local does it:**
 
-Codex has a global personal skills directory (`$CODEX_HOME/skills` or `~/.codex/skills`). The adapter symlinks Paperclip skills there if they don't already exist. This is acceptable because it's the agent tool's own config directory, not the user's project.
+Codex has a global personal skills directory (`$CODEX_HOME/skills` or `~/.codex/skills`). The adapter symlinks Doer skills there if they don't already exist. This is acceptable because it's the agent tool's own config directory, not the user's project.
 
 ```ts
 // From codex-local execute.ts
@@ -627,15 +627,15 @@ async function ensureCodexSkillsInjected(onLog) {
 3. **Acceptable: env var** — if the runtime reads a skills/plugin path from an environment variable, point it at the repo's `skills/` directory directly.
 4. **Last resort: prompt injection** — if the runtime has no plugin system, include skill content in the prompt template itself. This uses tokens but avoids filesystem side effects entirely.
 
-**Skills as loaded procedures, not prompt bloat.** The Paperclip skills (like `paperclip` and `paperclip-create-agent`) are designed as on-demand procedures: the agent sees skill metadata (name + description) in its context, but only loads the full SKILL.md content when it decides to invoke a skill. This keeps the base prompt small. When writing `agentConfigurationDoc` or prompt templates for your adapter, do not inline skill content — let the agent runtime's skill discovery do the work. The descriptions in each SKILL.md frontmatter act as routing logic: they tell the agent when to load the full skill, not what the skill contains.
+**Skills as loaded procedures, not prompt bloat.** The Doer skills (like `doer` and `doer-create-agent`) are designed as on-demand procedures: the agent sees skill metadata (name + description) in its context, but only loads the full SKILL.md content when it decides to invoke a skill. This keeps the base prompt small. When writing `agentConfigurationDoc` or prompt templates for your adapter, do not inline skill content — let the agent runtime's skill discovery do the work. The descriptions in each SKILL.md frontmatter act as routing logic: they tell the agent when to load the full skill, not what the skill contains.
 
-**Explicit vs. fuzzy skill invocation.** For production workflows where reliability matters (e.g. an agent that must always call the Paperclip API to report status), use explicit instructions in the prompt template: "Use the paperclip skill to report your progress." Fuzzy routing (letting the model decide based on description matching) is fine for exploratory tasks but unreliable for mandatory procedures.
+**Explicit vs. fuzzy skill invocation.** For production workflows where reliability matters (e.g. an agent that must always call the Doer API to report status), use explicit instructions in the prompt template: "Use the doer skill to report your progress." Fuzzy routing (letting the model decide based on description matching) is fine for exploratory tasks but unreliable for mandatory procedures.
 
 ---
 
 ## 8. Security Considerations
 
-Adapters sit at the boundary between Paperclip's orchestration layer and arbitrary agent execution. This is a high-risk surface.
+Adapters sit at the boundary between Doer's orchestration layer and arbitrary agent execution. This is a high-risk surface.
 
 ### Treat Agent Output as Untrusted
 
@@ -645,7 +645,7 @@ The agent process runs LLM-driven code that reads external files, fetches URLs, 
 
 Never put secrets (API keys, tokens) into prompt templates or config fields that flow through the LLM. Instead, inject them as environment variables that the agent's tools can read directly:
 
-- `PAPERCLIP_API_KEY` is injected by the server into the process environment, not the prompt
+- `DOER_API_KEY` is injected by the server into the process environment, not the prompt
 - User-provided secrets in `config.env` are passed as env vars, redacted in `onMeta` logs
 - The `redactEnvForLogs()` helper automatically masks any key matching `/(key|token|secret|password|authorization|cookie)/i`
 
@@ -655,7 +655,7 @@ This follows the "sidecar injection" pattern: the model never sees the real secr
 
 If your agent runtime supports network access controls (sandboxing, allowlists), configure them in the adapter:
 
-- Prefer minimal allowlists over open internet access. An agent that only needs to call the Paperclip API and GitHub should not have access to arbitrary hosts.
+- Prefer minimal allowlists over open internet access. An agent that only needs to call the Doer API and GitHub should not have access to arbitrary hosts.
 - Skills + network = amplified risk. A skill that teaches the agent to make HTTP requests combined with unrestricted network access creates an exfiltration path. Constrain one or the other.
 - If the runtime supports layered policies (org-level defaults + per-request overrides), wire the org-level policy into the adapter config and let per-agent config narrow further.
 

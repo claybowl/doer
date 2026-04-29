@@ -8,6 +8,7 @@ export { projectService } from "./projects.js";
 export { issueService, type IssueFilters } from "./issues.js";
 export { issueApprovalService } from "./issue-approvals.js";
 export { goalService } from "./goals.js";
+export { deliverableService, type CreateDeliverableInput } from "./deliverables.js";
 export { activityService, type ActivityFilters } from "./activity.js";
 export { approvalService } from "./approvals.js";
 export { budgetService } from "./budgets.js";
@@ -52,3 +53,6 @@ export {
   type CommentEventData,
   type WebhookEventDataMap,
 } from "./webhook-event-emitter.js";
+export { stripeBillingService, PLAN_LIMITS, type Plan, type PlanStatus } from "./stripe-billing.js";
+export { planEnforcementService, PlanLimitError } from "./plan-enforcement.js";
+export { webhookService } from "./webhooks.js";

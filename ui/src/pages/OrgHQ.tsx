@@ -32,7 +32,7 @@ const FEED_CARDS = [
 
 const DOC_LINKS = [
   { title: "Getting Started", description: "Deploy your first agent in 10 minutes." },
-  { title: "Agent Architecture", description: "How Paperclip models multi-agent workflows." },
+  { title: "Agent Architecture", description: "How Doer models multi-agent workflows." },
   { title: "Cost & Budget Controls", description: "Hard stops, approvals, and spend governance." },
   { title: "Routines & Automations", description: "Schedule recurring agent tasks." },
   { title: "API Reference", description: "REST endpoints, auth, and rate limits." },
@@ -85,7 +85,7 @@ export function OrgHQ() {
               </h2>
             </div>
             <p className="text-sm text-muted-foreground max-w-lg mt-1">
-              Paperclip turns your workflows into intelligent automation — deploy agents, govern costs,
+              Doer turns your workflows into intelligent automation — deploy agents, govern costs,
               and reclaim your time.
             </p>
             <div className="flex items-center gap-3 mt-2">
@@ -96,7 +96,7 @@ export function OrgHQ() {
                 Get Started <ArrowRight className="h-3.5 w-3.5" />
               </Link>
               <a
-                href="https://docs.paperclip.ai"
+                href="https://docs.doer.ai"
                 target="_blank"
                 rel="noreferrer"
                 className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
@@ -166,7 +166,7 @@ export function OrgHQ() {
                     ✦ Featured — Product Update
                   </span>
                   <h3 className="text-base font-bold text-foreground">
-                    Introducing Paperclip HQ: Autonomous Agent Orchestration
+                    Introducing Doer HQ: Autonomous Agent Orchestration
                   </h3>
                   <p className="text-xs text-muted-foreground leading-relaxed">
                     Multi-step reasoning, persistent memory, and tool chaining — all in one visual canvas.
@@ -203,7 +203,7 @@ export function OrgHQ() {
                 {DOC_LINKS.map((doc) => (
                   <a
                     key={doc.title}
-                    href="https://docs.paperclip.ai"
+                    href="https://docs.doer.ai"
                     target="_blank"
                     rel="noreferrer"
                     className="flex items-center justify-between px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent/40 transition-colors group"

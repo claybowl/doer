@@ -28,6 +28,7 @@ import {
   History,
   SquarePen,
   Plus,
+  Repeat,
 } from "lucide-react";
 import { Identity } from "./Identity";
 import { agentUrl, projectUrl } from "../lib/utils";
@@ -37,7 +38,7 @@ export function CommandPalette() {
   const [query, setQuery] = useState("");
   const navigate = useNavigate();
   const { selectedCompanyId } = useCompany();
-  const { openNewIssue, openNewAgent } = useDialog();
+  const { openNewIssue, openNewAgent, openNewRoutine } = useDialog();
   const { isMobile, setSidebarOpen } = useSidebar();
   const searchQuery = query.trim();
 
@@ -136,6 +137,15 @@ export function CommandPalette() {
           <CommandItem onSelect={() => go("/projects")}>
             <Plus className="mr-2 h-4 w-4" />
             Create new project
+          </CommandItem>
+          <CommandItem
+            onSelect={() => {
+              setOpen(false);
+              openNewRoutine();
+            }}
+          >
+            <Repeat className="mr-2 h-4 w-4" />
+            Create new routine
           </CommandItem>
         </CommandGroup>
 

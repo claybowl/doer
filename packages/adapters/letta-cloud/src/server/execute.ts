@@ -1,7 +1,185 @@
-import type { AdapterExecutionContext, AdapterExecutionResult } from "@paperclipai/adapter-utils";
+import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
-import { getLettaClient } from "./letta-client.js";
-import { renderTemplate } from "@paperclipai/adapter-utils/server-utils";
+import {
+  attachTool,
+  DELIVERABLE_TOOL_NAME,
+  ensureDeliverableTool,
+  fetchAgentSnapshot,
+  getLettaClient,
+} from "./letta-client.js";
+import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
+
+// Process-local cache: agents we've verified have produce_deliverable
+// attached. Cleared on adapter restart, which is fine — re-attach is
+// idempotent and runs at most once per agent per server lifetime.
+const deliverableToolVerifiedAgents = new Set<string>();
+
+/**
+ * Self-heal hook: ensure the produce_deliverable tool is registered AND
+ * attached to this agent before we start streaming.
+ *
+ * Why this exists:
+ *   on-hire-approved is the canonical attach point, but agents created
+ *   before that hook shipped (or hires that errored mid-flight) end up
+ *   with the tool missing. Letta agents that lack produce_deliverable
+ *   silently fail file production — the agent calls a non-existent
+ *   tool, gets an error, hallucinates success or loops. Catching this
+ *   at run-time turns a silent failure into a self-healing one.
+ *
+ * Cost: ~one network round-trip per agent per server lifetime. After
+ * verification the agent is cached and subsequent wakes skip entirely.
+ *
+ * Failure mode: non-fatal. If the self-heal fails, we log to stderr
+ * and continue. The run can still produce a useful transcript even
+ * if the deliverable path is broken.
+ */
+async function ensureDeliverableToolAttached(
+  ctx: AdapterExecutionContext,
+  config: LettaCloudAdapterConfig,
+): Promise<void> {
+  if (deliverableToolVerifiedAgents.has(config.agentId)) return;
+  try {
+    const snapshot = await fetchAgentSnapshot(config);
+    const alreadyAttached = snapshot.tools.some(
+      (t) => t.name === DELIVERABLE_TOOL_NAME,
+    );
+    if (alreadyAttached) {
+      deliverableToolVerifiedAgents.add(config.agentId);
+      return;
+    }
+    const toolId = await ensureDeliverableTool(config);
+    await attachTool(config, toolId);
+    await ctx.onLog(
+      "stdout",
+      `[letta-cloud] self-heal: attached ${DELIVERABLE_TOOL_NAME} to ${config.agentId}\n`,
+    );
+    deliverableToolVerifiedAgents.add(config.agentId);
+  } catch (err) {
+    await ctx.onLog(
+      "stderr",
+      `[letta-cloud] self-heal failed for ${config.agentId} (continuing run): ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+    // Don't cache failure — next wake retries. If Letta is just
+    // transiently unhappy, we want to recover on the next attempt.
+  }
+}
+
+/**
+ * Handle a `produce_deliverable` tool call by POSTing the decoded file to
+ * the Doer API. This runs fire-and-forget: Letta has already executed the
+ * stub tool and will continue the agent's reasoning regardless. The
+ * returned promise is tracked so the adapter can await completion at end
+ * of run and surface failures in logs.
+ *
+ * We do the work here — in the adapter, on the user's localhost — because
+ * Letta's cloud sandbox can't reach the user's Doer server. That's the
+ * whole reason for the adapter-side interception pattern.
+ */
+async function postDeliverableFromToolCall(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<void> {
+  const kind = typeof args.kind === "string" ? args.kind : null;
+  const filename = typeof args.filename === "string" ? args.filename : null;
+  const title = typeof args.title === "string" ? args.title : null;
+  const contentB64 =
+    typeof args.file_content_base64 === "string" ? args.file_content_base64 : null;
+
+  if (!kind || !filename || !title || !contentB64) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] produce_deliverable missing required fields; skipping`,
+      { kind, filename, title, hasContent: !!contentB64 },
+    );
+    return;
+  }
+
+  let bytes: Buffer;
+  try {
+    bytes = Buffer.from(contentB64, "base64");
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] produce_deliverable base64 decode failed:`,
+      err instanceof Error ? err.message : err,
+    );
+    return;
+  }
+  if (bytes.length === 0) {
+    // eslint-disable-next-line no-console
+    console.warn(`[letta-cloud] produce_deliverable: decoded content is empty`);
+    return;
+  }
+
+  const env = buildPaperclipEnv(ctx.agent);
+  const apiUrl = env.DOER_API_URL;
+  if (!apiUrl) {
+    // eslint-disable-next-line no-console
+    console.warn(
+      `[letta-cloud] No DOER_API_URL resolved; cannot post deliverable`,
+    );
+    return;
+  }
+
+  const form = new FormData();
+  // The server infers contentType from `kind` — we just label the blob
+  // with something sane. application/octet-stream is the safe fallback.
+  form.append(
+    "file",
+    new Blob([new Uint8Array(bytes)], { type: "application/octet-stream" }),
+    filename,
+  );
+  form.append("kind", kind);
+  form.append("filename", filename);
+  form.append("title", title);
+  if (typeof args.description === "string" && args.description.trim()) {
+    form.append("description", args.description);
+  }
+  if (typeof args.issue_id === "string" && args.issue_id.trim()) {
+    form.append("issueId", args.issue_id);
+  }
+  if (typeof args.project_id === "string" && args.project_id.trim()) {
+    form.append("projectId", args.project_id);
+  }
+
+  const headers: Record<string, string> = {};
+  if (ctx.authToken) {
+    headers.Authorization = `Bearer ${ctx.authToken}`;
+  }
+  // Carry the run id so the deliverable row is attributed to this run.
+  headers["X-Doer-Run-Id"] = ctx.runId;
+
+  const endpoint = `${apiUrl.replace(/\/+$/, "")}/api/companies/${ctx.agent.companyId}/deliverables`;
+
+  try {
+    const res = await fetch(endpoint, {
+      method: "POST",
+      body: form,
+      headers,
+    });
+    if (!res.ok) {
+      const bodyText = await res.text().catch(() => "");
+      await ctx.onLog(
+        "stderr",
+        `[deliverable] POST ${endpoint} -> ${res.status} ${bodyText.slice(0, 400)}\n`,
+      );
+      return;
+    }
+    const body = (await res.json().catch(() => null)) as {
+      id?: string;
+      title?: string;
+    } | null;
+    await ctx.onLog(
+      "stdout",
+      `[deliverable] stored id=${body?.id ?? "?"} title=${JSON.stringify(body?.title ?? title)}\n`,
+    );
+  } catch (err) {
+    await ctx.onLog(
+      "stderr",
+      `[deliverable] POST failed: ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+  }
+}
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -63,6 +241,105 @@ function parseToolArgs(args: unknown): unknown {
   }
 }
 
+/** Read a non-empty string from an unknown value, else null */
+function readNonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Build the user message sent to Letta for this heartbeat.
+ *
+ * Two modes — selected by whether the heartbeat context contains a
+ * task / issue id:
+ *
+ *  - **TASK MODE** — the agent has been woken FOR a specific task.
+ *    The wake message names the task explicitly so the agent's wake
+ *    context (Constitution L1) overrides any memory-block heartbeat
+ *    protocol that would otherwise route the agent into queue review.
+ *    The agent is told to read the issue body and execute it; the
+ *    base heartbeatPrompt template is intentionally NOT included
+ *    (the issue body is the instruction set for this wake).
+ *
+ *  - **QUEUE REVIEW** — no specific task. The agent's existing
+ *    heartbeatPrompt (or "Hello" default) is used, prefixed with a
+ *    short reminder that they should check for issues assigned to
+ *    THEM specifically before doing meta-management work.
+ *
+ * Both modes start with a `[DOER HEARTBEAT — *MODE*]` header so the
+ * agent can tell at a glance which mode it's in.
+ *
+ * Exported for unit testing.
+ */
+export function buildWakeMessage(
+  ctx: AdapterExecutionContext,
+  fallbackUserMessage: string,
+): string {
+  const context = (ctx.context ?? {}) as Record<string, unknown>;
+  const taskKey =
+    readNonEmptyString(context.taskKey) ??
+    readNonEmptyString(context.taskId) ??
+    readNonEmptyString(context.issueId);
+  const wakeReason = readNonEmptyString(context.wakeReason) ?? "unspecified";
+  const wakeCommentId = readNonEmptyString(context.wakeCommentId);
+  const agentName = ctx.agent?.name ?? "agent";
+
+  if (taskKey) {
+    // ── TASK MODE ────────────────────────────────────────────────────
+    // Explicit assignment. Wake context wins; ignore the queue-review
+    // heartbeatPrompt entirely so it can't compete with the issue
+    // body for salience.
+    const lines = [
+      "[DOER HEARTBEAT — TASK MODE]",
+      "You have been assigned a specific task. Focus on it.",
+      "",
+      `YOUR TASK: ${taskKey}`,
+      `WAKE REASON: ${wakeReason}`,
+    ];
+    if (wakeCommentId) {
+      lines.push(`TRIGGERING COMMENT: ${wakeCommentId}`);
+    }
+    lines.push(
+      "",
+      `Read the issue body for ${taskKey} and execute its instructions.`,
+      "Do NOT run queue-review, Chef-signaling, or council protocols",
+      "unless the issue body itself asks for them.",
+      "",
+      "Per your Constitution, the wake context (this message + the issue",
+      `body of ${taskKey}) is the highest-priority instruction. Memory`,
+      "blocks describe your DEFAULT mode of operation — they do not",
+      "override an explicit task assignment.",
+      "",
+      "When you finish: update the issue status (done / blocked /",
+      "needs_human) and add a comment summarizing what you did. If you",
+      "cannot finish in this heartbeat, leave the issue in_progress and",
+      "explain what's blocking you.",
+    );
+    return lines.join("\n");
+  }
+
+  // ── QUEUE REVIEW MODE ──────────────────────────────────────────────
+  // No specific task. Wrap the existing heartbeatPrompt with a short
+  // preamble so the agent doesn't dive straight into meta-management
+  // without first checking if THEY have direct work to do.
+  return [
+    "[DOER HEARTBEAT — QUEUE REVIEW MODE]",
+    `You (${agentName}) have been woken for a general check, not a specific task.`,
+    "",
+    "Before any queue-meta work (counting issues, signaling Chef,",
+    "commenting on stale items), check whether you have issues assigned",
+    "to YOU specifically with status in_progress or todo. Those are",
+    "your direct work — handle the highest-priority one first.",
+    "",
+    "If you have no assigned work, then run your standard heartbeat",
+    "protocol from your work-instructions memory block.",
+    "",
+    "──────────────────────────────────────────────────────────",
+    fallbackUserMessage,
+  ].join("\n");
+}
+
 // ── Emit helpers — one JSON line per stdout write ──────────────────────────
 // The UI parser (`parseLettaCloudStdoutLine`) will parse these back into
 // TranscriptEntry objects for the real-time dashboard transcript.
@@ -80,6 +357,12 @@ async function executeStreaming(
 ): Promise<AdapterExecutionResult> {
   const client = getLettaClient(config);
 
+  // Self-heal: make sure produce_deliverable is attached before we
+  // start streaming. First wake per agent per server lifetime does
+  // the verification; subsequent wakes are cached. See
+  // ensureDeliverableToolAttached for rationale.
+  await ensureDeliverableToolAttached(ctx, config);
+
   // Emit the user message so the transcript shows the full conversation
   await emit(ctx, { type: "user_message", content: userMessage });
 
@@ -94,30 +377,117 @@ async function executeStreaming(
   let cachedTokens = 0;
   let stepCount = 0;
 
+  // Accumulator for async-fire work triggered by tool calls we intercept
+  // (notably `produce_deliverable`). We await all of these after the
+  // Letta stream closes so the adapter doesn't return before file uploads
+  // finish — otherwise the caller could see a "run complete" event before
+  // the deliverable row is inserted.
+  const pendingSideEffects: Promise<void>[] = [];
+
+  // ----------------------------------------------------------------------
+  // Stream-token accumulator
+  // ----------------------------------------------------------------------
+  // We request `stream_tokens: true` from Letta because it gives us live,
+  // typewriter-style streaming during the run. The downside is each chunk
+  // becomes a separate message_type event (often a partial word — "ng" +
+  // "rok", "Heart" + "beat"). If we naively emit each chunk as its own
+  // assistant_message / reasoning_message event, the Doer transcript UI
+  // renders each as a sibling node and inserts whitespace between, so
+  // users see "Heart beat" instead of "Heartbeat" everywhere.
+  //
+  // Fix: accumulate consecutive chunks of the same kind (and same Letta
+  // message id, when present), emit one consolidated event when the kind
+  // changes, when a new logical message starts, when a non-streamable
+  // event arrives (tool calls, returns, errors, etc.), or when the
+  // stream ends.
+  type StreamKind = "assistant" | "reasoning";
+  type StreamBuffer = {
+    kind: StreamKind;
+    messageId: string | null;
+    text: string;
+  };
+  let streamBuffer: StreamBuffer | null = null;
+
+  async function flushStreamBuffer(): Promise<void> {
+    if (!streamBuffer || streamBuffer.text.length === 0) {
+      streamBuffer = null;
+      return;
+    }
+    if (streamBuffer.kind === "assistant") {
+      await emit(ctx, {
+        type: "assistant_message",
+        content: streamBuffer.text,
+      });
+    } else {
+      await emit(ctx, {
+        type: "reasoning_message",
+        content: streamBuffer.text,
+      });
+    }
+    streamBuffer = null;
+  }
+
+  // Helper: append `text` to the buffer, opening a new buffer or flushing
+  // the previous one when the kind / messageId changes.
+  async function appendToStreamBuffer(
+    kind: StreamKind,
+    messageId: string | null,
+    text: string,
+  ): Promise<void> {
+    if (text.length === 0) return;
+    if (
+      streamBuffer &&
+      (streamBuffer.kind !== kind || streamBuffer.messageId !== messageId)
+    ) {
+      await flushStreamBuffer();
+    }
+    if (!streamBuffer) {
+      streamBuffer = { kind, messageId, text: "" };
+    }
+    streamBuffer.text += text;
+  }
+
+  // Streamable Letta message_types — anything else is a logical break and
+  // forces the buffer to drain BEFORE we run that event's handler so the
+  // ordering of events the UI sees stays correct (assistant text before
+  // the tool call it triggered, etc.).
+  const STREAMABLE_TYPES = new Set(["assistant_message", "reasoning_message"]);
+
   for await (const chunk of stream) {
     const rec = chunk as unknown as Record<string, unknown>;
     const messageType = String(rec.message_type ?? "");
 
+    // Drain accumulated streaming chunks before any non-streamable event
+    // so the consumer sees them in the correct interleaved order.
+    if (!STREAMABLE_TYPES.has(messageType) && streamBuffer) {
+      await flushStreamBuffer();
+    }
+
     switch (messageType) {
       case "assistant_message": {
         const text = extractAssistantContent(rec.content);
-        if (text) {
-          await emit(ctx, { type: "assistant_message", content: text });
-        }
+        const messageId =
+          typeof rec.id === "string" ? rec.id : null;
+        await appendToStreamBuffer("assistant", messageId, text);
         break;
       }
 
       case "reasoning_message": {
-        const reasoning = typeof rec.reasoning === "string" ? rec.reasoning : "";
-        if (reasoning) {
-          await emit(ctx, { type: "reasoning_message", content: reasoning });
-        }
+        const reasoning =
+          typeof rec.reasoning === "string" ? rec.reasoning : "";
+        const messageId =
+          typeof rec.id === "string" ? rec.id : null;
+        await appendToStreamBuffer("reasoning", messageId, reasoning);
         break;
       }
 
       case "hidden_reasoning_message": {
-        // Redacted reasoning — show that the agent is thinking
-        await emit(ctx, { type: "reasoning_message", content: "(reasoning redacted by model)" });
+        // Redacted reasoning — emit as a single line, not buffered. The
+        // pre-loop drain already flushed any pending streamable chunks.
+        await emit(ctx, {
+          type: "reasoning_message",
+          content: "(reasoning redacted by model)",
+        });
         break;
       }
 
@@ -131,6 +501,23 @@ async function executeStreaming(
             const toolCallId = typeof call.tool_call_id === "string" ? call.tool_call_id : undefined;
             const input = parseToolArgs(call.arguments ?? call.input);
             await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
+
+            // Interception: when the agent calls `produce_deliverable`,
+            // Letta's sandbox runs a no-op stub. The REAL work happens
+            // here — we decode the base64 file bytes and POST to the
+            // Doer server on localhost. Fire-and-track: don't block the
+            // stream, but await at the end so the run doesn't "finish"
+            // before the deliverable row exists.
+            if (
+              name === DELIVERABLE_TOOL_NAME &&
+              input &&
+              typeof input === "object" &&
+              !Array.isArray(input)
+            ) {
+              pendingSideEffects.push(
+                postDeliverableFromToolCall(ctx, input as Record<string, unknown>),
+              );
+            }
           }
         }
         break;
@@ -201,6 +588,20 @@ async function executeStreaming(
     }
   }
 
+  // Final drain of the streaming accumulator — there may be a trailing
+  // assistant_message or reasoning_message that wasn't followed by a
+  // non-streamable event before the stream closed.
+  if (streamBuffer) {
+    await flushStreamBuffer();
+  }
+
+  // Drain any pending deliverable uploads before reporting success. We
+  // use Promise.allSettled so a failing upload doesn't reject the whole
+  // run — individual failures already log to stderr via ctx.onLog.
+  if (pendingSideEffects.length > 0) {
+    await Promise.allSettled(pendingSideEffects);
+  }
+
   return {
     exitCode: 0,
     signal: null,
@@ -225,17 +626,18 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     return { exitCode: 1, signal: null, timedOut: false };
   }
 
-  // The task message is passed via context.message (Paperclip standard)
-  // If not set, fall back to heartbeatPrompt config, then to a sensible default.
-  let userMessage =
+  // Resolve the base user message: explicit override (context.message
+  // or context.prompt) → rendered heartbeatPrompt template → "Hello".
+  // This becomes the QUEUE-REVIEW body if no task is assigned to this
+  // wake; in TASK MODE it's discarded (issue body is the instruction).
+  let baseMessage =
     typeof ctx.context.message === "string"
       ? ctx.context.message
       : typeof ctx.context.prompt === "string"
         ? ctx.context.prompt
         : null;
 
-  // If no explicit message/prompt, use heartbeatPrompt template or default
-  if (!userMessage) {
+  if (!baseMessage) {
     const heartbeatPrompt = config.heartbeatPrompt?.trim();
     if (heartbeatPrompt) {
       const templateData = {
@@ -246,11 +648,15 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
         run: { id: ctx.runId ?? "" },
         context: ctx.context ?? {},
       };
-      userMessage = renderTemplate(heartbeatPrompt, templateData);
+      baseMessage = renderTemplate(heartbeatPrompt, templateData);
     } else {
-      userMessage = "Hello";
+      baseMessage = "Hello";
     }
   }
+
+  // Wrap the base message in a TASK-MODE header (if context names a
+  // task) or a QUEUE-REVIEW preamble. See `buildWakeMessage` for why.
+  const userMessage = buildWakeMessage(ctx, baseMessage);
 
   try {
     await ctx.onMeta?.({

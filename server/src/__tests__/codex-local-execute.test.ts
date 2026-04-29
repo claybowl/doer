@@ -2,19 +2,19 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
-import { execute } from "@paperclipai/adapter-codex-local/server";
+import { execute } from "@doerai/adapter-codex-local/server";
 
 async function writeFakeCodexCommand(commandPath: string): Promise<void> {
   const script = `#!/usr/bin/env node
 const fs = require("node:fs");
 
-const capturePath = process.env.PAPERCLIP_TEST_CAPTURE_PATH;
+const capturePath = process.env.DOER_TEST_CAPTURE_PATH;
 const payload = {
   argv: process.argv.slice(2),
   prompt: fs.readFileSync(0, "utf8"),
   codexHome: process.env.CODEX_HOME || null,
   paperclipEnvKeys: Object.keys(process.env)
-    .filter((key) => key.startsWith("PAPERCLIP_"))
+    .filter((key) => key.startsWith("DOER_"))
     .sort(),
 };
 if (capturePath) {
@@ -41,13 +41,13 @@ type LogEntry = {
 };
 
 describe("codex execute", () => {
-  it("uses a Paperclip-managed CODEX_HOME outside worktree mode while preserving shared auth and config", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-execute-default-"));
+  it("uses a Doer-managed CODEX_HOME outside worktree mode while preserving shared auth and config", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-codex-execute-default-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "codex");
     const capturePath = path.join(root, "capture.json");
     const sharedCodexHome = path.join(root, "shared-codex-home");
-    const paperclipHome = path.join(root, "paperclip-home");
+    const paperclipHome = path.join(root, "doer-home");
     const managedCodexHome = path.join(
       paperclipHome,
       "instances",
@@ -63,14 +63,14 @@ describe("codex execute", () => {
     await writeFakeCodexCommand(commandPath);
 
     const previousHome = process.env.HOME;
-    const previousPaperclipHome = process.env.PAPERCLIP_HOME;
-    const previousPaperclipInstanceId = process.env.PAPERCLIP_INSTANCE_ID;
-    const previousPaperclipInWorktree = process.env.PAPERCLIP_IN_WORKTREE;
+    const previousPaperclipHome = process.env.DOER_HOME;
+    const previousPaperclipInstanceId = process.env.DOER_INSTANCE_ID;
+    const previousPaperclipInWorktree = process.env.DOER_IN_WORKTREE;
     const previousCodexHome = process.env.CODEX_HOME;
     process.env.HOME = root;
-    process.env.PAPERCLIP_HOME = paperclipHome;
-    delete process.env.PAPERCLIP_INSTANCE_ID;
-    delete process.env.PAPERCLIP_IN_WORKTREE;
+    process.env.DOER_HOME = paperclipHome;
+    delete process.env.DOER_INSTANCE_ID;
+    delete process.env.DOER_IN_WORKTREE;
     process.env.CODEX_HOME = sharedCodexHome;
 
     try {
@@ -94,9 +94,9 @@ describe("codex execute", () => {
           command: commandPath,
           cwd: workspace,
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -121,18 +121,18 @@ describe("codex execute", () => {
       expect(logs).toContainEqual(
         expect.objectContaining({
           stream: "stdout",
-          chunk: expect.stringContaining("Using Paperclip-managed Codex home"),
+          chunk: expect.stringContaining("Using Doer-managed Codex home"),
         }),
       );
     } finally {
       if (previousHome === undefined) delete process.env.HOME;
       else process.env.HOME = previousHome;
-      if (previousPaperclipHome === undefined) delete process.env.PAPERCLIP_HOME;
-      else process.env.PAPERCLIP_HOME = previousPaperclipHome;
-      if (previousPaperclipInstanceId === undefined) delete process.env.PAPERCLIP_INSTANCE_ID;
-      else process.env.PAPERCLIP_INSTANCE_ID = previousPaperclipInstanceId;
-      if (previousPaperclipInWorktree === undefined) delete process.env.PAPERCLIP_IN_WORKTREE;
-      else process.env.PAPERCLIP_IN_WORKTREE = previousPaperclipInWorktree;
+      if (previousPaperclipHome === undefined) delete process.env.DOER_HOME;
+      else process.env.DOER_HOME = previousPaperclipHome;
+      if (previousPaperclipInstanceId === undefined) delete process.env.DOER_INSTANCE_ID;
+      else process.env.DOER_INSTANCE_ID = previousPaperclipInstanceId;
+      if (previousPaperclipInWorktree === undefined) delete process.env.DOER_IN_WORKTREE;
+      else process.env.DOER_IN_WORKTREE = previousPaperclipInWorktree;
       if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
       else process.env.CODEX_HOME = previousCodexHome;
       await fs.rm(root, { recursive: true, force: true });
@@ -140,7 +140,7 @@ describe("codex execute", () => {
   });
 
   it("emits a command note that Codex auto-applies repo-scoped AGENTS.md files", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-execute-notes-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-codex-execute-notes-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "codex");
     const capturePath = path.join(root, "capture.json");
@@ -171,9 +171,9 @@ describe("codex execute", () => {
           command: commandPath,
           cwd: workspace,
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -186,7 +186,7 @@ describe("codex execute", () => {
       expect(result.exitCode).toBe(0);
       expect(result.errorMessage).toBeNull();
       expect(commandNotes).toContain(
-        "Codex exec automatically applies repo-scoped AGENTS.md instructions from the current workspace; Paperclip does not currently suppress that discovery.",
+        "Codex exec automatically applies repo-scoped AGENTS.md instructions from the current workspace; Doer does not currently suppress that discovery.",
       );
     } finally {
       if (previousHome === undefined) delete process.env.HOME;
@@ -196,12 +196,12 @@ describe("codex execute", () => {
   });
 
   it("uses a worktree-isolated CODEX_HOME while preserving shared auth and config", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-execute-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-codex-execute-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "codex");
     const capturePath = path.join(root, "capture.json");
     const sharedCodexHome = path.join(root, "shared-codex-home");
-    const paperclipHome = path.join(root, "paperclip-home");
+    const paperclipHome = path.join(root, "doer-home");
     const isolatedCodexHome = path.join(
       paperclipHome,
       "instances",
@@ -210,7 +210,7 @@ describe("codex execute", () => {
       "company-1",
       "codex-home",
     );
-    const homeSkill = path.join(isolatedCodexHome, "skills", "paperclip");
+    const homeSkill = path.join(isolatedCodexHome, "skills", "doer");
     await fs.mkdir(workspace, { recursive: true });
     await fs.mkdir(sharedCodexHome, { recursive: true });
     await fs.writeFile(path.join(sharedCodexHome, "auth.json"), '{"token":"shared"}\n', "utf8");
@@ -218,14 +218,14 @@ describe("codex execute", () => {
     await writeFakeCodexCommand(commandPath);
 
     const previousHome = process.env.HOME;
-    const previousPaperclipHome = process.env.PAPERCLIP_HOME;
-    const previousPaperclipInstanceId = process.env.PAPERCLIP_INSTANCE_ID;
-    const previousPaperclipInWorktree = process.env.PAPERCLIP_IN_WORKTREE;
+    const previousPaperclipHome = process.env.DOER_HOME;
+    const previousPaperclipInstanceId = process.env.DOER_INSTANCE_ID;
+    const previousPaperclipInWorktree = process.env.DOER_IN_WORKTREE;
     const previousCodexHome = process.env.CODEX_HOME;
     process.env.HOME = root;
-    process.env.PAPERCLIP_HOME = paperclipHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "worktree-1";
-    process.env.PAPERCLIP_IN_WORKTREE = "true";
+    process.env.DOER_HOME = paperclipHome;
+    process.env.DOER_INSTANCE_ID = "worktree-1";
+    process.env.DOER_IN_WORKTREE = "true";
     process.env.CODEX_HOME = sharedCodexHome;
 
     try {
@@ -249,9 +249,9 @@ describe("codex execute", () => {
           command: commandPath,
           cwd: workspace,
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -266,14 +266,14 @@ describe("codex execute", () => {
       const capture = JSON.parse(await fs.readFile(capturePath, "utf8")) as CapturePayload;
       expect(capture.codexHome).toBe(isolatedCodexHome);
       expect(capture.argv).toEqual(expect.arrayContaining(["exec", "--json", "-"]));
-      expect(capture.prompt).toContain("Follow the paperclip heartbeat.");
+      expect(capture.prompt).toContain("Follow the doer heartbeat.");
       expect(capture.paperclipEnvKeys).toEqual(
         expect.arrayContaining([
-          "PAPERCLIP_AGENT_ID",
-          "PAPERCLIP_API_KEY",
-          "PAPERCLIP_API_URL",
-          "PAPERCLIP_COMPANY_ID",
-          "PAPERCLIP_RUN_ID",
+          "DOER_AGENT_ID",
+          "DOER_API_KEY",
+          "DOER_API_URL",
+          "DOER_COMPANY_ID",
+          "DOER_RUN_ID",
         ]),
       );
 
@@ -294,18 +294,18 @@ describe("codex execute", () => {
       expect(logs).toContainEqual(
         expect.objectContaining({
           stream: "stdout",
-          chunk: expect.stringContaining('Injected Codex skill "paperclip"'),
+          chunk: expect.stringContaining('Injected Codex skill "doer"'),
         }),
       );
     } finally {
       if (previousHome === undefined) delete process.env.HOME;
       else process.env.HOME = previousHome;
-      if (previousPaperclipHome === undefined) delete process.env.PAPERCLIP_HOME;
-      else process.env.PAPERCLIP_HOME = previousPaperclipHome;
-      if (previousPaperclipInstanceId === undefined) delete process.env.PAPERCLIP_INSTANCE_ID;
-      else process.env.PAPERCLIP_INSTANCE_ID = previousPaperclipInstanceId;
-      if (previousPaperclipInWorktree === undefined) delete process.env.PAPERCLIP_IN_WORKTREE;
-      else process.env.PAPERCLIP_IN_WORKTREE = previousPaperclipInWorktree;
+      if (previousPaperclipHome === undefined) delete process.env.DOER_HOME;
+      else process.env.DOER_HOME = previousPaperclipHome;
+      if (previousPaperclipInstanceId === undefined) delete process.env.DOER_INSTANCE_ID;
+      else process.env.DOER_INSTANCE_ID = previousPaperclipInstanceId;
+      if (previousPaperclipInWorktree === undefined) delete process.env.DOER_IN_WORKTREE;
+      else process.env.DOER_IN_WORKTREE = previousPaperclipInWorktree;
       if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
       else process.env.CODEX_HOME = previousCodexHome;
       await fs.rm(root, { recursive: true, force: true });
@@ -313,27 +313,27 @@ describe("codex execute", () => {
   });
 
   it("respects an explicit CODEX_HOME config override even in worktree mode", async () => {
-    const root = await fs.mkdtemp(path.join(os.tmpdir(), "paperclip-codex-execute-explicit-"));
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-codex-execute-explicit-"));
     const workspace = path.join(root, "workspace");
     const commandPath = path.join(root, "codex");
     const capturePath = path.join(root, "capture.json");
     const sharedCodexHome = path.join(root, "shared-codex-home");
     const explicitCodexHome = path.join(root, "explicit-codex-home");
-    const paperclipHome = path.join(root, "paperclip-home");
+    const paperclipHome = path.join(root, "doer-home");
     await fs.mkdir(workspace, { recursive: true });
     await fs.mkdir(sharedCodexHome, { recursive: true });
     await fs.writeFile(path.join(sharedCodexHome, "auth.json"), '{"token":"shared"}\n', "utf8");
     await writeFakeCodexCommand(commandPath);
 
     const previousHome = process.env.HOME;
-    const previousPaperclipHome = process.env.PAPERCLIP_HOME;
-    const previousPaperclipInstanceId = process.env.PAPERCLIP_INSTANCE_ID;
-    const previousPaperclipInWorktree = process.env.PAPERCLIP_IN_WORKTREE;
+    const previousPaperclipHome = process.env.DOER_HOME;
+    const previousPaperclipInstanceId = process.env.DOER_INSTANCE_ID;
+    const previousPaperclipInWorktree = process.env.DOER_IN_WORKTREE;
     const previousCodexHome = process.env.CODEX_HOME;
     process.env.HOME = root;
-    process.env.PAPERCLIP_HOME = paperclipHome;
-    process.env.PAPERCLIP_INSTANCE_ID = "worktree-1";
-    process.env.PAPERCLIP_IN_WORKTREE = "true";
+    process.env.DOER_HOME = paperclipHome;
+    process.env.DOER_INSTANCE_ID = "worktree-1";
+    process.env.DOER_IN_WORKTREE = "true";
     process.env.CODEX_HOME = sharedCodexHome;
 
     try {
@@ -356,10 +356,10 @@ describe("codex execute", () => {
           command: commandPath,
           cwd: workspace,
           env: {
-            PAPERCLIP_TEST_CAPTURE_PATH: capturePath,
+            DOER_TEST_CAPTURE_PATH: capturePath,
             CODEX_HOME: explicitCodexHome,
           },
-          promptTemplate: "Follow the paperclip heartbeat.",
+          promptTemplate: "Follow the doer heartbeat.",
         },
         context: {},
         authToken: "run-jwt-token",
@@ -371,17 +371,17 @@ describe("codex execute", () => {
 
       const capture = JSON.parse(await fs.readFile(capturePath, "utf8")) as CapturePayload;
       expect(capture.codexHome).toBe(explicitCodexHome);
-      expect((await fs.lstat(path.join(explicitCodexHome, "skills", "paperclip"))).isSymbolicLink()).toBe(true);
+      expect((await fs.lstat(path.join(explicitCodexHome, "skills", "doer"))).isSymbolicLink()).toBe(true);
       await expect(fs.lstat(path.join(paperclipHome, "instances", "worktree-1", "codex-home"))).rejects.toThrow();
     } finally {
       if (previousHome === undefined) delete process.env.HOME;
       else process.env.HOME = previousHome;
-      if (previousPaperclipHome === undefined) delete process.env.PAPERCLIP_HOME;
-      else process.env.PAPERCLIP_HOME = previousPaperclipHome;
-      if (previousPaperclipInstanceId === undefined) delete process.env.PAPERCLIP_INSTANCE_ID;
-      else process.env.PAPERCLIP_INSTANCE_ID = previousPaperclipInstanceId;
-      if (previousPaperclipInWorktree === undefined) delete process.env.PAPERCLIP_IN_WORKTREE;
-      else process.env.PAPERCLIP_IN_WORKTREE = previousPaperclipInWorktree;
+      if (previousPaperclipHome === undefined) delete process.env.DOER_HOME;
+      else process.env.DOER_HOME = previousPaperclipHome;
+      if (previousPaperclipInstanceId === undefined) delete process.env.DOER_INSTANCE_ID;
+      else process.env.DOER_INSTANCE_ID = previousPaperclipInstanceId;
+      if (previousPaperclipInWorktree === undefined) delete process.env.DOER_IN_WORKTREE;
+      else process.env.DOER_IN_WORKTREE = previousPaperclipInWorktree;
       if (previousCodexHome === undefined) delete process.env.CODEX_HOME;
       else process.env.CODEX_HOME = previousCodexHome;
       await fs.rm(root, { recursive: true, force: true });

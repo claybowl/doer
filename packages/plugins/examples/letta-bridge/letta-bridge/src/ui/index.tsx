@@ -6,7 +6,7 @@ import {
 	type PluginWidgetProps,
 	type PluginPageProps,
 	type PluginSettingsPageProps,
-} from "@paperclipai/plugin-sdk/ui";
+} from "@doerai/plugin-sdk/ui";
 import type { LettaAgent, AgentsData } from "../types.js";
 
 // --- Connection Widget (Dashboard) ---
@@ -122,7 +122,7 @@ export function SettingsPage({ context }: PluginSettingsPageProps) {
 	return (
 		<div style={{ maxWidth: 600, padding: 24 }}>
 			<h2>Letta Connection</h2>
-			<p style={{ color: "#666" }}>Import your Letta agents into Paperclip</p>
+			<p style={{ color: "#666" }}>Import your Letta agents into Doer</p>
 
 			<div style={{ display: "flex", flexDirection: "column", gap: 16, marginTop: 24 }}>
 				<div>

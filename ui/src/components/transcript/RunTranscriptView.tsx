@@ -278,14 +278,14 @@ function parseSystemActivity(text: string): { activityId?: string; name: string;
 
 function shouldHideNiceModeStderr(text: string): boolean {
   const normalized = compactWhitespace(text).toLowerCase();
-  return normalized.startsWith("[paperclip] skipping saved session resume");
+  return normalized.startsWith("[doer] skipping saved session resume");
 }
 
 /** True when a stderr message is a warning rather than a hard error. */
 function isStderrWarning(text: string): boolean {
   const normalized = compactWhitespace(text).toLowerCase();
   return (
-    normalized.includes("[paperclip] warning:") ||
+    normalized.includes("[doer] warning:") ||
     normalized.startsWith("warning:") ||
     normalized.startsWith("warn:")
   );

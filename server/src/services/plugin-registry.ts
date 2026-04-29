@@ -1,5 +1,5 @@
 import { asc, eq, ne, sql, and } from "drizzle-orm";
-import type { Db } from "@paperclipai/db";
+import type { Db } from "@doerai/db";
 import {
   plugins,
   pluginConfig,
@@ -7,7 +7,7 @@ import {
   pluginJobs,
   pluginJobRuns,
   pluginWebhookDeliveries,
-} from "@paperclipai/db";
+} from "@doerai/db";
 import type {
   PaperclipPluginManifestV1,
   PluginStatus,
@@ -24,7 +24,7 @@ import type {
   PluginJobRunStatus,
   PluginJobRunTrigger,
   PluginWebhookDeliveryStatus,
-} from "@paperclipai/shared";
+} from "@doerai/shared";
 import { conflict, notFound } from "../errors.js";
 
 // ---------------------------------------------------------------------------
@@ -49,7 +49,7 @@ function isPluginKeyConflict(error: unknown): boolean {
 /**
  * PluginRegistry – CRUD operations for the `plugins` and `plugin_config`
  * tables.  Follows the same factory-function pattern used by the rest of
- * the Paperclip service layer.
+ * the Doer service layer.
  *
  * This is the lowest-level persistence layer for plugins. Higher-level
  * concerns such as lifecycle state-machine enforcement and capability
@@ -436,7 +436,7 @@ export function pluginRegistryService(db: Db) {
         .then((rows) => rows[0] ?? null),
 
     /**
-     * Create or update a persistent mapping between a Paperclip object and an
+     * Create or update a persistent mapping between a Doer object and an
      * external entity.
      *
      * @param pluginId - The UUID of the plugin.

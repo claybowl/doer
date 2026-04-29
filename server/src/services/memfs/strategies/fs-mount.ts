@@ -1,6 +1,6 @@
 import { promises as fs } from "node:fs";
 import path from "node:path";
-import type { ResolvedMemfsBinding } from "@paperclipai/shared";
+import type { ResolvedMemfsBinding } from "@doerai/shared";
 import { normalizeMemfsPath } from "../store.js";
 import type { MemfsMountStrategy, MemfsMountResult, MemfsMountContext } from "./types.js";
 

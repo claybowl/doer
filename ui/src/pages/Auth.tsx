@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useNavigate, useSearchParams } from "@/lib/router";
+import { useNavigate, useSearchParams, Link } from "@/lib/router";
 import { authApi } from "../api/auth";
 import { queryKeys } from "../lib/queryKeys";
 import { Button } from "@/components/ui/button";
@@ -60,6 +60,11 @@ export function AuthPage() {
     password.trim().length > 0 &&
     (mode === "sign_in" || (name.trim().length > 0 && password.trim().length >= 8));
 
+  function handleOAuthSignIn(provider: "google" | "github") {
+    const nextEncoded = encodeURIComponent(nextPath);
+    window.location.href = `/api/auth/sign-in/${provider}?callbackURL=${nextEncoded}`;
+  }
+
   if (isSessionLoading) {
     return (
       <div className="fixed inset-0 flex items-center justify-center">
@@ -75,11 +80,11 @@ export function AuthPage() {
         <div className="w-full max-w-md mx-auto my-auto px-8 py-12">
           <div className="flex items-center gap-2 mb-8">
             <Sparkles className="h-4 w-4 text-muted-foreground" />
-            <span className="text-sm font-medium">Paperclip</span>
+            <span className="text-sm font-medium">Doer</span>
           </div>
 
           <h1 className="text-xl font-semibold">
-            {mode === "sign_in" ? "Sign in to Paperclip" : "Create your Paperclip account"}
+            {mode === "sign_in" ? "Sign in to Doer" : "Create your Doer account"}
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {mode === "sign_in"
@@ -87,8 +92,34 @@ export function AuthPage() {
               : "Create an account for this instance. Email confirmation is not required in v1."}
           </p>
 
+          <div className="mt-6 space-y-2">
+            <button
+              type="button"
+              className="w-full flex items-center justify-center rounded-md border border-border bg-transparent px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              onClick={() => handleOAuthSignIn("google")}
+            >
+              Continue with Google
+            </button>
+            <button
+              type="button"
+              className="w-full flex items-center justify-center rounded-md border border-border bg-transparent px-3 py-2 text-sm font-medium hover:bg-muted transition-colors"
+              onClick={() => handleOAuthSignIn("github")}
+            >
+              Continue with GitHub
+            </button>
+          </div>
+
+          <div className="relative my-4">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-border" />
+            </div>
+            <div className="relative flex justify-center text-xs">
+              <span className="bg-background px-2 text-muted-foreground">or continue with email</span>
+            </div>
+          </div>
+
           <form
-            className="mt-6 space-y-4"
+            className="space-y-4"
             method="post"
             action={mode === "sign_up" ? "/api/auth/sign-up/email" : "/api/auth/sign-in/email"}
             onSubmit={(event) => {
@@ -140,6 +171,16 @@ export function AuthPage() {
                 autoComplete={mode === "sign_in" ? "current-password" : "new-password"}
               />
             </div>
+            {mode === "sign_in" && (
+              <div className="text-right">
+                <Link
+                  to="/forgot-password"
+                  className="text-xs text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                >
+                  Forgot password?
+                </Link>
+              </div>
+            )}
             {error && <p className="text-xs text-destructive">{error}</p>}
             <Button
               type="submit"

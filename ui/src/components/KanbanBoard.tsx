@@ -36,7 +36,7 @@ import {
   DropdownMenuSubContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Issue } from "@paperclipai/shared";
+import type { Issue } from "@doerai/shared";
 
 const boardStatuses = [
   "backlog",

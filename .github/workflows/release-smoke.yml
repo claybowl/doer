@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       paperclip_version:
-        description: Published Paperclip dist-tag to test
+        description: Published Doer dist-tag to test
         required: true
         default: canary
         type: choice
@@ -86,9 +86,9 @@ jobs:
 
       - name: Run release smoke Playwright suite
         env:
-          PAPERCLIP_RELEASE_SMOKE_BASE_URL: ${{ env.SMOKE_BASE_URL }}
-          PAPERCLIP_RELEASE_SMOKE_EMAIL: ${{ env.SMOKE_ADMIN_EMAIL }}
-          PAPERCLIP_RELEASE_SMOKE_PASSWORD: ${{ env.SMOKE_ADMIN_PASSWORD }}
+          DOER_RELEASE_SMOKE_BASE_URL: ${{ env.SMOKE_BASE_URL }}
+          DOER_RELEASE_SMOKE_EMAIL: ${{ env.SMOKE_ADMIN_EMAIL }}
+          DOER_RELEASE_SMOKE_PASSWORD: ${{ env.SMOKE_ADMIN_PASSWORD }}
         run: pnpm run test:release-smoke
 
       - name: Capture Docker logs
