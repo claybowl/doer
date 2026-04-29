@@ -60,7 +60,11 @@ jobs:
           node-version: 24
           cache: pnpm
 
-      - name: Install dependencies
+      - name: Install dependencies (root workspace)
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Install dependencies (desktop)
+        working-directory: desktop
         run: pnpm install --no-frozen-lockfile
 
       - name: Override version (optional)
