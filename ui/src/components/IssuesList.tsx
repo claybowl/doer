@@ -371,38 +371,48 @@ export function IssuesList({
   };
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-5">
+      {/* Page header */}
+      <div className="flex items-center justify-between gap-4">
+        <div>
+          <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Issues</p>
+          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
+            {filtered.length > 0 ? `${filtered.length} issue${filtered.length === 1 ? "" : "s"}` : "Issues"}
+          </h1>
+        </div>
+        <Button size="sm" onClick={() => openNewIssue(newIssueDefaults())}>
+          <Plus className="h-4 w-4 mr-1.5" />
+          New Issue
+        </Button>
+      </div>
+
       {/* Toolbar */}
       <div className="flex items-center justify-between gap-2 sm:gap-3">
-        <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-          <Button size="sm" variant="outline" onClick={() => openNewIssue(newIssueDefaults())}>
-            <Plus className="h-4 w-4 sm:mr-1" />
-            <span className="hidden sm:inline">New Issue</span>
-          </Button>
-          <IssuesSearchInput
-            initialValue={initialSearch ?? ""}
-            onValueCommitted={handleIssueSearchCommit}
-          />
-        </div>
+        <IssuesSearchInput
+          initialValue={initialSearch ?? ""}
+          onValueCommitted={handleIssueSearchCommit}
+        />
 
-        <div className="flex items-center gap-0.5 sm:gap-1 shrink-0">
+        <div className="flex items-center gap-1 shrink-0">
           {/* View mode toggle */}
-          <div className="flex items-center border border-border rounded-md overflow-hidden mr-1">
+          <div className="flex items-center border border-border rounded-md overflow-hidden">
             <button
-              className={`p-1.5 transition-colors ${viewState.viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`p-1.5 transition-colors ${viewState.viewMode === "list" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/40"}`}
               onClick={() => updateView({ viewMode: "list" })}
               title="List view"
             >
               <List className="h-3.5 w-3.5" />
             </button>
             <button
-              className={`p-1.5 transition-colors ${viewState.viewMode === "board" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground"}`}
+              className={`p-1.5 transition-colors ${viewState.viewMode === "board" ? "bg-accent text-foreground" : "text-muted-foreground hover:text-foreground hover:bg-accent/40"}`}
               onClick={() => updateView({ viewMode: "board" })}
               title="Board view"
             >
               <Columns3 className="h-3.5 w-3.5" />
             </button>
           </div>
+
+          <div className="w-px h-5 bg-border mx-0.5" />
 
           {/* Swimlane toggle (only in board mode) */}
           {viewState.viewMode === "board" && (
@@ -411,10 +421,10 @@ export function IssuesList({
                 <Button
                   variant="ghost"
                   size="sm"
-                  className={`text-xs ${viewState.swimlaneBy !== "none" ? "text-blue-600 dark:text-blue-400" : ""}`}
+                  className={`text-xs gap-1.5 ${viewState.swimlaneBy !== "none" ? "text-blue-600 dark:text-blue-400" : ""}`}
                   title="Swimlanes"
                 >
-                  <Rows3 className="h-3.5 w-3.5 sm:mr-1" />
+                  <Rows3 className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">
                     {viewState.swimlaneBy === "none" ? "Swimlanes" : `By ${viewState.swimlaneBy}`}
                   </span>
@@ -444,15 +454,18 @@ export function IssuesList({
           {/* Filter */}
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="ghost" size="sm" className={`text-xs ${activeFilterCount > 0 ? "text-blue-600 dark:text-blue-400" : ""}`}>
-                <Filter className="h-3.5 w-3.5 sm:h-3 sm:w-3 sm:mr-1" />
-                <span className="hidden sm:inline">{activeFilterCount > 0 ? `Filters: ${activeFilterCount}` : "Filter"}</span>
-                {activeFilterCount > 0 && (
-                  <span className="sm:hidden text-[10px] font-medium ml-0.5">{activeFilterCount}</span>
-                )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className={`text-xs gap-1.5 ${activeFilterCount > 0 ? "text-blue-600 dark:text-blue-400" : ""}`}
+              >
+                <Filter className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">
+                  {activeFilterCount > 0 ? `Filter · ${activeFilterCount}` : "Filter"}
+                </span>
                 {activeFilterCount > 0 && (
                   <X
-                    className="h-3 w-3 ml-1 hidden sm:block"
+                    className="h-3 w-3"
                     onClick={(e) => {
                       e.stopPropagation();
                       updateView({ statuses: [], priorities: [], assignees: [], labels: [], projects: [] });
@@ -615,8 +628,8 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-xs">
-                  <ArrowUpDown className="h-3.5 w-3.5 sm:h-3 sm:w-3 sm:mr-1" />
+                <Button variant="ghost" size="sm" className="text-xs gap-1.5">
+                  <ArrowUpDown className="h-3.5 w-3.5" />
                   <span className="hidden sm:inline">Sort</span>
                 </Button>
               </PopoverTrigger>
@@ -659,9 +672,15 @@ export function IssuesList({
           {viewState.viewMode === "list" && (
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="ghost" size="sm" className="text-xs">
-                  <Layers className="h-3.5 w-3.5 sm:h-3 sm:w-3 sm:mr-1" />
-                  <span className="hidden sm:inline">Group</span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className={`text-xs gap-1.5 ${viewState.groupBy !== "none" ? "text-blue-600 dark:text-blue-400" : ""}`}
+                >
+                  <Layers className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">
+                    {viewState.groupBy === "none" ? "Group" : `By ${viewState.groupBy}`}
+                  </span>
                 </Button>
               </PopoverTrigger>
               <PopoverContent align="end" className="w-44 p-0">
@@ -727,9 +746,11 @@ export function IssuesList({
           }
         />
       ) : (
-        groupedContent.map((group) => (
+        <div className="rounded-lg border border-border overflow-hidden">
+        {groupedContent.map((group) => (
           <Collapsible
             key={group.key}
+            className="group"
             open={!viewState.collapsedGroups.includes(group.key)}
             onOpenChange={(open) => {
               updateView({
@@ -740,17 +761,20 @@ export function IssuesList({
             }}
           >
             {group.label && (
-              <div className="flex items-center py-1.5 pl-1 pr-3">
-                <CollapsibleTrigger className="flex items-center gap-1.5">
+              <div className="flex items-center py-2 pl-1 pr-3 border-b border-border/60 bg-muted/30">
+                <CollapsibleTrigger className="flex items-center gap-1.5 group/trigger">
                   <ChevronRight className="h-3.5 w-3.5 shrink-0 text-muted-foreground transition-transform [[data-state=open]>&]:rotate-90" />
-                  <span className="text-sm font-semibold uppercase tracking-wide">
+                  <span className="text-xs font-semibold text-muted-foreground group-hover/trigger:text-foreground transition-colors">
                     {group.label}
+                  </span>
+                  <span className="text-xs text-muted-foreground/60">
+                    {group.items.length}
                   </span>
                 </CollapsibleTrigger>
                 <Button
                   variant="ghost"
                   size="icon-xs"
-                  className="ml-auto text-muted-foreground"
+                  className="ml-auto text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
                   onClick={() => openNewIssue(newIssueDefaults(group.key))}
                 >
                   <Plus className="h-3 w-3" />
@@ -841,7 +865,7 @@ export function IssuesList({
                       >
                         <PopoverTrigger asChild>
                           <button
-                            className="flex w-[180px] shrink-0 items-center rounded-md px-2 py-1 transition-colors hover:bg-accent/50"
+                            className="flex min-w-[120px] max-w-[180px] shrink-0 items-center rounded-md px-2 py-1 transition-colors hover:bg-accent/50"
                             onClick={(e) => {
                               e.preventDefault();
                               e.stopPropagation();
@@ -942,7 +966,8 @@ export function IssuesList({
               ))}
             </CollapsibleContent>
           </Collapsible>
-        ))
+        ))}
+        </div>
       )}
     </div>
   );

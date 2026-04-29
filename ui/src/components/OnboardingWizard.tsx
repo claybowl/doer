@@ -42,7 +42,10 @@ import { OpenCodeLogoIcon } from "./OpenCodeLogoIcon";
 import {
   Building2,
   Bot,
+  Cloud,
   Code,
+  Cpu,
+  Database,
   Gem,
   ListTodo,
   Rocket,
@@ -66,7 +69,10 @@ type AdapterType =
   | "pi_local"
   | "cursor"
   | "http"
-  | "openclaw_gateway";
+  | "openclaw_gateway"
+  | "letta_cloud"
+  | "hermes_local"
+  | "letta_memfs";
 
 const DEFAULT_TASK_DESCRIPTION = `You are the CEO. You set the direction for the company.
 
@@ -210,7 +216,8 @@ export function OnboardingWizard() {
     adapterType === "gemini_local" ||
     adapterType === "opencode_local" ||
     adapterType === "pi_local" ||
-    adapterType === "cursor";
+    adapterType === "cursor" ||
+    adapterType === "hermes_local";
   const effectiveAdapterCommand =
     command.trim() ||
     (adapterType === "codex_local"
@@ -223,6 +230,8 @@ export function OnboardingWizard() {
       ? "agent"
       : adapterType === "opencode_local"
       ? "opencode"
+      : adapterType === "hermes_local"
+      ? "hermes"
       : "claude");
 
   useEffect(() => {
@@ -820,6 +829,26 @@ export function OnboardingWizard() {
                       <div className="grid grid-cols-2 gap-2 mt-2">
                         {[
                           {
+                            value: "letta_cloud" as const,
+                            label: "Letta Cloud",
+                            icon: Cloud,
+                            desc: "Stateful Letta agent"
+                          },
+                          {
+                            value: "hermes_local" as const,
+                            label: "Hermes",
+                            icon: Cpu,
+                            desc: "Local Hermes agent"
+                          },
+                          {
+                            value: "letta_memfs" as const,
+                            label: "Letta memfs",
+                            icon: Database,
+                            desc: "Local Letta w/ memfs",
+                            comingSoon: true,
+                            disabledLabel: "Coming soon"
+                          },
+                          {
                             value: "gemini_local" as const,
                             label: "Gemini CLI",
                             icon: Gem,
@@ -881,6 +910,10 @@ export function OnboardingWizard() {
                                 }
                                 return;
                               }
+                              if (nextType === "letta_cloud" || nextType === "hermes_local") {
+                                setModel("");
+                                return;
+                              }
                               setModel("");
                             }}
                           >
@@ -904,7 +937,8 @@ export function OnboardingWizard() {
                     adapterType === "gemini_local" ||
                     adapterType === "opencode_local" ||
                     adapterType === "pi_local" ||
-                    adapterType === "cursor") && (
+                    adapterType === "cursor" ||
+                    adapterType === "hermes_local") && (
                     <div className="space-y-3">
                       <div>
                         <label className="text-xs text-muted-foreground mb-1 block">

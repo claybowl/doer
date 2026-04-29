@@ -139,6 +139,22 @@ const BUNDLED_PLUGIN_EXAMPLES: AvailablePluginExample[] = [
     localPath: "packages/plugins/examples/plugin-kitchen-sink-example",
     tag: "example",
   },
+  {
+    packageName: "@doerai/plugin-wiki-graph",
+    pluginKey: "doer-wiki-graph",
+    displayName: "Wiki & Graph",
+    description: "Karpathy-style LLM wiki and Graphify-style knowledge graph over Doer memfs memory and gremlin work outputs. Bridges agent minds and agent hands into one navigable view per company.",
+    localPath: "packages/plugins/examples/plugin-wiki-graph",
+    tag: "example",
+  },
+  {
+    packageName: "@doerai/plugin-schrute-benchmark",
+    pluginKey: "doer-schrute-benchmark",
+    displayName: "Schrute Benchmark",
+    description: "Run the Dwight-N AI office simulation against your Doer agent team. Creates one Doer issue per desk, tracks completion, and scores results in Dw units (1.0 Dw = 1 human office worker output).",
+    localPath: "packages/plugins/examples/plugin-schrute-benchmark",
+    tag: "example",
+  },
 ];
 
 function listBundledPluginExamples(): AvailablePluginExample[] {

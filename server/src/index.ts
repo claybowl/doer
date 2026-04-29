@@ -385,6 +385,23 @@ export async function startServer(): Promise<StartedServer> {
         }
 
         if (existsSync(postmasterPidFile)) {
+          // Kill the owning process before removing the lockfile. If we only
+          // remove the file, a surviving orphan postgres rewrites it immediately
+          // and the new process still can't start (the most common cause of the
+          // "lock file already exists" error on restart).
+          try {
+            const stalePidLine = readFileSync(postmasterPidFile, "utf8").split("\n")[0]?.trim();
+            const stalePid = Number(stalePidLine);
+            if (Number.isInteger(stalePid) && stalePid > 0) {
+              logger.warn(`Killing stale embedded PostgreSQL process (pid=${stalePid}) before removing lock file`);
+              try { process.kill(stalePid, "SIGTERM"); } catch { /* already dead */ }
+              // Give it 500 ms to exit cleanly, then force-kill.
+              await new Promise<void>((res) => setTimeout(res, 500));
+              try { process.kill(stalePid, "SIGKILL"); } catch { /* already dead, fine */ }
+            }
+          } catch {
+            // Can't read pid from lockfile — just remove it and proceed.
+          }
           logger.warn("Removing stale embedded PostgreSQL lock file");
           rmSync(postmasterPidFile, { force: true });
         }
