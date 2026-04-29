@@ -388,4 +388,9 @@ export interface CreateConfigValues {
    * their form values here — keyed by ConfigFieldSchema.key.
    */
   adapterSchemaValues?: Record<string, unknown>;
+  // ── letta-af-opencode adapter ──────────────────────────────────────────────
+  /** Absolute path to the .af export file */
+  afPath?: string;
+  /** Heartbeat prompt injected on timer-triggered agent wakes */
+  heartbeatPrompt?: string;
 }
