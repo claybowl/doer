@@ -85,7 +85,9 @@ for (const t of targets) {
 		continue;
 	}
 
-	const zipUrl = `${DOER_UPDATE_URL}/${S3_FOLDER}/${t.platform}/${t.arch}/${encodeURIComponent(t.filename)}`;
+	// DOER_UPDATE_URL already includes the folder (e.g. https://cdn.example.com/beta).
+	// Do NOT prepend S3_FOLDER here — that would double it (beta/beta/...).
+	const zipUrl = `${DOER_UPDATE_URL}/${t.platform}/${t.arch}/${encodeURIComponent(t.filename)}`;
 	const manifest = {
 		url: zipUrl,
 		name: version,
