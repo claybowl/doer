@@ -27,7 +27,12 @@ const config: ForgeConfig = {
 	makers: [
 		// Explicit name strips the @doer/ scope from package.json that Squirrel
 		// can't handle (interprets the / as a path separator → ENOENT on .nuspec).
-		new MakerSquirrel({ name: "doer-desktop" }),
+		// authors is required by Squirrel's nuspec generator and isn't in package.json.
+		new MakerSquirrel({
+			name: "doer-desktop",
+			authors: "Donjon Intelligence Systems",
+			description: "Doer — control plane for AI-agent companies",
+		}),
 		new MakerZIP({}, ["darwin"]),
 	],
 	publishers: [
