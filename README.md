@@ -1,28 +1,3 @@
-<p align="center">
-  <img src="doc/assets/header.png" alt="Doer — runs your business" width="720" />
-</p>
-
-<p align="center">
-  <a href="#quickstart"><strong>Quickstart</strong></a> &middot;
-  <a href="https://doer.donjon.agency/docs"><strong>Docs</strong></a> &middot;
-  <a href="https://github.com/doerai/doer"><strong>GitHub</strong></a> &middot;
-  <a href="https://discord.gg/m4HZY7xNG3"><strong>Discord</strong></a>
-</p>
-
-<p align="center">
-  <a href="https://github.com/doerai/doer/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
-  <a href="https://github.com/doerai/doer/stargazers"><img src="https://img.shields.io/github/stars/doerai/doer?style=flat" alt="Stars" /></a>
-  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white" alt="Discord" /></a>
-</p>
-
-<br/>
-
-<div align="center">
-  <video src="https://github.com/user-attachments/assets/773bdfb2-6d1e-4e30-8c5f-3487d5b70c8f" width="600" controls></video>
-</div>
-
-<br/>
-
 # Open-source orchestration for autonomous AI companies
 
 **If OpenClaw is an _employee_, Doer is the _company_.**
