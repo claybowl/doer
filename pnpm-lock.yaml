@@ -169,6 +169,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/adapters/letta-af-opencode:
+    dependencies:
+      '@doerai/adapter-opencode-local':
+        specifier: workspace:*
+        version: link:../opencode-local
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/adapters/letta-cloud:
     dependencies:
       '@doerai/adapter-utils':
@@ -279,6 +295,31 @@ importers:
       '@types/node':
         specifier: ^24.6.0
         version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/plugins/examples/plugin-af-import:
+    dependencies:
+      '@doerai/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      '@types/react':
+        specifier: ^19.0.8
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.0.3
+        version: 19.2.3(@types/react@19.2.14)
+      react:
+        specifier: ^19.0.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.5(react@19.2.5)
       typescript:
         specifier: ^5.7.3
         version: 5.9.3
@@ -453,6 +494,37 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/plugins/examples/plugin-schrute-benchmark:
+    dependencies:
+      '@doerai/plugin-sdk':
+        specifier: workspace:*
+        version: link:../../sdk
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../../shared
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      '@types/react':
+        specifier: ^19.0.8
+        version: 19.2.14
+      '@types/react-dom':
+        specifier: ^19.0.3
+        version: 19.2.3(@types/react@19.2.14)
+      esbuild:
+        specifier: ^0.27.3
+        version: 0.27.7
+      react:
+        specifier: ^19.0.0
+        version: 19.2.5
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.2.5(react@19.2.5)
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/plugins/examples/plugin-wiki-graph:
     dependencies:
       '@doerai/plugin-sdk':
@@ -533,6 +605,9 @@ importers:
       '@doerai/adapter-gemini-local':
         specifier: workspace:*
         version: link:../packages/adapters/gemini-local
+      '@doerai/adapter-letta-af-opencode':
+        specifier: workspace:*
+        version: link:../packages/adapters/letta-af-opencode
       '@doerai/adapter-letta-cloud':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cloud
@@ -557,6 +632,9 @@ importers:
       '@doerai/shared':
         specifier: workspace:*
         version: link:../packages/shared
+      '@types/nodemailer':
+        specifier: ^8.0.0
+        version: 8.0.0
       ajv:
         specifier: ^8.18.0
         version: 8.18.0
@@ -596,6 +674,9 @@ importers:
       multer:
         specifier: ^2.0.2
         version: 2.1.1
+      nodemailer:
+        specifier: ^8.0.6
+        version: 8.0.6
       open:
         specifier: ^11.0.0
         version: 11.0.0
@@ -687,6 +768,9 @@ importers:
       '@doerai/adapter-gemini-local':
         specifier: workspace:*
         version: link:../packages/adapters/gemini-local
+      '@doerai/adapter-letta-af-opencode':
+        specifier: workspace:*
+        version: link:../packages/adapters/letta-af-opencode
       '@doerai/adapter-letta-cloud':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cloud
@@ -3524,6 +3608,9 @@ packages:
   '@types/node@25.6.0':
     resolution: {integrity: sha512-+qIYRKdNYJwY3vRCZMdJbPLJAtGjQBudzZzdzwQYkEPQd+PJGixUL5QfvCLDaULoLv+RhT3LDkwEfKaAkgSmNQ==}
 
+  '@types/nodemailer@8.0.0':
+    resolution: {integrity: sha512-fyf8jWULsCo0d0BuoQ75i6IeoHs47qcqxWc7yUdUcV0pOZGjUTTOvwdG1PRXUDqN/8A64yQdQdnA2pZgcdi+cA==}
+
   '@types/qs@6.15.0':
     resolution: {integrity: sha512-JawvT8iBVWpzTrz3EGw9BTQFg3BQNmwERdKE22vlTxawwtbyUSlMppvZYKLZzB5zgACXdXxbD3m1bXaMqP/9ow==}
 
@@ -5122,6 +5209,10 @@ packages:
 
   node-releases@2.0.37:
     resolution: {integrity: sha512-1h5gKZCF+pO/o3Iqt5Jp7wc9rH3eJJ0+nh/CIoiRwjRxde/hAHyLPXYN4V3CqKAbiZPSeJFSWHmJsbkicta0Eg==}
+
+  nodemailer@8.0.6:
+    resolution: {integrity: sha512-Nm2XeuDwwy2wi5A+8jPWwQwNzcjNjhWdE3pVLoXEusxJqCnAPAgnBGkSmiLknbnWuOF9qraRpYZjfxqtKZ4tPw==}
+    engines: {node: '>=6.0.0'}
 
   object-assign@4.1.1:
     resolution: {integrity: sha512-rJgTQnkUnH1sFw8yT6VSU3zD3sWmu6sZhIseY8VX+GRu3P6F7Fu+JNDoXfklElbLJSnc3FUQHVe4cU5hj+BcUg==}
@@ -9304,6 +9395,10 @@ snapshots:
     dependencies:
       undici-types: 7.19.2
 
+  '@types/nodemailer@8.0.0':
+    dependencies:
+      '@types/node': 25.6.0
+
   '@types/qs@6.15.0': {}
 
   '@types/range-parser@1.2.7': {}
@@ -9354,7 +9449,7 @@ snapshots:
 
   '@types/ws@8.18.1':
     dependencies:
-      '@types/node': 24.12.2
+      '@types/node': 25.6.0
 
   '@ungap/structured-clone@1.3.0': {}
 
@@ -11192,6 +11287,8 @@ snapshots:
   next-tick@1.1.0: {}
 
   node-releases@2.0.37: {}
+
+  nodemailer@8.0.6: {}
 
   object-assign@4.1.1: {}
 
