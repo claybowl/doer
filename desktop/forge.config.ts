@@ -24,7 +24,12 @@ const config: ForgeConfig = {
 		},
 	},
 	rebuildConfig: {},
-	makers: [new MakerSquirrel({}), new MakerZIP({}, ["darwin"])],
+	makers: [
+		// Explicit name strips the @doer/ scope from package.json that Squirrel
+		// can't handle (interprets the / as a path separator → ENOENT on .nuspec).
+		new MakerSquirrel({ name: "doer-desktop" }),
+		new MakerZIP({}, ["darwin"]),
+	],
 	publishers: [
 		// Publishes to Cloudflare R2 (S3-compatible API). Requires:
 		//   S3_ENDPOINT          https://<account>.r2.cloudflarestorage.com
