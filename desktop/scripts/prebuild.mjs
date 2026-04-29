@@ -25,7 +25,7 @@ console.log(`[prebuild] repoRoot=${repoRoot}`);
 
 // 1. Build server + transitive deps (skips unrelated plugin examples that
 //    sometimes fail and aren't needed for the bundle).
-run("pnpm -F 'server...' build", repoRoot);
+run("pnpm -F server... build", repoRoot);
 run("pnpm -F ui build", repoRoot);
 
 // 2. Reset .electron-build/
