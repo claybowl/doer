@@ -1,0 +1,111 @@
+name: Desktop Release
+
+# Builds the Doer Electron desktop app for macOS (arm64) and Windows (x64)
+# and publishes installers to Cloudflare R2.
+#
+# Required GitHub secrets (set in repo Settings → Secrets → Actions):
+#   DOER_UPDATE_URL       Public base URL of the R2 bucket, e.g. https://pub-xxxx.r2.dev/doer-releases
+#   S3_BUCKET             R2 bucket name, e.g. doer-releases
+#   S3_ENDPOINT           https://<account-id>.r2.cloudflarestorage.com
+#   S3_ACCESS_KEY_ID      R2 API token access key
+#   S3_SECRET_ACCESS_KEY  R2 API token secret
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build artifacts only — skip R2 publish (safe to test)"
+        required: true
+        type: boolean
+        default: true
+      version_override:
+        description: "Optional: force a specific version (e.g. 0.0.5). Leave blank to use desktop/package.json."
+        required: false
+        type: string
+
+concurrency:
+  group: desktop-release
+  cancel-in-progress: false
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: darwin
+            arch: arm64
+          - os: windows-latest
+            platform: win32
+            arch: x64
+
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Override version (optional)
+        if: ${{ inputs.version_override != '' }}
+        working-directory: desktop
+        shell: bash
+        run: |
+          node -e "
+            const fs = require('fs');
+            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            pkg.version = '${{ inputs.version_override }}';
+            fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2) + '\n');
+          "
+          echo "Version set to ${{ inputs.version_override }}"
+
+      # Dry run: build + package locally, upload as GitHub artifact for inspection
+      - name: Make (dry run — no R2 publish)
+        if: ${{ inputs.dry_run }}
+        working-directory: desktop
+        run: pnpm make
+
+      # Real release: build + publish to R2 + upload RELEASES.json manifest
+      - name: Release (build + publish to R2)
+        if: ${{ !inputs.dry_run }}
+        working-directory: desktop
+        env:
+          DOER_UPDATE_URL: ${{ secrets.DOER_UPDATE_URL }}
+          S3_BUCKET: ${{ secrets.S3_BUCKET }}
+          S3_ENDPOINT: ${{ secrets.S3_ENDPOINT }}
+          S3_REGION: auto
+          S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
+          S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
+          S3_FOLDER: beta
+        run: pnpm release
+
+      # Always upload build artifacts to GitHub so you can grab the installer
+      # even on dry runs. Artifacts expire after 14 days.
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: doer-desktop-${{ matrix.platform }}-${{ matrix.arch }}
+          path: |
+            desktop/out/make/**/*.exe
+            desktop/out/make/**/*.zip
+            desktop/out/make/**/*.nupkg
+          if-no-files-found: warn
+          retention-days: 14
