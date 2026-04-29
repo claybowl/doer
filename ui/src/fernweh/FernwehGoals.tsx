@@ -271,6 +271,26 @@ function GoalDetailDrawer({
 
       {goal ? (
         <>
+          {/* Open full page */}
+          <NavLink
+            to={`/${prefix}/fernweh/goals/${goal.id}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              alignSelf: "flex-end",
+              fontSize: 11,
+              color: "var(--ink-dim)",
+              textDecoration: "none",
+              border: "1px solid var(--line)",
+              borderRadius: 6,
+              padding: "4px 10px",
+              background: "var(--bg-raised)",
+            }}
+          >
+            Open ↗
+          </NavLink>
+
           {/* Status + Level row */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <LevelChip level={goal.level} />

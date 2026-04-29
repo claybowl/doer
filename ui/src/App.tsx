@@ -58,6 +58,7 @@ import { FernwehHome } from "./fernweh/FernwehHome";
 import { FernwehOrgChart } from "./fernweh/FernwehOrgChart";
 import { FernwehAgents } from "./fernweh/FernwehAgents";
 import { FernwehWork } from "./fernweh/FernwehWork";
+import { FernwehIssues } from "./fernweh/FernwehIssues";
 import { FernwehInbox } from "./fernweh/FernwehInbox";
 import { FernwehActivity } from "./fernweh/FernwehActivity";
 import { FernwehApprovals } from "./fernweh/FernwehApprovals";
@@ -65,13 +66,29 @@ import { FernwehCosts } from "./fernweh/FernwehCosts";
 import { FernwehMemory } from "./fernweh/FernwehMemory";
 import { FernwehGoals } from "./fernweh/FernwehGoals";
 import { FernwehRoutines } from "./fernweh/FernwehRoutines";
+import { FernwehGoalDetail } from "./fernweh/FernwehGoalDetail";
+import { FernwehRoutineDetail } from "./fernweh/FernwehRoutineDetail";
+import { FernwehSchruteBenchmark } from "./fernweh/FernwehSchruteBenchmark";
+import { FernwehWikiGraph } from "./fernweh/FernwehWikiGraph";
 import { FernwehProjects } from "./fernweh/FernwehProjects";
 import { FernwehAgentDetail } from "./fernweh/FernwehAgentDetail";
 import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
 import { FernwehDeliverables } from "./fernweh/FernwehDeliverables";
+import { FernwehIssueDetail } from "./fernweh/FernwehIssueDetail";
+import { FernwehApprovalDetail } from "./fernweh/FernwehApprovalDetail";
+import { FernwehProjectDetail } from "./fernweh/FernwehProjectDetail";
 import { FernwehPreferences } from "./fernweh/FernwehPreferences";
 import { FernwehInstanceSettings } from "./fernweh/FernwehInstanceSettings";
 import { FernwehCompanySettings } from "./fernweh/FernwehCompanySettings";
+import { FernwehCompanySkills } from "./fernweh/FernwehCompanySkills";
+import { FernwehCompanyExport } from "./fernweh/FernwehCompanyExport";
+import { FernwehCompanyImport } from "./fernweh/FernwehCompanyImport";
+import { FernwehCompanies } from "./fernweh/FernwehCompanies";
+import { FernwehDesignGuide } from "./fernweh/FernwehDesignGuide";
+import { FernwehWebhooks } from "./fernweh/FernwehWebhooks";
+import { FernwehExecutionWorkspaceDetail } from "./fernweh/FernwehExecutionWorkspaceDetail";
+import { FernwehRunDetail } from "./fernweh/FernwehRunDetail";
+import { FernwehCompanyBranding } from "./fernweh/FernwehCompanyBranding";
 import { PortalPage } from "./portal/PortalPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
@@ -285,7 +302,7 @@ function CompanyRootRedirect() {
     return <NoCompaniesStartPage />;
   }
 
-  return <Navigate to={`/${targetCompany.issuePrefix}/dashboard`} replace />;
+  return <Navigate to={`/${targetCompany.issuePrefix}`} replace />;
 }
 
 function UnprefixedBoardRedirect() {
@@ -384,7 +401,9 @@ export function App() {
           <Route path="projects/:projectId/issues/:filter" element={<UnprefixedBoardRedirect />} />
           <Route path="projects/:projectId/configuration" element={<UnprefixedBoardRedirect />} />
           <Route path="tests/ux/runs" element={<UnprefixedBoardRedirect />} />
-          <Route path=":companyPrefix/fernweh" element={<FernwehShell />}>
+
+          {/* === FERNWEH — DEFAULT UI AT COMPANY ROOT === */}
+          <Route path=":companyPrefix" element={<FernwehShell />}>
             <Route index element={<FernwehDashboard />} />
             <Route path="home" element={<FernwehHome />} />
             <Route path="inbox" element={<FernwehInbox />} />
@@ -392,22 +411,61 @@ export function App() {
             <Route path="agents" element={<FernwehAgents />} />
             <Route path="agents/new" element={<FernwehNewAgent />} />
             <Route path="agents/:agentId" element={<FernwehAgentDetail />} />
+            <Route path="agents/:agentId/:tab" element={<FernwehAgentDetail />} />
+            <Route path="agents/:agentId/runs/:runId" element={<FernwehRunDetail />} />
             <Route path="work" element={<FernwehWork />} />
+            <Route path="work/:issueId" element={<FernwehIssueDetail />} />
+            <Route path="issues" element={<FernwehIssues />} />
+            <Route path="issues/:issueId" element={<Navigate to="../work/:issueId" replace />} />
             <Route path="activity" element={<FernwehActivity />} />
             <Route path="memory" element={<FernwehMemory />} />
             <Route path="outputs" element={<FernwehDeliverables />} />
             <Route path="goals" element={<FernwehGoals />} />
+            <Route path="goals/:goalId" element={<FernwehGoalDetail />} />
             <Route path="projects" element={<FernwehProjects />} />
+            <Route path="projects/:projectId" element={<FernwehProjectDetail />} />
             <Route path="routines" element={<FernwehRoutines />} />
-            <Route path="approvals" element={<FernwehApprovals />} />
+            <Route path="routines/:routineId" element={<FernwehRoutineDetail />} />
+            <Route path="approvals" element={<Navigate to="../approvals/pending" replace />} />
+            <Route path="approvals/pending" element={<FernwehApprovals />} />
+            <Route path="approvals/all" element={<FernwehApprovals />} />
+            <Route path="approvals/:approvalId" element={<FernwehApprovalDetail />} />
             <Route path="costs" element={<FernwehCosts />} />
+            <Route path="companies" element={<FernwehCompanies />} />
+            <Route path="company" element={<Navigate to="settings" replace />} />
+            <Route path="company/settings" element={<FernwehCompanySettings />} />
+            <Route path="company/branding" element={<FernwehCompanyBranding />} />
+            <Route path="company/skills" element={<FernwehCompanySkills />} />
+            <Route path="company/skills/:skillId" element={<FernwehCompanySkills />} />
+            <Route path="company/webhooks" element={<FernwehWebhooks />} />
+            <Route path="company/export" element={<FernwehCompanyExport />} />
+            <Route path="company/import" element={<FernwehCompanyImport />} />
             <Route path="preferences" element={<FernwehPreferences />} />
             <Route path="instance" element={<FernwehInstanceSettings />} />
-            <Route path="company" element={<FernwehCompanySettings />} />
+            <Route path="workspaces/:workspaceId" element={<FernwehExecutionWorkspaceDetail />} />
+            <Route path="benchmark" element={<FernwehSchruteBenchmark />} />
+            <Route path="wiki" element={<FernwehWikiGraph />} />
+            <Route path="design-guide" element={<FernwehDesignGuide />} />
+
+            {/* Redirect old Fernweh paths */}
+            <Route path="fernweh" element={<Navigate to=".." replace />} />
+            <Route path="fernweh/*" element={<Navigate to=".." replace />} />
+
+            {/* Redirect old classic paths to Fernweh equivalents */}
+            <Route path="dashboard" element={<FernwehDashboard />} />
+            <Route path="hq" element={<FernwehDashboard />} />
+            <Route path="schrute-benchmark" element={<FernwehSchruteBenchmark />} />
           </Route>
-          <Route path=":companyPrefix" element={<Layout />}>
+
+          {/* === CLASSIC UI — accessible at /:companyPrefix/classic === */}
+          <Route path=":companyPrefix/classic" element={<Layout />}>
             {boardRoutes()}
           </Route>
+
+          {/* Catch old fernweh-prefixed URLs and redirect */}
+          <Route path=":companyPrefix/fernweh" element={<Navigate to=".." replace />} />
+          <Route path=":companyPrefix/fernweh/*" element={<Navigate to=".." replace />} />
+
           <Route path="*" element={<NotFoundPage scope="global" />} />
         </Route>
         </Routes>

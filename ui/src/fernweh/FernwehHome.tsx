@@ -422,9 +422,20 @@ export function FernwehHome() {
         />
         <StatCard
           icon={I.activity}
-          label="Uptime"
-          value="—"
-          sub="coming soon"
+          label="Agent Health"
+          value={
+            summary && summary.agents.active > 0
+              ? `${Math.round(((summary.agents.active - summary.agents.error) / summary.agents.active) * 100)}%`
+              : "—"
+          }
+          sub={
+            summary && summary.agents.active > 0
+              ? summary.agents.error === 0
+                ? "all agents healthy"
+                : `${summary.agents.error} in error`
+              : undefined
+          }
+          pulse={summary ? summary.agents.error === 0 && summary.agents.active > 0 : false}
         />
       </div>
 

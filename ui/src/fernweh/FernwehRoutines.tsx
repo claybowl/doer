@@ -287,6 +287,26 @@ function RoutineDetailDrawer({
 
       {routine ? (
         <>
+          {/* Open full page */}
+          <NavLink
+            to={`/${prefix}/fernweh/routines/${routine.id}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              alignSelf: "flex-end",
+              fontSize: 11,
+              color: "var(--ink-dim)",
+              textDecoration: "none",
+              border: "1px solid var(--line)",
+              borderRadius: 6,
+              padding: "4px 10px",
+              background: "var(--bg-raised)",
+            }}
+          >
+            Open ↗
+          </NavLink>
+
           {/* Description */}
           {routine.description ? (
             <div style={{ fontSize: 13, color: "var(--ink-dim)", lineHeight: 1.5 }}>{routine.description}</div>

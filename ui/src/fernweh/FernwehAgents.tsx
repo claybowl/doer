@@ -80,10 +80,12 @@ function DetailDrawer({
   agent,
   byId,
   onClose,
+  companyPrefix,
 }: {
   agent: Agent | null;
   byId: Map<string, Agent>;
   onClose: () => void;
+  companyPrefix: string;
 }) {
   React.useEffect(() => {
     if (!agent) return;
@@ -168,25 +170,43 @@ function DetailDrawer({
               {agent.urlKey} · {agent.adapterType}
             </div>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              border: "1px solid var(--line)",
-              background: "var(--bg-raised)",
-              borderRadius: 8,
-              padding: 6,
-              color: "var(--ink-dim)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
-              <path d="M6 6l12 12M18 6L6 18" />
-            </svg>
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Link
+              to={`/${companyPrefix}/fernweh/agents/${agent.id}`}
+              onClick={onClose}
+              style={{
+                fontSize: 11,
+                color: "var(--accent)",
+                textDecoration: "none",
+                padding: "5px 10px",
+                borderRadius: 6,
+                border: "1px solid var(--line)",
+                background: "var(--bg-raised)",
+                whiteSpace: "nowrap",
+              }}
+            >
+              Open →
+            </Link>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              style={{
+                border: "1px solid var(--line)",
+                background: "var(--bg-raised)",
+                borderRadius: 8,
+                padding: 6,
+                color: "var(--ink-dim)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round">
+                <path d="M6 6l12 12M18 6L6 18" />
+              </svg>
+            </button>
+          </div>
         </div>
 
         {/* Body */}
@@ -538,17 +558,21 @@ export function FernwehAgents() {
                 <div style={{ display: "flex", alignItems: "center", gap: 10, minWidth: 0 }}>
                   <Avatar name={agent.name} size={28} />
                   <div style={{ display: "flex", flexDirection: "column", minWidth: 0 }}>
-                    <span
+                    <Link
+                      to={`/${selectedCompany!.issuePrefix}/fernweh/agents/${agent.id}`}
+                      onClick={(e) => e.stopPropagation()}
                       style={{
                         fontSize: 13,
                         fontWeight: 500,
                         overflow: "hidden",
                         textOverflow: "ellipsis",
                         whiteSpace: "nowrap",
+                        color: "var(--ink)",
+                        textDecoration: "none",
                       }}
                     >
                       {agent.name}
-                    </span>
+                    </Link>
                     <span
                       style={{
                         fontSize: 11,
@@ -631,7 +655,12 @@ export function FernwehAgents() {
       </footer>
 
       {/* Drawer */}
-      <DetailDrawer agent={selected} byId={byId} onClose={() => setSelectedId(null)} />
+      <DetailDrawer
+        agent={selected}
+        byId={byId}
+        onClose={() => setSelectedId(null)}
+        companyPrefix={selectedCompany.issuePrefix}
+      />
     </div>
   );
 }

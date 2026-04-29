@@ -86,7 +86,7 @@ export function FernwehCompanySettings() {
           : brandingStats.configured === 0
             ? "Defaults — nothing customized"
             : `${brandingStats.configured} of ${brandingStats.fields} fields customized`,
-      href: `/${prefix}/company/settings`,
+      href: `/${prefix}/fernweh/company/branding`,
     },
     {
       id: "skills",
@@ -99,7 +99,16 @@ export function FernwehCompanySettings() {
         : skillsQuery.error
           ? "—"
           : `${skillsStats.active} attached to agents · ${skillsStats.total} total`,
-      href: `/${prefix}/skills`,
+      href: `/${prefix}/fernweh/company/skills`,
+    },
+    {
+      id: "webhooks",
+      title: "Webhooks",
+      icon: I.bolt,
+      description:
+        "Outbound HTTP webhooks for events like agent heartbeats, issue state changes, and approvals. Manage endpoints, rotate secrets, and inspect delivery logs.",
+      stat: "Manage endpoints",
+      href: `/${prefix}/fernweh/company/webhooks`,
     },
     {
       id: "export",
@@ -157,8 +166,7 @@ export function FernwehCompanySettings() {
 
       {/* Footer */}
       <p style={{ fontSize: 11, color: "var(--ink-faint)", margin: 0, lineHeight: 1.5 }}>
-        Editing surfaces open in the classic Doer UI. Fernweh-native editing for
-        these categories will land in a future polish pass.
+        Export and Import open in the classic Doer UI. Branding, Skills, and Webhooks are fully native to Fernweh.
       </p>
     </div>
   );

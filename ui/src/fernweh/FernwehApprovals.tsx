@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useParams } from "@/lib/router";
+import { NavLink, useParams } from "@/lib/router";
 import type { Approval, ApprovalStatus, ApprovalType, Agent } from "@doerai/shared";
 import { approvalsApi } from "@/api/approvals";
 import { agentsApi } from "@/api/agents";
@@ -10,20 +10,20 @@ import { Icon, I, Avatar, formatRelative, formatCents } from "./utils";
 
 // ---------- helpers ----------
 
-const TYPE_ICON: Record<ApprovalType | "_default", string> = {
+export const TYPE_ICON: Record<ApprovalType | "_default", string> = {
   hire_agent: I.user_plus,
   approve_ceo_strategy: I.brain,
   budget_override_required: I.dollar,
   _default: I.shield,
 };
 
-const TYPE_LABEL: Record<ApprovalType, string> = {
+export const TYPE_LABEL: Record<ApprovalType, string> = {
   hire_agent: "Hire Agent",
   approve_ceo_strategy: "CEO Strategy",
   budget_override_required: "Budget Override",
 };
 
-const STATUS_COLOR: Record<ApprovalStatus, string> = {
+export const STATUS_COLOR: Record<ApprovalStatus, string> = {
   pending: "var(--warn)",
   revision_requested: "var(--warn)",
   approved: "var(--pulse)",
@@ -41,7 +41,7 @@ function inGroup(status: ApprovalStatus, group: StatusGroup): boolean {
   return false;
 }
 
-function approvalLabel(type: ApprovalType, payload: Record<string, unknown> | null | undefined): string {
+export function approvalLabel(type: ApprovalType, payload: Record<string, unknown> | null | undefined): string {
   const base = TYPE_LABEL[type] ?? type;
   const name = payload?.name;
   if (type === "hire_agent" && typeof name === "string" && name.trim()) {
@@ -403,24 +403,43 @@ function ApprovalDrawer({
               </div>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            style={{
-              width: 28,
-              height: 28,
-              borderRadius: 6,
-              border: "1px solid var(--line)",
-              background: "transparent",
-              color: "var(--ink-dim)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-            }}
-            aria-label="Close"
-          >
-            <Icon d={I.x} size={12} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <NavLink
+              to={`/${prefix}/fernweh/approvals/${approval.id}`}
+              title="Open full view"
+              style={{
+                border: "1px solid var(--line)",
+                background: "var(--bg-raised)",
+                borderRadius: 6,
+                padding: "4px 10px",
+                color: "var(--ink-dim)",
+                fontSize: 11,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+              }}
+            >
+              Open ↗
+            </NavLink>
+            <button
+              onClick={onClose}
+              style={{
+                width: 28,
+                height: 28,
+                borderRadius: 6,
+                border: "1px solid var(--line)",
+                background: "transparent",
+                color: "var(--ink-dim)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+              }}
+              aria-label="Close"
+            >
+              <Icon d={I.x} size={12} />
+            </button>
+          </div>
         </div>
 
         {/* body */}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { NavLink } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { useToast } from "@/context/ToastContext";
 import { issuesApi } from "@/api/issues";
@@ -1041,23 +1042,42 @@ function InteractiveIssueDrawer({
               pending={updatePending}
             />
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close"
-            style={{
-              border: "1px solid var(--line)",
-              background: "var(--bg-raised)",
-              borderRadius: 8,
-              padding: 6,
-              color: "var(--ink-dim)",
-              cursor: "pointer",
-              display: "flex",
-              alignItems: "center",
-              flexShrink: 0,
-            }}
-          >
-            <Icon d={I.x} size={12} />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexShrink: 0 }}>
+            <NavLink
+              to={`/${companyPrefix}/fernweh/work/${issue.id}`}
+              title="Open full view"
+              style={{
+                border: "1px solid var(--line)",
+                background: "var(--bg-raised)",
+                borderRadius: 8,
+                padding: "6px 10px",
+                color: "var(--ink-dim)",
+                fontSize: 11,
+                textDecoration: "none",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              Open ↗
+            </NavLink>
+            <button
+              onClick={onClose}
+              aria-label="Close"
+              style={{
+                border: "1px solid var(--line)",
+                background: "var(--bg-raised)",
+                borderRadius: 8,
+                padding: 6,
+                color: "var(--ink-dim)",
+                cursor: "pointer",
+                display: "flex",
+                alignItems: "center",
+              }}
+            >
+              <Icon d={I.x} size={12} />
+            </button>
+          </div>
         </div>
 
         {/* Body */}

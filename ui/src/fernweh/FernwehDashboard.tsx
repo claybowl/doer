@@ -22,6 +22,8 @@ import {
 } from "./utils";
 import type { Agent } from "@doerai/shared";
 import { OutputsSection } from "./OutputsSection";
+import { useLiveRunTranscripts } from "@/components/transcript/useLiveRunTranscripts";
+import type { TranscriptEntry } from "@/adapters";
 
 function Section({
   title,
@@ -151,6 +153,99 @@ function pulseStatus(agent: Agent): FwStatus {
   return "idle";
 }
 
+// Live dialogue feed shown inside each running agent card.
+// Shows only assistant text — no tool calls, no user prompts, no system noise.
+function LiveTranscriptFeed({
+  entries,
+  hasOutput,
+}: {
+  entries: TranscriptEntry[];
+  hasOutput: boolean;
+}) {
+  const bottomRef = React.useRef<HTMLDivElement>(null);
+
+  const visible = React.useMemo(() => {
+    return entries
+      .filter((e) => e.kind === "assistant" || e.kind === "thinking")
+      .slice(-10);
+  }, [entries]);
+
+  React.useEffect(() => {
+    bottomRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+  }, [visible.length]);
+
+  if (visible.length === 0) {
+    const idleBeats: HeartbeatAmp[] = Array.from({ length: 40 }, (_, i) =>
+      i % 3 === 0 ? "work" : "tick"
+    ) as HeartbeatAmp[];
+    return (
+      <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
+        <HeartbeatRibbon beats={idleBeats} width={320} height={28} />
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
+      {/* Top fade so older text dissolves out */}
+      <div
+        style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 32,
+          background: "linear-gradient(to bottom, color-mix(in oklab, var(--accent) 3%, var(--bg-raised)), transparent)",
+          zIndex: 1,
+          pointerEvents: "none",
+        }}
+      />
+      <div
+        style={{
+          height: "100%",
+          overflowY: "auto",
+          scrollbarWidth: "none",
+          display: "flex",
+          flexDirection: "column",
+          gap: 6,
+          paddingTop: 2,
+          paddingBottom: 2,
+        }}
+      >
+        {visible.map((entry, i) => {
+          const isLast = i === visible.length - 1;
+          const isThinking = entry.kind === "thinking";
+          const raw = entry.text.trim();
+          const text = raw.length > 220 ? raw.slice(0, 217) + "…" : raw;
+          const ageRatio = i / Math.max(1, visible.length - 1);
+          return (
+            <p
+              key={i}
+              style={{
+                margin: 0,
+                fontSize: isLast ? 12.5 : 12,
+                lineHeight: 1.6,
+                color: isLast
+                  ? "var(--ink)"
+                  : isThinking
+                  ? "var(--ink-faint)"
+                  : "var(--ink-dim)",
+                opacity: 0.35 + ageRatio * 0.65,
+                fontStyle: isThinking ? "italic" : "normal",
+                whiteSpace: "pre-wrap",
+                wordBreak: "break-word",
+              }}
+            >
+              {isThinking ? `· ${text}` : text}
+            </p>
+          );
+        })}
+        <div ref={bottomRef} />
+      </div>
+    </div>
+  );
+}
+
 export function FernwehDashboard() {
   const { companyPrefix } = useParams<{ companyPrefix: string }>();
   const { selectedCompany } = useCompany();
@@ -200,6 +295,11 @@ export function FernwehDashboard() {
   const liveRuns = liveRunsQuery.data ?? [];
   const recentRuns = recentRunsQuery.data ?? [];
   const recentIssues = recentIssuesQuery.data ?? [];
+
+  const { transcriptByRun, hasOutputForRun } = useLiveRunTranscripts({
+    runs: liveRuns,
+    companyId: companyId ?? null,
+  });
 
   const agentNameById = React.useMemo(() => {
     const m = new Map<string, string>();
@@ -289,6 +389,134 @@ export function FernwehDashboard() {
           </NavLink>
         </div>
       </header>
+
+      {/* Live session viewports — main event, top of page */}
+      <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <header style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
+          <h2 className="fw-display" style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
+            Live
+          </h2>
+          {liveRuns.length > 0 ? (
+            <span className="fw-chip pulse" style={{ fontSize: 10 }}>
+              <span className="fw-dot pulsing" /> {liveRuns.length} session{liveRuns.length !== 1 ? "s" : ""}
+            </span>
+          ) : (
+            <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>idle</span>
+          )}
+        </header>
+        {liveRuns.length === 0 ? (
+          <div
+            className="fw-card"
+            style={{
+              padding: "40px 28px",
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: 12,
+              minHeight: 180,
+              borderStyle: "dashed",
+              color: "var(--ink-faint)",
+            }}
+          >
+            <StatusDot status="idle" />
+            <span style={{ fontSize: 13 }}>No agents running right now.</span>
+            <NavLink
+              to={`/${prefix}/agents`}
+              style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none" }}
+            >
+              Wake an agent →
+            </NavLink>
+          </div>
+        ) : (
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: `repeat(auto-fill, minmax(${liveRuns.length === 1 ? "100%" : liveRuns.length <= 2 ? "360px" : "300px"}, 1fr))`,
+              gap: 14,
+            }}
+          >
+            {liveRuns.map((run) => {
+              const transcript = transcriptByRun.get(run.id) ?? [];
+              const hasOutput = hasOutputForRun(run.id);
+              const cardHeight = liveRuns.length <= 2 ? 260 : liveRuns.length <= 4 ? 200 : 160;
+              return (
+                <NavLink
+                  key={run.id}
+                  to={`/${prefix}/fernweh/agents/${run.agentId}`}
+                  style={{ textDecoration: "none", color: "inherit" }}
+                >
+                  <div
+                    className="fw-card"
+                    style={{
+                      padding: "20px 22px",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 12,
+                      height: cardHeight,
+                      transition: "height .4s var(--fw-ease)",
+                      cursor: "pointer",
+                      overflow: "hidden",
+                      borderColor: "color-mix(in oklab, var(--accent) 30%, var(--line))",
+                      background: "color-mix(in oklab, var(--accent) 3%, var(--bg-raised))",
+                    }}
+                  >
+                    {/* Agent identity */}
+                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
+                      <div style={{ position: "relative" }}>
+                        <Avatar name={run.agentName} size={42} />
+                        <span
+                          style={{
+                            position: "absolute",
+                            bottom: -2,
+                            right: -2,
+                            width: 10,
+                            height: 10,
+                            borderRadius: 999,
+                            background: "var(--pulse)",
+                            border: "2px solid var(--bg-raised)",
+                            animation: "fw-pulse 1.6s var(--fw-ease) infinite",
+                          }}
+                        />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>
+                          {run.agentName}
+                        </div>
+                        <div style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 2 }}>
+                          {run.adapterType.replace(/_/g, " ")}
+                          {run.triggerDetail ? ` · ${run.triggerDetail}` : ""}
+                        </div>
+                      </div>
+                      <span className="fw-chip pulse" style={{ fontSize: 10, flexShrink: 0 }}>
+                        <span className="fw-dot pulsing" /> {run.status}
+                      </span>
+                    </div>
+
+                    {/* Live dialogue feed */}
+                    <LiveTranscriptFeed entries={transcript} hasOutput={hasOutput} />
+
+                    {/* Meta */}
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        fontSize: 11,
+                        color: "var(--ink-faint)",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <span>{run.invocationSource}</span>
+                      <span>{run.startedAt ? formatRelative(run.startedAt) : "just started"}</span>
+                    </div>
+                  </div>
+                </NavLink>
+              );
+            })}
+          </div>
+        )}
+      </section>
 
       {/* Stat grid */}
       <div
@@ -497,41 +725,6 @@ export function FernwehDashboard() {
           hint="files your agents produced"
           limit={5}
         />
-      ) : null}
-
-      {/* Live runs strip */}
-      {liveRuns.length > 0 ? (
-        <Section title="Live runs" hint="streaming">
-          <div className="fw-card" style={{ padding: 0, overflow: "hidden" }}>
-            {liveRuns.slice(0, 8).map((run, idx) => (
-              <div
-                key={run.id}
-                style={{
-                  padding: "10px 14px",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  borderBottom: idx < Math.min(8, liveRuns.length) - 1 ? "1px solid var(--line-soft)" : "none",
-                }}
-              >
-                <Avatar name={run.agentName} size={24} />
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={{ fontSize: 12, fontWeight: 500 }}>{run.agentName}</div>
-                  <div style={{ fontSize: 10, color: "var(--ink-faint)" }}>
-                    {run.invocationSource} · {run.adapterType}
-                    {run.triggerDetail ? ` · ${run.triggerDetail}` : ""}
-                  </div>
-                </div>
-                <span className="fw-chip pulse">
-                  <span className="fw-dot pulsing" /> {run.status}
-                </span>
-                <span style={{ fontSize: 10, color: "var(--ink-faint)" }}>
-                  {run.startedAt ? formatRelative(run.startedAt) : "queued"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </Section>
       ) : null}
 
       {/* Footer */}

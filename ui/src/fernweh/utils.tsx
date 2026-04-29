@@ -224,33 +224,74 @@ export function Spark({
   values,
   width = 80,
   height = 22,
+  color = "var(--accent)",
 }: {
   values: number[];
   width?: number;
   height?: number;
+  color?: string;
 }) {
-  if (!values?.length) return null;
+  const uid = React.useId().replace(/:/g, "");
+  if (!values?.length || values.length < 2) return null;
+
   const min = Math.min(...values);
   const max = Math.max(...values);
   const range = max - min || 1;
+  const padT = 5;
+  const padB = 3;
   const step = width / Math.max(1, values.length - 1);
-  const points = values
-    .map((v, i) => {
-      const x = i * step;
-      const y = height - ((v - min) / range) * (height - 2) - 1;
-      return `${x.toFixed(1)},${y.toFixed(1)}`;
-    })
-    .join(" ");
+
+  const pts: [number, number][] = values.map((v, i) => [
+    +(i * step).toFixed(1),
+    +(padT + (1 - (v - min) / range) * (height - padT - padB)).toFixed(1),
+  ]);
+
+  // Smooth cubic bezier: midpoint control points give natural S-curves
+  let linePath = `M ${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1];
+    const [x1, y1] = pts[i];
+    const mx = +((x0 + x1) / 2).toFixed(1);
+    linePath += ` C ${mx},${y0} ${mx},${y1} ${x1},${y1}`;
+  }
+
+  const x0 = pts[0][0];
+  const xN = pts[pts.length - 1][0];
+  const areaPath = `${linePath} L ${xN},${height} L ${x0},${height} Z`;
+  const [lastX, lastY] = pts[pts.length - 1];
+  const gradId = `sg-${uid}`;
+  const midY = +((padT + (height - padT - padB) / 2)).toFixed(1);
+
   return (
-    <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} style={{ display: "block" }}>
-      <polyline
-        points={points}
+    <svg
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      style={{ display: "block", overflow: "visible" }}
+    >
+      <defs>
+        <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" style={{ stopColor: color, stopOpacity: 0.2 }} />
+          <stop offset="100%" style={{ stopColor: color, stopOpacity: 0 }} />
+        </linearGradient>
+      </defs>
+      {/* Subtle grid */}
+      <line x1={0} y1={height - 1} x2={width} y2={height - 1} stroke="var(--line)" strokeWidth={0.5} />
+      <line x1={0} y1={midY} x2={width} y2={midY} stroke="var(--line)" strokeWidth={0.5} strokeDasharray="3 5" />
+      {/* Gradient area fill */}
+      <path d={areaPath} fill={`url(#${gradId})`} />
+      {/* Smooth line */}
+      <path
+        d={linePath}
         fill="none"
-        stroke="var(--accent)"
+        stroke={color}
         strokeWidth={1.5}
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      {/* Endpoint: soft glow ring + solid dot */}
+      <circle cx={lastX} cy={lastY} r={5} fill={color} opacity={0.15} />
+      <circle cx={lastX} cy={lastY} r={2} fill={color} />
     </svg>
   );
 }

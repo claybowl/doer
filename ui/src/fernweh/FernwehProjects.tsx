@@ -253,6 +253,26 @@ function ProjectDetailDrawer({
 
       {project ? (
         <>
+          {/* Open full page link */}
+          <NavLink
+            to={`/${prefix}/fernweh/projects/${project.id}`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              alignSelf: "flex-end",
+              fontSize: 11,
+              color: "var(--ink-dim)",
+              textDecoration: "none",
+              border: "1px solid var(--line)",
+              borderRadius: 6,
+              padding: "4px 10px",
+              background: "var(--bg-raised)",
+            }}
+          >
+            Open ↗
+          </NavLink>
+
           {/* Status + Target */}
           <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
             <select

@@ -17,5 +17,11 @@
       "lexical": ["./node_modules/lexical/index.d.ts"]
     }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": [
+    "**/* 2.*",
+    "**/* 3.*",
+    "**/* copy.*",
+    "**/* copy 2.*"
+  ]
 }
