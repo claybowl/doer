@@ -1,0 +1,70 @@
+{
+  "id": "LEGOPS-L01-Dana",
+  "dept": "LEGOPS",
+  "level": 1,
+  "title": "Paralegal I",
+  "name": "Dana",
+  "timeBudgetMin": 25,
+  "brief": "You are Dana, a Paralegal I at a 100-person SaaS company. You sit on the Legal & Operations team and handle foundational document work that keeps the contract pipeline moving.\n\nToday you have two tasks. First, a vendor has returned a signed NDA and you need to process it: file the executed copy in the contract management system under the correct vendor folder, update the NDA tracker spreadsheet with the execution date and expiry (one year from signing), and send a confirmation email acknowledging receipt.\n\nSecond, the General Counsel has asked you to pull together a simple summary of your standard SaaS Master Service Agreement (MSA) template — one page, plain language, hitting the key clauses (payment terms, limitation of liability, IP ownership, termination, data handling). This summary will be used in an upcoming sales onboarding session.\n\nStay narrow. Do not draft new legal language; summarize what exists. Flag any clause in the template you find ambiguous so counsel can review.",
+  "deliverables": [
+    {
+      "filename": "nda-filing-confirmation.md",
+      "description": "Confirmation note: vendor name, execution date, expiry date, storage path in contract management system, and next-action owner"
+    },
+    {
+      "filename": "msa-plain-language-summary.md",
+      "description": "One-page plain-language summary of the standard MSA template covering: payment terms, liability cap, IP ownership, termination rights, data handling. Flag any ambiguous clause."
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "23-2011.00",
+      "url": "https://www.onetonline.org/link/summary/23-2011.00",
+      "quote": "Prepare affidavits or other documents, such as legal correspondence, and organize and maintain documents in paper or electronic filing system."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-2011.00",
+      "url": "https://www.onetonline.org/link/summary/23-2011.00",
+      "quote": "Prepare, edit, or review legal documents, including legislation, briefs, pleadings, appeals, wills, contracts, and real estate closing statements."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/legal/paralegals-and-legal-assistants.htm",
+      "quote": "Paralegals and legal assistants perform a variety of tasks to support lawyers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["LEGOPS-L05-Hideo"],
+  "rubric": {
+    "completion": [
+      "Is the NDA filing confirmation note produced?",
+      "Does the confirmation include execution date, expiry date, and storage path?",
+      "Is the MSA plain-language summary produced?",
+      "Does the summary cover all five required clause categories?",
+      "Are ambiguous clauses flagged explicitly?"
+    ],
+    "quality": [
+      "Is the confirmation note formatted for quick scan (no paragraphs of prose)?",
+      "Is the MSA summary written in plain language (no legalese)?",
+      "Is the summary scoped to one page or fewer?",
+      "Are flagged ambiguities specific (named clause, not 'section 3 is unclear')?",
+      "Is the writing free of filler and apologies?"
+    ],
+    "accuracy": [
+      "Does the expiry date correctly add one year to the execution date?",
+      "Does the storage path follow the expected vendor folder convention?",
+      "Does the MSA summary accurately reflect standard SaaS contract terms?",
+      "Are payment term details (net days, late fees) correctly captured?",
+      "Is the IP ownership clause correctly characterized (work-for-hire vs. license)?"
+    ],
+    "handoff": [
+      "Could LEGOPS-L05-Hideo find the filed NDA from the confirmation note alone?",
+      "Is the next-action owner named in the filing confirmation?",
+      "Could a sales rep use the MSA summary in a customer conversation without legal coaching?",
+      "Are flagged ambiguities routed to the right reviewer?",
+      "Is the NDA tracker update clearly described so anyone could verify it?"
+    ]
+  }
+}

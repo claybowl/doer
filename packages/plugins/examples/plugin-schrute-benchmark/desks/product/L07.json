@@ -1,0 +1,79 @@
+{
+  "id": "PROD-L07-Mei",
+  "dept": "PROD",
+  "level": 7,
+  "title": "Senior Director of Product",
+  "name": "Mei",
+  "timeBudgetMin": 45,
+  "brief": "You are Mei, Senior Director of Product. You oversee multiple product areas through Hassan (Director) and report to Diego (VP of Product). Your scope spans the full product surface — you are responsible for the coherence of the product strategy across all teams.\n\nYour day:\n\n1. You have Hassan's quarterly roadmap memo. Write an executive summary (half page) suitable for the VP. Compress Hassan's themes into a narrative arc: where the product is today, what changes this quarter, and the one strategic assumption that must hold for the plan to work. Do not just re-list themes — synthesize them.\n2. Write a cross-functional product strategy brief (2 pages) that frames how Product, Engineering, Design, and CS will operate together this quarter. Cover: shared goals, key interfaces between teams, and how trade-offs will be adjudicated when teams disagree.\n3. Write a product metrics dashboard spec: list 8-10 product KPIs the company should track, organized by layer (acquisition, activation, retention, revenue). For each: metric name, definition, current value (use realistic estimates), target, and the team responsible for moving it.\n4. Prepare a 'state of the product' brief for new hires joining the product team this quarter — 1 page covering current product, market position, team structure, and top 3 priorities.\n\nYou are operating at strategic altitude but you must stay grounded in Hassan's operational output. Your synthesis is what makes Diego's VP decisions tractable.",
+  "deliverables": [
+    {
+      "filename": "roadmap-exec-summary.md",
+      "description": "Half-page VP-ready summary: narrative arc, strategic assumption for the quarter"
+    },
+    {
+      "filename": "cross-functional-strategy-brief.md",
+      "description": "2-page operating brief: shared goals, team interfaces, trade-off adjudication"
+    },
+    {
+      "filename": "product-metrics-dashboard-spec.md",
+      "description": "8-10 KPIs by AARRR layer: name, definition, current, target, owner"
+    },
+    {
+      "filename": "state-of-product-new-hire.md",
+      "description": "1-page new-hire brief: product, market, team structure, top 3 priorities"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish and implement departmental policies, goals, objectives, and procedures, conferring with board members, organization officials, and staff members as necessary."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L06-Hassan"],
+  "downstreamDeskIds": ["PROD-L08-Diego"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the exec summary name the one strategic assumption?",
+      "Does the cross-functional brief cover all four teams (Product, Eng, Design, CS)?",
+      "Does the metrics spec include 8-10 KPIs with current and target values?",
+      "Is the new-hire brief under one page?"
+    ],
+    "quality": [
+      "Does the exec summary synthesize (not just list) Hassan's themes?",
+      "Does the cross-functional brief explain HOW trade-offs are resolved (a process)?",
+      "Are all KPI definitions unambiguous (one could implement tracking from them)?",
+      "Is the strategic assumption falsifiable (not a truism)?",
+      "Is the new-hire brief accessible to someone who just started their first PM role?"
+    ],
+    "accuracy": [
+      "Does the exec summary accurately reflect Hassan's roadmap inputs?",
+      "Are KPI current values realistic for a 100-person SaaS at typical growth stage?",
+      "Does the cross-functional brief address the real friction points between Product and Engineering?",
+      "Are team interfaces in the brief specific enough to be actionable?",
+      "Are the top 3 priorities in the new-hire brief consistent with the OKRs upstream?"
+    ],
+    "handoff": [
+      "Could PROD-L08-Diego approve or adjust the roadmap from the exec summary alone?",
+      "Could Hassan run a cross-functional planning meeting from the strategy brief?",
+      "Could a data analyst build the metrics dashboard from the spec without a follow-up meeting?",
+      "Could a new PM understand their first-week priorities from the new-hire brief?",
+      "Are downstream consumers named in the relevant deliverables?"
+    ]
+  }
+}

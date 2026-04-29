@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L09-Bisi",
+  "dept": "SALES",
+  "level": 9,
+  "title": "VP of Sales",
+  "name": "Bisi",
+  "timeBudgetMin": 55,
+  "brief": "You are Bisi, VP of Sales. You report to Adrian (L10 CRO) and own the full revenue number across commercial and enterprise segments. You are 10 days from quarter close. Your day involves exec-level reporting, cross-functional alignment, and forward planning for the next half-year.\n\n1. Exec revenue report: Prepare the weekly revenue report for Adrian and the executive team. Cover: QTD bookings vs. plan, pipeline coverage ratio, deals in the final stage (with close probability and owner), headcount vs. plan, and your personal call on whether the company closes the quarter on plan.\n\n2. Cross-functional alignment: Write a 1-page brief summarizing how sales depends on three other departments this quarter: what you need from Marketing (demand gen, MQLs), from Legal-Ops (contract velocity), and from Finance (deal desk, discount approvals). For each, state the current status and any escalation needed.\n\n3. Next-half planning: Produce a 2-page go-to-market strategy outline for H2. Cover: target segments, headcount additions, quota philosophy (growth vs. attainability), key plays to run, and the one metric you will be judged on.\n\n4. Board prep: Write 5 slides (as slide outlines, not full decks) for the board revenue section in the upcoming board meeting. Include: revenue performance, pipeline health, sales capacity, competitive landscape summary, and forward guidance.",
+  "deliverables": [
+    {
+      "filename": "exec-revenue-report.md",
+      "description": "Weekly exec revenue report: QTD vs. plan, pipeline coverage, final-stage deals, headcount, personal call"
+    },
+    {
+      "filename": "cross-functional-alignment-brief.md",
+      "description": "1-page brief on dependencies with Marketing, Legal-Ops, and Finance: status and escalations"
+    },
+    {
+      "filename": "h2-gtm-strategy.md",
+      "description": "2-page H2 go-to-market strategy: segments, headcount, quota philosophy, key plays, north star metric"
+    },
+    {
+      "filename": "board-revenue-slide-outlines.md",
+      "description": "5 board slide outlines: performance, pipeline, capacity, competitive, forward guidance"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Direct, coordinate, and review sales and service accounting and record-keeping, as well as receiving and shipping."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Determine price schedules and discount rates."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/sales-managers.htm",
+      "quote": "Sales managers direct organizations' sales teams. They set sales goals, analyze data, and develop training programs for organizations' sales representatives."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L08-Iliana"],
+  "downstreamDeskIds": ["SALES-L10-Adrian"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the exec revenue report include all five required sections?",
+      "Does the alignment brief cover all three cross-functional dependencies?",
+      "Does the H2 GTM strategy cover all five required elements?",
+      "Are all five board slide outlines present with the specified topics?"
+    ],
+    "quality": [
+      "Is the personal call in the exec report a clear binary (on plan / not on plan) with supporting evidence?",
+      "Are escalations in the alignment brief specific enough to act on (name, ask, deadline)?",
+      "Is the H2 quota philosophy a stated position (not a hedge)?",
+      "Are board slide outlines written at board-audience level (strategic, not operational)?",
+      "Is every document concise enough for an exec to read in under 5 minutes?"
+    ],
+    "accuracy": [
+      "Does the pipeline coverage ratio use a realistic multiplier (e.g., 3x–4x for SaaS)?",
+      "Are final-stage deal close probabilities consistent with stage definitions?",
+      "Does the H2 headcount number align with the pipeline coverage required?",
+      "Are cross-functional dependencies described accurately (not aspirational)?",
+      "Is forward guidance in the board slides consistent with the QTD performance data?"
+    ],
+    "handoff": [
+      "Could Adrian present the board slide outlines with minimal additional preparation?",
+      "Is the cross-functional alignment brief ready to share with Marketing, Legal-Ops, and Finance leads?",
+      "Could the H2 GTM strategy seed the next planning cycle without a separate kickoff doc?",
+      "Are escalation owners and timelines named in the alignment brief?",
+      "Could the exec revenue report be sent as-is to the executive team distribution list?"
+    ]
+  }
+}

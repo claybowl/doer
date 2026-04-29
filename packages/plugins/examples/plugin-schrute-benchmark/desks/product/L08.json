@@ -1,0 +1,79 @@
+{
+  "id": "PROD-L08-Diego",
+  "dept": "PROD",
+  "level": 8,
+  "title": "VP of Product",
+  "name": "Diego",
+  "timeBudgetMin": 45,
+  "brief": "You are Diego, VP of Product. You own the product strategy and report to the CPO (Anika). Your most important output today is the roadmap — it goes to engineering to drive the next cycle plan. ENG-L07-Ravi is waiting on you to kick off cycle planning.\n\nYour day:\n\n1. Write the quarterly roadmap document for the engineering cycle plan hand-off (this goes to ENG-L07-Ravi). The document must include: the 3-4 product bets for the quarter, success criteria for each, estimated engineering team allocation (%), known constraints and risks, and a sequencing recommendation (which to start first). This is the primary cross-dept output of your role today.\n2. Write a hiring strategy memo for the product org: current team shape, gaps, 2-3 open roles you're seeking to fill next quarter, and the rationale for prioritizing those over alternatives. This goes to Anika for approval and to HR for sourcing.\n3. Write a 'product principles' document for the team — 5-7 short principles that guide product decisions at this company. Not aspirational posters — operational rules that change what you build and what you don't.\n4. Prepare a VP update for the CPO's weekly: 5-7 bullets covering wins, risks, a decision you made, and one ask from Beatrix.\n\nYou are the highest operational level in product. Below you is execution; above you is strategy and governance.",
+  "deliverables": [
+    {
+      "filename": "quarterly-roadmap-eng-handoff.md",
+      "description": "Roadmap for ENG-L07-Ravi: 3-4 bets, success criteria, team allocation %, constraints, sequencing"
+    },
+    {
+      "filename": "product-hiring-strategy.md",
+      "description": "Hiring memo: current team shape, gaps, 2-3 open roles with rationale — for CPO + HR"
+    },
+    {
+      "filename": "product-principles.md",
+      "description": "5-7 operational product principles that shape build decisions"
+    },
+    {
+      "filename": "vp-update-for-cpo.md",
+      "description": "5-7 bullets: wins, risks, a decision made, one ask from Beatrix"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish and implement departmental policies, goals, objectives, and procedures, conferring with board members, organization officials, and staff members as necessary."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products or services, analyzing business developments and monitoring market trends."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L07-Mei"],
+  "downstreamDeskIds": ["PROD-L09-Anika", "ENG-L07-Ravi"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the roadmap handoff include team allocation percentages?",
+      "Does the roadmap handoff include a sequencing recommendation?",
+      "Does the hiring memo name 2-3 specific open roles?",
+      "Does the product principles doc have 5-7 distinct principles?"
+    ],
+    "quality": [
+      "Are the engineering allocation percentages specific (not just 'most of the team')?",
+      "Do product principles read as operational rules (not wall-art slogans)?",
+      "Does the roadmap include known constraints (not just upside)?",
+      "Is the hiring rationale defensible (trade-off explanation, not just a wish list)?",
+      "Is the CPO update concise enough to scan in 2 minutes?"
+    ],
+    "accuracy": [
+      "Are roadmap bets consistent with Mei's exec summary upstream?",
+      "Does the sequencing recommendation acknowledge the dependency conflicts flagged earlier?",
+      "Are allocation percentages internally consistent (sum to 100%)?",
+      "Do product principles reflect choices that are actually in tension (not easy agreements)?",
+      "Does the one ask in the CPO update require Beatrix's authority (not something Diego can decide)?"
+    ],
+    "handoff": [
+      "Could ENG-L07-Ravi begin cycle planning from the roadmap handoff document alone?",
+      "Could PROD-L09-Anika approve or adjust the hiring plan without follow-up?",
+      "Could the product team apply the principles to a real prioritization decision today?",
+      "Is the CPO update structured so Anika can raise it in an exec meeting?",
+      "Are downstream consumers (ENG-L07-Ravi) named explicitly in the roadmap doc?"
+    ]
+  }
+}

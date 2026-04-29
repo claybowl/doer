@@ -1,0 +1,74 @@
+{
+  "id": "ENG-L01-Marcus",
+  "dept": "ENG",
+  "level": 1,
+  "title": "Junior Software Engineer",
+  "name": "Marcus",
+  "timeBudgetMin": 25,
+  "brief": "You are Marcus, a Junior Software Engineer at a 100-person SaaS company. Today you have one bug ticket and one small data-handling task in your queue.\n\n1. Bug ticket TICKET-4421: \"Profile page crashes when user has no avatar URL\". Read the ticket, write a fix as a code patch (any language — TypeScript preferred), include a brief root-cause explanation, and write 1-2 test cases that would have caught it.\n\n2. Data utility: write a small script (any language) that reads a CSV of {user_id,event_name,timestamp} rows and outputs a JSON summary of event counts per user. Assume the CSV has ~10K rows; don't load it all into memory at once.\n\nYou should NOT design new architecture, ship anything to production, or scope-creep. Stay narrow. Aim for tight, well-tested code.",
+  "deliverables": [
+    {
+      "filename": "ticket-4421-fix.md",
+      "description": "Root-cause analysis (1 paragraph) + code patch (diff or full file) + 1-2 test case descriptions"
+    },
+    {
+      "filename": "event-summary.{js,ts,py}",
+      "description": "The streaming CSV-to-JSON-summary utility. Choose one language."
+    },
+    {
+      "filename": "event-summary-test.md",
+      "description": "Brief test plan: 3-4 input cases + expected outputs"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Modify existing software to correct errors, adapt it to new hardware, or upgrade interfaces and improve performance."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Store, retrieve, and manipulate data for analysis of system capabilities and requirements."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm",
+      "quote": "Software developers analyze users' needs and then design and develop software to meet those needs."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["ENG-L05-Amara"],
+  "rubric": {
+    "completion": [
+      "Did Marcus produce both deliverables (ticket fix + data utility)?",
+      "Does the bug fix include a root-cause statement, not just a patch?",
+      "Are at least 1-2 test cases described for the bug fix?",
+      "Does the data utility produce JSON output, not just print to stdout?",
+      "Is the test plan present as a separate deliverable?"
+    ],
+    "quality": [
+      "Does the code follow standard idioms for the chosen language?",
+      "Is the bug fix narrowly scoped (no unrelated refactoring)?",
+      "Does the data utility actually stream (not load full CSV)?",
+      "Are variable/function names clear and descriptive?",
+      "Is the writing concise (no filler, no apologies)?"
+    ],
+    "accuracy": [
+      "Does the root-cause analysis match the symptom described?",
+      "Would the proposed fix actually resolve the null-avatar crash?",
+      "Does the streaming approach handle the 10K row constraint correctly?",
+      "Are the test cases technically valid (real edge cases, not duplicates)?",
+      "Is the JSON output format internally consistent?"
+    ],
+    "handoff": [
+      "Could a Tech Lead (ENG-L05) review this in under 5 minutes?",
+      "Is the deliverable filename predictable from the ticket ID?",
+      "Are dependencies (libraries, runtime version) stated explicitly?",
+      "Is the patch self-contained (no missing context for review)?",
+      "Did Marcus flag any blockers or open questions to the lead?"
+    ]
+  }
+}

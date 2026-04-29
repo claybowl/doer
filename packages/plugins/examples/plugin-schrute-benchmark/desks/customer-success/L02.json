@@ -1,0 +1,74 @@
+{
+  "id": "CS-L02-Marco",
+  "dept": "CS",
+  "level": 2,
+  "title": "Customer Success Associate",
+  "name": "Marco",
+  "timeBudgetMin": 25,
+  "brief": "You are Marco, a Customer Success Associate at a 100-person SaaS company. You handle a small book of accounts (15 accounts, mostly SMB) and own their onboarding experience for the first 90 days.\n\n1. Onboarding status update: three accounts are currently in week-2 of onboarding. For each, write a status note covering: what milestones they've hit, what's blocked, and your recommended next action. Be specific — generic notes like 'going well' are not useful.\n\n2. Churn risk flag: one of your accounts, Terralux Inc., has been unresponsive for 10 days after a billing inquiry. Draft a recovery email to their primary contact that is warm, concise, and surfaces the value they've gotten so far. Do not offer a discount — escalate that request to CS-L05-Theo if needed.\n\n3. CSAT response: you received a 2/5 CSAT score from Holloway Partners with a free-text comment: \"The dashboard is confusing and setup took too long.\" Write an internal note that (a) summarizes the complaint, (b) maps it to a known product issue if applicable, and (c) recommends an action (e.g., add to QBR agenda, flag to product team).\n\nAll three outputs feed the weekly team summary that Theo compiles.",
+  "deliverables": [
+    {
+      "filename": "onboarding-status-wk2.md",
+      "description": "Status notes for three week-2 accounts: milestones, blockers, next action"
+    },
+    {
+      "filename": "terralux-recovery-email.md",
+      "description": "Recovery email draft to Terralux Inc. — warm, concise, value-focused, no discount offer"
+    },
+    {
+      "filename": "csat-internal-note.md",
+      "description": "Internal CSAT note: complaint summary, product issue mapping, recommended action"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Confer with customers by telephone or in person to provide information about products or services, take or enter orders, cancel accounts, or obtain details of complaints."
+    },
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Contact customers to respond to inquiries or to notify them of claim investigation results or any planned adjustments."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "CSMs who proactively surface churn signals in the first 90 days reduce involuntary churn by up to 30%."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["CS-L05-Theo"],
+  "rubric": {
+    "completion": [
+      "Are status notes present for all three week-2 accounts?",
+      "Does each status note name milestones, blockers, and a next action?",
+      "Is the Terralux recovery email present as a standalone draft?",
+      "Is the CSAT internal note present with all three required sections?",
+      "Does the CSAT note include a recommended action, not just a summary?"
+    ],
+    "quality": [
+      "Are onboarding status notes specific (account names, real milestones, not 'going well')?",
+      "Is the recovery email tone warm without being sycophantic?",
+      "Does the CSAT note correctly distinguish complaint summary from recommended action?",
+      "Is the recovery email under 150 words?",
+      "Does the CSAT note avoid speculation about product intent?"
+    ],
+    "accuracy": [
+      "Does the recovery email refrain from offering a discount?",
+      "Is the Terralux situation characterized as unresponsive (not churned)?",
+      "Does the onboarding status note flag blockers clearly (not conflated with risks)?",
+      "Is the CSAT score (2/5) referenced correctly in the internal note?",
+      "Does the CSAT note include a plausible product issue mapping?"
+    ],
+    "handoff": [
+      "Could CS-L05-Theo include the onboarding notes in a team summary without rewriting?",
+      "Is the recovery email ready to send after a manager spot-check?",
+      "Does the CSAT internal note give the product team a clear action item?",
+      "Are all three deliverables named predictably and separately?",
+      "Is escalation to CS-L05-Theo named explicitly where needed?"
+    ]
+  }
+}

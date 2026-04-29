@@ -1,0 +1,84 @@
+{
+  "id": "DES-L10-Ngozi",
+  "dept": "DES",
+  "level": 10,
+  "title": "Chief Design Officer",
+  "name": "Ngozi",
+  "timeBudgetMin": 55,
+  "brief": "You are Ngozi, Chief Design Officer (CDO) and Chief Experience Officer. You sit on the executive team and own design as a company-level discipline — not just a function. You report to the CEO, present to the board, and set the vision for how the product feels, reads, and is remembered.\n\nYour day:\n\n1. Design vision memo: write a 1-page memo for the executive team and the board. Where is the company's design going over the next 18 months? What makes the experience hard to copy? What is the one bet that, if it lands, defines the next era of the product?\n2. Board pre-read on design health: 1 page covering design org size, quality signal (with a real metric — NPS correlation, task completion rate, design-to-engineering defect rate), top 2 experience risks, and what the board should ask the product team about experience quality.\n3. Design investment ask: there is a $1.5M ask on the table for a dedicated research and content design capability that doesn't exist today. Write a 2-page argument: what you're buying, what the return looks like in 18 months, the alternative (status quo), the fallback (smaller version), and what you don't yet know.\n4. CEO 1:1 prep: 5-7 bullets for your CEO meeting. Mix wins, asks, and one piece of news the CEO should hear from you first — not from the product team.",
+  "deliverables": [
+    {
+      "filename": "design-vision.md",
+      "description": "1-page exec/board memo: 18-month experience direction, moat, one big bet"
+    },
+    {
+      "filename": "board-pre-read-design-health.md",
+      "description": "1-page board pre-read: org size, quality metric, top 2 experience risks, questions for the board to ask"
+    },
+    {
+      "filename": "research-content-investment-ask.md",
+      "description": "2-page investment argument: capability, ROI in 18 months, status quo alternative, fallback, unknowns"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets for CEO meeting: wins, asks, news the CEO should hear from Ngozi first"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Identify, develop, or evaluate marketing strategy, based on knowledge of establishment objectives, market characteristics, and cost and markup factors."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Research new software or design concepts."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L09-Rohan"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the design vision name ONE big bet (not a list of priorities)?",
+      "Does the board pre-read include a real, named quality metric?",
+      "Does the investment ask cover all five elements (capability, ROI, alternative, fallback, unknowns)?",
+      "Are 5-7 CEO 1:1 bullets present?"
+    ],
+    "quality": [
+      "Is the design vision specific (a product experience claim, not a slogan)?",
+      "Does the board pre-read use real numbers (not 'quality is improving')?",
+      "Does the investment ask include unknowns honestly, not just upside?",
+      "Is the CEO prep focused on items only Ngozi should surface (not things the CPO handles)?",
+      "Is every document scannable in under 3 minutes?"
+    ],
+    "accuracy": [
+      "Does the vision align with Rohan's quarterly strategy upstream?",
+      "Is the quality metric (NPS correlation, task completion, defect rate) realistic and measurable?",
+      "Does the investment ask price the research/content capability plausibly ($1.5M scale)?",
+      "Is the moat claim defensible and specific to design (not a product or tech claim)?",
+      "Does the fallback option materially reduce cost relative to the full ask?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting on design from the pre-read alone?",
+      "Could the CFO model the investment ask without follow-up?",
+      "Are next-step decisions named (who decides, by when)?",
+      "Does the vision document set up the design org's next-quarter OKR cascade?",
+      "Could a board member ask 1-2 questions and receive sufficient answers from the pre-read?"
+    ]
+  }
+}

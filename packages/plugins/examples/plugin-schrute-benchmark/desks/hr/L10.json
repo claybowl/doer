@@ -1,0 +1,84 @@
+{
+  "id": "HR-L10-Demetrius",
+  "dept": "HR",
+  "level": 10,
+  "title": "Chief People Officer",
+  "name": "Demetrius",
+  "timeBudgetMin": 55,
+  "brief": "You are Demetrius, Chief People Officer (CHRO) at a 100-person SaaS company. You sit on the executive team and report directly to the CEO. The board meets in 10 days. You have two capital-level conversations this quarter: a request to fund a leadership development program ($400K) and a decision on whether to build or buy the company's next-generation HRIS platform.\n\n1. People vision memo: write a 1-page memo for the CEO and board. Where is the people function going over the next 18 months? What is the talent strategy for scaling from 100 to 200 employees? What is the company's identity as an employer — the one thing that makes it hard to leave and hard to replicate?\n\n2. Board pre-read on people health: 1 page. Team size, voluntary attrition rate (name the number and the benchmark), eNPS trend, time-to-fill for critical roles, and the top 2 talent risks with status. The board reads this in 3 minutes — make every sentence carry information.\n\n3. Capital ask — leadership development: write a 2-page investment case for the $400K leadership development program. State the problem it solves (first-time manager failure rate, promotion-to-regret rate, whatever you have data on), the program design, expected outcomes, measurement plan, and the cost of not doing it.\n\n4. CEO 1:1 prep: 5-7 bullets for your weekly CEO meeting. Mix: a win, a risk the CEO needs to know about, one decision you need from them, and one thing you're hearing from employees that leadership doesn't know yet.\n\nAt this level your job is people capital allocation and culture stewardship. Your writing should make decisions stick.",
+  "deliverables": [
+    {
+      "filename": "people-vision.md",
+      "description": "1-page people vision: 18-month talent strategy for 100→200 scale, employer identity, one big bet"
+    },
+    {
+      "filename": "board-pre-read-people-health.md",
+      "description": "1-page board pre-read: team size, attrition rate vs. benchmark, eNPS trend, time-to-fill, top 2 talent risks with status"
+    },
+    {
+      "filename": "capital-ask-leadership-development.md",
+      "description": "2-page investment case: problem statement with data, program design, expected outcomes, measurement plan, cost of not doing it"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets: a win, a risk, one decision needed from CEO, one signal from employees leadership doesn't know yet"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Plan, organize, direct, control, or coordinate the personnel, training, or labor relations activities of an organization."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L09-Niamh"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the people vision name ONE employer identity claim (not a list of values)?",
+      "Does the board pre-read include all five required data points?",
+      "Does the capital ask include a measurement plan (not just expected outcomes)?",
+      "Are exactly 5-7 CEO 1:1 bullets present, covering all four required types?"
+    ],
+    "quality": [
+      "Is the people vision specific enough that a competitor could not copy it unchanged?",
+      "Does the board pre-read use actual numbers, not directional language ('trending up')?",
+      "Does the capital ask include a 'cost of not doing it' argument that is concrete?",
+      "Is the CEO 1:1 bullet about 'what employees are saying' genuinely unexpected (not HR boilerplate)?",
+      "Is every document scannable in under 3 minutes?"
+    ],
+    "accuracy": [
+      "Does the people vision reflect the 100→200 scale trajectory (not a generic mission statement)?",
+      "Do board pre-read metrics align with numbers from Niamh's snapshot upstream?",
+      "Is the $400K leadership development ask referenced in the capital ask document?",
+      "Does the capital ask cite a real data point on first-time manager failure or similar?",
+      "Does the people vision connect to the 18-month horizon (not just this quarter)?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting on people topics from the pre-read alone?",
+      "Could the CFO approve or cut the leadership development program from the capital ask?",
+      "Does the CEO 1:1 prep include a decision that requires a yes/no answer from the CEO?",
+      "Does the people vision set up the next 2-quarter OKR cascade for the People org?",
+      "Could a board member ask 2-3 questions from the pre-read and get sufficient answers from these documents?"
+    ]
+  }
+}

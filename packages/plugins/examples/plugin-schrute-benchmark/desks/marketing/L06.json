@@ -1,0 +1,74 @@
+{
+  "id": "MKT-L06-Tobias",
+  "dept": "MKT",
+  "level": 6,
+  "title": "Marketing Manager",
+  "name": "Tobias",
+  "timeBudgetMin": 35,
+  "brief": "You are Tobias, Marketing Manager. You manage the demand gen team (through Genevieve) and own campaign execution, release communications, and the marketing team's relationship with Product and Engineering. Today you have three distinct work streams, one of which is externally driven by Engineering.\n\nYour day:\n\n1. Release notes (inbound from ENG-L08-Esther): Esther's launch readiness review just landed — the major product launch is 30 days out. Her green/yellow/red audit covers infra, security, monitoring, and support. Your job is to translate the green items into customer-facing release notes and draft a public-facing announcement email. For yellow items, note what customer messaging holds until resolved. Do NOT publish anything about red items.\n2. Campaign status review: using Genevieve's sprint summary (MKT-L05), write a 1-page campaign status update for your senior manager (MKT-L07-Yara). Cover what's on track, what's slipping, and what decision you're making without escalating (show judgment). Flag one item that does need the senior manager's call.\n3. Brand consistency audit: three pieces of content went live this week (blog post from Lior, a paid landing page from Cassandra's gap analysis, a sales one-pager from an earlier request). Write a brief brand audit: did they follow voice/tone guidelines, use the right logo variant, and include the correct legal footer? Approve, approve-with-changes, or reject each with one sentence of reason.\n\nYou are the manager who translates engineering reality into customer-ready language. Tobias does not ship anything that isn't ready.",
+  "deliverables": [
+    {
+      "filename": "release-notes-draft.md",
+      "description": "Customer-facing release notes for green launch items + announcement email draft; yellow items flagged as held"
+    },
+    {
+      "filename": "campaign-status-update.md",
+      "description": "1-page update for MKT-L07-Yara: on-track items, slipping items, one autonomous decision, one escalation"
+    },
+    {
+      "filename": "brand-audit.md",
+      "description": "Three content pieces audited for voice/tone, logo, and legal footer: approved / approved-with-changes / rejected with one-sentence reason each"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Consult with buying personnel to gain advice regarding the types of products or services expected to be in demand."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Marketing managers work with department heads or staff to discuss topics such as budgets and contracts, marketing plans, and the selection of advertising media."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L05-Genevieve", "ENG-L08-Esther"],
+  "downstreamDeskIds": ["MKT-L07-Yara"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the release notes draft address green items and flag yellow items?",
+      "Does the campaign status update name one autonomous decision and one escalation?",
+      "Does the brand audit cover all three content pieces?",
+      "Is the announcement email draft included in the release notes deliverable?"
+    ],
+    "quality": [
+      "Is the release notes language customer-appropriate (not internal-eng speak)?",
+      "Does the campaign update give Yara enough context to act without follow-up?",
+      "Is Tobias's autonomous decision defensible (not something he should escalate)?",
+      "Are brand audit verdicts specific (not 'looks fine')?",
+      "Is red-item information correctly withheld from the customer-facing draft?"
+    ],
+    "accuracy": [
+      "Does the release notes content align with Esther's launch readiness green items?",
+      "Is the yellow-item hold note accurate to the risk described in the readiness doc?",
+      "Does the campaign status map to Genevieve's sprint summary?",
+      "Are brand audit criteria (logo, voice, legal footer) correctly applied?",
+      "Is the announcement email tone appropriate for the product's market position?"
+    ],
+    "handoff": [
+      "Could MKT-L07-Yara make the escalation call from Tobias's status update alone?",
+      "Could a designer action the brand audit changes without follow-up?",
+      "Could the announcement email be sent with only a legal review remaining?",
+      "Is ENG-L08-Esther's input clearly attributed in the release notes?",
+      "Does Tobias clearly separate customer-ready content from held content?"
+    ]
+  }
+}

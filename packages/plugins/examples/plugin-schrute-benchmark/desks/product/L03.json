@@ -1,0 +1,74 @@
+{
+  "id": "PROD-L03-Kai",
+  "dept": "PROD",
+  "level": 3,
+  "title": "Senior Product Manager",
+  "name": "Kai",
+  "timeBudgetMin": 25,
+  "brief": "You are Kai, a Senior Product Manager. You own the collaboration feature area — real-time editing, comments, and sharing. You have an important inbound today: CS-L06-Lakshmi has sent over a consolidated bug list and feature request summary from the customer success team.\n\nYour day:\n\n1. Read Lakshmi's input (assume it contains: 3 bug reports around comment threading, 2 sharing permission edge cases, and 5 feature requests ranked by customer impact). Write a triage memo that: classifies each item as Bug/Enhancement/Won't Fix with a one-line rationale, assigns a rough priority (P0/P1/P2), and calls out any item that needs engineering investigation before you can fully prioritize.\n2. Write a full Product Requirements Document (PRD) for the top-priority feature request from Lakshmi's list. The PRD should include: background and context, user stories (≥3), functional requirements (numbered list), success metrics, and out-of-scope. Target length: 2-3 pages.\n3. Draft a reply to Lakshmi summarizing your triage decisions and next steps. Professional but direct — she's a cross-functional peer, not a customer.\n\nYou own the requirements and the prioritization call. If Lakshmi's feature requests conflict with roadmap priorities, say so and explain the trade-off.",
+  "deliverables": [
+    {
+      "filename": "cs-triage-memo.md",
+      "description": "Triage of Lakshmi's input: Bug/Enhancement/Won't Fix, P0/P1/P2, investigation flags"
+    },
+    {
+      "filename": "prd-collaboration-feature.md",
+      "description": "Full PRD for top feature: background, ≥3 user stories, functional reqs, metrics, out-of-scope"
+    },
+    {
+      "filename": "reply-to-lakshmi.md",
+      "description": "Cross-functional response to CS-L06-Lakshmi: triage summary, next steps, trade-off transparency"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Confer with personnel concerned to ensure successful functioning of newly implemented systems or procedures."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Review forms and reports and confer with management and users about format, distribution, and purpose, identifying problems and improvements."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts must work with managers and other employees who implement any recommended changes."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L06-Lakshmi"],
+  "downstreamDeskIds": ["PROD-L05-Elena"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the triage memo classify all 10 items (3 bugs + 2 edge cases + 5 requests)?",
+      "Does the PRD include background, ≥3 user stories, numbered functional requirements, metrics, out-of-scope?",
+      "Is the reply addressed to CS-L06-Lakshmi by name?",
+      "Does the triage memo flag items needing engineering investigation?"
+    ],
+    "quality": [
+      "Are triage rationales one line each (not essays)?",
+      "Are PRD user stories written in standard format (As a… I want… So that…)?",
+      "Are functional requirements numbered and unambiguous?",
+      "Does the reply to Lakshmi acknowledge her input and give clear next steps?",
+      "Are success metrics tied to the specific feature (not generic 'NPS improvement')?"
+    ],
+    "accuracy": [
+      "Are bug reports classified as Bugs (not Enhancements)?",
+      "Are P0 items genuinely urgent (not just popular feature requests)?",
+      "Does the PRD scope match the top-priority request, not a different one?",
+      "Does Kai name actual trade-offs when deprioritizing items?",
+      "Is the PRD internally consistent (requirements match user stories)?"
+    ],
+    "handoff": [
+      "Could PROD-L05-Elena synthesize this PRD into a roadmap review without rework?",
+      "Could an engineer estimate the top feature from the PRD alone?",
+      "Could CS-L06-Lakshmi close the loop with customers from Kai's reply?",
+      "Are investigation-flagged items clearly actionable for engineering?",
+      "Does Kai surface any blocker that requires senior input?"
+    ]
+  }
+}

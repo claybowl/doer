@@ -1,0 +1,13 @@
+{
+  "_comment": "Frozen roster — 100 unique single-word first names, distributed across 10 departments × 10 levels. Order = L1 through L10. Don't reorder; historical run comparisons depend on stable IDs.",
+  "EXEC": ["Roy",     "Imani",     "Atticus",   "Sunita",    "Octavio",   "Hannelore", "Bashir",   "Petra",     "Kwame",     "Konstantin"],
+  "ENG":  ["Marcus",  "Priya",     "Chen",      "Sergei",    "Amara",     "Yuki",      "Ravi",     "Esther",    "Tomás",     "Cyrus"],
+  "PROD": ["Jorge",   "Nadia",     "Kai",       "Olamide",   "Elena",     "Hassan",    "Mei",      "Diego",     "Anika",     "Beatrix"],
+  "DES":  ["Lena",    "Issa",      "Sofía",     "Tariq",     "Yael",      "Kofi",      "Mira",     "Caelan",    "Rohan",     "Ngozi"],
+  "SALES":["Aisha",   "Dimitri",   "Camila",    "Idris",     "Felipe",    "Zara",      "Nathaniel","Iliana",    "Bisi",      "Adrian"],
+  "MKT":  ["Tamika",  "Lior",      "Cassandra", "Rashid",    "Genevieve", "Tobias",    "Yara",     "Caleb",     "Rosa",      "Ezekiel"],
+  "CS":   ["Hina",    "Marco",     "Babatunde", "Sigrid",    "Theo",      "Lakshmi",   "Dion",     "Astrid",    "Idowu",     "Talia"],
+  "FIN":  ["Tyler",   "Wendell",   "Hadiya",    "Sven",      "Camille",   "Jamal",     "Inez",     "Pierre",    "Naila",     "Reginald"],
+  "HR":   ["Aaliyah", "Nikolai",   "Zoë",       "Manolo",    "Estelle",   "Karim",     "Brigit",   "Renaud",    "Niamh",     "Demetrius"],
+  "LEGOPS":["Dana",   "Saoirse",   "Mateus",    "Klara",     "Hideo",     "Anneliese", "Vidya",    "Soren",     "Adaobi",    "Theodora"]
+}

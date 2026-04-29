@@ -1,0 +1,84 @@
+{
+  "id": "SALES-L10-Adrian",
+  "dept": "SALES",
+  "level": 10,
+  "title": "Chief Revenue Officer",
+  "name": "Adrian",
+  "timeBudgetMin": 55,
+  "brief": "You are Adrian, Chief Revenue Officer. You sit on the executive team and own revenue from top-of-funnel through expansion. The board meets in three weeks. You have a go-to-market model to defend, a compensation plan restructure proposal on your desk, and a partnership deal in final negotiation.\n\n1. Revenue vision memo: Write a 1-page memo for the CEO and board on your 18-month revenue thesis: where growth is coming from, what segments you're doubling down on, and the one structural change that will define next year's trajectory. Be specific — name dollar targets, segment mix shifts, and the bet that could fail.\n\n2. Board pre-read on revenue health: 1 page covering: ARR, net revenue retention (NRR), pipeline coverage, quota attainment by segment, and the top 2 go-to-market risks. Board has 3 minutes.\n\n3. Compensation plan restructure: Summarize a proposed change to the rep commission structure (e.g., shifting from revenue-based to ARR-based commission with accelerators). State: current model, proposed model, expected behavior change, finance impact (cost as % of revenue), and the one objection you expect from the CFO.\n\n4. CEO 1:1 prep: 5-7 bullets for tomorrow's CEO meeting — wins, asks, early warnings, and one thing the CEO should hear from you before they hear it from the board.",
+  "deliverables": [
+    {
+      "filename": "revenue-vision-memo.md",
+      "description": "1-page CRO vision memo: 18-month revenue thesis, growth segments, one big structural bet"
+    },
+    {
+      "filename": "board-pre-read-revenue-health.md",
+      "description": "1-page board pre-read: ARR, NRR, pipeline coverage, attainment by segment, top 2 GTM risks"
+    },
+    {
+      "filename": "comp-plan-restructure.md",
+      "description": "Commission restructure proposal: current model, proposed model, behavior change, finance impact, CFO objection"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullet CEO meeting prep: wins, asks, early warnings, proactive disclosure"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or increase productivity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Analyze operations to evaluate performance of a company or its staff in meeting objectives or to determine areas of potential cost reduction, program improvement, or policy change."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Negotiate or approve contracts or agreements with suppliers, distributors, federal or state agencies, or other organizational entities."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L09-Bisi"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the revenue vision name ONE structural bet (not a portfolio of priorities)?",
+      "Does the board pre-read include all five required metrics sections?",
+      "Does the comp plan proposal cover all five required elements?",
+      "Are 5-7 CEO 1:1 bullets present?"
+    ],
+    "quality": [
+      "Is the revenue vision specific (dollar targets, segment mix, named bet)?",
+      "Does the board pre-read use actual numbers (not 'pipeline trending positive')?",
+      "Does the comp plan proposal acknowledge the finance impact honestly (not just upside)?",
+      "Is the CFO objection the real likely objection (not a strawman)?",
+      "Is every document scannable in under 3 minutes?"
+    ],
+    "accuracy": [
+      "Does the vision align with Bisi's H2 GTM strategy upstream?",
+      "Are ARR and NRR figures realistic for a 100-person SaaS company?",
+      "Does the comp plan finance impact use a plausible commission cost as % of revenue?",
+      "Is the structural bet in the vision defensible (not vapor)?",
+      "Are the top 2 GTM risks in the board pre-read grounded in the upstream pipeline data?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting from the board pre-read alone?",
+      "Could the CFO model the comp plan restructure without follow-up?",
+      "Are next-step decisions in the vision memo named (who decides, by when)?",
+      "Does the vision memo set up the next annual planning cycle?",
+      "Could a board member ask 1-2 questions and get sufficient answers from the pre-read?"
+    ]
+  }
+}

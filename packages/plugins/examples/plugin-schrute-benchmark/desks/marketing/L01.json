@@ -1,0 +1,70 @@
+{
+  "id": "MKT-L01-Tamika",
+  "dept": "MKT",
+  "level": 1,
+  "title": "Marketing Coordinator",
+  "name": "Tamika",
+  "timeBudgetMin": 25,
+  "brief": "You are Tamika, a Marketing Coordinator at a 100-person SaaS company. You support the content and campaign team with coordination tasks, scheduling, and light copy.\n\nToday's work:\n\n1. Content calendar update: the social media schedule for next week is a mess — three posts are missing captions, two have broken image links, and one is scheduled for the wrong day (it references a webinar that already happened). Fix all five issues in the content calendar spreadsheet and flag any post that has no associated image asset.\n2. Campaign brief intake: a Sales rep emailed in a request for a one-pager targeting mid-market CFOs. Copy the request details into the standard campaign intake form, categorize the ask (top-funnel awareness vs. bottom-funnel enablement), and estimate a rough effort level (small/medium/large).\n\nDo not start writing the one-pager — that's for someone else. Your job is to get the request organized and ready to hand off.",
+  "deliverables": [
+    {
+      "filename": "content-calendar-fixes.md",
+      "description": "List of the five issues found + what was corrected for each, plus a flag list of posts missing image assets"
+    },
+    {
+      "filename": "campaign-intake-form.md",
+      "description": "Completed intake: requestor, target audience, funnel stage, effort estimate, requested due date, open questions"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Prepare reports of findings, illustrating data graphically and translating complex findings into written text."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Gather data on competitors and analyze their prices, sales, and methods of marketing and distribution."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/market-research-analysts.htm",
+      "quote": "Market research analysts study market conditions to examine potential sales of a product or service."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["MKT-L05-Genevieve"],
+  "rubric": {
+    "completion": [
+      "Are all five content calendar issues listed and corrected?",
+      "Is the flag list of image-less posts included?",
+      "Is the campaign intake form fully populated (no blank required fields)?",
+      "Is the funnel stage classification present (awareness vs. enablement)?",
+      "Is an effort estimate (S/M/L) included?"
+    ],
+    "quality": [
+      "Are the calendar corrections specific (not just 'fixed caption')?",
+      "Does the intake form expose open questions that would block execution?",
+      "Is the effort estimate justified with at least one sentence of reasoning?",
+      "Is the writing concise and scannable?",
+      "Did Tamika stay in scope (no copy written for the one-pager)?"
+    ],
+    "accuracy": [
+      "Are calendar fix descriptions accurate to the problems stated?",
+      "Is the funnel-stage classification appropriate for a CFO-targeted one-pager?",
+      "Are open questions realistic (not invented problems)?",
+      "Is the intake form structure consistent with standard marketing ops practice?",
+      "Are all five issues addressed (none silently skipped)?"
+    ],
+    "handoff": [
+      "Could MKT-L05-Genevieve assign the campaign immediately from this intake?",
+      "Is the calendar deliverable self-contained (no need to re-open the original)?",
+      "Are image-asset gaps actionable for a designer without further explanation?",
+      "Is the requestor info complete enough for follow-up questions?",
+      "Did Tamika flag the webinar scheduling error clearly (not buried)?"
+    ]
+  }
+}

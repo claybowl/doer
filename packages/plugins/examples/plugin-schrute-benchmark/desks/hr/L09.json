@@ -1,0 +1,84 @@
+{
+  "id": "HR-L09-Niamh",
+  "dept": "HR",
+  "level": 9,
+  "title": "VP People",
+  "name": "Niamh",
+  "timeBudgetMin": 55,
+  "brief": "You are Niamh, VP of People at a 100-person SaaS company. You sit on the extended leadership team, reporting to the CHRO (HR-L10-Demetrius). You own the company's people strategy, budget, and culture systems. You serve as the executive interface for HR into the CEO, CFO, and all department heads.\n\n1. Board people update: the board meets in 10 days and the CEO has asked for a 1-page people metrics snapshot. Produce it. Required sections: headcount (current, delta from last quarter, by dept), voluntary attrition rate (trailing 12 months vs. industry benchmark), time-to-hire by function, engagement survey score trend, and top 2 people risks with a mitigation status.\n\n2. Org design recommendation: the company is considering separating the current combined People Ops / Recruiting function into two separate teams. Write a 2-page org design proposal covering: current state, proposed state (org chart outline), rationale, transition risks, headcount implications, and timeline. This feeds Demetrius's board decision.\n\n3. Executive team calibration prep: the CEO has asked you to facilitate the upcoming executive team talent calibration — where each executive rates their top team members on performance and potential. Write the facilitation guide: agenda, calibration criteria definitions, how to handle disagreements, and what the outputs should be.\n\n4. People budget narrative: Finance closes the H2 budget next week. Write the People budget narrative — a 1-page justification for the People org's H2 ask, covering headcount spend, programs spend, and the ROI case for the two largest new investments.\n\nAt this level you translate people data into board-level business narrative.",
+  "deliverables": [
+    {
+      "filename": "board-people-snapshot.md",
+      "description": "1-page board metrics snapshot: headcount, attrition rate vs. benchmark, time-to-hire, engagement trend, top 2 risks with mitigation status"
+    },
+    {
+      "filename": "org-design-proposal.md",
+      "description": "2-page org design proposal: current vs. proposed state, rationale, transition risks, headcount implications, timeline"
+    },
+    {
+      "filename": "exec-calibration-guide.md",
+      "description": "Executive talent calibration facilitation guide: agenda, criteria definitions, dispute handling, outputs"
+    },
+    {
+      "filename": "people-budget-narrative.md",
+      "description": "1-page H2 budget justification: headcount spend, programs spend, ROI case for top 2 new investments"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Advise managers on organizational policy matters, such as equal employment opportunity and sexual harassment, and recommend needed changes."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish or implement departmental policies, goals, objectives, or procedures in conjunction with board members, organization officials, or staff members."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/human-resources-managers.htm",
+      "quote": "Human resources managers plan, direct, and coordinate the administrative functions of an organization."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L08-Renaud"],
+  "downstreamDeskIds": ["HR-L10-Demetrius"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the board snapshot include all five required sections?",
+      "Does the org design proposal include an org chart outline of proposed state?",
+      "Does the calibration guide include all four components: agenda, criteria, disputes, outputs?",
+      "Does the budget narrative cover headcount spend, programs spend, and ROI for 2 investments?"
+    ],
+    "quality": [
+      "Is the board snapshot readable in under 3 minutes by a board member unfamiliar with HR detail?",
+      "Does the org design proposal make a clear recommendation (not 'here are options')?",
+      "Does the calibration guide anticipate the hardest facilitation moment (two executives disagree)?",
+      "Is the budget ROI case grounded in a specific business outcome (not 'better culture')?",
+      "Is the attrition rate compared to a named industry benchmark (not generic 'industry average')?"
+    ],
+    "accuracy": [
+      "Are the board metrics consistent with numbers established earlier in the HR chain?",
+      "Is the org design headcount implication realistic for a 5-person HR team splitting into two?",
+      "Does the calibration criteria match standard 9-box or equivalent framework correctly?",
+      "Is time-to-hire by function consistent with recruiting data from Nikolai/Zoë?",
+      "Does the budget narrative reflect Renaud's headcount plan numbers?"
+    ],
+    "handoff": [
+      "Could HR-L10-Demetrius use the board snapshot as the basis for the board people discussion?",
+      "Could the CEO make a go/no-go org design decision from the proposal alone?",
+      "Could the executive team run the calibration meeting using only the facilitation guide?",
+      "Could the CFO approve or cut the People H2 budget from the narrative without a follow-up call?",
+      "Are open decisions and named decision-makers identified in each deliverable?"
+    ]
+  }
+}

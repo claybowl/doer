@@ -1,0 +1,79 @@
+{
+  "id": "FIN-L06-Jamal",
+  "dept": "FIN",
+  "level": 6,
+  "title": "Accounting Manager",
+  "name": "Jamal",
+  "timeBudgetMin": 35,
+  "brief": "You are Jamal, the Accounting Manager at a 100-person SaaS company. You run the monthly close process end-to-end, own the audit relationship, and are responsible for the integrity of the general ledger. Camille (FIN-L05) reports to you on the FP&A side; you also oversee the AP/AR and accounting ICs.\n\nYour day:\n\n1. Close sign-off: review Camille's monthly close package. Validate the key numbers against the GL, mark it ready for senior finance review, or return with specific line-item corrections. This review must be documented.\n2. Audit prep item: your external auditors have requested a schedule of all related-party transactions for the quarter. Compile the schedule from the GL and draft the accompanying disclosure memo.\n3. Policy enforcement: the AP team processed two invoices without a matching PO this month (flagged by Tyler). Write a one-page process improvement memo — what broke, what the fix is, and how you'll monitor going forward.\n4. Team capacity plan: with month-end behind you, plan next month's close schedule — assign owners to each close task (journal entries, recon, review, pack), set due dates, and identify any vacation/coverage risks.\n\nYou are accountable for zero material misstatements. If you're not sure, you call the auditor — you don't guess.",
+  "deliverables": [
+    {
+      "filename": "close-review-sign-off.md",
+      "description": "Line-item review of Camille's close package: ready / return decision with specific corrections if needed"
+    },
+    {
+      "filename": "related-party-schedule.xlsx",
+      "description": "Related-party transaction schedule for the quarter with disclosure memo draft"
+    },
+    {
+      "filename": "ap-process-improvement.md",
+      "description": "One-page memo: root cause of PO-bypass invoices, corrective action, monitoring mechanism"
+    },
+    {
+      "filename": "close-schedule-next-month.md",
+      "description": "Next month's close calendar: tasks, owners, due dates, coverage risks"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Evaluate data pertaining to costs to plan budgets."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2011.00",
+      "url": "https://www.onetonline.org/link/summary/13-2011.00",
+      "quote": "Inspect account books and accounting systems for efficiency, effectiveness, and use of accepted accounting procedures to record transactions."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Prepare financial or regulatory reports required by laws, regulations, or boards of directors."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L05-Camille"],
+  "downstreamDeskIds": ["FIN-L07-Inez"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the close review sign-off include a ready/return decision for each section?",
+      "Does the related-party schedule cover the full quarter?",
+      "Does the AP process memo name both the root cause and a monitoring mechanism?",
+      "Does the close schedule assign an owner to every task?"
+    ],
+    "quality": [
+      "Are close review corrections specific (account, amount, entry) rather than general?",
+      "Is the related-party disclosure memo in language suitable for external audit review?",
+      "Does the process improvement memo go beyond 'train the team' to structural controls?",
+      "Is the close schedule realistic given team size and the identified vacation risks?",
+      "Is the sign-off memo structured so FIN-L07-Inez can approve without re-reading the pack?"
+    ],
+    "accuracy": [
+      "Are corrections in the close review traceable to specific GL entries?",
+      "Is the related-party schedule consistent with known vendor and investor relationships?",
+      "Is the root cause of PO bypass grounded in the facts Tyler flagged (not hypothetical)?",
+      "Are close schedule due dates internally consistent (dependencies respected)?",
+      "Is the disclosure memo language consistent with standard accounting disclosure practice?"
+    ],
+    "handoff": [
+      "Could FIN-L07-Inez approve the close package from Jamal's sign-off memo alone?",
+      "Is the related-party schedule in audit-ready format?",
+      "Would Tyler understand the AP process change from the memo without a meeting?",
+      "Is the close schedule shareable with the team immediately (no further formatting)?",
+      "Are any open items that require Inez's decision called out explicitly?"
+    ]
+  }
+}

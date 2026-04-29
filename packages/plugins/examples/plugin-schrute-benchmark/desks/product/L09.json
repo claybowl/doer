@@ -1,0 +1,84 @@
+{
+  "id": "PROD-L09-Anika",
+  "dept": "PROD",
+  "level": 9,
+  "title": "SVP of Product",
+  "name": "Anika",
+  "timeBudgetMin": 55,
+  "brief": "You are Anika, SVP of Product. You report to the CPO (Beatrix) and sit on the executive team. You are responsible for the product organization's strategic direction, budget, and cross-functional relationships at the exec level. Today is a high-stakes planning day.\n\nYour day:\n\n1. Write the quarterly product strategy narrative (2-3 pages) for the executive team and board packet. This is not a roadmap — it is the argument for WHY the roadmap is right. Cover: customer problem we're solving for, competitive landscape summary, our chosen strategic position, and why the choices we're making compound over time. This gets read by the CEO and the board.\n2. Review Diego's product principles document. Write a critical assessment: which principles are operational and battle-tested, which are aspirational and risk becoming ignored, and what you would add or cut. Be specific and direct.\n3. Write an exec alignment memo on the product-engineering relationship for the next cycle. The handoff from Diego to ENG-L07-Ravi is in flight — you want to pre-empt typical friction points. Cover: joint ownership expectations, how trade-offs are escalated, and what 'done' means for a feature before the product team hands off quality ownership to CS.\n4. Write your CPO 1:1 prep (5-7 bullets): wins, risks, a proposal for Beatrix, and one strategic question you want her read on before the board meeting.\n\nYou are the integrator between product execution and company strategy. Your documents are the scaffolding for decisions that span quarters.",
+  "deliverables": [
+    {
+      "filename": "product-strategy-narrative.md",
+      "description": "2-3 page exec/board narrative: customer problem, competitive position, why these bets compound"
+    },
+    {
+      "filename": "product-principles-assessment.md",
+      "description": "Critical review of Diego's principles: operational vs aspirational, additions and cuts"
+    },
+    {
+      "filename": "product-engineering-exec-alignment.md",
+      "description": "Exec alignment memo: joint ownership, escalation paths, definition of feature done"
+    },
+    {
+      "filename": "cpo-1on1-prep.md",
+      "description": "5-7 bullets for Beatrix: wins, risks, a proposal, one strategic question for board"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review reports submitted by staff members to recommend approval or to suggest changes."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish and implement departmental policies, goals, objectives, and procedures, conferring with board members, organization officials, and staff members as necessary."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L08-Diego"],
+  "downstreamDeskIds": ["PROD-L10-Beatrix"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the strategy narrative cover all four sections (customer problem, competition, position, compounding)?",
+      "Does the principles assessment give a specific recommendation for each principle?",
+      "Does the alignment memo address escalation paths explicitly?",
+      "Are 5-7 CPO 1:1 bullets present including a proposal and a strategic question?"
+    ],
+    "quality": [
+      "Does the strategy narrative make an argument (not just describe the roadmap)?",
+      "Is the competitive analysis specific (names real competitive categories, not 'the market')?",
+      "Is the principles assessment direct about what should be cut (not just praise)?",
+      "Does the alignment memo define 'done' unambiguously?",
+      "Is the 1:1 prep written as if Beatrix has 3 minutes (tight, no padding)?"
+    ],
+    "accuracy": [
+      "Does the strategy narrative align with Diego's roadmap and Mei's exec summary upstream?",
+      "Is the 'compounding' argument logically sound (not just asserted)?",
+      "Are the escalation paths in the alignment memo realistic for a 100-person company?",
+      "Does the principles critique demonstrate understanding of what makes a good operational principle?",
+      "Is the strategic question for Beatrix something that requires board-level input?"
+    ],
+    "handoff": [
+      "Could a board member read the strategy narrative and understand the product strategy?",
+      "Could PROD-L10-Beatrix walk into a board meeting using the strategy narrative as a pre-read?",
+      "Could Diego use the alignment memo to frame the engineering relationship without Anika present?",
+      "Is the proposal in the 1:1 prep clearly framed as a decision request (not an update)?",
+      "Are downstream consumers and decision points named explicitly?"
+    ]
+  }
+}

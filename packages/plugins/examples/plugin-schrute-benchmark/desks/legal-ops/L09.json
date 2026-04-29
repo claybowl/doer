@@ -1,0 +1,79 @@
+{
+  "id": "LEGOPS-L09-Adaobi",
+  "dept": "LEGOPS",
+  "level": 9,
+  "title": "VP Legal & Operations",
+  "name": "Adaobi",
+  "timeBudgetMin": 55,
+  "brief": "You are Adaobi, VP of Legal & Operations at a 100-person SaaS company. You own the legal function, the operations function, and regulatory compliance. You report to Theodora (COO/General Counsel) and hold the budget authority for the Legal & Ops department. You are the exec sponsor for major vendor negotiations and the primary liaison to outside counsel.\n\nToday is a cross-functional leadership day. Soren has delivered the IT AUP, vendor budget director's summary, BCP executive summary, and hiring plan. You have five tasks.\n\nFirst, prepare the quarterly Legal & Ops review for Theodora: a 2-page department memo covering (a) legal matters status (active contracts in negotiation, any disputes, regulatory filings pending), (b) ops performance (vendor program health, BCP readiness, policy coverage), (c) team capacity and the hiring plan recommendation, and (d) budget outlook vs. actuals.\n\nSecond, the company has been notified of a new state data privacy law (assume: a state CPRA-equivalent) that takes effect in 180 days. You need to produce a regulatory readiness roadmap: which existing policies need updating, what new processes must be built, which teams are affected, and a 90-60-30-day action plan with owners.\n\nThird, evaluate and approve or modify Soren's hiring plan. Apply VP-level judgment: which roles are P1 (block everything else to hire), which are P2 (hire if budget clears), and which should be deferred. Write a brief rationale for each decision.\n\nFourth, prepare your CEO/exec team 1:1 prep: 5-7 bullets for Theodora's review — wins, risks, asks, and one item Theodora should hear from you before anyone else surfaces it.",
+  "deliverables": [
+    {
+      "filename": "legops-quarterly-review.md",
+      "description": "2-page quarterly department memo for Theodora: legal matters status, ops performance, team capacity + hiring recommendation, budget outlook vs. actuals"
+    },
+    {
+      "filename": "privacy-law-readiness-roadmap.md",
+      "description": "Regulatory readiness roadmap for new state CPRA-equivalent: affected policies, new processes required, teams affected, 90-60-30-day action plan with named owners"
+    },
+    {
+      "filename": "hiring-plan-vp-decision.md",
+      "description": "VP-level decision on Soren's hiring plan: P1/P2/deferred for each role with rationale, revised headcount budget if any cuts made"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets for Theodora 1:1: wins, risks, asks, and one item for Theodora's ears first"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Plan or direct activities, such as sales promotions, that require coordination with other department managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Perform administrative and management functions related to the practice of law."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Provide assistance to internal or external auditors in compliance reviews."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L08-Soren"],
+  "downstreamDeskIds": ["LEGOPS-L10-Theodora"],
+  "rubric": {
+    "completion": [
+      "Is the quarterly review memo produced?",
+      "Does the review cover all four sections (legal, ops, team, budget)?",
+      "Is the privacy law readiness roadmap produced?",
+      "Does the roadmap include a 90-60-30-day action plan with named owners?",
+      "Is the hiring plan VP decision produced with rationale for each role?"
+    ],
+    "quality": [
+      "Does the quarterly review fit in 2 pages and be scannable by a C-level in 3 minutes?",
+      "Does the privacy roadmap name specific policies and processes (not 'update privacy program')?",
+      "Are hiring plan decisions differentiated (not all P1)?",
+      "Does the CEO prep include a specific 'hear from me first' item (something genuinely sensitive)?",
+      "Is budget outlook section in the quarterly review based on numbers (not narrative)?"
+    ],
+    "accuracy": [
+      "Does the privacy roadmap correctly identify CPRA-equivalent obligations (opt-out rights, sensitive data, contractor requirements)?",
+      "Does the 90-60-30 day timeline allow realistic execution for a 100-person company?",
+      "Are hiring plan decisions consistent with budget constraints Soren surfaced?",
+      "Does the quarterly review accurately reflect the BCP status Soren delivered?",
+      "Are regulatory filing deadlines (if any) correctly computed from the 180-day window?"
+    ],
+    "handoff": [
+      "Could Theodora present the quarterly review to the board without additional prep?",
+      "Could affected team leads start the 90-day privacy readiness track from the roadmap alone?",
+      "Could the People team open requisitions from the approved hiring plan immediately?",
+      "Is the CEO prep formatted for a 15-minute standing meeting (not a document review)?",
+      "Did Adaobi surface any items requiring Theodora's decision before the quarter ends?"
+    ]
+  }
+}

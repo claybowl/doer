@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L09-Tomás",
+  "dept": "ENG",
+  "level": 9,
+  "title": "VP of Engineering",
+  "name": "Tomás",
+  "timeBudgetMin": 55,
+  "brief": "You are Tomás, VP of Engineering. You report to the CTO and have peer-VPs in Product, Sales, and Operations. The org is preparing for a quarterly business review and a board meeting two weeks out.\n\nYour day:\n\n1. Cross-functional alignment doc: a 2-page document for the VP staff (Product, Sales, Ops) covering shared dependencies, shared risks, and where engineering needs help. Specifically address: a delayed Sales feature ask, an Ops infrastructure migration, and the next-cycle Product priorities.\n2. Quarterly OKR draft: 3-5 engineering OKRs for next quarter. Each with one objective and 2-4 measurable key results. Tie each to a business outcome.\n3. Exec-prep memo: a 1-page brief for your CTO covering what they should ask the board, what they should NOT bring up, and where you'd push back if pressed.\n4. Attrition & retention plan: 2 paragraphs on the team's attrition risk, who you're worried about losing, and what you're doing about it. Sensitive — but real.\n\nAt this level your output is read by people who don't have time to read carefully. Make every sentence earn its place.",
+  "deliverables": [
+    {
+      "filename": "cross-fn-alignment.md",
+      "description": "2-page VP-staff document covering deps, risks, asks across Product/Sales/Ops"
+    },
+    {
+      "filename": "quarterly-okrs.md",
+      "description": "3-5 OKRs with measurable KRs tied to business outcomes"
+    },
+    {
+      "filename": "exec-prep-memo.md",
+      "description": "1-page brief for CTO: what to ask, what to avoid, where to push"
+    },
+    {
+      "filename": "attrition-retention.md",
+      "description": "2 paragraphs on attrition risk + named retention plan"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Meet with department heads, managers, supervisors, vendors, and others, to solicit cooperation and resolve problems."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Develop and interpret organizational goals, policies, and procedures."
+    },
+    {
+      "source": "Industry Report",
+      "code": "Andreessen Horowitz: Eng Org Design",
+      "url": "https://a16z.com/the-engineers-guide-to-startups/",
+      "quote": "Used as the convention for OKR structure and VP-level cross-functional alignment patterns at scale-stage SaaS companies."
+    }
+  ],
+  "upstreamDeskIds": ["ENG-L08-Esther"],
+  "downstreamDeskIds": ["ENG-L10-Cyrus"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the alignment doc address Product, Sales, AND Ops?",
+      "Are 3-5 OKRs present with measurable KRs?",
+      "Does the exec memo include 'what to avoid' (the harder ask)?",
+      "Is attrition addressed by named risk areas (not generic)?"
+    ],
+    "quality": [
+      "Does the alignment doc state explicit asks (not just shared concerns)?",
+      "Are KRs actually measurable (number, %, deadline)?",
+      "Is the exec memo respectful of the CTO's bandwidth?",
+      "Does the attrition note balance honesty with discretion?",
+      "Is every paragraph load-bearing?"
+    ],
+    "accuracy": [
+      "Are OKRs aligned with Esther's strategy memo upstream?",
+      "Do KR targets reflect the team's actual capacity (from Ravi's status)?",
+      "Is the cross-fn doc consistent with peer VPs' likely positions?",
+      "Are retention tactics realistic (not 'pay everyone more')?",
+      "Does the exec memo reflect a real CTO/board dynamic?"
+    ],
+    "handoff": [
+      "Could ENG-L10-Cyrus walk into the board meeting from this prep?",
+      "Could a peer VP take action from the alignment doc without follow-up?",
+      "Are OKRs ready to cascade to Esther (and below)?",
+      "Is the attrition plan paired with HR-L08-Renaud explicitly?",
+      "Does the exec memo set up a confident decision, not a hedge?"
+    ]
+  }
+}

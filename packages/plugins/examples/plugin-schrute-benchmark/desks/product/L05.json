@@ -1,0 +1,78 @@
+{
+  "id": "PROD-L05-Elena",
+  "dept": "PROD",
+  "level": 5,
+  "title": "Group PM / Product Lead",
+  "name": "Elena",
+  "timeBudgetMin": 35,
+  "brief": "You are Elena, Group PM and Product Lead. Your four ICs fed you their work today: Jorge (onboarding funnel analysis), Nadia (Zapier one-pager + backlog prioritization), Kai (CS triage memo + PRD for collaboration feature), and Olamide (OKR proposal + dependency matrix). You synthesize their output into the direction your manager Hassan needs.\n\nYour day:\n\n1. Write a sprint-end product summary (1 page max) for the Director of Product (PROD-L06-Hassan). Cover: what the team produced this sprint, what's at risk, and one decision you need Hassan to make.\n2. Using Olamide's OKR proposal as input, refine and finalize the product team's OKRs for presentation to Hassan. You may adjust wording, merge or split KRs, and add a brief (2-3 sentence) justification for each Objective.\n3. Write a feature-readiness assessment for the collaboration PRD Kai produced. Is it ready for engineering sprint planning? Use Olamide's definition-of-ready checklist as your scoring instrument. Provide a pass/fail for each criterion with a one-line note. Conclude with a go/no-go recommendation.\n4. Write a 2-3 sentence escalation note to Hassan on the most critical open dependency conflict from Olamide's matrix. State the conflict, the cost of not resolving it this week, and the decision you need from him.\n\nYou are the first management tier. Your job is to compress four ICs' work into clean signal for the Director.",
+  "deliverables": [
+    {
+      "filename": "sprint-end-product-summary.md",
+      "description": "1-page sprint summary: team output, risks, one decision needed from Hassan"
+    },
+    {
+      "filename": "product-okrs-final.md",
+      "description": "Refined OKR set: 2 Objectives × 3 KRs, with 2-3 sentence justification per Objective"
+    },
+    {
+      "filename": "feature-readiness-assessment.md",
+      "description": "Definition-of-ready scorecard for collaboration PRD with go/no-go recommendation"
+    },
+    {
+      "filename": "escalation-note-hassan.md",
+      "description": "2-3 sentence escalation to PROD-L06-Hassan on dependency conflict requiring his decision"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Analyze data gathered and develop solutions or alternative methods of proceeding."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts recommend new systems, procedures, or organizational changes to improve efficiency."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L01-Jorge", "PROD-L02-Nadia", "PROD-L03-Kai", "PROD-L04-Olamide"],
+  "downstreamDeskIds": ["PROD-L06-Hassan"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the sprint summary reference all four upstream ICs' work?",
+      "Does the OKR doc include justification sentences for each Objective?",
+      "Does the readiness assessment score each definition-of-ready criterion?",
+      "Does the escalation note name the specific conflict and the decision needed?"
+    ],
+    "quality": [
+      "Is the sprint summary scannable in <3 minutes?",
+      "Does the OKR refinement add analytical value over Olamide's draft (not just reformatting)?",
+      "Is the go/no-go recommendation explicit (not 'it depends')?",
+      "Is the escalation note under half a page (not a full brief)?",
+      "Is the writing decisive and managerial in tone?"
+    ],
+    "accuracy": [
+      "Does Elena correctly characterize each IC's contribution?",
+      "Does the readiness scorecard apply Olamide's criteria correctly to Kai's PRD?",
+      "Does the escalation note identify the most critical conflict (not a minor one)?",
+      "Are the refined OKRs still measurable after Elena's edits?",
+      "Does the sprint summary identify real risks (not invented ones)?"
+    ],
+    "handoff": [
+      "Could PROD-L06-Hassan run a product review with the team from the sprint summary?",
+      "Could Hassan make the dependency decision from the escalation note without follow-up?",
+      "Is Kai's PRD status (go/no-go) clear enough to communicate back to engineering?",
+      "Are upstream attributions clear (who produced what)?",
+      "Are blockers that require Hassan's authority flagged explicitly?"
+    ]
+  }
+}

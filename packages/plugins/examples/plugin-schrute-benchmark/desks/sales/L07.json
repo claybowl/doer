@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L07-Nathaniel",
+  "dept": "SALES",
+  "level": 7,
+  "title": "Senior Sales Manager",
+  "name": "Nathaniel",
+  "timeBudgetMin": 45,
+  "brief": "You are Nathaniel, Senior Sales Manager overseeing all commercial and mid-market segments, with Zara and one other Sales Manager as direct reports. You report to Iliana (L8 Director of Sales). You are two weeks from quarter end.\n\n1. Forecast roll-up for Iliana: Take the two managers' consolidated forecasts and produce a segment-level forecast document for the Director. Include a table of forecast vs. quota by segment, your overall commit, deals requiring Director-level involvement, and a risk-adjusted scenario (what happens if your top 3 deals slip).\n\n2. Sales cycle analysis: Review this quarter's closed-won and closed-lost data. Identify the top 3 reasons deals were lost and the top 3 patterns in won deals. Write a 1-page analysis with one tactical recommendation to improve win rate.\n\n3. Quota and territory review: One segment is consistently above quota while another is chronically below. Write a 1-page territory and quota rebalancing proposal for Iliana covering: data rationale, proposed changes, rep impact, and implementation timeline.\n\n4. Hiring loop: You have an open Senior AE role. Review three candidate summaries (write brief fictional ones) and produce a slate recommendation memo: who to advance to final round, who to pass on, and why.",
+  "deliverables": [
+    {
+      "filename": "segment-forecast-for-director.md",
+      "description": "Segment-level forecast for Iliana: quota vs. forecast table, overall commit, deals needing Director involvement, slip scenario"
+    },
+    {
+      "filename": "sales-cycle-analysis.md",
+      "description": "1-page closed-won/lost analysis: top 3 loss reasons, top 3 win patterns, one tactical win-rate recommendation"
+    },
+    {
+      "filename": "territory-quota-rebalancing.md",
+      "description": "1-page rebalancing proposal: data rationale, proposed changes, rep impact, implementation timeline"
+    },
+    {
+      "filename": "hiring-slate-memo.md",
+      "description": "Candidate slate recommendation: who advances, who passes, reasoning for each"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Oversee regional and local sales managers and their staffs."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Review operational records and reports to project sales and determine profitability."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/sales-managers.htm",
+      "quote": "Sales managers direct organizations' sales teams. They set sales goals, analyze data, and develop training programs for organizations' sales representatives."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L06-Zara"],
+  "downstreamDeskIds": ["SALES-L08-Iliana"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the segment forecast include a quota vs. forecast table and commit?",
+      "Does the win/loss analysis name exactly 3 loss reasons and 3 win patterns?",
+      "Is the territory rebalancing proposal present with all four sections?",
+      "Does the hiring memo cover all three candidates with advance/pass decisions?"
+    ],
+    "quality": [
+      "Is the slip scenario in the forecast quantified (dollar impact, not just 'revenue at risk')?",
+      "Does the win/loss analysis derive the recommendation from the data (not generic advice)?",
+      "Is the rebalancing proposal written so Iliana can present it to the VP?",
+      "Are hiring decisions supported by specific evidence from the candidate summaries?",
+      "Is every document concise enough for a Director to read in 5 minutes?"
+    ],
+    "accuracy": [
+      "Does the segment forecast roll up correctly from the managers' inputs?",
+      "Are loss reasons grounded in realistic SaaS sales failure modes (pricing, timing, competition)?",
+      "Does the rebalancing proposal account for rep tenure and ramp time?",
+      "Are the candidate evaluations consistent (same criteria applied to all three)?",
+      "Does the commit number fall within the range of individual manager forecasts?"
+    ],
+    "handoff": [
+      "Could Iliana present the segment forecast to the VP without additional prep?",
+      "Is the rebalancing proposal decision-ready or does it need more data?",
+      "Are deals flagged for Director involvement clearly described with the specific ask?",
+      "Is the hiring memo ready to share with the recruiting team and hiring panel?",
+      "Do win/loss recommendations feed into a training or playbook update?"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "LEGOPS-L03-Mateus",
+  "dept": "LEGOPS",
+  "level": 3,
+  "title": "Junior Counsel",
+  "name": "Mateus",
+  "timeBudgetMin": 25,
+  "brief": "You are Mateus, a Junior Counsel at a 100-person SaaS company. You own first-pass contract drafting and review, operating under supervision of senior counsel.\n\nToday you are drafting the first version of a vendor NDA for a new infrastructure provider. The vendor is a cloud storage company that will have access to customer metadata (not content). Use the company's standard bilateral NDA template as your base, but apply these specific modifications: (1) narrow the confidentiality carve-out for 'publicly available information' to exclude information made public through the vendor's own breach; (2) add a data handling clause requiring the vendor to notify the company within 48 hours of any suspected security incident; and (3) set the term to 3 years with automatic renewal unless terminated on 60 days' notice.\n\nAlongside the draft, write a brief redline memo explaining each modification and the business rationale. Mateus should flag any provisions in the template that are inconsistent with the modifications, and note any legal questions that should be reviewed by senior counsel before the draft is sent to the vendor.",
+  "deliverables": [
+    {
+      "filename": "vendor-nda-draft-v1.md",
+      "description": "First-draft bilateral NDA with three custom modifications applied: public-info carve-out narrowed, 48-hour breach notification added, 3-year term with auto-renewal"
+    },
+    {
+      "filename": "redline-memo.md",
+      "description": "Memo explaining each of the three modifications, business rationale, template inconsistencies flagged, and open questions for senior counsel review"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Prepare, draft, and review legal documents, such as wills, deeds, patent applications, mortgages, leases, and contracts."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Advise clients concerning business transactions, claim liability, advisability of prosecuting or defending lawsuits, or legal rights and obligations."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/legal/lawyers.htm",
+      "quote": "Lawyers advise and represent individuals, businesses, and government agencies on legal issues and disputes."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["LEGOPS-L05-Hideo"],
+  "rubric": {
+    "completion": [
+      "Is the NDA draft produced?",
+      "Are all three modifications present in the draft?",
+      "Is the redline memo produced?",
+      "Does the memo explain each modification with business rationale?",
+      "Are open questions for senior counsel explicitly flagged?"
+    ],
+    "quality": [
+      "Is the 48-hour breach notification clause operationally specific (written notice, named contact)?",
+      "Does the public-info carve-out narrowing use precise legal language?",
+      "Is the auto-renewal mechanism clearly drafted (notice period, effective date)?",
+      "Does the redline memo distinguish business rationale from legal risk?",
+      "Is the draft free of internal contradictions with the base template?"
+    ],
+    "accuracy": [
+      "Does the public-info carve-out modification logically close the breach-disclosure loophole?",
+      "Is the 3-year term with 60-day termination notice correctly stated?",
+      "Are template inconsistencies genuinely inconsistent (not false positives)?",
+      "Does the data handling clause meet baseline incident-notification standards?",
+      "Is the bilateral NDA structure preserved (obligations on both parties)?"
+    ],
+    "handoff": [
+      "Could LEGOPS-L05-Hideo do a senior review from the draft + memo alone?",
+      "Are open questions specific enough to yield yes/no answers from senior counsel?",
+      "Is the draft formatted for clean redlining (not a wall of text)?",
+      "Are section references in the memo tied to actual NDA section numbers?",
+      "Could the draft be sent to the vendor after one senior review pass?"
+    ]
+  }
+}

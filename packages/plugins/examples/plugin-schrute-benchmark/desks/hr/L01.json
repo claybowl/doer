@@ -1,0 +1,74 @@
+{
+  "id": "HR-L01-Aaliyah",
+  "dept": "HR",
+  "level": 1,
+  "title": "People Ops Coordinator",
+  "name": "Aaliyah",
+  "timeBudgetMin": 25,
+  "brief": "You are Aaliyah, a People Ops Coordinator at a 100-person SaaS company. You are the first point of contact for new-hire logistics and routine HR administration. Your work today is narrow, concrete, and time-boxed.\n\n1. Onboarding packet: a new software engineer is starting Monday. Assemble a single-page onboarding checklist that covers: IT provisioning, Slack access, benefits enrollment deadline, first-week schedule, and emergency contact form. Cross-reference the current employee handbook for policy details.\n\n2. Employment records update: three employees changed their preferred names last week. Update the tracking spreadsheet with corrected entries and flag the downstream systems (payroll, directory) that need matching updates.\n\n3. Job posting draft: the Recruiting team needs a basic posting for a Customer Success Associate. Write a 200-word job description using standard language — responsibilities, qualifications, and benefits bullet points. Do not invent compensation figures.\n\nStay strictly in scope. Do not make policy decisions, extend offers, or alter salary data.",
+  "deliverables": [
+    {
+      "filename": "onboarding-checklist-engineer.md",
+      "description": "Single-page new-hire checklist: IT, Slack, benefits enrollment, first-week schedule, emergency contact"
+    },
+    {
+      "filename": "name-change-log.csv",
+      "description": "Updated records with old name, new name, employee ID, and list of downstream systems flagged for update"
+    },
+    {
+      "filename": "job-posting-cs-associate.md",
+      "description": "200-word job description for Customer Success Associate with responsibilities, qualifications, and benefits bullets"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Prepare or maintain employment records related to events, such as hiring, termination, leaves, transfers, or promotions, using human resources management system software."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Schedule or conduct new employee orientations."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/human-resources-specialists.htm",
+      "quote": "Human resources specialists recruit, screen, and interview job applicants and place them in positions within an organization."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["HR-L05-Estelle"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the onboarding checklist cover all five listed areas (IT, Slack, benefits, schedule, emergency contact)?",
+      "Does the name-change log include old name, new name, employee ID, and downstream flags?",
+      "Is the job posting approximately 200 words?",
+      "Are responsibilities, qualifications, and benefits sections present in the posting?"
+    ],
+    "quality": [
+      "Is the checklist formatted so a new hire can follow it without asking questions?",
+      "Are downstream systems flagged specifically (not just 'notify HR systems')?",
+      "Does the job posting use standard, neutral language (no invented salary figures)?",
+      "Is each deliverable self-contained and free of placeholder text?",
+      "Is the writing concise with no filler?"
+    ],
+    "accuracy": [
+      "Does the onboarding timeline reflect a Monday start (not a generic template)?",
+      "Are the name-change rows correctly formatted as CSV?",
+      "Does the job posting match a real Customer Success Associate scope?",
+      "Are benefits enrollment deadlines plausibly stated (not impossible timelines)?",
+      "Are downstream system categories realistic (payroll, directory, email)?"
+    ],
+    "handoff": [
+      "Could HR-L05-Estelle review and approve all three deliverables without follow-up questions?",
+      "Is the name-change log in a format that payroll can ingest directly?",
+      "Is the job posting ready to publish with no further editing required?",
+      "Are any open questions or blockers explicitly flagged?",
+      "Is the onboarding checklist ordered chronologically from pre-arrival through end of week one?"
+    ]
+  }
+}

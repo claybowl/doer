@@ -1,0 +1,74 @@
+{
+  "id": "DES-L04-Tariq",
+  "dept": "DES",
+  "level": 4,
+  "title": "Staff Designer",
+  "name": "Tariq",
+  "timeBudgetMin": 35,
+  "brief": "You are Tariq, a Staff Designer. You operate across two workstreams simultaneously and your output today feeds the Design Lead's synthesis.\n\n1. Design system audit: the component library has grown organically over two years. Audit the button, input, and modal components for inconsistencies (variant gaps, naming drift, undocumented states). Produce a concise audit report with a severity rating (critical / moderate / minor) for each issue and a recommended resolution.\n\n2. Cross-team coordination: Product has shipped a new requirements doc for the data export flow. Engineering flagged a concern about the proposed drag-and-drop interaction — it conflicts with an existing keyboard-navigation pattern. Facilitate a written design decision record (DDR) that captures: the original requirement, the engineering constraint, two design options with tradeoffs, and a recommended direction. This DDR goes to the Design Lead for approval before implementation.\n\n3. Interaction flow doc: produce an interaction flow document (not wireframes) for the data export feature covering the full user journey from trigger to file download, including error paths, loading states, and cancellation.\n\nYou are the cross-team connector. Your job is to surface conflicts early and ship a clear decision, not to keep everyone happy.",
+  "deliverables": [
+    {
+      "filename": "design-system-audit.md",
+      "description": "Audit of button, input, and modal components: issues with severity ratings and recommended resolutions"
+    },
+    {
+      "filename": "data-export-ddr.md",
+      "description": "Design decision record: original requirement, engineering constraint, two options with tradeoffs, recommendation"
+    },
+    {
+      "filename": "interaction-flow.md",
+      "description": "Full interaction flow for data export: trigger to download, error paths, loading states, cancellation"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Determine size and arrangement of illustrative material and copy, and select style and size of type."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1255.00",
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "quote": "Perform Web site tests according to planned schedules, or after any Web site or product revision."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/computer-and-information-technology/web-developers.htm",
+      "quote": "Web designers are responsible for the visual aspects of websites, including layout, color, and font choices."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["DES-L05-Yael"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the audit cover all three component types (button, input, modal)?",
+      "Does each audit issue have a severity rating?",
+      "Does the DDR include two distinct design options, not one option and a status quo?",
+      "Does the interaction flow cover error paths and loading states, not just the happy path?"
+    ],
+    "quality": [
+      "Are audit severity ratings justified (not assigned arbitrarily)?",
+      "Does the DDR make a clear recommendation rather than deferring the decision?",
+      "Is the interaction flow specific to data export (not a generic download pattern)?",
+      "Are engineering constraints represented accurately in the DDR?",
+      "Is the audit actionable (resolutions, not just a list of problems)?"
+    ],
+    "accuracy": [
+      "Are the component inconsistencies realistic (naming drift, missing states, etc.)?",
+      "Does the DDR accurately characterize the keyboard-navigation conflict?",
+      "Do tradeoffs in the DDR reflect real design and engineering concerns?",
+      "Are loading states in the interaction flow technically accurate for async file generation?",
+      "Are severity ratings calibrated (not everything critical)?"
+    ],
+    "handoff": [
+      "Could DES-L05-Yael approve the DDR without convening a meeting?",
+      "Could an engineer implement the interaction flow without follow-up clarification?",
+      "Is the audit report structured so a PM can understand component debt without design context?",
+      "Are open decisions flagged explicitly in the DDR?",
+      "Did Tariq attribute the engineering constraint to a named upstream stakeholder?"
+    ]
+  }
+}

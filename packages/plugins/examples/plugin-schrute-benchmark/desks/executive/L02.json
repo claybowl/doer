@@ -1,0 +1,74 @@
+{
+  "id": "EXEC-L02-Imani",
+  "dept": "EXEC",
+  "level": 2,
+  "title": "BizOps Analyst",
+  "name": "Imani",
+  "timeBudgetMin": 25,
+  "brief": "You are Imani, a BizOps Analyst. You are one rung above data entry — you analyze and synthesize, not just transcribe. Your work feeds the Chief of Staff's weekly briefing.\n\nToday you have three tasks. First: the sales team closed a large enterprise deal last week and the CEO wants to understand its unit economics. You've been given deal size, implementation cost, expected churn rate, and support load. Calculate ARR, gross margin contribution, and estimated customer lifetime value. Present the numbers in a one-page analysis with a 2-sentence executive summary at the top.\n\nSecond: there is a draft proposal from the Facilities team to switch office locations. Identify 2-3 operational risks in that proposal (e.g., lease overlap costs, staff commute impact, IT migration) and write a brief risk log.\n\nThird: a recurring Monday status report is due. Compile 5-6 bullet-point updates across departments (use plausible but concrete details) that summarize what's on track and what's blocked.\n\nYour output goes to Octavio (EXEC-L05). Concise beats comprehensive.",
+  "deliverables": [
+    {
+      "filename": "deal-unit-economics.md",
+      "description": "One-page analysis: ARR, gross margin, LTV calculation with 2-sentence exec summary"
+    },
+    {
+      "filename": "facilities-risk-log.md",
+      "description": "2-3 identified operational risks for the office relocation proposal, each with a short description"
+    },
+    {
+      "filename": "monday-status-report.md",
+      "description": "5-6 bullet-point cross-department status updates: on-track items and blockers"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Analyze data gathered and develop solutions or alternative methods of proceeding."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Document findings of study and prepare recommendations for implementation of new systems, procedures, or organizational changes."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts, often called management consultants, recommend ways to improve an organization's efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["EXEC-L05-Octavio"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the unit-economics analysis include ARR, gross margin, and LTV?",
+      "Does the risk log contain 2-3 named risks (not a vague paragraph)?",
+      "Does the status report contain 5-6 bullets with concrete details?",
+      "Is a 2-sentence executive summary present at the top of the unit-economics doc?"
+    ],
+    "quality": [
+      "Are LTV and gross margin formulas applied correctly?",
+      "Are the risks in the risk log operationally specific (not generic 'change is hard')?",
+      "Is the exec summary actually a summary (not a restatement of headings)?",
+      "Do status bullets distinguish on-track from blocked items clearly?",
+      "Is the writing lean (no filler sentences)?"
+    ],
+    "accuracy": [
+      "Is ARR derived consistently from deal size (not inflated)?",
+      "Are the 2-3 risks plausible for an office relocation scenario?",
+      "Is LTV calculation methodology standard (ARR ÷ churn rate)?",
+      "Do status report bullets reference plausible departments (not invented orgs)?",
+      "Are gross margin figures realistic for a SaaS business (~60-80%)?"
+    ],
+    "handoff": [
+      "Could Octavio (EXEC-L05) include the unit-economics summary directly in his briefing?",
+      "Is the risk log formatted so a decision-maker can act on it?",
+      "Are blockers in the status report clear enough for Octavio to escalate?",
+      "Does Imani flag any data gaps that would affect accuracy?",
+      "Are all three deliverables named consistently?"
+    ]
+  }
+}

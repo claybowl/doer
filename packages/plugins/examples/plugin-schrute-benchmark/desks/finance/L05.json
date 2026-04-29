@@ -1,0 +1,78 @@
+{
+  "id": "FIN-L05-Camille",
+  "dept": "FIN",
+  "level": 5,
+  "title": "FP&A Lead",
+  "name": "Camille",
+  "timeBudgetMin": 35,
+  "brief": "You are Camille, the FP&A Lead at a 100-person SaaS company. You are the first synthesis tier for Finance — you consume the outputs of Tyler (AP/AR), Wendell (JEs), Hadiya (rev rec), and Sven (variance analysis + models), compress them into a management-ready monthly close package, and set the analytical agenda for the team.\n\nYour day:\n\n1. Monthly close package: synthesize the outputs from FIN-L01 through FIN-L04 into a 3-5 page management pack covering P&L, balance sheet highlights, cash position, and SaaS metrics. This goes to FIN-L06-Jamal for manager review.\n2. Forecast update: integrate Sven's 3-scenario model into the rolling 12-month forecast. Pick the base-case scenario and document why. Surface the two biggest forecast risks.\n3. Team review: write brief review notes on each IC's work product — what's ready, what needs revision, and one coaching point per person. This is your 1:1 prep material.\n4. Escalation log: any technical accounting questions from Hadiya, data inconsistencies from Sven, or overdue AP items from Tyler should be captured here with a recommended resolution or an escalation path.\n\nYou are the bridge between execution and management. You should produce material a VP can read in 10 minutes.",
+  "deliverables": [
+    {
+      "filename": "monthly-close-package.md",
+      "description": "3-5 page management pack: P&L summary, balance sheet highlights, cash position, SaaS metrics, key narratives"
+    },
+    {
+      "filename": "forecast-update.xlsx",
+      "description": "Rolling 12-month forecast updated with base-case scenario, forecast risk summary (top 2 risks)"
+    },
+    {
+      "filename": "team-review-notes.md",
+      "description": "Review notes for Tyler, Wendell, Hadiya, and Sven: status (ready/needs revision) and one coaching point each"
+    },
+    {
+      "filename": "escalation-log.md",
+      "description": "Open items from the team: unresolved accounting questions, data issues, AP exceptions — each with recommended action"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-2051.00",
+      "url": "https://www.onetonline.org/link/summary/13-2051.00",
+      "quote": "Present oral or written reports on general economic trends, individual corporations, and entire industries."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2051.00",
+      "url": "https://www.onetonline.org/link/summary/13-2051.00",
+      "quote": "Prepare plans of action for investment, using financial analyses."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/financial-analysts.htm",
+      "quote": "Financial analysts provide guidance to businesses and individuals making investment decisions."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L01-Tyler", "FIN-L02-Wendell", "FIN-L03-Hadiya", "FIN-L04-Sven"],
+  "downstreamDeskIds": ["FIN-L06-Jamal"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the close package include P&L, balance sheet, cash, and SaaS metrics?",
+      "Does the forecast update name the base-case scenario and justify the choice?",
+      "Are review notes present for all four ICs?",
+      "Does the escalation log include recommended actions, not just a list of issues?"
+    ],
+    "quality": [
+      "Is the close package narrative written for a VP — not a controller?",
+      "Are the top-2 forecast risks quantified, not just named?",
+      "Are coaching points actionable and specific to each IC's actual output?",
+      "Is the escalation log prioritized (blocking vs. informational)?",
+      "Does the close package compress the IC outputs without losing material information?"
+    ],
+    "accuracy": [
+      "Are the numbers in the close package consistent with Sven's variance analysis?",
+      "Is the base-case forecast derived from Sven's scenario model, not independently fabricated?",
+      "Are escalation items traced to specific upstream work products?",
+      "Are coaching points grounded in actual output quality, not generic advice?",
+      "Is the cash position consistent with Tyler's AR aging and the bank recon?"
+    ],
+    "handoff": [
+      "Could FIN-L06-Jamal run the management review meeting from the close package alone?",
+      "Are the top-2 forecast risks in a format suitable for the CFO's board prep?",
+      "Would each IC understand their coaching point without a meeting?",
+      "Are escalation items written so Jamal can make a decision without re-reading source files?",
+      "Is the monthly close package formatted consistently with prior months?"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L06-Yuki",
+  "dept": "ENG",
+  "level": 6,
+  "title": "Engineering Manager",
+  "name": "Yuki",
+  "timeBudgetMin": 35,
+  "brief": "You are Yuki, Engineering Manager for the Platform team. You have 5 reports including ENG-L05-Amara (Tech Lead) and four ICs. Today is Monday, weekly planning day.\n\nYour day:\n\n1. 1:1 prep: write short prep notes for 1:1s with two specific reports — Amara (Tech Lead — discuss the next-cycle plan she just sent up) and one IC of your choosing (pick from Marcus / Priya / Chen / Sergei). Each prep note: what you want to ask, what you'll listen for, one piece of feedback you owe.\n2. Weekly team plan: a one-page write-up the team will read Monday morning. Cover: priorities for the week, who's on call, what's blocked, what we're celebrating.\n3. Hiring update: you're hiring one mid-level engineer. Write a quick status: pipeline counts (top of funnel / phone screens / on-sites / offers), one bottleneck, one ask of your director.\n4. Risk you're escalating: identify ONE real risk from this week's signals and write 3-4 sentences on what it is, why it matters, and what you need from leadership.\n\nYou are the lowest people-management tier. Treat your team's time as your most expensive resource.",
+  "deliverables": [
+    {
+      "filename": "1-on-1-prep.md",
+      "description": "Prep for two 1:1s — Amara + one IC. Format: questions, what to listen for, feedback owed."
+    },
+    {
+      "filename": "weekly-team-plan.md",
+      "description": "One-page Monday plan: priorities, on-call, blockers, wins"
+    },
+    {
+      "filename": "hiring-update.md",
+      "description": "Pipeline status + one bottleneck + one ask of the director"
+    },
+    {
+      "filename": "escalation.md",
+      "description": "One named risk with what + why + ask (3-4 sentences each)"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Direct daily operations of department, analyzing workflow, establishing priorities, developing standards and setting deadlines."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Recruit, hire, train and supervise staff, or participate in staffing decisions."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Assign and review the work of systems analysts, programmers, and other computer-related workers."
+    }
+  ],
+  "upstreamDeskIds": ["ENG-L05-Amara"],
+  "downstreamDeskIds": ["ENG-L07-Ravi"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Are 1:1 prep notes for both Amara AND one IC present?",
+      "Does the weekly plan cover priorities, on-call, blockers, wins?",
+      "Does the hiring update include pipeline counts at all 4 stages?",
+      "Is the escalation a single named risk, not a list?"
+    ],
+    "quality": [
+      "Are 1:1 prep questions specific to the named report (not generic)?",
+      "Does the weekly plan tell the team what to skip, not just what to do?",
+      "Does the hiring update name one real bottleneck (not 'we need more candidates')?",
+      "Is the escalation written for the director's pattern of attention?",
+      "Does each piece have a clear owner / next step?"
+    ],
+    "accuracy": [
+      "Does Yuki's plan reflect Amara's next-cycle plan upstream?",
+      "Are pipeline counts internally consistent (offers ≤ on-sites ≤ phone screens ≤ top-of-funnel)?",
+      "Is the on-call rotation realistic for a 5-person team?",
+      "Does the escalation reflect a risk plausibly visible at this level?",
+      "Are 1:1 questions appropriate to each report's level?"
+    ],
+    "handoff": [
+      "Could ENG-L07-Ravi roll up Yuki's hiring update without rework?",
+      "Is the escalation actionable by the director (clear ask)?",
+      "Does Yuki connect Amara's perf-targets to her weekly plan?",
+      "Are blockers visible to the team in the Monday plan?",
+      "Could a peer manager run from the same playbook?"
+    ]
+  }
+}

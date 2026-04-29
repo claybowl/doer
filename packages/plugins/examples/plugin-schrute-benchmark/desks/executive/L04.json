@@ -1,0 +1,74 @@
+{
+  "id": "EXEC-L04-Sunita",
+  "dept": "EXEC",
+  "level": 4,
+  "title": "Strategic Initiatives Lead",
+  "name": "Sunita",
+  "timeBudgetMin": 35,
+  "brief": "You are Sunita, Strategic Initiatives Lead. You operate across team boundaries, taking on high-priority projects that don't fit cleanly inside any one department. This cycle you own two cross-functional initiatives simultaneously.\n\nInitiative A — OKR alignment: the company just finished its quarterly OKR setting process, but three departments have OKRs that are either unmeasurable or contradict each other. You've been given the OKR outputs from Engineering, Sales, and Marketing (treat them as provided). Identify the conflicts and gaps, and write a short alignment brief that Octavio (EXEC-L05) can use to run a 30-minute alignment session.\n\nInitiative B — New tool evaluation: the company is considering adopting a business intelligence tool (pick one realistic option, e.g., Metabase, Looker, or Hex). You've been asked to scope the evaluation: produce a 1-page requirements list and a vendor comparison matrix with 3-4 criteria and two shortlisted tools.\n\nSunita's role requires you to coordinate without authority. Frame every output as something that helps others make decisions faster — not as a directive.",
+  "deliverables": [
+    {
+      "filename": "okr-alignment-brief.md",
+      "description": "Identified OKR conflicts and gaps across Eng/Sales/Marketing + facilitation guide for 30-min alignment session"
+    },
+    {
+      "filename": "bi-tool-requirements.md",
+      "description": "1-page requirements list for the BI tool evaluation: key use cases, must-haves, nice-to-haves"
+    },
+    {
+      "filename": "bi-tool-vendor-matrix.md",
+      "description": "Comparison matrix: 2 shortlisted tools × 3-4 evaluation criteria with scores and recommendation"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Confer with personnel concerned to ensure successful functioning of newly implemented systems or procedures."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Plan or direct activities, such as sales promotions, that require coordination with other department managers."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts, often called management consultants, recommend ways to improve an organization's efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["EXEC-L05-Octavio"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the OKR brief cover all three named departments (Eng, Sales, Marketing)?",
+      "Are at least 2 concrete OKR conflicts or gaps identified?",
+      "Does the BI requirements doc distinguish must-haves from nice-to-haves?",
+      "Does the vendor matrix cover exactly 2 shortlisted tools and 3-4 criteria?"
+    ],
+    "quality": [
+      "Does the OKR alignment brief give Octavio a runnable meeting structure?",
+      "Are OKR conflicts specific (not 'goals are misaligned' generically)?",
+      "Does the vendor matrix include a clear recommendation, not just scores?",
+      "Are requirements grounded in real BizOps use cases (not generic BI needs)?",
+      "Is all writing framed as enabling decisions, not as directives?"
+    ],
+    "accuracy": [
+      "Are the OKR conflicts plausible for Eng/Sales/Marketing at this company stage?",
+      "Are the named BI tools real products with the features cited?",
+      "Do evaluation criteria map to actual BizOps workflow requirements?",
+      "Is the recommended tool consistent with the matrix scores?",
+      "Does the facilitation guide fit a 30-minute session realistically?"
+    ],
+    "handoff": [
+      "Could Octavio (EXEC-L05) run the alignment session directly from the brief?",
+      "Is the vendor matrix self-contained enough for a buy decision without follow-up?",
+      "Are open questions or blockers in the OKR process flagged explicitly?",
+      "Does Sunita note which departments she coordinated with vs. still needs to align?",
+      "Are deliverable formats consistent with exec-level readability expectations?"
+    ]
+  }
+}

@@ -1,0 +1,85 @@
+{
+  "id": "LEGOPS-L07-Vidya",
+  "dept": "LEGOPS",
+  "level": 7,
+  "title": "Senior Procurement & Vendor Operations Lead",
+  "name": "Vidya",
+  "timeBudgetMin": 45,
+  "brief": "You are Vidya, Senior Procurement & Vendor Operations Lead at a 100-person SaaS company. You are the highest out-degree node in the company's operational DAG this cycle. Today you own two things that cascade to every other department: the contract redline package that unblocks Sales from closing, and the annual vendor budget allocation that tells every department head what they have to work with.\n\nFirst, the Sales team is blocked on a late-stage enterprise deal. The prospect has returned a 22-clause redline on your MSA. Anneliese has handed you the ops-side analysis; Legal (Hideo) has cleared the legal positions. Your job is to synthesize both into a final contract redline package — a clean version of the MSA with your positions applied, plus a one-page cover memo for the Sales Director (Iliana, SALES-L08) summarizing the three remaining open issues and your recommended resolution for each. This document is the close-motion input.\n\nSecond, the annual vendor budget cycle has landed. You have been given total vendor spend authority of $2.4M across 9 department budget lines. Allocate the budget across all nine receiving departments, document the allocation rationale for each, and produce a master vendor budget allocation memo that each department Director (L08) will use to negotiate their own vendor contracts for the coming year. The nine receiving L08 directors are: Petra (EXEC), Esther (ENG), Diego (PROD), Caelan (DES), Iliana (SALES), Caleb (MKT), Astrid (CS), Pierre (FIN), and Renaud (HR). Each allocation must include: the department's budget line, the key vendor categories it covers, any cross-department shared-vendor pools, and one compliance constraint from the legal and security policy framework.\n\nThis is a coordination apex. You are not just allocating funds — you are setting the operating envelope for the whole company's vendor relationships. Be specific. Be defensible. Be complete.",
+  "deliverables": [
+    {
+      "filename": "msa-redline-package.md",
+      "description": "Final MSA with all 22 redlines resolved (clean version with accepted/counter language applied), plus one-page cover memo for SALES-L08-Iliana: three remaining open issues with recommended resolution for each"
+    },
+    {
+      "filename": "vendor-budget-allocation.md",
+      "description": "Master vendor budget allocation memo: total $2.4M allocated across 9 departments. For each of the nine L08 directors (Petra/EXEC, Esther/ENG, Diego/PROD, Caelan/DES, Iliana/SALES, Caleb/MKT, Astrid/CS, Pierre/FIN, Renaud/HR): budget line amount, key vendor categories, shared-pool items, one compliance constraint. Rationale for each allocation."
+    },
+    {
+      "filename": "vendor-spend-dashboard.md",
+      "description": "Summary table: department, allocated amount, % of total, top 2 vendor categories, shared pool contributions, and compliance flag. Designed for Director-level review at-a-glance."
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct or coordinate financial or budget activities to fund operations, maximize investments, or increase efficiency."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Monitor suppliers to ensure that they efficiently and effectively provide needed goods or services within budgetary limits."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Negotiate contractual agreements."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L06-Anneliese"],
+  "downstreamDeskIds": [
+    "SALES-L08-Iliana",
+    "EXEC-L08-Petra",
+    "ENG-L08-Esther",
+    "PROD-L08-Diego",
+    "DES-L08-Caelan",
+    "MKT-L08-Caleb",
+    "CS-L08-Astrid",
+    "FIN-L08-Pierre",
+    "HR-L08-Renaud"
+  ],
+  "rubric": {
+    "completion": [
+      "Is the MSA redline package produced with a clean final version?",
+      "Does the cover memo identify exactly three open issues with recommended resolutions?",
+      "Is the vendor budget allocation memo produced?",
+      "Does the allocation memo address all nine L08 departments individually?",
+      "Is the vendor spend dashboard produced?"
+    ],
+    "quality": [
+      "Does the cover memo give Iliana a clear recommended close path (not a list of options)?",
+      "Does each department allocation include a compliance constraint from the security/legal framework?",
+      "Are allocation rationales differentiated (ENG vs. HR are not the same argument)?",
+      "Does the spend dashboard fit on one page and support at-a-glance comparison?",
+      "Does the memo distinguish department-specific budgets from shared-vendor pools?"
+    ],
+    "accuracy": [
+      "Do the nine department allocations sum to exactly $2.4M?",
+      "Are the three remaining MSA open issues genuinely the most material unresolved points?",
+      "Does the allocation reflect realistic vendor spend patterns by department (ENG infrastructure > HR software)?",
+      "Are shared-pool items allocated once (not double-counted across departments)?",
+      "Does each compliance constraint match the policy outputs from LEGOPS-L05/L06 upstream?"
+    ],
+    "handoff": [
+      "Could SALES-L08-Iliana take the redline package directly into a customer negotiation call?",
+      "Could each L08 director use their budget line to issue an RFP or PO without follow-up from Vidya?",
+      "Is the spend dashboard formatted for the Director-level review meeting (not an internal working doc)?",
+      "Did Vidya flag any department allocation that requires additional legal or board approval?",
+      "Could LEGOPS-L08-Soren present the full allocation to the COO from this memo alone?"
+    ]
+  }
+}

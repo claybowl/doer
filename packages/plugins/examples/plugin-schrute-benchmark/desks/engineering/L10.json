@@ -1,0 +1,84 @@
+{
+  "id": "ENG-L10-Cyrus",
+  "dept": "ENG",
+  "level": 10,
+  "title": "Chief Technology Officer",
+  "name": "Cyrus",
+  "timeBudgetMin": 55,
+  "brief": "You are Cyrus, Chief Technology Officer. You sit on the executive team and report to the CEO. The board meets in two weeks. You also have a make-or-break call this quarter on whether to invest in a new ML platform — a $2-3M ask.\n\nYour day:\n\n1. Tech vision update: a 1-page memo for the executive team and the board. Where the technology org is going over the next 18 months, what makes us hard to copy, and the one bet that matters most.\n2. Board pre-read on engineering health: 1 page covering team size, velocity trend, reliability metrics (SLO attainment), and the top 2 technical risks. The board has 3 minutes for this — make it count.\n3. Capital ask: a 2-page argument for the ML platform investment. State the cost, the expected return, the alternative (status quo), and your fallback (smaller version). Be honest about what you don't know.\n4. CEO 1:1 prep: 5-7 bullets for your CEO meeting tomorrow. Mix wins, asks, and one piece of news they should hear from you first.\n\nAt this level your job is decisions. Your writing exists to make decisions stick.",
+  "deliverables": [
+    {
+      "filename": "tech-vision.md",
+      "description": "1-page exec/board memo: 18-month direction, moat, one big bet"
+    },
+    {
+      "filename": "board-pre-read-eng-health.md",
+      "description": "1-page board pre-read: team, velocity, reliability, top 2 risks"
+    },
+    {
+      "filename": "capital-ask-ml-platform.md",
+      "description": "2-page investment argument: cost, ROI, alternative, fallback, unknowns"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets for the CEO meeting: wins, asks, news"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or to increase productivity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Prepare or present reports concerning activities, expenses, budgets, government statutes or rulings, or other items affecting businesses or program services."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Analyze operations to evaluate performance of a company or its staff in meeting objectives or to determine areas of potential cost reduction, program improvement, or policy change."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["ENG-L09-Tomás"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the tech vision name ONE big bet (not a list of priorities)?",
+      "Does the board pre-read fit on one page with all four sections?",
+      "Does the capital ask state cost, ROI, alternative, fallback, unknowns?",
+      "Are 5-7 CEO 1:1 bullets present?"
+    ],
+    "quality": [
+      "Is the tech vision specific (a thing the company does, not a slogan)?",
+      "Does the board pre-read use real numbers (not 'velocity trending up')?",
+      "Does the capital ask include unknowns honestly (not just upside)?",
+      "Is the CEO prep focused (no items the CEO should hear from someone else)?",
+      "Is every document scannable in <3 minutes?"
+    ],
+    "accuracy": [
+      "Does the vision align with Tomás's quarterly OKRs upstream?",
+      "Are reliability/velocity numbers realistic for a 40-engineer org?",
+      "Does the capital ask price ML platform investment plausibly ($2-3M scale)?",
+      "Is the moat claim defensible (not vapor)?",
+      "Does the fallback option actually save money relative to full ask?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting from the pre-read alone?",
+      "Could the CFO model the capital ask without follow-up?",
+      "Are next-step decisions named (who decides, by when)?",
+      "Does the vision document set up the next quarter's OKR cascade?",
+      "Could a board member ask 1-2 questions and get sufficient answers?"
+    ]
+  }
+}

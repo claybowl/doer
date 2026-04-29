@@ -1,0 +1,75 @@
+{
+  "id": "LEGOPS-L04-Klara",
+  "dept": "LEGOPS",
+  "level": 4,
+  "title": "Counsel",
+  "name": "Klara",
+  "timeBudgetMin": 35,
+  "brief": "You are Klara, Counsel at a 100-person SaaS company. You own full-cycle contract negotiation for mid-market deals and vendor agreements, operating with significant independence but escalating material risk to Senior Counsel.\n\nToday you have three items. First, a mid-market customer has returned your standard MSA with 14 redlines. Triage the redlines: categorize each as (a) acceptable as-is, (b) acceptable with minor counter, or (c) escalate to senior counsel. For (b) items, draft the counter-language. For (c) items, write a one-sentence escalation note explaining the risk.\n\nSecond, a new SaaS sub-processor agreement landed from a data infrastructure vendor. Review it for compliance with your company's standard data processing obligations (GDPR Article 28, CCPA service provider requirements). Note any gaps.\n\nThird, draft a short compliance memo (one page) summarizing your company's current obligations under CCPA for a product team asking whether they can use a new third-party analytics SDK. Cover: what counts as 'selling' data under CCPA, the service provider exception, and what contractual clause would be required to use the SDK without triggering sale obligations.",
+  "deliverables": [
+    {
+      "filename": "redline-triage.md",
+      "description": "Table of 14 customer redlines: clause name, category (a/b/c), counter-language for (b) items, escalation note for (c) items"
+    },
+    {
+      "filename": "sub-processor-gap-analysis.md",
+      "description": "Gap analysis of vendor sub-processor agreement vs. GDPR Art. 28 and CCPA service provider requirements. Each gap: clause missing, standard requirement, risk level (H/M/L)."
+    },
+    {
+      "filename": "ccpa-sdk-memo.md",
+      "description": "One-page compliance memo for product team: CCPA 'sale' definition, service provider exception, required contractual clause to use analytics SDK without triggering sale obligations"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Negotiate contractual agreements."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Interpret laws, rulings and regulations for individuals and businesses."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Identify compliance issues that require follow-up or investigation."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["LEGOPS-L05-Hideo"],
+  "rubric": {
+    "completion": [
+      "Is the redline triage table produced with all 14 items categorized?",
+      "Does the triage include counter-language for all (b) items?",
+      "Does the triage include escalation notes for all (c) items?",
+      "Is the sub-processor gap analysis produced?",
+      "Is the CCPA SDK memo produced?"
+    ],
+    "quality": [
+      "Is counter-language legally precise (not paraphrased intent)?",
+      "Are gap analysis risk levels calibrated (not all-H)?",
+      "Does the CCPA memo distinguish 'sale' from 'share' correctly?",
+      "Is the service provider exception explained with the key contractual element (limiting use restriction)?",
+      "Is escalation reasoning specific enough for senior counsel to act without re-reading the redline?"
+    ],
+    "accuracy": [
+      "Does the gap analysis correctly apply GDPR Article 28 sub-processor requirements?",
+      "Does the CCPA memo correctly characterize the service provider exception?",
+      "Is the required contractual clause (limiting use to performing services) accurately stated?",
+      "Are (a) items genuinely non-material changes?",
+      "Does the gap analysis cover both GDPR and CCPA independently?"
+    ],
+    "handoff": [
+      "Could LEGOPS-L05-Hideo approve the (b) counter-language without re-reading the original redlines?",
+      "Could the product team act on the CCPA memo without further legal consultation?",
+      "Are gap analysis items prioritized so the vendor knows which gaps are blocking?",
+      "Is the redline triage formatted to paste directly into a reply email?",
+      "Did Klara flag any items requiring legal counsel sign-off before customer response?"
+    ]
+  }
+}

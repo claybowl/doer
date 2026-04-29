@@ -1,0 +1,84 @@
+{
+  "id": "LEGOPS-L10-Theodora",
+  "dept": "LEGOPS",
+  "level": 10,
+  "title": "Chief Operating Officer / General Counsel",
+  "name": "Theodora",
+  "timeBudgetMin": 55,
+  "brief": "You are Theodora, Chief Operating Officer and General Counsel at a 100-person SaaS company. You are both a C-level executive and the company's top legal officer — a dual mandate that gives you authority over all operational functions and the full legal risk posture of the company. You report to the CEO and present to the board. You have final sign-off on vendor contracts above $250K, all regulatory filings, and all company-wide policies.\n\nToday Adaobi has delivered the quarterly review, privacy law readiness roadmap, hiring plan decision, and CEO prep. You have four tasks.\n\nFirst, prepare the board legal & ops pre-read: a 1-page memo covering the company's current legal risk posture (active litigation or disputes, top 3 regulatory exposures, insurance coverage adequacy), operational health (BCP readiness, vendor program status, policy coverage), and two decisions you need the board to make this quarter (budget approval, policy ratification, or material contract approval).\n\nSecond, prepare the company's regulatory compliance calendar for the next 12 months: all known filing deadlines, certification renewals, policy review dates (including the new state privacy law 180-day window), and the internal owner for each item.\n\nThird, draft your position on the two most material open legal risks facing the company: for each, state the risk, your current mitigation posture, the residual risk, and your recommendation (accept, transfer via insurance, remediate, or escalate). This goes directly to the CEO.\n\nFourth, write the COO/GC operating principles memo — a short document (1 page) articulating how Legal & Ops makes decisions at this company: what goes to legal review, what goes to board, what the ops team can approve without escalation, and the one principle that governs every close call. This is a living policy document.",
+  "deliverables": [
+    {
+      "filename": "board-legops-pre-read.md",
+      "description": "1-page board pre-read: legal risk posture (litigation, top 3 regulatory exposures, insurance), operational health (BCP, vendor program, policy coverage), two board decisions required this quarter"
+    },
+    {
+      "filename": "compliance-calendar-12mo.md",
+      "description": "12-month regulatory compliance calendar: filing deadlines, certification renewals, policy review dates, internal owner for each. Includes 180-day new privacy law window."
+    },
+    {
+      "filename": "top-legal-risks-ceo-memo.md",
+      "description": "CEO memo on 2 most material legal risks: risk description, current mitigation posture, residual risk, recommendation (accept/transfer/remediate/escalate)"
+    },
+    {
+      "filename": "coo-gc-operating-principles.md",
+      "description": "1-page operating principles memo: what goes to legal review, what goes to board, what ops can approve autonomously, the one governing principle for every close call"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Evaluate findings and develop strategies and arguments in preparation for presentation of cases."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Prepare reports of activities, evaluations, recommendations, or decisions."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L09-Adaobi"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "Is the board pre-read produced?",
+      "Is the compliance calendar produced with all four item types?",
+      "Is the CEO legal risks memo produced with exactly 2 risks analyzed?",
+      "Is the COO/GC operating principles memo produced?",
+      "Does the board pre-read request exactly two specific board decisions?"
+    ],
+    "quality": [
+      "Does the board pre-read fit on one page and be readable by a board member in 3 minutes?",
+      "Is each compliance calendar entry actionable (deadline + owner + artifact, not just a date)?",
+      "Does the CEO memo state residual risk honestly (not 'manageable with best practices')?",
+      "Does the operating principles memo include the one governing principle as a clearly named heuristic?",
+      "Is the distinction between legal review, board approval, and ops autonomy operationally specific?"
+    ],
+    "accuracy": [
+      "Does the compliance calendar include the 180-day privacy law deadline from Adaobi's roadmap?",
+      "Are legal risk recommendations (accept/transfer/remediate/escalate) correctly matched to risk severity?",
+      "Does the board pre-read accurately reflect the BCP and vendor program status from the department?",
+      "Is the insurance coverage adequacy assessment grounded in the COI audit data from the team?",
+      "Are the two board decisions genuinely board-level (not VP-approvable)?"
+    ],
+    "handoff": [
+      "Could the board chair distribute the pre-read to directors without editing?",
+      "Could Adaobi execute the compliance calendar without additional context from Theodora?",
+      "Could the CEO brief outside counsel from the legal risks memo?",
+      "Could a new COO use the operating principles memo to run the department from day one?",
+      "Did Theodora close the loop on all items Adaobi escalated?"
+    ]
+  }
+}

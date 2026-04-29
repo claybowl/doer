@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L05-Felipe",
+  "dept": "SALES",
+  "level": 5,
+  "title": "Sales Lead",
+  "name": "Felipe",
+  "timeBudgetMin": 35,
+  "brief": "You are Felipe, Sales Lead for the commercial sales pod. Your four reports produced work this week: SDR prospecting and call notes (Aisha, L1), BDR sequence tracking and market intel (Dimitri, L2), AE deal sheet and proposal (Camila, L3), and Senior AE account plan and forecast (Idris, L4). You synthesize their output into a weekly roll-up for your manager Zara (L6 Sales Manager).\n\n1. Weekly roll-up: Write a 1-page synthesis of the pod's week for Zara. Cover: deals advanced, deals at risk, pipeline added (net new + expansion), SDR/BDR activity metrics (prospects touched, calls booked), and one team-level recommendation.\n\n2. Pipeline review prep: Build a structured pipeline review agenda for the 30-minute team meeting tomorrow. Include: which deals to discuss, what decision or input is needed from each rep, and time allocations.\n\n3. Coaching priorities: Based on the four upstream outputs, identify the top coaching need for each rep (one sentence each). Note any pattern across the team that should be addressed at the group level.\n\n4. Escalation triage: Idris flagged a non-standard SLA request. Assess it: should it go to Zara, to Legal, or can Felipe resolve it? Write a 1-paragraph decision with rationale.",
+  "deliverables": [
+    {
+      "filename": "weekly-pod-rollup.md",
+      "description": "1-page synthesis for Zara: deals advanced, at-risk, pipeline added, SDR/BDR metrics, one recommendation"
+    },
+    {
+      "filename": "pipeline-review-agenda.md",
+      "description": "Structured 30-minute pipeline review agenda with deal owners, needed decisions, and time slots"
+    },
+    {
+      "filename": "coaching-priorities.md",
+      "description": "Per-rep top coaching need (one sentence each) plus group-level pattern note"
+    },
+    {
+      "filename": "escalation-triage.md",
+      "description": "1-paragraph decision on Idris's non-standard SLA request: routing, rationale"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-1012.00",
+      "url": "https://www.onetonline.org/link/summary/41-1012.00",
+      "quote": "Monitor sales staff performance to ensure that goals are met."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-1012.00",
+      "url": "https://www.onetonline.org/link/summary/41-1012.00",
+      "quote": "Provide staff with assistance in performing difficult or complicated duties."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/sales-managers.htm",
+      "quote": "Sales managers direct organizations' sales teams. They set sales goals, analyze data, and develop training programs for organizations' sales representatives."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L01-Aisha", "SALES-L02-Dimitri", "SALES-L03-Camila", "SALES-L04-Idris"],
+  "downstreamDeskIds": ["SALES-L06-Zara"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the weekly roll-up reference all four upstream reps' work?",
+      "Does the pipeline review agenda include time allocations for each deal?",
+      "Is there a coaching note for each of the four reps?",
+      "Is the escalation triage decision present with a routing recommendation?"
+    ],
+    "quality": [
+      "Is the roll-up scannable by Zara in under 3 minutes?",
+      "Are pipeline metrics specific (numbers, not 'pipeline grew')?",
+      "Are coaching priorities behavioral and actionable (not generic)?",
+      "Does the pipeline review agenda specify what decision or input is needed per deal?",
+      "Is the escalation decision reasoning clear and non-circular?"
+    ],
+    "accuracy": [
+      "Does the roll-up accurately reflect the upstream deliverables from all four reps?",
+      "Are SDR/BDR activity metrics distinct from AE deal metrics?",
+      "Does the coaching pattern note identify a real common thread across reps?",
+      "Is the escalation triage routing consistent with the severity of the SLA ask?",
+      "Do deal status descriptions in the roll-up match the forecast update from Idris?"
+    ],
+    "handoff": [
+      "Could Zara run a 1:1 with each rep from the coaching priorities alone?",
+      "Is the pipeline review agenda ready to share with the team without editing?",
+      "Are blockers in the roll-up owner-assigned with a target resolution date?",
+      "Does the escalation triage name the next action and owner clearly?",
+      "Could the roll-up feed directly into Zara's manager reporting without reformatting?"
+    ]
+  }
+}

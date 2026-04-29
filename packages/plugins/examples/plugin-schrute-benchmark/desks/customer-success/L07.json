@@ -1,0 +1,84 @@
+{
+  "id": "CS-L07-Dion",
+  "dept": "CS",
+  "level": 7,
+  "title": "Senior Customer Success Manager",
+  "name": "Dion",
+  "timeBudgetMin": 45,
+  "brief": "You are Dion, Senior CS Manager overseeing the delivery team (reporting to Astrid, CS-L08). You manage two CS managers (Lakshmi, L6, and one peer team) and own the operating rhythm for the entire CS function at the cycle level.\n\n1. Churn risk report: compile a department-wide churn risk list for the current quarter. Format: account name, ARR at risk, risk tier (High/Medium/Watch), primary risk driver, and assigned action owner. Your target is to name every account at material risk (>$20K ARR). This is the document Astrid uses in the leadership team meeting.\n\n2. CS cycle plan: write the plan for the next 6-week delivery cycle. Cover: team focus areas (max 3), key accounts requiring elevated attention, capacity headcount (who is at risk of overload), and one process improvement the team will ship this cycle.\n\n3. Voice-of-customer summary: synthesize the CSAT scores, NPS verbatims, and escalation patterns from the past quarter into a 1-page voice-of-customer (VoC) summary. This will be used in a cross-functional meeting with Product and Engineering. Be specific — themes, frequency, representative quotes, and a recommended priority ranking for the other teams.\n\n4. Manager 1:1 notes: for your 1:1 with Lakshmi, write 5-7 agenda bullets covering feedback on her recent manager brief, the product handoff quality, and growth areas for her reports.\n\nYou are accountable for the team's delivery rhythm and cross-functional reputation. The churn risk report and VoC summary are read by people outside CS.",
+  "deliverables": [
+    {
+      "filename": "churn-risk-report-q.md",
+      "description": "Department-wide churn risk list: account, ARR at risk, tier, risk driver, action owner"
+    },
+    {
+      "filename": "cs-cycle-plan.md",
+      "description": "6-week CS cycle plan: 3 focus areas, elevated accounts, capacity risk, 1 process improvement"
+    },
+    {
+      "filename": "voc-summary-q.md",
+      "description": "1-page voice-of-customer summary: themes, frequency, representative quotes, priority ranking"
+    },
+    {
+      "filename": "lakshmi-1on1-notes.md",
+      "description": "5-7 agenda bullets for Lakshmi 1:1: feedback, product handoff quality, report growth areas"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Initiate market research studies, or analyze their findings."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Review operations and confer with technical or administrative staff to resolve production or processing problems."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Develop or implement production tracking or quality control systems, analyzing production, quality control, maintenance, or other operational reports to detect production problems."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "Quarterly churn risk reviews that include ARR-weighted priority tiers reduce unplanned churn by 25% on average."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L06-Lakshmi"],
+  "downstreamDeskIds": ["CS-L08-Astrid"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the churn risk report include all required fields (account, ARR, tier, driver, owner)?",
+      "Does the cycle plan name exactly 3 team focus areas?",
+      "Does the VoC summary include themes, frequency, quotes, and a priority ranking?",
+      "Are 5-7 agenda bullets present in the 1:1 notes for Lakshmi?"
+    ],
+    "quality": [
+      "Does the churn risk report include only accounts >$20K ARR at material risk?",
+      "Are the cycle plan focus areas mutually exclusive and actionable?",
+      "Does the VoC summary include verbatim-style representative quotes?",
+      "Is the 1:1 feedback to Lakshmi direct and specific (not vague praise)?",
+      "Is the VoC summary written for a cross-functional, non-CS audience?"
+    ],
+    "accuracy": [
+      "Are churn risk tiers (High/Medium/Watch) consistently applied?",
+      "Does the cycle plan reflect the actual team capacity situation?",
+      "Does the VoC priority ranking align with the themes and frequency data?",
+      "Does Dion's feedback to Lakshmi reference her actual recent outputs?",
+      "Is the churn risk ARR totaled at the bottom of the report?"
+    ],
+    "handoff": [
+      "Could CS-L08-Astrid walk into a leadership team meeting with the churn risk report?",
+      "Could Astrid brief the exec team on VoC themes from the summary alone?",
+      "Could Lakshmi run her own 1:1 from the agenda bullets without asking Dion for context?",
+      "Is the cycle plan ready for a team kick-off meeting without revision?",
+      "Does the VoC summary name which team (Product, Eng) should act on each priority?"
+    ]
+  }
+}

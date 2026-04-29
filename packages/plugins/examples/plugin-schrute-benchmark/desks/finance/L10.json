@@ -1,0 +1,79 @@
+{
+  "id": "FIN-L10-Reginald",
+  "dept": "FIN",
+  "level": 10,
+  "title": "Chief Financial Officer",
+  "name": "Reginald",
+  "timeBudgetMin": 55,
+  "brief": "You are Reginald, Chief Financial Officer of a 100-person SaaS company. You own the company's financial narrative — to the board, to investors, to the banking syndicate, and to the CEO. Naila (FIN-L09) runs operations; you run the financial mind of the company.\n\nYour day:\n\n1. Board pre-read package — final sign-off: Naila has produced the financial section of the board pre-read. Review it, add your CFO commentary (a 2-3 paragraph letter to the board), and sign off. Your commentary must address: the company's financial health at a glance, the one decision you need the board to make, and the biggest risk on the horizon.\n2. CEO financial briefing: the CEO wants a 15-minute briefing deck on the company's financial position before the board meeting. Produce a 5-slide structure covering: burn rate and runway, revenue quality (retention, mix, growth), unit economics (CAC payback, LTV/CAC), near-term cash triggers, and your recommended capital allocation for the next 6 months.\n3. Capital structure decision: the company is choosing between extending its revolver, raising a Series B, or pursuing revenue-based financing. Write a 1-2 page capital structure memo that lays out the tradeoffs, recommends a path, and states the conditions under which the recommendation would change.\n4. Outbound to EXEC: package the board pre-read financial section (with your commentary) for EXEC-L10-Konstantin, the board chair, per the pre-meeting protocol.\n\nYou are the financial conscience of the company. When the numbers are wrong, you say so. When the board needs clarity, you give it.",
+  "deliverables": [
+    {
+      "filename": "board-pre-read-final.md",
+      "description": "Naila's financial section with Reginald's 2-3 paragraph CFO commentary: health at a glance, decision needed, biggest risk"
+    },
+    {
+      "filename": "ceo-financial-briefing.md",
+      "description": "5-slide structure: burn/runway, revenue quality, unit economics, cash triggers, capital allocation recommendation"
+    },
+    {
+      "filename": "capital-structure-memo.md",
+      "description": "1-2 page memo: revolver vs. Series B vs. RBF tradeoffs, recommended path, conditions for changing the recommendation"
+    },
+    {
+      "filename": "exec-board-package.md",
+      "description": "Board pre-read financial section packaged for EXEC-L10-Konstantin, including CFO commentary and any board-specific context"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct or coordinate an organization's financial or budget activities to fund operations, maximize investments, or increase efficiency."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Prepare or present reports concerning activities, expenses, budgets, government statutes or rulings, or other items affecting businesses."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Confer with board members, organization officials, or staff members to discuss issues, coordinate activities, or resolve problems."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L09-Naila"],
+  "downstreamDeskIds": ["EXEC-L10-Konstantin"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the CFO commentary address all three required elements (health, decision needed, biggest risk)?",
+      "Does the CEO briefing cover all five slide topics?",
+      "Does the capital structure memo address all three financing options?",
+      "Is the board package explicitly addressed to EXEC-L10-Konstantin?"
+    ],
+    "quality": [
+      "Is the CFO commentary written in a voice appropriate for a board letter — not a management memo?",
+      "Is the CEO briefing structured for a 15-minute verbal presentation, not a reading document?",
+      "Does the capital structure memo state clear conditions for changing the recommendation?",
+      "Is the board package self-contained (no unexplained jargon or missing context)?",
+      "Is the capital recommendation defensible against a second-opinion challenge?"
+    ],
+    "accuracy": [
+      "Is the CFO commentary consistent with the financial numbers in Naila's board pre-read?",
+      "Are unit economics in the CEO briefing consistent with Sven's SaaS metrics output?",
+      "Does the burn/runway figure in the CEO briefing match the covenant compliance analysis?",
+      "Are the three financing options accurately characterized (cost, dilution, covenants)?",
+      "Is EXEC-L10-Konstantin named correctly and the package formatted per board protocol?"
+    ],
+    "handoff": [
+      "Could EXEC-L10-Konstantin present the board financial section from the package without calling Reginald?",
+      "Could the CEO walk into the board meeting with only the CEO briefing deck?",
+      "Is the capital structure memo written so the board can vote on it without additional analysis?",
+      "Would an institutional investor find the capital structure reasoning coherent and complete?",
+      "Are any items requiring full board vote (vs. CFO discretion) clearly identified?"
+    ]
+  }
+}

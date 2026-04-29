@@ -36,6 +36,7 @@
     "@doerai/adapter-codex-local": "workspace:*",
     "@doerai/adapter-cursor-local": "workspace:*",
     "@doerai/adapter-gemini-local": "workspace:*",
+    "@doerai/adapter-letta-af-opencode": "workspace:*",
     "@doerai/adapter-letta-cloud": "workspace:*",
     "@doerai/adapter-openclaw-gateway": "workspace:*",
     "@doerai/adapter-opencode-local": "workspace:*",

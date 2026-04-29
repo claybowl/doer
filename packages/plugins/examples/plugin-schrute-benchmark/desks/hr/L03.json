@@ -1,0 +1,74 @@
+{
+  "id": "HR-L03-Zoë",
+  "dept": "HR",
+  "level": 3,
+  "title": "Senior Recruiter",
+  "name": "Zoë",
+  "timeBudgetMin": 25,
+  "brief": "You are Zoë, a Senior Recruiter at a 100-person SaaS company. You own complex, senior-level searches end-to-end: sourcing strategy, candidate experience, offer calibration, and close. You are also expected to improve recruiting processes, not just execute them.\n\n1. Sourcing strategy: the company needs to hire a Principal Data Scientist. Write a sourcing plan — which channels you will use, what the Boolean search strings look like, what passive-candidate outreach looks like, and what a realistic 60-day funnel projection is (applications → screens → onsite → offers → hires).\n\n2. Offer letter draft: a finalist candidate for the Senior Product Manager role has verbally accepted. Draft the offer letter covering role, start date, base salary ($175,000), equity (0.10% over 4 years, 1-year cliff), PTO policy, and at-will employment notice. Leave salary and equity fields as placeholders for legal review.\n\n3. Recruiting process retrospective: the last three engineering hires took 92, 78, and 110 days from job open to offer accepted — all above the 60-day target. Write a one-page root-cause analysis and three specific process improvements for next quarter.\n\nThis is fully owned work. Surface your reasoning, not just the output.",
+  "deliverables": [
+    {
+      "filename": "principal-data-scientist-sourcing-plan.md",
+      "description": "Sourcing channels, Boolean strings, passive outreach template, and 60-day funnel projection"
+    },
+    {
+      "filename": "offer-letter-draft-spm.md",
+      "description": "Offer letter draft with role, start date, comp, equity, PTO, at-will clause; salary/equity as placeholders for legal"
+    },
+    {
+      "filename": "recruiting-retro.md",
+      "description": "Root-cause analysis of 3 overlong hires + 3 concrete process improvements for next quarter"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Develop or implement recruiting strategies to meet current or anticipated staffing needs."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Inform job applicants of details such as duties and responsibilities, compensation, benefits, schedules, working conditions, or promotion opportunities."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/human-resources-specialists.htm",
+      "quote": "Human resources specialists recruit, screen, and interview job applicants and place them in positions within an organization."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["HR-L05-Estelle"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the sourcing plan include Boolean strings (not just channel names)?",
+      "Does the funnel projection include all five stages: applications, screens, onsite, offers, hires?",
+      "Does the offer letter include all six components (role, start, salary, equity, PTO, at-will)?",
+      "Does the retro identify root causes (not just symptoms) and name 3 improvements?"
+    ],
+    "quality": [
+      "Are the Boolean strings syntactically valid (AND/OR/NOT operators, quoted phrases)?",
+      "Does the offer letter read as a real legal document (not a template list)?",
+      "Is the retro analysis causal, not just descriptive ('sourcing took too long because...')?",
+      "Are the three process improvements specific and actionable (not 'communicate better')?",
+      "Is the funnel projection numeric with realistic conversion rates?"
+    ],
+    "accuracy": [
+      "Is the $175K salary and 0.10% equity in line with Principal/Senior PM market ranges?",
+      "Is the 1-year cliff correctly described in the offer letter?",
+      "Do the three hiring durations (92, 78, 110 days) appear in the retro as evidence?",
+      "Is the 60-day funnel target referenced in both the sourcing plan and the retro?",
+      "Are the sourcing channels realistic for a Principal Data Scientist role?"
+    ],
+    "handoff": [
+      "Could HR-L05-Estelle forward the offer letter to legal with no additional edits?",
+      "Could a hiring manager begin sourcing immediately from the plan?",
+      "Are the retro improvements assigned to specific owners or roles?",
+      "Does the sourcing plan give a clear start-of-week action list?",
+      "Are placeholder fields in the offer letter clearly marked for legal review?"
+    ]
+  }
+}

@@ -1,0 +1,83 @@
+{
+  "id": "MKT-L07-Yara",
+  "dept": "MKT",
+  "level": 7,
+  "title": "Senior Marketing Manager",
+  "name": "Yara",
+  "timeBudgetMin": 45,
+  "brief": "You are Yara, Senior Marketing Manager. You own the marketing calendar, the brand narrative, and the relationship between marketing and the rest of the business. Tobias (MKT-L06) reports to you; your work feeds the Director of Marketing (MKT-L08-Caleb).\n\nToday's work:\n\n1. Quarterly campaign calendar: Q3 is six weeks out. Write the campaign calendar for the quarter: 8–12 campaign blocks (name, channel mix, audience segment, rough budget allocation as % of total, and expected MQL contribution). Campaigns must be sequenced — some depend on others (e.g., webinar comes after blog sequence). Highlight two campaigns with highest pipeline impact and one campaign you're cutting vs. last quarter and why.\n2. Brand narrative refresh: the company expanded its ICP last month to include enterprise buyers (500+ employees), alongside its existing SMB/mid-market focus. Rewrite the company's one-sentence positioning statement and tagline to accommodate the dual audience without becoming generic. Provide three alternatives and score each on: precision, memorability, and differentiation (1–5 scale). Recommend one.\n3. Cross-functional alignment memo: the product team is running a big-bet launch and wants marketing to run a simultaneous ABM (account-based marketing) campaign targeting 50 named accounts. Write a 1-page alignment memo to the Product Director (PROD) covering: what marketing will do, what marketing needs from Product (demo environment, customer references, pricing), timeline, and one risk if dependencies aren't met.\n4. Escalation resolution: Tobias flagged one campaign item needing your call. Address it — make the decision, state your reasoning (2–3 sentences), and write back a direction note for Tobias.",
+  "deliverables": [
+    {
+      "filename": "q3-campaign-calendar.md",
+      "description": "8-12 campaign blocks with channel mix, audience, budget %, MQL estimate; two highest-impact callouts; one cut vs. Q2 with rationale"
+    },
+    {
+      "filename": "brand-narrative-refresh.md",
+      "description": "Three positioning statement alternatives scored on precision, memorability, differentiation; one recommendation with rationale"
+    },
+    {
+      "filename": "abm-alignment-memo.md",
+      "description": "1-page memo to Product Director: marketing commitment, dependencies needed, timeline, risk if dependencies slip"
+    },
+    {
+      "filename": "escalation-decision.md",
+      "description": "Tobias's escalated item: decision + 2-3 sentence reasoning + direction note for Tobias"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Develop pricing strategies, balancing firm objectives and customer satisfaction."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Compile lists describing product or service offerings."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "They plan, direct, and coordinate marketing policies and programs, such as determining the demand for products and services offered by a firm and its competitors."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.itsma.com/account-based-marketing-research/",
+      "quote": "Account-based marketing programs that align closely with product launch timelines show 2x pipeline contribution compared to untimed outbound campaigns."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L06-Tobias"],
+  "downstreamDeskIds": ["MKT-L08-Caleb"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the campaign calendar contain 8-12 blocks with all required fields?",
+      "Are two highest-impact campaigns and one cut identified in the calendar?",
+      "Does the brand refresh include three alternatives with scores?",
+      "Is the ABM alignment memo present and addressed to the Product Director?"
+    ],
+    "quality": [
+      "Is the campaign calendar sequenced (dependencies are logical)?",
+      "Are the brand narrative alternatives genuinely distinct from one another?",
+      "Is the scoring system (1-5) applied consistently across alternatives?",
+      "Does the ABM memo name specific dependencies (not generic 'support from product')?",
+      "Is the escalation decision clear and direction note actionable for Tobias?"
+    ],
+    "accuracy": [
+      "Are budget % allocations realistic for a SaaS marketing budget (paid vs. content vs. events)?",
+      "Does the brand refresh address both SMB/mid-market AND enterprise without being generic?",
+      "Is the ABM timeline realistic for a 50-account named program?",
+      "Is the escalation decision appropriately within Yara's authority level?",
+      "Are MQL contribution estimates internally consistent with team capacity?"
+    ],
+    "handoff": [
+      "Could MKT-L08-Caleb present the Q3 calendar to the CMO from this document?",
+      "Could Tobias act on the escalation decision without follow-up from Yara?",
+      "Is the ABM memo specific enough for the Product Director to confirm or reject dependencies?",
+      "Does the brand recommendation include enough rationale for executive sign-off?",
+      "Are the two highest-impact campaigns highlighted for budget prioritization?"
+    ]
+  }
+}

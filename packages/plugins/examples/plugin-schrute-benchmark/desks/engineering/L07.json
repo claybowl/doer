@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L07-Ravi",
+  "dept": "ENG",
+  "level": 7,
+  "title": "Senior Engineering Manager",
+  "name": "Ravi",
+  "timeBudgetMin": 45,
+  "brief": "You are Ravi, Senior Engineering Manager. You manage three managers covering ~15 engineers across Platform, Integrations, and Frontend. Today the new product roadmap landed (from PROD-L08-Diego) and you have to translate it into a cycle plan.\n\nYour day:\n\n1. Cycle plan: a 1.5-page document mapping the roadmap themes onto your three teams. For each theme, name the lead team, the dependencies, and the rough sizing. Be honest about what won't fit.\n2. Project status report: a status across your three teams covering shipped last cycle, in-flight, and at-risk. One paragraph per team. The director will roll this up.\n3. Risk register: 4-6 risks with severity (H/M/L) and your mitigation. Cover technical risks AND people risks (attrition, burnout, hiring gaps).\n4. Asks: a short list of 2-4 things you need from your director (ENG-L08) or peer departments. Be specific — \"approval\", \"a meeting\", \"hiring slot\", etc.\n\nYou consume both upstream signals (your manager's reports + product roadmap) and you set direction. Your scope is a quarter, not a sprint.",
+  "deliverables": [
+    {
+      "filename": "cycle-plan.md",
+      "description": "1.5-page roadmap-to-team mapping with leads, dependencies, sizing, cuts"
+    },
+    {
+      "filename": "status-report.md",
+      "description": "Status across 3 teams: shipped, in-flight, at-risk (1 paragraph each)"
+    },
+    {
+      "filename": "risk-register.md",
+      "description": "4-6 risks with severity + mitigation; mix of technical and people risks"
+    },
+    {
+      "filename": "asks.md",
+      "description": "2-4 specific asks of director or peer depts"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Direct daily operations of department, analyzing workflow, establishing priorities, developing standards and setting deadlines."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Review project plans to plan and coordinate project activity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Consult with users, management, vendors, and technicians to assess computing needs and system requirements."
+    }
+  ],
+  "upstreamDeskIds": ["ENG-L06-Yuki", "PROD-L08-Diego"],
+  "downstreamDeskIds": ["ENG-L08-Esther"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the cycle plan reference the roadmap from PROD-L08-Diego?",
+      "Does the status report cover all three teams?",
+      "Are 4-6 risks listed with severity AND mitigation?",
+      "Are 2-4 specific asks listed (not vague)?"
+    ],
+    "quality": [
+      "Does the cycle plan say what won't fit (not just what will)?",
+      "Are risks specific (not 'general delivery risk')?",
+      "Does the risk register include people risks, not only tech?",
+      "Are asks scoped (one approval, not 'help me')?",
+      "Is severity rationale visible (why H/M/L)?"
+    ],
+    "accuracy": [
+      "Does the cycle plan honor capacity constraints (no team overcommitted)?",
+      "Is the roadmap-to-team mapping plausible?",
+      "Are risk severities calibrated (not all-H)?",
+      "Does the status report distinguish 'shipped' from 'launched' correctly?",
+      "Are dependencies between teams accurately stated?"
+    ],
+    "handoff": [
+      "Could ENG-L08-Esther brief the VP from this status report?",
+      "Are cuts to the roadmap explicit and reversible?",
+      "Are asks routed to the right person (director vs peer dept)?",
+      "Did Ravi pull from Yuki's escalation upstream?",
+      "Is the cycle plan ready for kickoff with the three teams?"
+    ]
+  }
+}

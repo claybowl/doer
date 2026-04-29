@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L08-Iliana",
+  "dept": "SALES",
+  "level": 8,
+  "title": "Director of Sales",
+  "name": "Iliana",
+  "timeBudgetMin": 45,
+  "brief": "You are Iliana, Director of Sales. You report to Bisi (L9 VP Sales) and manage the full commercial segment including Nathaniel's team. Two important cross-functional inputs arrived this week: LEGOPS-L07-Vidya sent contract redlines that affect your close motion on three enterprise deals, and MKT-L08-Caleb sent updated pipeline targets that will reset quota expectations for next quarter. You also received the segment forecast from Nathaniel.\n\n1. Department strategy memo: Write a 2-page memo for Bisi covering: current quarter attainment vs. plan, the impact of Vidya's contract redlines on three deals (name the deals, describe the hold-up, state your recommended response), how Caleb's pipeline targets change your Q+1 quota distribution, and your department's top 3 strategic priorities for next quarter.\n\n2. Quota planning update: Incorporate MKT-L08-Caleb's pipeline targets and produce an updated quota distribution plan for your two segments. Show old quota, new quota, delta, and rationale for each territory.\n\n3. Contract redline response plan: For each of the three deals affected by LEGOPS-L07-Vidya's redlines, write a one-paragraph close motion adjustment describing what changed, what the rep needs to do differently, and the revised expected close date.\n\n4. Hiring and team design: Write a 1-page headcount proposal for one new hire role. Include: role title, level, segment assignment, rationale (pipeline coverage math), and target start quarter.",
+  "deliverables": [
+    {
+      "filename": "department-strategy-memo.md",
+      "description": "2-page memo for Bisi: Q attainment, redline impact, pipeline target changes, Q+1 top 3 priorities"
+    },
+    {
+      "filename": "quota-distribution-update.md",
+      "description": "Updated quota plan: old quota, new quota, delta, rationale per territory — reflecting MKT-L08-Caleb's targets"
+    },
+    {
+      "filename": "contract-redline-response-plan.md",
+      "description": "Per-deal close motion adjustments for three deals affected by LEGOPS-L07-Vidya's redlines"
+    },
+    {
+      "filename": "headcount-proposal.md",
+      "description": "1-page new hire proposal: title, level, segment, pipeline coverage rationale, target start quarter"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Plan and direct staffing, training, and performance evaluations to develop and control sales and service programs."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2022.00",
+      "url": "https://www.onetonline.org/link/summary/11-2022.00",
+      "quote": "Establish and monitor staff's sales goals."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/sales-managers.htm",
+      "quote": "Sales managers direct organizations' sales teams. They set sales goals, analyze data, and develop training programs for organizations' sales representatives."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L07-Nathaniel", "LEGOPS-L07-Vidya", "MKT-L08-Caleb"],
+  "downstreamDeskIds": ["SALES-L09-Bisi"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the strategy memo address all four required sections?",
+      "Does the quota update reflect both old and new numbers with deltas?",
+      "Does the redline response plan cover all three affected deals?",
+      "Is the headcount proposal present with all five required fields?"
+    ],
+    "quality": [
+      "Is the strategy memo written at VP-readability level (crisp, no fluff)?",
+      "Do the close motion adjustments give reps actionable behavioral changes?",
+      "Is the quota distribution rationale tied to pipeline coverage math (not gut feel)?",
+      "Does the headcount proposal quantify the pipeline coverage gap it fills?",
+      "Are Q+1 priorities numbered and ranked, not a flat list?"
+    ],
+    "accuracy": [
+      "Does the redline response plan correctly characterize what LEGOPS-L07-Vidya changed?",
+      "Does the quota update correctly incorporate MKT-L08-Caleb's pipeline targets?",
+      "Are the Q attainment figures consistent with Nathaniel's upstream forecast?",
+      "Are revised close dates in the redline response plan realistic (not wishful)?",
+      "Is the pipeline coverage math in the headcount proposal internally consistent?"
+    ],
+    "handoff": [
+      "Could Bisi present the strategy memo to the CRO without additional prep?",
+      "Is the redline response plan ready to forward to each deal's rep immediately?",
+      "Could the quota update feed directly into the comp system without reformatting?",
+      "Is the headcount proposal ready to submit to HR for a job requisition?",
+      "Are LEGOPS and MKT cross-department inputs acknowledged with their desk IDs?"
+    ]
+  }
+}

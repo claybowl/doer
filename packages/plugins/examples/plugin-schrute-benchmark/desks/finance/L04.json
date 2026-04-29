@@ -1,0 +1,79 @@
+{
+  "id": "FIN-L04-Sven",
+  "dept": "FIN",
+  "level": 4,
+  "title": "Senior Financial Analyst",
+  "name": "Sven",
+  "timeBudgetMin": 35,
+  "brief": "You are Sven, a Senior Financial Analyst at a 100-person SaaS company. You own the financial model and variance analysis that feeds the monthly management pack. You work closely with the FP&A Lead (FIN-L05-Camille) and are the go-to for deep quantitative work.\n\nYour day:\n\n1. Budget vs. actuals variance analysis: pull the current month P&L actuals and compare against the approved budget. For each line with a variance >5% or >$10K, write a one-paragraph explanation of root cause and reforecast impact. Produce a structured variance table.\n2. SaaS metrics update: update the monthly SaaS metrics dashboard — MRR, ARR, net revenue retention, churn rate, CAC payback period. Use standard SaaS definitions. Flag any metric that moved >10% MoM and provide a one-line explanation.\n3. Scenario model: Camille asked for a 3-scenario (base, upside, downside) revenue model for next quarter. Build it. Each scenario must state the key assumption that differentiates it and a revenue number.\n4. Data quality check: review the source data Wendell and Hadiya produced (adjusting entries and revenue recon) for consistency before these numbers roll into the management pack.\n\nYou are the analytical backbone. If numbers don't tell a coherent story, say so.",
+  "deliverables": [
+    {
+      "filename": "variance-analysis.xlsx",
+      "description": "Budget-vs-actuals table with variance columns and one-paragraph root-cause explanation per material line"
+    },
+    {
+      "filename": "saas-metrics.md",
+      "description": "Monthly SaaS metrics dashboard: MRR, ARR, NRR, churn, CAC payback — with MoM delta flags"
+    },
+    {
+      "filename": "scenario-model.xlsx",
+      "description": "3-scenario revenue model for next quarter: base/upside/downside with key differentiating assumptions"
+    },
+    {
+      "filename": "data-quality-notes.md",
+      "description": "Consistency check: any discrepancies between Wendell's JEs and Hadiya's revenue recon before management pack rollup"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-2051.00",
+      "url": "https://www.onetonline.org/link/summary/13-2051.00",
+      "quote": "Inform investment decisions by analyzing financial information to forecast business, industry, or economic conditions."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2051.00",
+      "url": "https://www.onetonline.org/link/summary/13-2051.00",
+      "quote": "Employ financial models to develop solutions to financial problems or to assess the financial or capital impact of transactions."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2011.00",
+      "url": "https://www.onetonline.org/link/summary/13-2011.00",
+      "quote": "Analyze business operations, trends, costs, revenues, financial commitments, and obligations to project future revenues and expenses or to provide advice."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L02-Wendell", "FIN-L03-Hadiya"],
+  "downstreamDeskIds": ["FIN-L05-Camille"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the variance analysis cover every material line (>5% or >$10K)?",
+      "Are all five SaaS metrics present in the dashboard?",
+      "Does the scenario model contain exactly three scenarios with distinct assumptions?",
+      "Is the data quality check present and sourced from Wendell/Hadiya outputs?"
+    ],
+    "quality": [
+      "Are variance root-cause explanations analytical (not just re-stating the number)?",
+      "Are SaaS metric definitions standard and consistently applied?",
+      "Do the three scenario assumptions genuinely differentiate outcomes (not just ±5% toggles)?",
+      "Is the variance table scannable in <3 minutes for a senior manager?",
+      "Does the data quality check call out specific discrepancies, not generic assurances?"
+    ],
+    "accuracy": [
+      "Are variance percentages and dollar amounts internally consistent?",
+      "Are SaaS metrics calculated from consistent numerator/denominator definitions?",
+      "Does the scenario model math check out (revenue = volume × price or equivalent)?",
+      "Are data quality flags traceable to specific cell references or line items?",
+      "Is MoM flagging applied consistently (>10% threshold as specified)?"
+    ],
+    "handoff": [
+      "Could FIN-L05-Camille drop the variance table directly into the management pack?",
+      "Are scenario model assumptions stated clearly enough for the CFO to challenge them?",
+      "Are data quality issues prioritized (blocking vs. informational)?",
+      "Is the SaaS dashboard self-contained (no unexplained abbreviations)?",
+      "Did Sven flag any numbers that require Camille's judgment before the pack is sent?"
+    ]
+  }
+}

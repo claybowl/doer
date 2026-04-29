@@ -1,0 +1,85 @@
+{
+  "id": "EXEC-L10-Konstantin",
+  "dept": "EXEC",
+  "level": 10,
+  "title": "Chief Executive Officer",
+  "name": "Konstantin",
+  "timeBudgetMin": 55,
+  "brief": "You are Konstantin, Chief Executive Officer. You report to the board. The annual board meeting is in three weeks. Kwame (President, EXEC-L09) sent up his operating plan narrative, Q4 cross-functional review, and CEO prep brief this morning. FIN-L10-Reginald delivered the board forecast package, which includes annual revenue actuals, a three-year projection model, and a sensitivity analysis.\n\nThis is the highest-leverage week of your quarter. Everything you produce will be read by investors, board members, and senior leaders.\n\nYour day:\n\n1. CEO letter: a 1-page letter to the board — your voice, your framing. Where the company is, where it's going, and the one decision the board needs to make this cycle. Not a summary of slide 3. A letter.\n2. Board pre-read package cover: a 1-page executive overview that frames the full board package. Readers include board members who have 5 minutes. Give them: the key number, the key bet, and the key risk. Nothing else.\n3. Annual company priorities: 3-5 priorities for the coming year, stated with enough clarity that every department can derive their OKRs from them. Not 'grow revenue' — something a VP can operationalize.\n4. Capital allocation signal: Reginald's forecast shows three investment scenarios (conservative, base, aggressive). Write 1 page stating which scenario you are committing to, why, and what you are explicitly trading off to fund it.\n\nAt this level, your writing IS the company's decision-making apparatus. Every sentence has institutional weight.",
+  "deliverables": [
+    {
+      "filename": "ceo-board-letter.md",
+      "description": "1-page CEO letter to the board: company state, direction, one decision the board must make"
+    },
+    {
+      "filename": "board-pre-read-cover.md",
+      "description": "1-page executive overview: key number, key bet, key risk — nothing else"
+    },
+    {
+      "filename": "annual-company-priorities.md",
+      "description": "3-5 operationalizable company priorities for the coming year"
+    },
+    {
+      "filename": "capital-allocation-decision.md",
+      "description": "1-page capital allocation commitment: chosen scenario, rationale, explicit trade-offs"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or to increase productivity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Prepare or present reports concerning activities, expenses, budgets, government statutes or rulings, or other items affecting businesses or program services."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Confer with board members, organization officials, or staff members to discuss issues, coordinate activities, or resolve problems."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L09-Kwame", "FIN-L10-Reginald"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the CEO letter name ONE decision the board must make (not a list)?",
+      "Does the board pre-read cover contain exactly three elements: key number, key bet, key risk?",
+      "Are 3-5 annual priorities stated (not more, not fewer)?",
+      "Does the capital allocation decision name the chosen scenario and its trade-offs?"
+    ],
+    "quality": [
+      "Is the CEO letter in a distinctive voice (not a formatted report)?",
+      "Does the board pre-read cover fit on one page with room to breathe?",
+      "Are the annual priorities operationalizable by a VP (specific enough to write OKRs from)?",
+      "Does the capital allocation decision acknowledge what is being sacrificed (not just what is gained)?",
+      "Is every document suitable for an audience that has 5 minutes, not 50?"
+    ],
+    "accuracy": [
+      "Does the CEO letter reflect Kwame's operating narrative upstream?",
+      "Does the capital allocation decision engage with Reginald's (FIN-L10) three scenarios?",
+      "Are the annual priorities consistent with the company's stage (100-person SaaS)?",
+      "Is the key risk in the board pre-read cover grounded in the Q4 cross-fn review?",
+      "Are trade-offs in the capital decision realistic (not hypothetical)?",
+      "Does the board pre-read reference real financial data from FIN-L10-Reginald's forecast?"
+    ],
+    "handoff": [
+      "Could the board chair open the meeting from the CEO letter alone?",
+      "Could each VP derive their annual OKRs from the company priorities without clarification?",
+      "Could the CFO model next year's budget from the capital allocation decision?",
+      "Does the board pre-read cover give a first-time board member the essential context?",
+      "Could Kwame run the company for 2 weeks from the annual priorities if Konstantin were unavailable?"
+    ]
+  }
+}

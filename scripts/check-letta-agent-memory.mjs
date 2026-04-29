@@ -37,7 +37,10 @@ const EXPECTED_RW_BLOCKS = [
   "system/persona",
 ];
 const EXPECTED_RO_BLOCKS = [
-  "paperclip_work_instructions",
+  // The work-instructions block is mid-rename: paperclip_work_instructions
+  // is the legacy label still present on long-lived agents (Dondog).
+  // doer_work_instructions is the new preferred label. The check accepts
+  // EITHER as satisfying the requirement (see EITHER_OF_BLOCKS below).
   "system/context/donjon",
   "system/context/mission",
   "system/context/background",
@@ -54,9 +57,21 @@ const EXPECTED_RO_BLOCKS = [
   "dd_notion_index",
   "dd_history",
 ];
-// Same value as paperclip_work_instructions in EXPECTED_RO_BLOCKS, but kept
-// separate for the dedicated "core block referenced at top" check.
-const REFERENCED_CORE_BLOCK = "paperclip_work_instructions";
+
+// Block-name aliases — the agent satisfies the requirement if ANY name
+// in the list is attached. Used for the work-instructions rename:
+// paperclip_work_instructions (legacy) and doer_work_instructions (new)
+// are both acceptable during the transition window.
+const EITHER_OF_BLOCKS = [
+  ["paperclip_work_instructions", "doer_work_instructions"],
+];
+
+// The "core block referenced at top of system prompt" check. Either
+// label is fine during the rename transition.
+const REFERENCED_CORE_BLOCK_ALIASES = [
+  "paperclip_work_instructions",
+  "doer_work_instructions",
+];
 
 // Blocks that USED to be expected but are now deprecated. If they still
 // exist on the agent we'll flag them so Clay can clean them up.
@@ -198,13 +213,42 @@ for (const expected of EXPECTED_RO_BLOCKS) {
 }
 
 console.log("\n  Core memory block referenced at top of prompt:");
-const coreBlock = blocksByLabel.get(REFERENCED_CORE_BLOCK);
-if (!coreBlock) {
-  console.log(`    ✗ MISSING: ${REFERENCED_CORE_BLOCK}`);
-} else {
+const coreBlockMatch = REFERENCED_CORE_BLOCK_ALIASES.map((label) => ({
+  label,
+  block: blocksByLabel.get(label),
+})).find((entry) => entry.block);
+if (!coreBlockMatch) {
   console.log(
-    `    ✓ ${REFERENCED_CORE_BLOCK} (${(coreBlock.value ?? "").length} chars)`,
+    `    ✗ MISSING: none of [${REFERENCED_CORE_BLOCK_ALIASES.join(", ")}] is attached`,
   );
+} else {
+  const aliasNote =
+    coreBlockMatch.label === "paperclip_work_instructions"
+      ? " (legacy — consider migrating to doer_work_instructions)"
+      : "";
+  console.log(
+    `    ✓ ${coreBlockMatch.label} (${(coreBlockMatch.block.value ?? "").length} chars)${aliasNote}`,
+  );
+}
+
+// ----- "Either-of" block satisfaction (rename transition) ---------------
+console.log("\n  Either-of block requirements (rename transition):");
+let eitherOfMissing = 0;
+for (const aliases of EITHER_OF_BLOCKS) {
+  const present = aliases.filter((label) => blocksByLabel.has(label));
+  if (present.length === 0) {
+    console.log(`    ✗ MISSING: need one of [${aliases.join(", ")}]`);
+    eitherOfMissing += 1;
+  } else if (present.length === aliases.length) {
+    console.log(
+      `    ✓ both present (${present.join(", ")}) — safe to drop legacy after the rename window`,
+    );
+  } else {
+    const isLegacy = present[0] === aliases[0];
+    console.log(
+      `    ✓ ${present.join(", ")}${isLegacy ? " (legacy — consider migrating)" : ""}`,
+    );
+  }
 }
 
 // ----- Orphan + deprecated block check ----------------------------------
@@ -212,7 +256,8 @@ if (!coreBlock) {
 const expectedSet = new Set([
   ...EXPECTED_RW_BLOCKS,
   ...EXPECTED_RO_BLOCKS,
-  REFERENCED_CORE_BLOCK,
+  ...REFERENCED_CORE_BLOCK_ALIASES,
+  ...EITHER_OF_BLOCKS.flat(),
 ]);
 const deprecatedSet = new Set(DEPRECATED_BLOCKS);
 
@@ -304,21 +349,25 @@ if (staleHits === 0 && softHits === 0) {
 console.log("\n— Summary —");
 console.log(`  Blocks present:        ${blockList.length}`);
 console.log(`  Expected blocks:       ${expectedSet.size}`);
-console.log(`  Missing required:      ${missingRW + missingRO + (coreBlock ? 0 : 1)}`);
+console.log(
+  `  Missing required:      ${missingRW + missingRO + (coreBlockMatch ? 0 : 1) + eitherOfMissing}`,
+);
 console.log(`  Deprecated still present: ${deprecatedPresent.length}`);
 console.log(`  Orphans:               ${orphans.length}`);
 console.log(`  Stale references:      ${staleHits}`);
 console.log(`  Soft flags (Paperclip prose, etc): ${softHits}`);
 
 const isClean =
-  missingRW + missingRO === 0 &&
-  (coreBlock ? true : false) &&
+  missingRW + missingRO + eitherOfMissing === 0 &&
+  !!coreBlockMatch &&
   deprecatedPresent.length === 0 &&
   staleHits === 0;
 
 if (isClean) {
   console.log("\n✓ Memory blocks aligned with the new system prompt.");
-  console.log("  Soft flags (Paperclip prose) are cosmetic — defer to coordinated rename pass.");
+  console.log(
+    "  Soft flags (Paperclip prose) are cosmetic — they'll go away once the agent's system prompt is regenerated to use the doer_* names.",
+  );
 } else {
   console.log(
     "\n⚠ Issues found. Review above. Memory doctor + manual block edits may be needed.",

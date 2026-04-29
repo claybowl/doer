@@ -1,0 +1,78 @@
+{
+  "id": "EXEC-L05-Octavio",
+  "dept": "EXEC",
+  "level": 5,
+  "title": "Chief of Staff",
+  "name": "Octavio",
+  "timeBudgetMin": 35,
+  "brief": "You are Octavio, Chief of Staff. Your four direct inputs arrived today: Roy's ops-metrics update and invoice review (L01), Imani's unit-economics analysis and Monday status report (L02), Atticus's cadence review (L03), and Sunita's OKR alignment brief and BI tool evaluation (L04). You consume their work and turn it into a coherent executive briefing package.\n\nYour day:\n\n1. Weekly exec briefing: a 1-page synthesis for Hannelore (Director of BizOps, EXEC-L06) that covers the most important signals from across all four upstream desks. What's on fire, what's on track, and one action item you're escalating.\n2. CEO agenda prep: the CEO has a 30-minute internal review meeting this week. Draft the agenda: 5-6 items with time allocations and the owner for each item. Pull from the upstream work to justify what's included.\n3. Decision log: identify 2-3 decisions that surfaced in the upstream work that are unresolved and need an owner. Write a brief decision log entry for each: what the decision is, who needs to make it, and when it needs to be resolved.\n4. Ops metrics commentary: pick the one metric from Roy's tracker that concerns you most and write 2-3 sentences explaining why and what you'd do about it.\n\nYou are the first synthesis tier. Your job is to compress signal, not amplify noise.",
+  "deliverables": [
+    {
+      "filename": "weekly-exec-briefing.md",
+      "description": "1-page synthesis for EXEC-L06: key signals from all four upstream desks, one escalated action"
+    },
+    {
+      "filename": "ceo-agenda.md",
+      "description": "Draft 30-min CEO meeting agenda: 5-6 items with time allocations and owners"
+    },
+    {
+      "filename": "decision-log.md",
+      "description": "2-3 unresolved decisions from upstream work: what, who owns it, when needed"
+    },
+    {
+      "filename": "metrics-commentary.md",
+      "description": "2-3 sentences on the most concerning metric from Roy's tracker + recommended response"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish or implement departmental policies, goals, objectives, or procedures in conjunction with board members, organization officials, or staff members."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L01-Roy", "EXEC-L02-Imani", "EXEC-L03-Atticus", "EXEC-L04-Sunita"],
+  "downstreamDeskIds": ["EXEC-L06-Hannelore"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the exec briefing reference signals from all four upstream desks?",
+      "Does the CEO agenda have 5-6 items with time allocations and owners?",
+      "Does the decision log contain 2-3 entries with what/who/when structure?",
+      "Does the metrics commentary name a specific metric (not a vague one)?"
+    ],
+    "quality": [
+      "Is the exec briefing scannable in under 3 minutes?",
+      "Does the CEO agenda reflect real priorities (not a boilerplate list)?",
+      "Are decision log entries specific enough to act on?",
+      "Does the metrics commentary explain WHY it's concerning (not just that it changed)?",
+      "Is the recommended response in the metrics commentary actionable?"
+    ],
+    "accuracy": [
+      "Does Octavio correctly attribute each signal to the right upstream desk?",
+      "Are time allocations in the CEO agenda realistic (sum to 30 minutes)?",
+      "Are decision owners assigned to roles that plausibly hold that authority?",
+      "Does the decision log reflect issues that actually surfaced in the upstream work?",
+      "Is the escalated action item something that genuinely needs director attention?"
+    ],
+    "handoff": [
+      "Could Hannelore (EXEC-L06) run a leadership review from the briefing alone?",
+      "Is the CEO agenda ready to send as-is without reformatting?",
+      "Are decision log owners named by role (not just 'someone in leadership')?",
+      "Does Octavio connect Sunita's OKR alignment brief to the decision log?",
+      "Could a peer Chief of Staff interpret and run from these deliverables?"
+    ]
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "id": "DES-L01-Lena",
+  "dept": "DES",
+  "level": 1,
+  "title": "Junior Product Designer",
+  "name": "Lena",
+  "timeBudgetMin": 25,
+  "brief": "You are Lena, a Junior Product Designer at a 100-person SaaS company. You have one design ticket and one small visual task in your queue today.\n\n1. Design ticket DES-1102: \"Empty state screen for the notifications panel when a user has zero notifications.\" Read the ticket, produce a set of low-fidelity wireframes (3 states: first-time user, cleared-all, error) and a brief annotation for each state explaining what the user sees and what action they should take next.\n\n2. Icon audit: the team lead flagged that the settings icon in the nav bar is visually inconsistent with the rest of the icon set. Review the provided icon reference sheet and produce a corrected SVG-ready icon spec (describe the geometry in terms of grid, stroke weight, corner radius) that matches the existing system.\n\nStay narrowly scoped. Do not redesign the panel layout or change copy you were not asked to change. One deliverable per task.",
+  "deliverables": [
+    {
+      "filename": "empty-state-wireframes.figma-export.png",
+      "description": "Three annotated low-fidelity wireframe states (first-time, cleared-all, error) with per-state annotations"
+    },
+    {
+      "filename": "icon-spec.md",
+      "description": "Corrected settings icon specification: grid size, stroke weight, corner radius, alignment notes"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Create designs, concepts, and sample layouts, based on knowledge of layout principles and esthetic design concepts."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1255.00",
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "quote": "Develop Web site maps, application models, image templates, or page templates that meet project goals, user needs, or industry standards."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["DES-L05-Yael"],
+  "rubric": {
+    "completion": [
+      "Did Lena produce wireframes for all three empty states (first-time, cleared-all, error)?",
+      "Does each wireframe have a written annotation explaining user context and next action?",
+      "Is the icon spec deliverable present as a separate file?",
+      "Does the icon spec address grid, stroke weight, and corner radius?",
+      "Did Lena stay within the stated scope (no unsolicited panel redesign)?"
+    ],
+    "quality": [
+      "Are the wireframes low-fidelity (not high-polish) and focused on layout logic?",
+      "Do annotations communicate intent clearly without design jargon overload?",
+      "Is the icon spec precise enough for an engineer to implement without follow-up?",
+      "Are the three wireframe states visually distinguishable from each other?",
+      "Is the writing concise (no filler or apologies)?"
+    ],
+    "accuracy": [
+      "Does the first-time empty state differ meaningfully from the cleared-all state?",
+      "Does the error state communicate failure mode without alarming the user unnecessarily?",
+      "Does the icon spec reference the same grid unit as the rest of the design system?",
+      "Are the annotations accurate about what the user should do next?",
+      "Does the corrected icon address the specific inconsistency flagged?"
+    ],
+    "handoff": [
+      "Could DES-L05-Yael review both deliverables in under 5 minutes?",
+      "Are filenames consistent with the ticket number referenced in the brief?",
+      "Did Lena flag any ambiguity or missing context from the ticket?",
+      "Is the icon spec self-contained (no missing reference to external files)?",
+      "Are annotations written for a developer audience, not just a designer?"
+    ]
+  }
+}

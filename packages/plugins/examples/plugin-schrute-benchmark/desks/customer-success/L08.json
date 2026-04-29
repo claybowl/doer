@@ -1,0 +1,84 @@
+{
+  "id": "CS-L08-Astrid",
+  "dept": "CS",
+  "level": 8,
+  "title": "Director of Customer Success",
+  "name": "Astrid",
+  "timeBudgetMin": 45,
+  "brief": "You are Astrid, Director of Customer Success. You lead a team of ~25 CS professionals and sit on the GTM leadership team. You report to Idowu (CS-L09). Your scope includes strategy, hiring, cross-functional alignment, and owning the top 10 strategic accounts personally.\n\n1. CS department strategy memo: write a 2-page strategy document covering: where CS invests next quarter (focus bets), where it holds or reduces effort, what the department's North Star metric is for the next 6 months, and the top organizational risk (e.g., team burnout, tooling debt, coverage gap). This is the document Idowu and the CEO read.\n\n2. Hiring plan: you have headcount approval for 2 new CSM seats next quarter. Write a concise hiring brief: role levels, target profile, which segment/tier they'll own, and the cost/risk of NOT filling each seat within 90 days.\n\n3. Vendor budget allocation (LEGOPS-L07-Vidya inbound): you've received the vendor budget guidance from Legal Ops. Review it and write a one-page CS vendor stack assessment: which current tools renew, which are at-risk of being cut, and one new tool you'd advocate for. Include estimated spend impact.\n\n4. Executive account review: for your top strategic account (Aldgate Capital, 1,200 seats, $620K ARR), write a 1-page executive account brief: health status, relationship risk, expansion opportunity, and your recommended play for next quarter.\n\nYou are the department's strategic voice externally and operational backbone internally. Every document you produce is read by someone above you.",
+  "deliverables": [
+    {
+      "filename": "cs-dept-strategy-memo.md",
+      "description": "2-page CS strategy: invest/hold/reduce, North Star metric, top organizational risk"
+    },
+    {
+      "filename": "cs-hiring-plan.md",
+      "description": "Hiring brief for 2 CSM seats: level, profile, segment ownership, cost of not filling"
+    },
+    {
+      "filename": "cs-vendor-stack-assessment.md",
+      "description": "1-page vendor stack review: renew, at-risk, new tool recommendation, spend impact"
+    },
+    {
+      "filename": "aldgate-account-brief.md",
+      "description": "1-page executive account brief: health, relationship risk, expansion opportunity, recommended play"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Develop budgets or approve expenditures for supplies, materials, or human resources, ensuring that materials, labor, or equipment are used efficiently to meet production targets."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Identify, develop, or evaluate marketing strategy, based on knowledge of establishment objectives, market characteristics, and cost and markup factors."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Hire, train, evaluate, or discharge staff or resolve personnel grievances."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "Directors of CS who publish a department strategy memo each quarter improve alignment with Sales and Product by 35%."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L07-Dion", "LEGOPS-L07-Vidya"],
+  "downstreamDeskIds": ["CS-L09-Idowu"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the strategy memo cover invest/hold/reduce, North Star metric, and top risk?",
+      "Does the hiring plan cover both seats with level, profile, and cost of not filling?",
+      "Does the vendor assessment cover renew/at-risk/new tool recommendation with spend impact?",
+      "Does the account brief include health, relationship risk, expansion, and recommended play?"
+    ],
+    "quality": [
+      "Does the strategy memo make explicit trade-offs (not just additions)?",
+      "Is the North Star metric specific and measurable (not 'improve NPS')?",
+      "Does the hiring brief state the business risk of a 90-day vacancy?",
+      "Is the vendor assessment grounded in the LEGOPS-L07-Vidya budget guidance?",
+      "Is the account brief written for an exec audience (no internal jargon)?"
+    ],
+    "accuracy": [
+      "Does the strategy memo reference Dion's cycle plan and churn risk data upstream?",
+      "Is the Aldgate Capital account brief consistent with the account details given ($620K ARR, 1,200 seats)?",
+      "Is the vendor spend impact estimated (not left as 'TBD')?",
+      "Does the hiring plan specify segment ownership for each seat (not generic)?",
+      "Does the strategy reflect the current team size (~25 CS professionals)?"
+    ],
+    "handoff": [
+      "Could CS-L09-Idowu brief the CEO from the strategy memo alone?",
+      "Could HR start sourcing from the hiring brief without a follow-up call to Astrid?",
+      "Could Finance model the vendor spend impact from the assessment?",
+      "Is the account brief ready for an executive account call prep?",
+      "Are the upstream inputs (Dion's work, Vidya's guidance) explicitly acknowledged?"
+    ]
+  }
+}

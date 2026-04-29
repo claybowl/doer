@@ -1,0 +1,78 @@
+{
+  "id": "ENG-L02-Priya",
+  "dept": "ENG",
+  "level": 2,
+  "title": "Software Engineer II",
+  "name": "Priya",
+  "timeBudgetMin": 25,
+  "brief": "You are Priya, a Software Engineer II. You own a feature this cycle: \"add CSV export to the user activity dashboard.\" The product spec is approved; design specs are minimal but acceptable.\n\nYour day:\n\n1. Read the (provided) feature spec and call out any ambiguities — at least 2 questions you'd send back to product before shipping.\n2. Write a short design note (1 page max) describing how you'd build it: the API endpoint shape, the file streaming strategy, how you handle datasets >100K rows, and the failure modes.\n3. Write the public function signatures (in TypeScript or Python) for the two key functions: `exportActivityToCSV(userId, dateRange)` and the streaming helper. No implementation yet — just the interface.\n4. Write 4-6 test cases (descriptions, not code) that you'd want to pass before merging.\n\nDo NOT write the full implementation. Your job today is making the work small and clear before coding.",
+  "deliverables": [
+    {
+      "filename": "feature-questions.md",
+      "description": "2-4 ambiguities/questions surfaced before implementation"
+    },
+    {
+      "filename": "design-note.md",
+      "description": "One-page design note: endpoint shape, streaming strategy, failure modes"
+    },
+    {
+      "filename": "interfaces.ts",
+      "description": "Public function signatures (no implementation) for the two key functions"
+    },
+    {
+      "filename": "test-plan.md",
+      "description": "4-6 test case descriptions covering happy path, large datasets, errors, and edge cases"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Analyze user needs and software requirements to determine feasibility of design within time and cost constraints."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Design, develop and modify software systems, using scientific analysis and mathematical models to predict and measure outcomes and consequences of design."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/computer-and-information-technology/software-developers.htm",
+      "quote": "Software developers create flowcharts, diagrams, and other documentation that programmers need to write code for an application."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["ENG-L05-Amara"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the questions list contain at least 2 substantive ambiguities?",
+      "Does the design note cover endpoint, streaming, and failure modes?",
+      "Are both function signatures present in TypeScript/Python?",
+      "Are at least 4 test cases described?"
+    ],
+    "quality": [
+      "Are the questions specific (not generic 'what about errors')?",
+      "Does the design note pick a streaming approach, not just list options?",
+      "Are the function signatures typed precisely (no `any`)?",
+      "Do the test cases cover at least one large-dataset scenario?",
+      "Is the writing crisp (under 1 page for design note)?"
+    ],
+    "accuracy": [
+      "Is the streaming approach actually viable at >100K rows?",
+      "Are HTTP method/status codes correct for the endpoint?",
+      "Are CSV escaping concerns addressed (commas, quotes, newlines)?",
+      "Are the function signatures internally consistent?",
+      "Do test cases reflect real failure modes, not invented ones?"
+    ],
+    "handoff": [
+      "Could a Tech Lead approve the design note in 5 minutes?",
+      "Are open questions clearly marked for product input?",
+      "Are deliverables named predictably for the lead's review?",
+      "Did Priya flag her blocker (waiting on PM answers) explicitly?",
+      "Is the work scoped to fit in next sprint?"
+    ]
+  }
+}

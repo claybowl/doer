@@ -1,0 +1,78 @@
+{
+  "id": "EXEC-L06-Hannelore",
+  "dept": "EXEC",
+  "level": 6,
+  "title": "Director of BizOps",
+  "name": "Hannelore",
+  "timeBudgetMin": 35,
+  "brief": "You are Hannelore, Director of Business Operations. You manage Octavio and his BizOps IC team. Today is a planning and people-management day — you received Octavio's weekly exec briefing and CEO agenda draft, and now you need to shape the week.\n\nYour day:\n\n1. 1:1 prep for Octavio: write your prep notes for your weekly 1:1 with Octavio. What will you probe on from the exec briefing? Is the CEO agenda draft the right shape? What feedback do you owe him? Format: 3-4 questions you'll ask, 1 thing you'll listen for, 1 piece of feedback.\n2. Team priorities memo: a short internal doc (half page) the BizOps team reads Monday morning. What are the top 3 priorities this week, what's deprioritized, and who owns what.\n3. Vendor escalation: Octavio flagged an invoice discrepancy (from Roy's work). Make the call: approve, dispute, or escalate to Finance? Write 2-3 sentences documenting your decision and reasoning.\n4. Headcount request: you believe you need a fifth BizOps IC next quarter. Write a 1-paragraph headcount justification you could send to Bashir (VP BizOps, EXEC-L07).\n\nYou manage a small team but report to a VP. Your outputs should reflect that middle position — you execute detail AND communicate up.",
+  "deliverables": [
+    {
+      "filename": "1on1-prep-octavio.md",
+      "description": "1:1 prep for Octavio: 3-4 questions, 1 listening intent, 1 feedback item"
+    },
+    {
+      "filename": "team-priorities-memo.md",
+      "description": "Half-page Monday priorities memo: top 3 priorities, deprioritized items, owners"
+    },
+    {
+      "filename": "vendor-escalation-decision.md",
+      "description": "2-3 sentence decision memo: approve/dispute/escalate invoice + documented rationale"
+    },
+    {
+      "filename": "headcount-justification.md",
+      "description": "1-paragraph headcount ask for VP: role, rationale, business impact"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Perform personnel functions, such as selection, training, or evaluation."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L05-Octavio"],
+  "downstreamDeskIds": ["EXEC-L07-Bashir"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the 1:1 prep include 3-4 questions, a listening intent, and one feedback item?",
+      "Does the team memo state top 3 priorities, deprioritized items, and owners?",
+      "Is the vendor decision memo 2-3 sentences with a clear approve/dispute/escalate call?",
+      "Is the headcount justification a single paragraph addressed to the VP?"
+    ],
+    "quality": [
+      "Are the 1:1 questions probing (not yes/no or generic)?",
+      "Does the team memo communicate what NOT to work on (not just what to do)?",
+      "Is the vendor decision documented with reasoning (not just a label)?",
+      "Does the headcount justification tie the role to a measurable business need?",
+      "Is every piece of writing direct and written for a busy reader?"
+    ],
+    "accuracy": [
+      "Do the 1:1 questions reference Octavio's actual upstream deliverables?",
+      "Is the vendor escalation decision consistent with the discrepancy Roy flagged?",
+      "Does the headcount ask reflect the team's realistic current load?",
+      "Are priorities consistent with the signals in Octavio's exec briefing?",
+      "Is the headcount ask scoped to next quarter (not immediate)?"
+    ],
+    "handoff": [
+      "Could Bashir (EXEC-L07) use the headcount justification without additional context?",
+      "Is the vendor decision self-contained for Finance's records?",
+      "Does the team memo give Octavio enough context to run the week independently?",
+      "Are the 1:1 prep notes specific enough for a follow-up if Hannelore is out?",
+      "Does Hannelore connect the team priorities to Octavio's CEO agenda draft?"
+    ]
+  }
+}

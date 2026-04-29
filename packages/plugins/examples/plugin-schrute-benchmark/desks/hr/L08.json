@@ -1,0 +1,85 @@
+{
+  "id": "HR-L08-Renaud",
+  "dept": "HR",
+  "level": 8,
+  "title": "Director of People",
+  "name": "Renaud",
+  "timeBudgetMin": 45,
+  "brief": "You are Renaud, Director of People at a 100-person SaaS company. You own the full People strategy and headcount planning across all departments. You are the primary interface between HR and Finance, and you serve as the HR lead on cross-functional programs involving Engineering and Legal-Ops.\n\nYour day:\n\n1. Headcount plan: the CEO is requesting a Q3/Q4 headcount plan by the end of the week. Build a department-by-department hiring plan: current headcount per dept, approved open roles, requested new roles, and priority rank. Include the cost of NOT filling the top 3 critical roles (revenue impact or delivery risk). This document goes to FIN-L08-Pierre for comp budget alignment.\n\n2. Engineering hiring asks: ENG-L08-Esther sent over engineering's hiring requirements for next quarter — 4 new ICs and 1 senior engineering manager. Incorporate those asks into the headcount plan and write a 1-page response to Esther explaining which roles you can resource immediately, which are queue-pending, and what the timeline looks like for each.\n\n3. Comp framework update: based on Brigit's compliance analysis (HR-L07) and benchmarking work, write the updated compensation philosophy statement and revised salary band table for Engineering levels L3–L7. The comp framework feeds the Finance budget conversation directly.\n\n4. People strategy memo: write a 2-page memo for the CHRO (HR-L10-Demetrius) summarizing the state of the people function: key risks (attrition, compliance gaps, comp competitiveness), investment priorities for next half, and one program you are recommending to sunset.\n\nYou are the department translator — converting operational HR data into executive-level decisions.",
+  "deliverables": [
+    {
+      "filename": "headcount-plan-q3q4.md",
+      "description": "Department headcount plan: current state, open roles, new requests, priority rank, cost of not filling top 3 roles"
+    },
+    {
+      "filename": "eng-hiring-response.md",
+      "description": "1-page response to ENG-L08-Esther: which roles are immediately resourced, which are queued, timeline for each"
+    },
+    {
+      "filename": "comp-framework-update.md",
+      "description": "Updated comp philosophy statement and Engineering L3-L7 salary band table"
+    },
+    {
+      "filename": "people-strategy-memo.md",
+      "description": "2-page memo to CHRO: key risks, investment priorities for next half, one program to sunset"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Prepare personnel forecast to project employment needs."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Analyze and modify compensation and benefits policies to establish competitive programs and ensure compliance with legal requirements."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Plan, direct, supervise, and coordinate work activities of subordinates and staff relating to employment, compensation, labor relations, and employee relations."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/human-resources-managers.htm",
+      "quote": "Human resources managers plan, direct, and coordinate the administrative functions of an organization."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L07-Brigit", "ENG-L08-Esther"],
+  "downstreamDeskIds": ["HR-L09-Niamh", "FIN-L08-Pierre"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the headcount plan cover all departments (not just Engineering)?",
+      "Does the headcount plan include cost of not filling for the top 3 critical roles?",
+      "Does the Engineering hiring response address all 5 roles Esther requested?",
+      "Does the people strategy memo name exactly one program to sunset?"
+    ],
+    "quality": [
+      "Is the headcount plan defensible at a Finance budget meeting?",
+      "Does the Engineering hiring response give Esther a clear timeline (not 'soon')?",
+      "Does the comp framework include a band table with numeric ranges, not just principles?",
+      "Is the people strategy memo 2 pages or less (not padded)?",
+      "Is the 'cost of not filling' argument concrete (revenue risk, delivery delay, not vague)?",
+      "Does the comp philosophy statement address market positioning (e.g., 50th vs. 75th percentile)?"
+    ],
+    "accuracy": [
+      "Are the Engineering roles from Esther (4 ICs + 1 senior EM) reflected in the headcount plan?",
+      "Does the comp framework reference Brigit's benchmarking analysis as a source?",
+      "Are salary band ranges plausible for SaaS Engineering L3-L7 in 2024?",
+      "Do the people strategy risks align with evidence from earlier in the HR chain?",
+      "Does FIN-L08-Pierre appear as the named recipient of the headcount plan?"
+    ],
+    "handoff": [
+      "Could FIN-L08-Pierre model the comp budget from the headcount plan and comp framework?",
+      "Could ENG-L08-Esther start sourcing her priority roles from the hiring response?",
+      "Could HR-L09-Niamh build the VP-level narrative from the people strategy memo?",
+      "Are all four deliverables clearly labeled with their intended recipient?",
+      "Does the headcount plan include a submission deadline for Finance review?"
+    ]
+  }
+}

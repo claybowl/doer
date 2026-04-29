@@ -1,0 +1,74 @@
+{
+  "id": "CS-L04-Sigrid",
+  "dept": "CS",
+  "level": 4,
+  "title": "Senior Customer Success Manager",
+  "name": "Sigrid",
+  "timeBudgetMin": 35,
+  "brief": "You are Sigrid, a Senior CSM owning 20 enterprise accounts totaling $2.1M ARR. You are also the unofficial process owner for the CS team's QBR methodology — the templates and rubrics others follow come from you.\n\n1. NPS analysis: the quarterly NPS survey just closed. You have results for your 20 accounts: aggregate score is 41, with 8 promoters, 6 passives, and 6 detractors. Write a 1-page NPS analysis memo: headline number, segment breakdown by account tier (SMB vs. enterprise), top 3 themes from verbatim feedback, and 2-3 recommendations the team should act on next quarter.\n\n2. QBR template refresh: the current QBR template is 6 months old and missing an AI adoption section that customers keep asking about. Write a revised slide outline template (10-12 slides) that can be reused across all CSMs. Include slide titles, a 1-sentence instruction per slide, and flag which slides are mandatory vs. optional.\n\n3. Cross-functional input: you are preparing for a coordination meeting with the product team next week. Write a 1-page brief summarizing the top 5 feature requests and top 3 bug patterns from your accounts this quarter. This will feed into the CS-to-Product handoff managed by CS-L06-Lakshmi.\n\nYour outputs set standards for the rest of the CS team, not just your own accounts. Quality and repeatability matter as much as completeness.",
+  "deliverables": [
+    {
+      "filename": "nps-analysis-q3.md",
+      "description": "1-page NPS memo: headline score, tier breakdown, top 3 themes, 2-3 recommendations"
+    },
+    {
+      "filename": "qbr-template-v2.md",
+      "description": "10-12 slide QBR template with titles, per-slide instructions, mandatory/optional flags"
+    },
+    {
+      "filename": "product-input-brief.md",
+      "description": "1-page brief: top 5 feature requests + top 3 bug patterns from Sigrid's accounts this quarter"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Recommend improvements in products, packaging, shipping, service, or billing methods and procedures to prevent future problems."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products, lines, or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "Teams that standardize QBR methodology see 20% higher renewal rates than those running ad-hoc reviews."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["CS-L05-Theo", "CS-L06-Lakshmi"],
+  "rubric": {
+    "completion": [
+      "Is the NPS analysis present with headline score, segment breakdown, themes, and recommendations?",
+      "Does the QBR template have 10-12 slides with titles and per-slide instructions?",
+      "Are mandatory vs. optional slides flagged in the QBR template?",
+      "Is the product input brief present with 5 feature requests and 3 bug patterns?",
+      "Are all three deliverables present as separate files?"
+    ],
+    "quality": [
+      "Does the NPS memo correctly calculate the score from 8 promoters, 6 passives, 6 detractors?",
+      "Are NPS recommendations specific (not generic 'improve onboarding')?",
+      "Does the QBR template include the AI adoption section that was missing?",
+      "Is the product input brief written for a product audience (not internal CS jargon)?",
+      "Are recommendations tied to the verbatim theme analysis, not invented independently?"
+    ],
+    "accuracy": [
+      "Is the NPS score computed correctly (promoters minus detractors, as % of respondents)?",
+      "Does the SMB vs. enterprise breakdown use the account base (20 accounts) correctly?",
+      "Is the QBR template versioned (v2) and dated?",
+      "Do the 5 feature requests reflect real SaaS patterns (not filler)?",
+      "Is the brief clearly labeled as feeding into CS-L06-Lakshmi's product handoff?"
+    ],
+    "handoff": [
+      "Could a junior CSM (Marco or Babatunde) use the QBR template without guidance?",
+      "Could CS-L05-Theo use the NPS memo in an exec summary without rewriting?",
+      "Could CS-L06-Lakshmi send the product input brief to the product team directly?",
+      "Are template instructions specific enough that different CSMs produce consistent output?",
+      "Is downstream routing (Theo, Lakshmi) stated explicitly in the brief?"
+    ]
+  }
+}

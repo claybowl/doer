@@ -1,0 +1,78 @@
+{
+  "id": "DES-L06-Kofi",
+  "dept": "DES",
+  "level": 6,
+  "title": "Design Manager",
+  "name": "Kofi",
+  "timeBudgetMin": 35,
+  "brief": "You are Kofi, Design Manager. You manage five designers (Lena, Issa, Sofía, Tariq, and Yael) and own the team's execution quality and operational rhythm. Your manager is DES-L07-Mira.\n\nYour day:\n\n1. Team health check: based on the sprint summary from Yael (DES-L05), write a 1-page team status report for Mira. Include: output quality signal (what shipped and how good it is), one personnel note (a designer who is excelling or struggling), one process friction point, and your ask for the next two weeks.\n2. Design review prep: the onboarding redesign hits design review next week. Write a structured review agenda (5-7 items, each with facilitator name, time allocation, and the specific decision to be made). This is not a presentation — it is a decision-forcing agenda.\n3. Capacity plan: allocate the team's 35-minute design budget across the five open initiatives for the coming cycle. Show current/available allocation per designer, which initiative gets cut if a designer is sick, and your recommendation.\n4. Feedback delivery prep: write a concise performance note for one of your reports (pick any), suitable for a 1:1. Cover one strength, one growth area, one specific behavior to change, and one next step.",
+  "deliverables": [
+    {
+      "filename": "team-status-report.md",
+      "description": "1-page team status for DES-L07-Mira: output quality, personnel note, process friction, ask"
+    },
+    {
+      "filename": "design-review-agenda.md",
+      "description": "5-7 item structured review agenda with facilitator, time allocation, and decision per item"
+    },
+    {
+      "filename": "capacity-plan.md",
+      "description": "Cycle capacity allocation per designer, contingency if one is absent, recommendation"
+    },
+    {
+      "filename": "performance-note.md",
+      "description": "1:1 performance note for one report: strength, growth area, behavior to change, next step"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Confer with clients to discuss and determine layout design."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Direct the hiring, training, or performance evaluations of marketing or sales staff and oversee their daily activities."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Advertising, promotions, and marketing managers coordinate and assess the activities of their teams."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L05-Yael"],
+  "downstreamDeskIds": ["DES-L07-Mira"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the team status report cover output quality, personnel note, friction, and ask?",
+      "Does the design review agenda have 5-7 items each with facilitator and decision?",
+      "Does the capacity plan show per-designer allocation AND a contingency scenario?",
+      "Does the performance note include all four elements (strength, growth, behavior, next step)?"
+    ],
+    "quality": [
+      "Is the team status report honest (not just positive)?",
+      "Is the design review agenda decision-forcing rather than informational?",
+      "Is the capacity plan realistic (designers aren't scheduled at 100% capacity)?",
+      "Is the performance note specific and behavioral (not vague praise/criticism)?",
+      "Could all four documents be consumed in under 10 minutes total?"
+    ],
+    "accuracy": [
+      "Does the team status reflect the actual state reported in Yael's sprint summary?",
+      "Are the design review agenda items grounded in the real active work streams?",
+      "Are capacity numbers internally consistent (don't sum to more than available hours)?",
+      "Is the performance feedback specific to a real behavior, not a personality trait?",
+      "Does the 'ask' in the status report align with a real blocker or need?"
+    ],
+    "handoff": [
+      "Could DES-L07-Mira use the team status to brief up to DES-L08-Caelan?",
+      "Could an IC facilitator run the design review from the agenda alone?",
+      "Could Kofi hand off the capacity plan and have someone else manage the cycle?",
+      "Is the performance note suitable to deliver verbatim in a 1:1?",
+      "Are blockers and asks clearly attributed to Kofi (not deflected to the team)?"
+    ]
+  }
+}

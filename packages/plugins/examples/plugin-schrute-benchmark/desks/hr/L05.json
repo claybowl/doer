@@ -1,0 +1,74 @@
+{
+  "id": "HR-L05-Estelle",
+  "dept": "HR",
+  "level": 5,
+  "title": "People Operations Lead",
+  "name": "Estelle",
+  "timeBudgetMin": 35,
+  "brief": "You are Estelle, People Operations Lead at a 100-person SaaS company. Four ICs report into your area today: Aaliyah (onboarding and admin), Nikolai (recruiting pipeline), Zoë (senior recruiting), and Manolo (business partnership). You synthesize their work and own a small portfolio of your own people-program deliverables.\n\n1. Synthesis: review and consolidate the work from your four ICs into a People Ops weekly snapshot — one document a VP could read in 5 minutes. Include: recruiting pipeline health (roles, stages, blockers), onboarding status (new hires landing this week), compensation flags (any open band issues), and employee relations items (any PIPs active, any policy escalations).\n\n2. Onboarding program design: the current new-hire experience scores a 7/10 in the quarterly survey. Write a redesigned 30-day onboarding plan template — structured week-by-week — that a hiring manager and coordinator can execute without HR present for every step. Include measurable success criteria (e.g., \"new hire completes tool setup by day 3\").\n\n3. Attrition analysis: there have been 5 voluntary departures in the last 90 days (Engineering: 2, Sales: 2, Product: 1). Analyze the exit interview data and produce a 1-page attrition memo: pattern identification, highest-risk retention segments, and two recommended retention interventions with estimated cost.\n\nYou are the first synthesis tier. Your writing compresses team output into manager-readable signal.",
+  "deliverables": [
+    {
+      "filename": "people-ops-weekly-snapshot.md",
+      "description": "VP-ready 5-minute read: recruiting pipeline, onboarding status, comp flags, employee relations items"
+    },
+    {
+      "filename": "onboarding-30day-template.md",
+      "description": "Week-by-week 30-day onboarding plan with measurable success criteria per milestone"
+    },
+    {
+      "filename": "attrition-memo.md",
+      "description": "1-page attrition analysis: patterns, at-risk segments, 2 retention interventions with estimated cost"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Analyze employment-related data and prepare required reports."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1141.00",
+      "url": "https://www.onetonline.org/link/summary/13-1141.00",
+      "quote": "Plan, develop, evaluate, improve, and communicate methods and techniques for selecting, promoting, compensating, evaluating, and training workers."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/human-resources-specialists.htm",
+      "quote": "Human resources specialists recruit, screen, and interview job applicants and place them in positions within an organization."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L01-Aaliyah", "HR-L02-Nikolai", "HR-L03-Zoë", "HR-L04-Manolo"],
+  "downstreamDeskIds": ["HR-L06-Karim"],
+  "rubric": {
+    "completion": [
+      "All three deliverables present?",
+      "Does the weekly snapshot reference input from all four ICs?",
+      "Does the onboarding template span a full 30 days, week by week?",
+      "Does the attrition memo cover all 5 departures across the three departments?",
+      "Are 2 retention interventions named with cost estimates?"
+    ],
+    "quality": [
+      "Is the weekly snapshot scannable in under 5 minutes?",
+      "Does the onboarding template include success criteria (not just activities)?",
+      "Is the attrition analysis causal (not just a count of departures)?",
+      "Are retention intervention costs stated as a range with rationale?",
+      "Does the synthesis document compress — not merely list — IC work?"
+    ],
+    "accuracy": [
+      "Do the pipeline numbers in the snapshot align with Nikolai's report?",
+      "Are the 5 departures correctly attributed to Engineering (2), Sales (2), Product (1)?",
+      "Is the 7/10 onboarding survey score referenced as the baseline in the new template?",
+      "Are comp flags from Manolo's benchmarking memo reflected in the snapshot?",
+      "Are at-risk retention segments identified by role/level, not just department?"
+    ],
+    "handoff": [
+      "Could HR-L06-Karim brief a VP from the weekly snapshot without additional context?",
+      "Can a hiring manager run the 30-day onboarding template without Estelle present?",
+      "Are retention intervention recommendations addressed to a named decision-maker?",
+      "Are blockers from any IC deliverable escalated in the snapshot?",
+      "Are upstream ICs (Aaliyah, Nikolai, Zoë, Manolo) credited for their contributions?"
+    ]
+  }
+}

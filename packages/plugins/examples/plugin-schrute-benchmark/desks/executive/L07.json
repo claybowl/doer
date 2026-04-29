@@ -1,0 +1,78 @@
+{
+  "id": "EXEC-L07-Bashir",
+  "dept": "EXEC",
+  "level": 7,
+  "title": "VP Business Operations",
+  "name": "Bashir",
+  "timeBudgetMin": 45,
+  "brief": "You are Bashir, VP of Business Operations. You own the operational infrastructure of the company — how it runs day-to-day and how it plans. You have Hannelore as a direct report, and you sit one level below Petra (SVP Operations).\n\nThe company is four weeks from its annual planning cycle. This is your most important quarterly moment. Your day is planning-heavy.\n\n1. Annual planning framework: write a 2-page process document for how the company will run its annual planning cycle. Cover: timeline (working backward from board approval), who is responsible for each step, and what artifacts each team must produce. You are designing the process — not running it.\n2. Headcount review: Hannelore submitted a headcount justification for a fifth BizOps IC. Review it and write your approval decision: approve with conditions, defer, or deny. Two paragraphs — one on your reasoning, one on what Hannelore needs to do next.\n3. Operating rhythm audit: you suspect the monthly leadership review meeting is too long and too low-signal. Write a 3-bullet diagnosis and a proposed fix in 2-3 sentences.\n4. Cross-functional risk flag: identify one cross-functional risk (spanning at least two departments) that you've observed this quarter and escalate it to Petra (EXEC-L08) in a 1-paragraph briefing note.\n\nAt this level your deliverables shape how hundreds of people work. Design for clarity and durability.",
+  "deliverables": [
+    {
+      "filename": "annual-planning-framework.md",
+      "description": "2-page planning process document: timeline, owners, required artifacts per team"
+    },
+    {
+      "filename": "headcount-decision.md",
+      "description": "2-paragraph response to Hannelore's headcount ask: approval decision + next steps"
+    },
+    {
+      "filename": "leadership-review-fix.md",
+      "description": "3-bullet diagnosis of the monthly leadership review problem + 2-3 sentence proposed fix"
+    },
+    {
+      "filename": "cross-fn-risk-escalation.md",
+      "description": "1-paragraph cross-functional risk briefing note to EXEC-L08-Petra"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish or implement departmental policies, goals, objectives, or procedures in conjunction with board members, organization officials, or staff members."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct or coordinate financial or budget activities to fund operations, maximize investments, or increase efficiency."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L06-Hannelore"],
+  "downstreamDeskIds": ["EXEC-L08-Petra"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the annual planning framework cover timeline, owners, and required artifacts?",
+      "Does the headcount decision include both a ruling and a next-steps paragraph?",
+      "Does the leadership review diagnosis have exactly 3 bullets plus a fix?",
+      "Is the cross-functional risk briefing addressed explicitly to EXEC-L08-Petra?"
+    ],
+    "quality": [
+      "Does the planning framework work backward from a fixed board approval date?",
+      "Is the headcount decision genuinely evaluative (not a rubber stamp)?",
+      "Are the 3 diagnosis bullets specific to the leadership review (not generic meeting complaints)?",
+      "Is the proposed fix for the leadership review actionable within 2 weeks?",
+      "Is the risk escalation framed as something Petra needs to act on (not just FYI)?"
+    ],
+    "accuracy": [
+      "Is the annual planning timeline realistic for a 100-person company (6-8 weeks typical)?",
+      "Does the headcount decision respond to Hannelore's actual justification?",
+      "Are the cross-functional departments named in the risk escalation plausible?",
+      "Does the planning framework require the right artifact types (OKRs, budgets, headcount)?",
+      "Is the leadership review fix consistent with Atticus's cadence audit upstream?"
+    ],
+    "handoff": [
+      "Could Petra (EXEC-L08) use the risk escalation without requesting a follow-up call?",
+      "Could Hannelore run the next step from the headcount decision without ambiguity?",
+      "Could any department head follow the planning framework without Bashir's narration?",
+      "Are owners in the planning framework named by role (not just 'team leads')?",
+      "Does the leadership review fix give Hannelore a clear implementation instruction?"
+    ]
+  }
+}

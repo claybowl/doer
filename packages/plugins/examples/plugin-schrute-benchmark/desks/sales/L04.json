@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L04-Idris",
+  "dept": "SALES",
+  "level": 4,
+  "title": "Senior Account Executive",
+  "name": "Idris",
+  "timeBudgetMin": 35,
+  "brief": "You are Idris, a Senior Account Executive at a 100-person SaaS company. You handle the company's largest mid-market and entry-enterprise accounts and serve as a peer mentor for the SDR and AE team. Cross-team coordination is part of your role.\n\n1. Account plan: Produce a quarterly account plan for your top renewal account. Include: account health assessment (usage, support tickets, NPS if available), expansion opportunity map (which products/tiers they don't have yet), key stakeholder relationships, renewal risk factors, and a 90-day action plan with owner and milestone.\n\n2. Forecast update: Update your forecast log for this week. For each of your 7 open opportunities, record the current stage, deal size, probability, expected close date, and one risk or blocker. Produce a pipeline summary row (total weighted pipeline, total unweighted, deals at risk).\n\n3. Peer coaching note: You observed Camila (L3 AE) on a discovery call this week. Write a 1-page coaching note covering 2 things she did well and 2 specific areas to improve, each with a concrete behavior to practice.\n\n4. Cross-functional flag: One of your deals has a non-standard contractual ask (custom SLA terms). Write a 3-sentence escalation note to the Sales Lead summarizing the ask, the risk, and your recommended path.",
+  "deliverables": [
+    {
+      "filename": "account-plan-q.md",
+      "description": "Quarterly account plan: health, expansion map, stakeholders, risk factors, 90-day action plan"
+    },
+    {
+      "filename": "forecast-update.md",
+      "description": "Weekly forecast log for 7 opportunities plus pipeline summary row"
+    },
+    {
+      "filename": "peer-coaching-note.md",
+      "description": "1-page coaching note for Camila: 2 strengths, 2 improvement areas with concrete practice behaviors"
+    },
+    {
+      "filename": "escalation-note.md",
+      "description": "3-sentence escalation note on non-standard SLA request: ask, risk, recommended path"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Consult with clients after sales or contract signings to resolve problems and provide ongoing support."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Monitor market conditions, innovations, and competitors' services, prices, and sales."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/sales/sales-representatives-wholesale-and-manufacturing.htm",
+      "quote": "Sales representatives spend much of their time traveling to and visiting with current and prospective customers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["SALES-L05-Felipe"],
+  "rubric": {
+    "completion": [
+      "Is the quarterly account plan present with all five sections?",
+      "Does the forecast log cover all 7 opportunities with all required fields?",
+      "Is the pipeline summary row present with weighted, unweighted, and at-risk totals?",
+      "Is the peer coaching note present with 2 strengths and 2 improvement areas?",
+      "Is the escalation note present and exactly 3 sentences?"
+    ],
+    "quality": [
+      "Is the 90-day action plan time-bound with named owners and milestones?",
+      "Are coaching improvement areas behavioral (not 'be more confident')?",
+      "Does the expansion opportunity map identify specific product lines or tiers?",
+      "Are risk factors in the forecast log specific enough to act on?",
+      "Is the escalation note decision-ready without requiring follow-up questions?"
+    ],
+    "accuracy": [
+      "Are deal stages consistent with a standard SaaS sales funnel (Prospect → Closed)?",
+      "Are probability estimates aligned with stage (not arbitrarily high)?",
+      "Does the account health assessment use observable signals (not assumptions)?",
+      "Is the escalated contractual ask described accurately (specific clause, not vague 'custom terms')?",
+      "Are coaching observations grounded in specific observed behaviors?"
+    ],
+    "handoff": [
+      "Could SALES-L05-Felipe run the pipeline review meeting from the forecast update alone?",
+      "Is the escalation note ready to forward to the Sales Lead without editing?",
+      "Could a new AE inherit the account plan and continue execution?",
+      "Are blockers in the forecast log owner-assigned?",
+      "Is the coaching note written in a way Camila can read directly without embarrassment?"
+    ]
+  }
+}

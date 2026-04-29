@@ -1,0 +1,74 @@
+{
+  "id": "PROD-L02-Nadia",
+  "dept": "PROD",
+  "level": 2,
+  "title": "Product Manager",
+  "name": "Nadia",
+  "timeBudgetMin": 25,
+  "brief": "You are Nadia, a Product Manager at a 100-person SaaS company. You own the integrations feature area — the set of third-party connectors users can add to the product.\n\nYour day:\n\n1. Write a one-pager for a new feature request that came in from sales: customers want a Zapier integration. The one-pager should cover: problem statement, proposed solution (high-level), success metrics (how will you know it worked?), and what you are NOT building. Keep it to one page.\n2. Prioritize 5 backlog items using a scoring framework of your choice (RICE, MoSCoW, or ICE). Show your work: state the score components and the final ranking. The 5 items are: (a) Zapier integration, (b) dark mode, (c) CSV export bug fix, (d) multi-seat billing, (e) mobile app.\n3. Write the weekly product update (3-5 bullets) for the all-hands channel. One bullet must reference the integrations roadmap. Keep it non-technical and readable by anyone in the company.\n\nYou are balancing sales requests, user value, and engineering capacity. Be decisive.",
+  "deliverables": [
+    {
+      "filename": "zapier-integration-one-pager.md",
+      "description": "One-pager: problem, proposed solution, success metrics, out-of-scope"
+    },
+    {
+      "filename": "backlog-prioritization.md",
+      "description": "5-item prioritized backlog with scoring framework, component scores, and rationale"
+    },
+    {
+      "filename": "product-weekly-update.md",
+      "description": "3-5 bullets for all-hands, non-technical, integrations roadmap reference included"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Confer with personnel concerned to ensure successful functioning of newly implemented systems or procedures."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Gather and organize information on problems or procedures."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts recommend new systems, procedures, or organizational changes to improve efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["PROD-L05-Elena"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the one-pager include problem, solution, metrics, and out-of-scope sections?",
+      "Are all 5 backlog items scored and ranked?",
+      "Does the weekly update contain 3-5 bullets?",
+      "Does the weekly update mention the integrations roadmap?"
+    ],
+    "quality": [
+      "Does the one-pager fit one page (not a sprawling PRD)?",
+      "Are success metrics measurable (not 'users will be happier')?",
+      "Is the out-of-scope section explicit about what is cut?",
+      "Does the prioritization show scoring components, not just opinions?",
+      "Is the weekly update written for a non-technical audience?"
+    ],
+    "accuracy": [
+      "Does the scoring framework produce a defensible order (e.g., CSV bug fix above dark mode)?",
+      "Do the success metrics correspond to the stated problem?",
+      "Is the Zapier integration scoped realistically (not a full iPaaS platform)?",
+      "Are backlog scoring components plausible given a typical SaaS context?",
+      "Does the weekly update accurately reflect what was described in the other deliverables?"
+    ],
+    "handoff": [
+      "Could PROD-L05-Elena present the one-pager to a senior stakeholder without modification?",
+      "Is the backlog ranking ready to drop into a sprint planning meeting?",
+      "Could the all-hands update be copy-pasted into Slack without editing?",
+      "Are assumptions in the one-pager made explicit?",
+      "Does Nadia flag open questions for upstream review?"
+    ]
+  }
+}

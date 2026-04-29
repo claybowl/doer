@@ -1,0 +1,80 @@
+{
+  "id": "HR-L07-Brigit",
+  "dept": "HR",
+  "level": 7,
+  "title": "Senior HR Manager",
+  "name": "Brigit",
+  "timeBudgetMin": 45,
+  "brief": "You are Brigit, Senior HR Manager at a 100-person SaaS company. You own the full HR operating cycle for half the company — Engineering, Product, and Design — and manage the team of specialists underneath Karim. You also own cross-functional people programs and the HR compliance posture.\n\n1. Cycle plan: Q3 performance reviews start in 3 weeks. Write the full review cycle plan — key dates, manager training schedule, calibration meeting structure, rating distribution guidance, and promotion nomination process. This is the operating document that runs the cycle. The plan feeds into Renaud's (HR-L08) Director review and the FIN/LEGOPS budget conversations.\n\n2. Compliance audit: an employment attorney flagged that the company's offer letter templates and FLSA exempt/non-exempt classifications may not reflect the latest regulatory guidance. Write a compliance gap analysis covering: FLSA classification risk across Engineering titles, I-9 record retention, and California pay transparency requirements. Rate each item Red/Yellow/Green and recommend remediation steps.\n\n3. LEGOPS vendor budget edge: LEGOPS-L07-Vidya flagged that the external HR vendor (background check provider) contract is up for renewal and may exceed the approved vendor budget. Write a vendor assessment memo: current cost, usage metrics, two alternative providers with cost comparison, and a recommendation (renew/renegotiate/switch) with rationale.\n\nYour output informs the Director's budget and headcount decisions. Be specific about dollars, timelines, and risk levels.",
+  "deliverables": [
+    {
+      "filename": "q3-perf-review-cycle-plan.md",
+      "description": "Full review cycle operating doc: key dates, manager training, calibration structure, rating distribution guidance, promotion nominations"
+    },
+    {
+      "filename": "compliance-gap-analysis.md",
+      "description": "FLSA, I-9, and CA pay transparency gap analysis with Red/Yellow/Green ratings and remediation steps"
+    },
+    {
+      "filename": "hr-vendor-assessment.md",
+      "description": "Background check vendor memo: current cost, usage, 2 alternatives with cost comparison, renew/renegotiate/switch recommendation"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Analyze statistical data and reports to identify and determine causes of personnel problems and develop recommendations for improvement of organization's personnel policies and practices."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Prepare personnel forecast to project employment needs."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Study legislation, arbitration decisions, and collective bargaining contracts to assess industry trends."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/human-resources-managers.htm",
+      "quote": "Human resources managers plan, direct, and coordinate the administrative functions of an organization."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L06-Karim", "LEGOPS-L07-Vidya"],
+  "downstreamDeskIds": ["HR-L08-Renaud"],
+  "rubric": {
+    "completion": [
+      "All three deliverables present?",
+      "Does the cycle plan include all five components: dates, training, calibration, distribution guidance, promotions?",
+      "Does the compliance gap analysis cover all three areas: FLSA, I-9, CA pay transparency?",
+      "Is each compliance item rated Red/Yellow/Green with remediation steps?",
+      "Does the vendor memo include exactly 2 alternative providers with cost comparison?"
+    ],
+    "quality": [
+      "Is the cycle plan detailed enough to run the review without additional planning meetings?",
+      "Does the compliance analysis explain the legal risk, not just name the regulation?",
+      "Is the vendor recommendation supported by the cost comparison data (not opinion)?",
+      "Does the cycle plan include a manager training schedule with dates and format?",
+      "Is the vendor memo written at a level Renaud can take directly to a budget meeting?"
+    ],
+    "accuracy": [
+      "Are FLSA classification risks grounded in actual Engineering title patterns (IC, Staff, Principal)?",
+      "Is California pay transparency law correctly described (SB 1162 requirements)?",
+      "Are I-9 retention timelines accurately stated (3 years from hire or 1 year post-termination)?",
+      "Is the 3-week lead time to review cycle start reflected throughout the cycle plan?",
+      "Does the vendor budget flag from LEGOPS-L07-Vidya appear as the prompt for the assessment?"
+    ],
+    "handoff": [
+      "Could HR-L08-Renaud approve the cycle plan for company-wide distribution?",
+      "Could legal counsel act on the compliance gap analysis without requesting additional data?",
+      "Could procurement run the vendor decision from this memo alone?",
+      "Are the compliance Red items prioritized over Yellow and Green in the remediation steps?",
+      "Does the cycle plan include a named communications owner for manager announcements?"
+    ]
+  }
+}

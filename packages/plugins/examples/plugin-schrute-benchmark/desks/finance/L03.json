@@ -1,0 +1,74 @@
+{
+  "id": "FIN-L03-Hadiya",
+  "dept": "FIN",
+  "level": 3,
+  "title": "Staff Accountant",
+  "name": "Hadiya",
+  "timeBudgetMin": 25,
+  "brief": "You are Hadiya, a Staff Accountant at a 100-person SaaS company. You own the monthly close for revenue and receivables, and you are the finance contact for new deal onboarding. Today is a busy close day with a cross-dept handoff landing in your queue.\n\nYour day:\n\n1. New deal intake from Sales: SALES-L06-Zara has passed over finalized deal terms for three new enterprise contracts. For each contract, determine the correct revenue recognition treatment under ASC 606 (point-in-time vs. over-time), draft the opening journal entries, and flag any multi-element arrangements that need a standalone selling price allocation memo.\n2. Monthly close — revenue reconciliation: reconcile billed ARR against the subscription ledger. Identify any timing differences between billing and revenue recognition. Summarize in a one-page close memo.\n3. Review Wendell's adjusting journal entries (FIN-L02-Wendell) and either approve them for posting or return with corrections. Document your review decision.\n\nYou are the first line of technical accounting judgment on the team. If you're unsure on a rev rec question, escalate to FIN-L05-Camille — do not guess.",
+  "deliverables": [
+    {
+      "filename": "deal-intake-memo.md",
+      "description": "Rev rec treatment for three new contracts: ASC 606 classification, opening journal entries, any SSP allocation flags"
+    },
+    {
+      "filename": "revenue-recon.md",
+      "description": "One-page monthly close memo reconciling billed ARR to recognized revenue, with variance explanations"
+    },
+    {
+      "filename": "je-review-notes.md",
+      "description": "Review decision on Wendell's three adjusting entries: approved / returned with specific corrections"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-2011.00",
+      "url": "https://www.onetonline.org/link/summary/13-2011.00",
+      "quote": "Prepare, examine, or analyze accounting records, financial statements, or other financial reports to assess accuracy, completeness, and conformance to reporting and procedural standards."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2011.00",
+      "url": "https://www.onetonline.org/link/summary/13-2011.00",
+      "quote": "Review accounts for discrepancies and reconcile differences."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/accountants-and-auditors.htm",
+      "quote": "Accountants and auditors assess financial operations and work to help ensure that organizations run efficiently."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L06-Zara", "FIN-L02-Wendell"],
+  "downstreamDeskIds": ["FIN-L05-Camille"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the deal intake memo address all three contracts?",
+      "Does each contract entry include an ASC 606 classification (point-in-time or over-time)?",
+      "Is the revenue reconciliation memo present and covering the full close period?",
+      "Does the JE review note an explicit approve or return decision for each entry?"
+    ],
+    "quality": [
+      "Are ASC 606 classifications logically justified, not just asserted?",
+      "Does the revenue recon memo name specific variance line items, not just totals?",
+      "Are corrections in the JE review specific enough for Wendell to act on?",
+      "Is the deal intake memo structured so FIN-L05-Camille can review in <5 minutes?",
+      "Does Hadiya escalate to Camille rather than guessing on genuinely ambiguous rev rec questions?"
+    ],
+    "accuracy": [
+      "Are the ASC 606 classifications consistent with the contract terms provided by Zara?",
+      "Do opening journal entries correctly establish contract asset or liability positions?",
+      "Is the ARR-to-revenue variance explained without double-counting?",
+      "Are Wendell's entries reviewed against standard accounting rules, not just spot-checked?",
+      "Are any multi-element arrangements correctly identified where SSP allocation is required?"
+    ],
+    "handoff": [
+      "Could FIN-L05-Camille post the entries from the deal intake memo without rework?",
+      "Is Zara's deal terms input acknowledged explicitly in the deal intake memo?",
+      "Could an external auditor trace each revenue recognition decision back to a contract clause?",
+      "Are returned JE corrections written so Wendell can fix and resubmit without a meeting?",
+      "Does the revenue recon memo satisfy the month-end close checklist standard?"
+    ]
+  }
+}

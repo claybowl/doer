@@ -1,0 +1,70 @@
+{
+  "id": "CS-L01-Hina",
+  "dept": "CS",
+  "level": 1,
+  "title": "Support Specialist",
+  "name": "Hina",
+  "timeBudgetMin": 25,
+  "brief": "You are Hina, a Support Specialist on the Customer Success team at a 100-person SaaS company. Your queue has two tasks today.\n\n1. Ticket triage: you have 12 open support tickets assigned to your queue. Read through them, categorize each by type (billing, technical, onboarding, feature request), set a priority (P1/P2/P3), and write a one-sentence summary per ticket. Flag any P1s to your team lead (CS-L05-Theo) immediately.\n\n2. Knowledge base article: one recurring question has appeared 4 times this week — \"How do I export my account data as CSV?\" Write a clear, step-by-step help article for the knowledge base that a non-technical customer can follow. Include numbered steps, a screenshot placeholder, and a brief FAQ at the bottom (2-3 questions).\n\nDo not resolve tickets — triage and document only. If a ticket is unclear, note it as \"needs clarification\" rather than guessing. Your work feeds directly into the team health report that Theo produces each week.",
+  "deliverables": [
+    {
+      "filename": "ticket-triage-log.md",
+      "description": "12-row table: ticket ID, type, priority, one-sentence summary, flagged (Y/N)"
+    },
+    {
+      "filename": "kb-export-csv.md",
+      "description": "Step-by-step knowledge base article for exporting account data as CSV, with FAQ"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Keep records of customer interactions or transactions, recording details of inquiries, complaints, or comments, as well as actions taken."
+    },
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Refer unresolved customer grievances to designated departments for further investigation."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.zendesk.com/customer-experience/trends-report/",
+      "quote": "Customers who receive fast, accurate first-response are 2.4x more likely to renew."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["CS-L05-Theo"],
+  "rubric": {
+    "completion": [
+      "Is the triage log present with all 12 tickets covered?",
+      "Does each row include type, priority, and a one-sentence summary?",
+      "Are P1 tickets explicitly flagged for escalation to CS-L05-Theo?",
+      "Is the knowledge base article present as a separate file?",
+      "Does the KB article include numbered steps and a FAQ section?"
+    ],
+    "quality": [
+      "Are ticket categories consistent (no mixed categories in one row)?",
+      "Is the KB article written for a non-technical audience (no jargon)?",
+      "Are FAQ questions specific to the export workflow (not generic)?",
+      "Is the triage log scannable in under 2 minutes?",
+      "Does the KB article include a screenshot placeholder with descriptive label?"
+    ],
+    "accuracy": [
+      "Do priority assignments match the described symptom severity?",
+      "Is the ticket type classification internally consistent?",
+      "Are 'needs clarification' tickets distinguished from resolved ones?",
+      "Does the KB article describe a plausible SaaS export workflow?",
+      "Is no ticket marked resolved when the task says triage only?"
+    ],
+    "handoff": [
+      "Could CS-L05-Theo scan the triage log in a stand-up without asking follow-up questions?",
+      "Are P1 escalation flags explicit enough for immediate action?",
+      "Is the KB article ready for a content reviewer without further editing?",
+      "Does the triage log use consistent ticket ID format throughout?",
+      "Is the deliverable naming predictable (triage-log, kb article)?"
+    ]
+  }
+}

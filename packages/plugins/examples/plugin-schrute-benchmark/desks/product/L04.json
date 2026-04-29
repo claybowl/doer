@@ -1,0 +1,74 @@
+{
+  "id": "PROD-L04-Olamide",
+  "dept": "PROD",
+  "level": 4,
+  "title": "Staff Product Manager",
+  "name": "Olamide",
+  "timeBudgetMin": 35,
+  "brief": "You are Olamide, a Staff Product Manager. You are the most senior individual contributor on the product team, working across feature areas to drive cross-team initiatives. Today your focus is the annual OKR planning cycle and a multi-team dependency analysis.\n\nYour day:\n\n1. Draft the Product team's OKR proposal for next quarter. Write 2 Objectives with 3 Key Results each. Each Key Result must be measurable, have a baseline value and a target value, and name an owner (by role). Make the objectives ambitious but grounded — not marketing slogans.\n2. You've been asked to run a dependency audit for the next cycle. Three features are in flight across the product team: (a) real-time collaboration (Kai's area), (b) Zapier integration (Nadia's area), (c) mobile onboarding (Jorge's area). Write a dependency matrix: for each feature, list which engineering teams, design resources, and external dependencies it relies on. Flag any conflicts (two features needing the same design sprint, or same backend team).\n3. Write a 'definition of ready' checklist: what must be true before a feature enters engineering sprint planning. This will be used as the team standard going forward. 8-12 criteria, each a yes/no check.\n\nYou are operating at the intersection of strategy and execution. Your outputs should enable the Group PM to make trade-off calls with confidence.",
+  "deliverables": [
+    {
+      "filename": "product-okr-proposal.md",
+      "description": "2 Objectives × 3 Key Results, each with baseline, target, owner"
+    },
+    {
+      "filename": "dependency-matrix.md",
+      "description": "Cross-feature dependency matrix: engineering teams, design, external deps, conflict flags"
+    },
+    {
+      "filename": "definition-of-ready.md",
+      "description": "8-12 yes/no criteria that a feature must meet before entering sprint planning"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Develop and implement records management program for filing, protection, and retrieval of records, and assure compliance with program."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Coordinate or participate in promotional activities or trade shows, working with developers, advertisers, or production managers, to market products or services."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts must work with managers and other employees who implement any recommended changes."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["PROD-L05-Elena"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the OKR proposal have exactly 2 Objectives with 3 KRs each?",
+      "Does each KR include a baseline, target, and owner?",
+      "Does the dependency matrix cover all three features?",
+      "Does the definition-of-ready have 8-12 criteria?"
+    ],
+    "quality": [
+      "Are OKRs measurable (not aspirational platitudes)?",
+      "Does the dependency matrix call out actual conflicts (not just list teams)?",
+      "Are definition-of-ready criteria yes/no checkable (not subjective)?",
+      "Is the OKR proposal scoped to one quarter (not a 3-year vision)?",
+      "Are dependency conflicts actionable (with a suggested resolution)?"
+    ],
+    "accuracy": [
+      "Are OKR baselines realistic for a 100-person SaaS company?",
+      "Does the dependency matrix correctly identify shared resources as conflicts?",
+      "Are definition-of-ready criteria consistent with standard PM practices?",
+      "Are KR owners role-labeled (not generic 'product team')?",
+      "Is the conflict analysis based on the actual features described (not invented ones)?"
+    ],
+    "handoff": [
+      "Could PROD-L05-Elena use the OKR proposal in a stakeholder review without rewrites?",
+      "Could the Group PM resolve flagged conflicts from the dependency matrix alone?",
+      "Could any PM on the team use the definition-of-ready without additional explanation?",
+      "Are open questions or blockers surfaced explicitly?",
+      "Is the dependency matrix presented in a scannable table format?"
+    ]
+  }
+}

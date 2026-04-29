@@ -1,0 +1,83 @@
+{
+  "id": "MKT-L09-Rosa",
+  "dept": "MKT",
+  "level": 9,
+  "title": "VP Marketing",
+  "name": "Rosa",
+  "timeBudgetMin": 55,
+  "brief": "You are Rosa, VP of Marketing. You sit on the leadership team, report to the CMO (MKT-L10-Ezekiel), and own the entire marketing function across demand gen, brand, content, and ops. You are two levels above execution and your job is to set direction, defend resources, and align marketing to the business.\n\nToday's work:\n\n1. Exec team marketing update: write a 1-page marketing brief for the weekly leadership team meeting. Cover: pipeline contribution vs. target (cite Caleb's pipeline brief), top campaign performance (signal vs. noise — pick 1-2 real wins and 1 real miss), budget health, and one strategic recommendation for the exec team to decide. Be honest about the miss — exec teams can smell spin.\n2. OKR cascade: the company's Q3 company-level OKR is 'Accelerate growth to $12M ARR run rate by end of Q3.' Write the marketing department's OKR contribution: two Objectives, each with 3 Key Results. Key Results must be measurable (numbers, not directions). Align to Caleb's strategy memo.\n3. Board marketing slide: the board meets in three weeks. Write the content for a single board slide on marketing performance: headline metric (one number), three supporting data points, and one forward-looking statement. Assume the board has 90 seconds for this slide.\n4. VP-level peer alignment: Marketing is asking Sales and Product to commit to joint campaign resources. Write a 1-page ask to the VP of Sales and VP of Product. What you're asking for, what marketing brings in return, and the decision deadline. Firm but collegial — you're asking peers, not subordinates.",
+  "deliverables": [
+    {
+      "filename": "exec-marketing-update.md",
+      "description": "1-page leadership team brief: pipeline vs. target, 1-2 wins + 1 miss, budget health, one strategic recommendation"
+    },
+    {
+      "filename": "okr-cascade.md",
+      "description": "Two Objectives with 3 KRs each, all KRs measurable, aligned to Q3 $12M ARR target"
+    },
+    {
+      "filename": "board-marketing-slide.md",
+      "description": "Board slide content: one headline metric, three data points, one forward-looking statement"
+    },
+    {
+      "filename": "peer-alignment-ask.md",
+      "description": "1-page joint campaign ask to VP Sales and VP Product: what marketing needs, what it gives, decision deadline"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or to increase productivity."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Marketing managers plan programs to generate interest in products or services. They work with art directors, sales agents, and financial staff members."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.mckinsey.com/capabilities/growth-marketing-and-sales/our-insights/the-new-model-for-consumer-goods",
+      "quote": "Best-in-class B2B marketing organizations connect marketing OKRs directly to pipeline and revenue metrics, not activity metrics, to earn credibility at the executive table."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L08-Caleb"],
+  "downstreamDeskIds": ["MKT-L10-Ezekiel"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the exec update include pipeline vs. target, wins/miss, budget, and recommendation?",
+      "Does the OKR cascade have exactly two Objectives with 3 KRs each?",
+      "Does the board slide include a headline metric, three data points, and a forward-looking statement?",
+      "Is the peer alignment ask addressed to both VP Sales and VP Product?"
+    ],
+    "quality": [
+      "Does the exec update acknowledge the miss honestly (not spun as neutral)?",
+      "Are all six Key Results measurable with numbers (not 'improve' or 'increase')?",
+      "Does the board slide content fit in 90 seconds (concise, no fluff)?",
+      "Is the peer ask collegial rather than demanding?",
+      "Is Rosa's strategic recommendation in the exec update one decision (not a list)?"
+    ],
+    "accuracy": [
+      "Is pipeline vs. target sourced from Caleb's pipeline brief?",
+      "Do the OKR Key Results sum to a plausible path to $12M ARR?",
+      "Is the board headline metric one that a board member would actually care about?",
+      "Are the campaign wins/miss credibly tied to attribution data upstream?",
+      "Is the peer ask deadline realistic given the Q3 calendar?"
+    ],
+    "handoff": [
+      "Could MKT-L10-Ezekiel present the board slide from Rosa's content without editing?",
+      "Could Caleb update his strategy memo from the OKR cascade direction?",
+      "Could the VP Sales respond to the peer ask without follow-up questions?",
+      "Could the exec team make the strategic recommendation decision from Rosa's brief alone?",
+      "Is Caleb's strategy memo clearly reflected as the upstream input?"
+    ]
+  }
+}

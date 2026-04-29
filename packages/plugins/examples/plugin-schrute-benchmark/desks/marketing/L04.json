@@ -1,0 +1,79 @@
+{
+  "id": "MKT-L04-Rashid",
+  "dept": "MKT",
+  "level": 4,
+  "title": "Marketing Operations Lead",
+  "name": "Rashid",
+  "timeBudgetMin": 35,
+  "brief": "You are Rashid, the Marketing Operations Lead. You own the marketing tech stack, data integrity, and the processes that connect marketing activity to revenue reporting. You work across the team and serve as the go-to for campaign operations and analytics infrastructure.\n\nToday's work:\n\n1. Tech stack audit: the company runs HubSpot (CRM/marketing automation), a self-serve analytics layer (Amplitude), and a paid media dashboard (Google Ads + LinkedIn). Three workflows are broken: (a) form submissions from the webinar landing page are not syncing to HubSpot, (b) UTM parameters are being stripped on mobile redirects, and (c) the LinkedIn attribution window in HubSpot is set to 1-day click instead of the agreed 7-day click. Document each issue: root cause hypothesis, severity (revenue impact), and remediation steps.\n2. Lead-scoring model refresh: the current model is 18 months old. Using the ICP criteria (SMB/mid-market, Ops or Finance persona, 50–500 employees), rewrite the scoring rubric. Assign point values to demographic fit, behavioral signals (page visits, content downloads, webinar attendance), and negative signals (competitor domain email, student email). Total max score should be 100. Provide a worked example.\n3. Campaign operations SOP: write a one-page SOP for launching any new paid campaign — from brief approval to first-week reporting. Include a checklist and the ownership column (who does what).\n\nYour output feeds the marketing lead (MKT-L05-Genevieve) and the attribution work done by your IC reports.",
+  "deliverables": [
+    {
+      "filename": "martech-issue-log.md",
+      "description": "Three issue write-ups: root cause hypothesis, severity rating, and step-by-step remediation for each"
+    },
+    {
+      "filename": "lead-scoring-model.md",
+      "description": "Updated scoring rubric: demographic + behavioral + negative signals, point values summing to 100, worked example"
+    },
+    {
+      "filename": "paid-campaign-launch-sop.md",
+      "description": "One-page SOP: steps from brief approval to first-week reporting, checklist format, ownership column"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Measure and assess customer and employee satisfaction."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Develop and implement procedures for identifying advertising needs."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/market-research-analysts.htm",
+      "quote": "Market research analysts study market conditions to examine potential sales of a product or service."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.marketo.com/marketing-operations/",
+      "quote": "Marketing operations teams are responsible for technology infrastructure, data integrity, and process design that enable demand generation programs to scale."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["MKT-L05-Genevieve"],
+  "rubric": {
+    "completion": [
+      "Are all three martech issues documented?",
+      "Does each issue entry include root cause, severity, and remediation steps?",
+      "Does the lead-scoring model include all three signal categories?",
+      "Do the point values sum to 100 with a worked example?",
+      "Is the campaign launch SOP present with both checklist and ownership column?"
+    ],
+    "quality": [
+      "Are root-cause hypotheses specific (not just 'misconfiguration')?",
+      "Is the severity rating tied to revenue impact, not subjective priority?",
+      "Are lead-scoring point values defensible (not arbitrary)?",
+      "Is the SOP usable by a coordinator without asking Rashid follow-up questions?",
+      "Is the worked example in the scoring model realistic?"
+    ],
+    "accuracy": [
+      "Is the UTM-stripping issue plausibly caused by mobile redirects (technically correct)?",
+      "Is the LinkedIn attribution window issue accurately described?",
+      "Does the lead-scoring ICP match the stated criteria (SMB/mid-market, Ops/Finance)?",
+      "Are negative signals reasonable (competitor domain, student email are standard)?",
+      "Does the SOP cover the stated scope (brief approval → first-week reporting)?"
+    ],
+    "handoff": [
+      "Could an engineer begin remediation for each martech issue from Rashid's notes alone?",
+      "Could MKT-L05-Genevieve present the scoring model to Sales without Rashid present?",
+      "Is the SOP checklist in a format a coordinator can use on their first campaign?",
+      "Is the severity of the HubSpot sync issue (form submissions) clearly the highest priority?",
+      "Are open questions or dependencies on engineering flagged explicitly?"
+    ]
+  }
+}

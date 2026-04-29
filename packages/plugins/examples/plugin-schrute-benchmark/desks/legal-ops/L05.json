@@ -1,0 +1,79 @@
+{
+  "id": "LEGOPS-L05-Hideo",
+  "dept": "LEGOPS",
+  "level": 5,
+  "title": "Senior Counsel",
+  "name": "Hideo",
+  "timeBudgetMin": 35,
+  "brief": "You are Hideo, Senior Counsel at a 100-person SaaS company. You supervise the two paralegals (Dana, Saoirse) and the two junior attorneys (Mateus, Klara), review and approve their work product, and handle any matter that exceeds their authority threshold.\n\nToday you have four inputs landing simultaneously. From Dana: a filed NDA confirmation and an MSA plain-language summary. From Saoirse: a GDPR DPA research note, a contract triage table, and a COI audit. From Mateus: a vendor NDA draft v1 and redline memo. From Klara: a customer redline triage, sub-processor gap analysis, and CCPA memo.\n\nYour tasks: (1) Review and approve or revise Mateus's vendor NDA draft — mark up any language issues and either clear the draft for external delivery or send back with specific revision instructions. (2) Review Klara's customer redline triage — approve (b) counter-language items and make a final call on the (c) escalation items. (3) Draft a prioritized work queue for the two paralegals based on Dana's NDA status and Saoirse's contract triage table. (4) Write a one-page IT policy memo establishing the company's standard cloud vendor security requirements, incorporating the COI gap findings Saoirse surfaced.\n\nYou are the synthesis layer. Your job is to clear work from IC queue and generate policy guidance.",
+  "deliverables": [
+    {
+      "filename": "nda-review-decision.md",
+      "description": "Review decision for Mateus's vendor NDA draft v1: approve for delivery OR return with markup. If markup: specific revision instructions keyed to clause numbers."
+    },
+    {
+      "filename": "redline-final-positions.md",
+      "description": "Final approved positions on Klara's 14 customer redlines: (b) items confirmed or revised, (c) items resolved with decision and rationale"
+    },
+    {
+      "filename": "paralegal-work-queue.md",
+      "description": "Prioritized task list for Dana and Saoirse: task, priority (P1/P2/P3), deadline, and any inputs they need from senior staff"
+    },
+    {
+      "filename": "cloud-vendor-security-policy.md",
+      "description": "One-page IT policy memo: standard security requirements for all cloud vendors (COI minimums, incident notification, data handling, audit rights)"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Supervise legal assistants."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-1011.00",
+      "url": "https://www.onetonline.org/link/summary/23-1011.00",
+      "quote": "Analyze the probable outcomes of cases, using knowledge of legal precedents."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Verify that all firm and regulatory policies and procedures have been documented, implemented, and communicated."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L01-Dana", "LEGOPS-L02-Saoirse", "LEGOPS-L03-Mateus", "LEGOPS-L04-Klara"],
+  "downstreamDeskIds": ["LEGOPS-L06-Anneliese"],
+  "rubric": {
+    "completion": [
+      "Is the NDA review decision produced with a clear approve/return verdict?",
+      "If returned, are revision instructions keyed to clause numbers?",
+      "Are all 14 customer redlines resolved in the final positions doc?",
+      "Is the paralegal work queue produced with priorities and deadlines?",
+      "Is the cloud vendor security policy memo produced?"
+    ],
+    "quality": [
+      "Are NDA revision instructions specific enough for Mateus to act without a follow-up call?",
+      "(c) escalation decisions must include rationale, not just a verdict",
+      "Does the work queue distinguish P1 (blocking) from P2/P3 (time-sensitive/routine)?",
+      "Does the security policy go beyond COI to cover incident notification and audit rights?",
+      "Is the security policy written as an internal policy (enforceable), not a wish list?"
+    ],
+    "accuracy": [
+      "Do NDA markup decisions align with the company's standard template positions?",
+      "Are customer redline decisions legally defensible (not just commercially convenient)?",
+      "Does the work queue reflect actual urgency from the triage table (not arbitrary priority)?",
+      "Does the COI minimum standard reflect reasonable vendor risk categories?",
+      "Is the security policy consistent with the DPA obligations Saoirse surfaced?"
+    ],
+    "handoff": [
+      "Could Mateus deliver the NDA to the vendor the same day from Hideo's decision?",
+      "Could Klara send the customer response from the final positions doc?",
+      "Could the paralegals start the work queue without a verbal briefing?",
+      "Could Anneliese (L06) incorporate the security policy into vendor onboarding without revision?",
+      "Did Hideo surface any open items that need escalation to the Operations Manager?"
+    ]
+  }
+}

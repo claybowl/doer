@@ -1,0 +1,79 @@
+{
+  "id": "FIN-L07-Inez",
+  "dept": "FIN",
+  "level": 7,
+  "title": "Senior Finance Manager",
+  "name": "Inez",
+  "timeBudgetMin": 45,
+  "brief": "You are Inez, Senior Finance Manager at a 100-person SaaS company. You own the financial planning cycle, treasury basics, and cross-functional financial governance. You sit between the Accounting Manager (Jamal, FIN-L06) and the Director of Finance (Pierre, FIN-L08), acting as the operational lead who translates business decisions into financial controls.\n\nYour day:\n\n1. Annual budget cycle — Phase 2 review: department budget submissions are in from all functions. You've received Jamal's close-validated numbers. Review submissions against the company's target growth rate and operating margin, flag any department overruns or underruns >$50K, and write a consolidated budget review memo for Pierre.\n2. Cash flow forecast update: update the 13-week rolling cash flow forecast. Inputs: AR aging (Tyler), accounts payable run-rate, payroll schedule, and the current cash balance. Identify any weeks where the cash balance falls below the $500K minimum threshold and recommend corrective action.\n3. Vendor payment terms review: three major vendor contracts are up for renewal. Analyze payment term options (net-30 vs. net-60 vs. net-90) and quantify the working capital impact of each. Recommend a position.\n4. Controls memo: following last month's PO bypass incident (Jamal's process memo), write a finance controls self-assessment covering the AP, payroll, and revenue recognition controls. Rate each control (effective / needs improvement / deficient) and propose a remediation timeline.\n\nYou bridge operations and strategy. Your outputs need to hold up to CFO scrutiny.",
+  "deliverables": [
+    {
+      "filename": "budget-review-memo.md",
+      "description": "Consolidated budget review: department-by-department summary, material variances flagged, recommendation for Pierre"
+    },
+    {
+      "filename": "cash-flow-forecast.xlsx",
+      "description": "13-week rolling cash flow: weekly receipts, disbursements, net, ending balance — with threshold breach flags and corrective actions"
+    },
+    {
+      "filename": "vendor-payment-terms.md",
+      "description": "Payment terms analysis for three contracts: working capital impact by scenario, recommended position"
+    },
+    {
+      "filename": "controls-self-assessment.md",
+      "description": "AP, payroll, and rev rec controls rated (effective/needs improvement/deficient) with remediation timeline"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Develop or analyze information to assess the current or future financial status of firms."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Oversee the flow of cash or financial instruments."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Evaluate financial reporting systems, accounting or collection procedures, or investment activities and make recommendations for changes to procedures, operating systems, budgets, or other financial control functions."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L06-Jamal"],
+  "downstreamDeskIds": ["FIN-L08-Pierre"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the budget review memo flag variances >$50K per department?",
+      "Does the cash flow forecast cover 13 full weeks?",
+      "Does the vendor analysis cover all three contracts with at least two payment term options?",
+      "Does the controls self-assessment rate all three control areas (AP, payroll, rev rec)?"
+    ],
+    "quality": [
+      "Is the budget review memo structured so Pierre can make decisions without reading department submissions?",
+      "Does the cash flow forecast flag minimum balance breaches proactively?",
+      "Is the vendor payment terms recommendation quantified (not just 'pick net-60')?",
+      "Are controls ratings supported by evidence, not just assertions?",
+      "Is the remediation timeline in the controls memo specific (dates, owners)?"
+    ],
+    "accuracy": [
+      "Is the cash flow forecast consistent with Tyler's AR aging data?",
+      "Are department budget variances calculated against the approved target, not the prior year?",
+      "Is the working capital impact correctly modeled for each payment term scenario?",
+      "Are control deficiency ratings consistent with the PO bypass incident evidence?",
+      "Are threshold breach weeks correctly identified against the $500K minimum?"
+    ],
+    "handoff": [
+      "Could FIN-L08-Pierre brief the CFO from the budget review memo alone?",
+      "Is the cash flow forecast in a format Pierre can send to the bank relationship manager?",
+      "Is the vendor recommendation written so Pierre can approve or modify in a single meeting?",
+      "Could an external auditor use the controls self-assessment as an audit input?",
+      "Are any items requiring Pierre's sign-off before Inez can proceed explicitly flagged?"
+    ]
+  }
+}

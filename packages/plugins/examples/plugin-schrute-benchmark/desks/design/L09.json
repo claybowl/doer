@@ -1,0 +1,78 @@
+{
+  "id": "DES-L09-Rohan",
+  "dept": "DES",
+  "level": 9,
+  "title": "VP of Design",
+  "name": "Rohan",
+  "timeBudgetMin": 55,
+  "brief": "You are Rohan, VP of Design. You sit on the product leadership team alongside the CPO, VP of Engineering, and VP of Product. You report to the Chief Design Officer (DES-L10-Ngozi) and represent design in all cross-functional forums.\n\nYour day:\n\n1. Design org quarterly review: prepare a 2-page quarterly review document for Ngozi. Cover: the design org's output and quality signal for the quarter, one win to publicize, one failure to own and what changes as a result, the team health signal, and the design org's goals for next quarter.\n2. Cross-functional alignment memo: the CPO wants to accelerate the platform consolidation by 6 weeks. Write a crisp memo (1 page) to the CPO laying out what that schedule change means for design capacity, what would have to be cut or descoped, and what you need from the CPO to commit to the accelerated timeline.\n3. Design strategy narrative: Ngozi has asked for a refreshed design strategy narrative to take to the board. Write a 1-page narrative (not a deck, a memo) that answers: what is this company's design philosophy, how is it differentiated, and why does it make the product harder to copy?\n4. VP peer prep: you have a quarterly sync with the VP of Engineering tomorrow. Write a 5-7 bullet prep note covering the shared topics, the one thing you want to resolve, and the one thing you're pre-committing to in front of them.",
+  "deliverables": [
+    {
+      "filename": "design-quarterly-review.md",
+      "description": "2-page quarterly review for Ngozi: output/quality signal, win, failure+fix, team health, next-quarter goals"
+    },
+    {
+      "filename": "cpo-memo-timeline.md",
+      "description": "1-page memo to CPO: capacity impact of 6-week acceleration, cuts needed, ask"
+    },
+    {
+      "filename": "design-strategy-narrative.md",
+      "description": "1-page board-ready narrative: design philosophy, differentiation, moat"
+    },
+    {
+      "filename": "vp-sync-prep.md",
+      "description": "5-7 bullet VP of Engineering sync prep: shared topics, one resolution target, one pre-commitment"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products, lines, or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Initiate market research studies, or analyze their findings."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Advertising, promotions, and marketing managers plan programs to generate interest in products or services."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L08-Caelan"],
+  "downstreamDeskIds": ["DES-L10-Ngozi"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the quarterly review cover all five sections (output, win, failure, team, goals)?",
+      "Does the CPO memo state specific cuts or descopes, not just 'things will be affected'?",
+      "Does the strategy narrative answer all three questions (philosophy, differentiation, moat)?",
+      "Are 5-7 VP sync bullets present with resolution target and pre-commitment?"
+    ],
+    "quality": [
+      "Does Rohan own the failure in the quarterly review (no deflection to the team)?",
+      "Is the CPO memo written in CPO language (capacity, scope, risk — not design process)?",
+      "Is the strategy narrative board-ready (no jargon, no hedging)?",
+      "Does the VP sync prep identify a concrete resolution target, not a talking point?",
+      "Is every document scannable in under 3 minutes?"
+    ],
+    "accuracy": [
+      "Does the quarterly review align with Caelan's upstream strategy and hiring data?",
+      "Is the 6-week acceleration impact realistic for a ~20-person design org?",
+      "Is the design moat claim specific and defensible (not 'we care about users')?",
+      "Are the VP sync topics appropriate to a design-engineering relationship?",
+      "Does the next-quarter goal set reflect the failures and learnings of the quarter?"
+    ],
+    "handoff": [
+      "Could DES-L10-Ngozi take the quarterly review into a board conversation?",
+      "Could the CPO respond to Rohan's memo with a go/no-go decision?",
+      "Is the design strategy narrative suitable to hand to the board without edits?",
+      "Could the VP of Engineering run the sync from Rohan's prep note alone?",
+      "Did Rohan flag what decisions or approvals are needed from Ngozi?"
+    ]
+  }
+}

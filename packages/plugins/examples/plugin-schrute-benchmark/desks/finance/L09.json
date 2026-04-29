@@ -1,0 +1,79 @@
+{
+  "id": "FIN-L09-Naila",
+  "dept": "FIN",
+  "level": 9,
+  "title": "VP Finance",
+  "name": "Naila",
+  "timeBudgetMin": 55,
+  "brief": "You are Naila, VP Finance at a 100-person SaaS company. You translate the company's strategy into its financial operating model and are the primary CFO delegate for day-to-day financial governance. You own the annual plan, the investor relations calendar, and the relationship with the company's banking and insurance counterparties. Pierre (FIN-L08) reports to you.\n\nYour day:\n\n1. Annual operating plan (AOP) consolidation: Pierre has submitted the departmental financial plans. Consolidate them into a company-wide AOP. Include: total revenue, COGS breakdown, gross margin, operating expense by function, EBITDA, and cash flow from operations. Add a one-page executive narrative explaining the financial story of the year.\n2. Board pre-read prep: the CFO (Reginald, FIN-L10) is presenting to the board in 10 days. Prepare the financial section of the board pre-read: Q3 actuals vs. plan, Q4 forecast, FY outlook, and 3 key financial risks. Write it for a board audience — compressed, decision-oriented.\n3. Series B data room: the company is in a fundraising process. Two investors have requested a financial model and a SaaS metrics cohort analysis. Produce an investor-grade 3-year financial model (revenue, expenses, headcount, cash) and a cohort table showing net revenue retention by customer cohort.\n4. Banking covenant check: the company has a revolving credit facility with two financial covenants (minimum liquidity: $1M; leverage ratio: <3.0x TTM EBITDA). Verify current compliance and write a one-page covenant compliance memo.\n\nYou are the financial architect. Every number you produce is seen by investors or the board.",
+  "deliverables": [
+    {
+      "filename": "aop-consolidated.xlsx",
+      "description": "Company-wide AOP: revenue, COGS, gross margin, opex by function, EBITDA, cash flow from operations — with exec narrative"
+    },
+    {
+      "filename": "board-pre-read-finance.md",
+      "description": "Board financial section: Q3 actuals vs. plan, Q4 forecast, FY outlook, 3 key financial risks — board-ready language"
+    },
+    {
+      "filename": "investor-financial-model.xlsx",
+      "description": "Investor-grade 3-year model: revenue, expenses, headcount, cash — plus SaaS cohort NRR table"
+    },
+    {
+      "filename": "covenant-compliance-memo.md",
+      "description": "Revolving credit facility covenant check: current values vs. thresholds, compliance status, remediation plan if needed"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Communicate with stockholders or other investors to provide information or to raise capital."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Develop or analyze information to assess the current or future financial status of firms."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct or coordinate an organization's financial or budget activities to fund operations, maximize investments, or increase efficiency."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L08-Pierre"],
+  "downstreamDeskIds": ["FIN-L10-Reginald"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the AOP include all six financial statement lines (revenue through OCF)?",
+      "Does the board pre-read cover all four required sections (Q3A, Q4F, FY outlook, risks)?",
+      "Does the investor model cover three years with headcount and cash?",
+      "Does the covenant compliance memo address both covenants?"
+    ],
+    "quality": [
+      "Is the AOP executive narrative a financial story, not a data dump?",
+      "Is the board pre-read compressed to what a board member needs to make a decision?",
+      "Is the investor model internally consistent (headcount drives cost, revenue drives cash)?",
+      "Is the SaaS cohort NRR table in standard investor format?",
+      "Is the covenant compliance memo auditable — with current ratio calculations shown?"
+    ],
+    "accuracy": [
+      "Is the AOP consistent with Pierre's five cost center plans?",
+      "Are Q3 actuals in the board pre-read consistent with the monthly close package?",
+      "Do the three-year model growth assumptions align with the base-case scenario from Camille's forecast?",
+      "Are covenant thresholds accurately stated ($1M liquidity, <3.0x leverage)?",
+      "Is NRR calculated from actual cohort data, not estimated?"
+    ],
+    "handoff": [
+      "Could FIN-L10-Reginald present the board financial section without revising a word?",
+      "Could an investor take the financial model directly into their diligence process?",
+      "Are covenant compliance findings written so the banking counterparty can act on them?",
+      "Is the AOP in a format Pierre can distribute to department heads for headcount planning?",
+      "Are any items requiring Reginald's CFO sign-off explicitly flagged?"
+    ]
+  }
+}

@@ -14,5 +14,11 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
     "isolatedModules": true
-  }
+  },
+  "exclude": [
+    "**/* 2.*",
+    "**/* 3.*",
+    "**/* copy.*",
+    "**/* copy 2.*"
+  ]
 }

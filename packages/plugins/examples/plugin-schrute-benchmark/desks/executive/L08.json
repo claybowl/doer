@@ -1,0 +1,78 @@
+{
+  "id": "EXEC-L08-Petra",
+  "dept": "EXEC",
+  "level": 8,
+  "title": "SVP Operations",
+  "name": "Petra",
+  "timeBudgetMin": 45,
+  "brief": "You are Petra, SVP of Operations. You report to Kwame (President, EXEC-L09). You received Bashir's cross-functional risk escalation and annual planning framework this morning. Now it's your job to elevate those inputs into department-level strategy and executive-tier outputs.\n\nYour day:\n\n1. Operational strategy memo: a 2-page strategy document for the Operations org for the next two quarters. Address: top operational priorities, 2-3 structural changes you're making (e.g., to team structure, tooling, or process), and the one bet you're not making (something you're consciously deprioritizing and why).\n2. Risk response: Bashir escalated a cross-functional risk. Assess it and decide: is this a BizOps problem, a leadership-team problem, or a structural problem? Write your classification and a 1-paragraph response plan.\n3. Hiring strategy for Operations: the company is growing and Ops needs two more senior hires in the next 6 months. Write a 1-page hiring brief: roles, rationale, and sequencing (which hire first and why).\n4. Peer-alignment note: you have peer SVPs in Engineering, Product, and Sales. Write a short (5-bullet) sync agenda for the monthly SVP roundtable. Include at least one item that requires a joint decision.\n\nYou own the operational fabric of the company. Your documents should reflect that scope.",
+  "deliverables": [
+    {
+      "filename": "ops-strategy-memo.md",
+      "description": "2-page Ops strategy for next two quarters: priorities, structural changes, one conscious deprioritization"
+    },
+    {
+      "filename": "risk-response-plan.md",
+      "description": "Risk classification (BizOps/leadership/structural) + 1-paragraph response plan"
+    },
+    {
+      "filename": "ops-hiring-brief.md",
+      "description": "1-page hiring brief: 2 senior roles, rationale, sequencing with justification"
+    },
+    {
+      "filename": "svp-roundtable-agenda.md",
+      "description": "5-bullet sync agenda for monthly SVP roundtable with one joint-decision item"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct and coordinate activities of businesses or departments concerned with the production, pricing, sales, or distribution of products."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Monitor suppliers to ensure that they efficiently and effectively provide needed goods or services within budgetary limits."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L07-Bashir"],
+  "downstreamDeskIds": ["EXEC-L09-Kwame"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the ops strategy memo cover priorities, structural changes, AND a deprioritization?",
+      "Does the risk response include a classification and a response plan?",
+      "Does the hiring brief cover 2 roles with rationale and sequencing?",
+      "Does the SVP roundtable agenda have exactly 5 bullets with one joint-decision item?"
+    ],
+    "quality": [
+      "Is the deprioritization in the ops strategy memo explicitly justified (not just omitted)?",
+      "Does the risk classification add value beyond restating the risk?",
+      "Does the sequencing in the hiring brief explain why one role comes first?",
+      "Is the joint-decision item in the roundtable agenda framed as a real choice to make?",
+      "Is every document written at SVP level (strategic, not operational task lists)?"
+    ],
+    "accuracy": [
+      "Does the ops strategy reflect Bashir's annual planning framework upstream?",
+      "Does the risk response classify the risk using a defensible framework?",
+      "Are the two senior Ops roles realistic for this company stage?",
+      "Does the SVP agenda include at least one item from another function (not just Ops updates)?",
+      "Are the structural changes in the ops strategy specific (not 'improve processes')?"
+    ],
+    "handoff": [
+      "Could Kwame (EXEC-L09) present the ops strategy to the CEO from this document?",
+      "Is the risk response plan actionable by the team named in the classification?",
+      "Could a recruiter begin sourcing from the hiring brief without a follow-up call?",
+      "Is the roundtable agenda formatted to circulate to peer SVPs as a pre-read?",
+      "Does Petra's strategy memo set up the annual plan Bashir is running?"
+    ]
+  }
+}

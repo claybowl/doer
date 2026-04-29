@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L06-Zara",
+  "dept": "SALES",
+  "level": 6,
+  "title": "Sales Manager",
+  "name": "Zara",
+  "timeBudgetMin": 35,
+  "brief": "You are Zara, Sales Manager responsible for two commercial pods (8 reps total, including Felipe's pod). You report to Nathaniel (L7 Senior Sales Manager). Your week produces two critical downstream artifacts: a consolidated team forecast for Nathaniel and a deal-terms handoff to Finance.\n\n1. Team forecast consolidation: Take Felipe's pod roll-up and the equivalent from your second pod and produce a single manager-level forecast document. Include: total pipeline by stage, weighted forecast for the quarter, deals at risk with mitigation, and your personal call (commit vs. best-case vs. worst-case).\n\n2. Hiring and performance: One rep is underperforming against quota (below 60% attainment at mid-quarter). Write a performance conversation prep note: what data to cite, what behavioral changes to request, what support to offer, and the next checkpoint.\n\n3. Deal terms handoff (cross-dept): Two deals closed this week. Prepare the deal terms summary for FIN-L03-Hadiya in Finance. For each deal include: customer name, ARR, contract length, payment terms, any special billing conditions, and the rep who owns the relationship.\n\n4. Sales meeting: Write the agenda for your weekly all-hands sales meeting (60 min). Include: metrics review, deal spotlight, training segment topic, and team announcements.",
+  "deliverables": [
+    {
+      "filename": "team-forecast-consolidated.md",
+      "description": "Manager-level forecast: pipeline by stage, weighted Q forecast, at-risk deals, personal call (commit/best/worst)"
+    },
+    {
+      "filename": "performance-conversation-prep.md",
+      "description": "Prep note for underperforming rep: data to cite, behavioral asks, support offered, next checkpoint"
+    },
+    {
+      "filename": "deal-terms-handoff-fin.md",
+      "description": "Closed-deal terms summary for FIN-L03-Hadiya: customer, ARR, length, payment terms, billing conditions, rep owner"
+    },
+    {
+      "filename": "sales-meeting-agenda.md",
+      "description": "60-minute all-hands sales meeting agenda with time-boxed segments"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-1012.00",
+      "url": "https://www.onetonline.org/link/summary/41-1012.00",
+      "quote": "Prepare sales and inventory reports for management and budget departments."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-1012.00",
+      "url": "https://www.onetonline.org/link/summary/41-1012.00",
+      "quote": "Confer with company officials to develop methods and procedures to increase sales, expand markets, and promote business."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/sales-managers.htm",
+      "quote": "Sales managers direct organizations' sales teams. They set sales goals, analyze data, and develop training programs for organizations' sales representatives."
+    }
+  ],
+  "upstreamDeskIds": ["SALES-L05-Felipe"],
+  "downstreamDeskIds": ["SALES-L07-Nathaniel", "FIN-L03-Hadiya"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the forecast cover pipeline by stage, weighted Q forecast, at-risk deals, and personal call?",
+      "Is the performance conversation prep note present with all four sections?",
+      "Does the deal terms handoff include both closed deals with all six required fields?",
+      "Does the meeting agenda include all four required segments with time boxes?"
+    ],
+    "quality": [
+      "Is the personal forecast call specific (not 'somewhere between best and worst')?",
+      "Are at-risk deals in the forecast accompanied by concrete mitigation steps?",
+      "Is the performance conversation prep written as coaching (not a PIP threat)?",
+      "Is the deal terms handoff structured so Finance can invoice without follow-up?",
+      "Is the meeting agenda balanced (not dominated by metrics review)?"
+    ],
+    "accuracy": [
+      "Does the consolidated forecast incorporate both pods' inputs consistently?",
+      "Are the deal terms in the Finance handoff consistent with the deals in the forecast?",
+      "Does the underperformer data cite a specific attainment percentage, not vague underperformance?",
+      "Are payment terms and billing conditions specific (net-30, annual upfront, etc.)?",
+      "Does the commit/best/worst spread reflect realistic range (not identical numbers)?"
+    ],
+    "handoff": [
+      "Could Nathaniel present the forecast to the VP without additional preparation?",
+      "Is FIN-L03-Hadiya able to generate invoices from the handoff document without calling Zara?",
+      "Is the performance conversation prep written so an HR rep could sit in and follow along?",
+      "Are next-step owners named in the at-risk mitigations?",
+      "Could a team member chair the sales meeting from the agenda alone?"
+    ]
+  }
+}

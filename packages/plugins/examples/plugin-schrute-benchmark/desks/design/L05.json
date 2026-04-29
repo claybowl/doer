@@ -1,0 +1,78 @@
+{
+  "id": "DES-L05-Yael",
+  "dept": "DES",
+  "level": 5,
+  "title": "Design Lead",
+  "name": "Yael",
+  "timeBudgetMin": 35,
+  "brief": "You are Yael, Design Lead. Your four ICs delivered today: Lena (empty-state wireframes + icon spec), Issa (onboarding wireframes + competitive audit), Sofía (permissions design spec + gap analysis), and Tariq (design system audit + DDR + interaction flow). You synthesize their work into a design sprint summary and ship a finalized design package to engineering.\n\nYour day:\n\n1. Sprint synthesis: write a 1-page design sprint summary that your manager (DES-L06-Kofi) can read in 3 minutes. Cover: what shipped, what's at risk, the one recommendation that matters most this week.\n2. Engineering handoff package: Sofía's permissions design spec is approved. Prepare the formal handoff note to ENG-L03-Chen — include a link to the Figma file, a summary of net-new components, the accessibility requirements, and the list of open questions that engineering must resolve before starting implementation.\n3. Design critique notes: pick ONE of the four IC deliverables and write a substantive critique. What is working, what should be revised, and what would make it production-ready.\n4. Design system priority list: using Tariq's audit as input, produce a prioritized list of 5-7 component fixes for the next design system sprint, with a one-sentence rationale per item.",
+  "deliverables": [
+    {
+      "filename": "design-sprint-summary.md",
+      "description": "1-page sprint summary: shipped, at-risk, one recommendation for DES-L06-Kofi"
+    },
+    {
+      "filename": "eng-handoff-permissions.md",
+      "description": "Formal handoff note to ENG-L03-Chen: Figma link, net-new components, a11y requirements, open questions"
+    },
+    {
+      "filename": "design-critique.md",
+      "description": "Substantive critique of one IC deliverable: what works, what to revise, what makes it production-ready"
+    },
+    {
+      "filename": "design-system-priorities.md",
+      "description": "5-7 component fixes prioritized for next design system sprint, with rationale per item"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Review final layouts and suggest improvements, as needed."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1255.00",
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "quote": "Collaborate with management or users to develop e-commerce strategies and to integrate these strategies with Web sites."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/computer-and-information-technology/web-developers.htm",
+      "quote": "Web designers are responsible for the visual aspects of websites, including layout, color, and font choices."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L01-Lena", "DES-L02-Issa", "DES-L03-Sofía", "DES-L04-Tariq"],
+  "downstreamDeskIds": ["DES-L06-Kofi", "ENG-L03-Chen"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the sprint summary reference all four upstream ICs' contributions?",
+      "Does the engineering handoff note address net-new components, a11y, and open questions?",
+      "Is the design critique substantive (specific, not generic)?",
+      "Are 5-7 design system priorities listed with rationale?"
+    ],
+    "quality": [
+      "Is the sprint summary scannable in under 3 minutes?",
+      "Does the engineering handoff give Chen everything needed without a follow-up meeting?",
+      "Does the critique push back on something specific rather than just validating the work?",
+      "Are design system priorities genuinely ranked (not alphabetical or random)?",
+      "Is the writing decisive, not diplomatic to the point of being useless?"
+    ],
+    "accuracy": [
+      "Does Yael accurately characterize each IC's contribution in the sprint summary?",
+      "Does the engineering handoff correctly identify which components are net-new vs. existing?",
+      "Is the critique specific to the IC's actual deliverable (not a generic design checklist)?",
+      "Do design system priorities reflect Tariq's severity ratings (critical items first)?",
+      "Is the recommendation in the sprint summary supported by the upstream evidence?"
+    ],
+    "handoff": [
+      "Could ENG-L03-Chen begin implementation from the handoff note without contacting Yael?",
+      "Could DES-L06-Kofi run a 1:1 with each IC using the sprint summary?",
+      "Are blockers from the team flagged explicitly to the manager?",
+      "Is the design system priority list ready to drop into a sprint planning meeting?",
+      "Does the handoff note name ENG-L03-Chen explicitly as the recipient?"
+    ]
+  }
+}

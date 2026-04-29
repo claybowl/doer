@@ -1,0 +1,69 @@
+{
+  "id": "DES-L02-Issa",
+  "dept": "DES",
+  "level": 2,
+  "title": "Product Designer",
+  "name": "Issa",
+  "timeBudgetMin": 25,
+  "brief": "You are Issa, a Product Designer. You have two related tasks today that both feed the upcoming onboarding redesign initiative.\n\n1. Wireframe the new user onboarding flow: 4-6 screens covering account setup, first workspace creation, team invite, and the 'aha moment' screen. Each screen needs annotated interaction notes — what tapping/clicking each element does, any conditional logic (e.g., 'skip if solo user'), and microcopy placeholders.\n\n2. Conduct a lightweight competitive audit: pick 2 comparable SaaS onboarding flows (name them, describe 2-3 design patterns each uses), then write a 1-page synthesis of what patterns we should borrow and what we should avoid. This informs the Design Lead's synthesis.\n\nYour wireframes are mid-fidelity — enough to communicate structure and interaction, not pixel-perfect. Prioritize flow logic over visual polish.",
+  "deliverables": [
+    {
+      "filename": "onboarding-wireframes.figma-export.png",
+      "description": "4-6 annotated mid-fidelity screens covering account setup, workspace creation, team invite, aha moment"
+    },
+    {
+      "filename": "competitive-audit.md",
+      "description": "2 competitor onboarding flows analyzed, patterns catalogued, 1-page synthesis of borrow/avoid"
+    },
+    {
+      "filename": "interaction-notes.md",
+      "description": "Per-screen interaction notes: tap targets, conditional logic, microcopy placeholders"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1255.00",
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "quote": "Conduct user research to determine design requirements and analyze user feedback to improve design quality."
+    },
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Prepare illustrations or rough sketches of material, discussing them with clients or supervisors and making necessary changes."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["DES-L05-Yael"],
+  "rubric": {
+    "completion": [
+      "Are 4-6 onboarding screens produced?",
+      "Do screens cover all four stages (account setup, workspace, invite, aha moment)?",
+      "Are 2 competitors named and analyzed with 2-3 patterns each?",
+      "Is a borrow/avoid synthesis present as a separate document?",
+      "Are interaction notes separated from the wireframe annotations?"
+    ],
+    "quality": [
+      "Are wireframes mid-fidelity (not just boxes with no structure)?",
+      "Does the competitive audit reference real, comparable SaaS products?",
+      "Does the synthesis make concrete, actionable recommendations?",
+      "Are conditional logic branches (e.g., solo vs. team) visually indicated?",
+      "Is the writing scannable and free of vague design-speak?"
+    ],
+    "accuracy": [
+      "Do the screens cover a realistic onboarding sequence without missing steps?",
+      "Are the competitor patterns accurately described (not invented)?",
+      "Does the synthesis connect competitor observations to this product's context?",
+      "Are microcopy placeholders written in the correct tone and length?",
+      "Are interaction notes technically plausible for a typical web app?"
+    ],
+    "handoff": [
+      "Could DES-L05-Yael include these wireframes in a design review without rework?",
+      "Are the interaction notes usable by an engineer without asking Issa for clarification?",
+      "Is the competitive audit framed as design input, not just a feature list?",
+      "Are screen names/IDs consistent across all three deliverables?",
+      "Did Issa flag any open questions about the onboarding flow scope?"
+    ]
+  }
+}

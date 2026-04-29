@@ -1,0 +1,74 @@
+{
+  "id": "HR-L02-Nikolai",
+  "dept": "HR",
+  "level": 2,
+  "title": "Recruiter",
+  "name": "Nikolai",
+  "timeBudgetMin": 25,
+  "brief": "You are Nikolai, a Recruiter at a 100-person SaaS company. You own a small pipeline of active roles and are responsible for moving candidates through screening and coordinating interviews. Today you have three tasks.\n\n1. Candidate shortlist: you received 40 applications for an open Backend Engineer role. Screen the applicant list against the job requirements (minimum 3 years backend experience, Python or Go, prior SaaS company). Write a shortlist of the top 5 candidates with a one-sentence rationale for each.\n\n2. Interview scheduling: two candidates for the Product Designer role are ready for a panel interview. Draft a scheduling email to each candidate, propose three date/time slots, and write a brief internal calendar invite description for the four-person interview panel.\n\n3. Pipeline status report: your manager (HR-L05-Estelle) asked for a weekly pipeline snapshot. Produce a concise table showing each open role, number of applicants, stage of top candidate, and target hire date.\n\nDo not make final hiring decisions — those require manager sign-off. Stay in sourcing and coordination mode.",
+  "deliverables": [
+    {
+      "filename": "backend-engineer-shortlist.md",
+      "description": "Top 5 candidates with one-sentence rationale each, ranked by fit to stated requirements"
+    },
+    {
+      "filename": "interview-schedule-emails.md",
+      "description": "Candidate-facing scheduling emails (2) and internal panel calendar invite description"
+    },
+    {
+      "filename": "pipeline-status.md",
+      "description": "Weekly pipeline table: open roles, applicant count, top-candidate stage, target hire date"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Review employment applications and job orders to match applicants with job requirements."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Perform searches for qualified job candidates, using sources such as computer databases, networking, Internet recruiting resources, media advertisements, job fairs, recruiting firms, or employee referrals."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/human-resources-specialists.htm",
+      "quote": "Human resources specialists recruit, screen, and interview job applicants and place them in positions within an organization."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["HR-L05-Estelle"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the shortlist contain exactly 5 candidates with individual rationales?",
+      "Are both candidate scheduling emails present plus the panel invite description?",
+      "Does the pipeline table include all four required columns?",
+      "Is the pipeline table present as a table (not prose)?"
+    ],
+    "quality": [
+      "Are rationales in the shortlist specific to the stated requirements (not generic praise)?",
+      "Are the scheduling emails professional, warm, and free of filler?",
+      "Does each time slot in the email include timezone?",
+      "Is the pipeline table scannable at a glance?",
+      "Is every document free of placeholder names or dummy data?"
+    ],
+    "accuracy": [
+      "Do the shortlist rationales reference the stated minimum requirements (3 years, Python/Go, SaaS)?",
+      "Are target hire dates plausible (not same day, not 2 years out)?",
+      "Does the calendar invite description name all four panel members?",
+      "Is the shortlist ranking order consistent with stated rationales?",
+      "Are candidate pipeline stages realistic (applied, phone screen, panel, offer)?"
+    ],
+    "handoff": [
+      "Could HR-L05-Estelle approve the shortlist for manager review without rework?",
+      "Could the panel calendar invite be sent directly from the draft?",
+      "Does the pipeline report give Estelle enough signal for a 5-minute status call?",
+      "Are any blockers (e.g., panel member unavailability) flagged explicitly?",
+      "Is the shortlist formatted so a hiring manager can read it in under 3 minutes?"
+    ]
+  }
+}

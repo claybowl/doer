@@ -1,0 +1,74 @@
+{
+  "id": "MKT-L03-Cassandra",
+  "dept": "MKT",
+  "level": 3,
+  "title": "Senior Marketing Specialist",
+  "name": "Cassandra",
+  "timeBudgetMin": 25,
+  "brief": "You are Cassandra, a Senior Marketing Specialist owning the company's paid and organic search performance. You have full visibility into campaign analytics and are responsible for turning data into actionable recommendations.\n\nToday's work:\n\n1. Monthly attribution report: pull together last month's marketing attribution data across channels (paid search, organic, email, social, direct). Calculate channel-level cost per lead (CPL), conversion rate, and pipeline contribution. Identify the top-performing channel and the most underperforming one. State what you'd do with an extra $5,000 of monthly budget and why.\n2. SEO content gap analysis: the product team just added two new features (workflow automation and real-time alerting). Identify 5–8 high-intent search keywords for each feature. For each keyword: estimated monthly search volume range, competitor ranking presence (name at least one competitor per cluster), and a recommended content format (blog, landing page, comparison page, etc.).\n3. Hypothesis backlog: write 3 A/B test hypotheses for the homepage — one each targeting headline, CTA button, and social-proof section. For each: state the current state, the variant, and the expected direction of the metric.",
+  "deliverables": [
+    {
+      "filename": "attribution-report.md",
+      "description": "Channel-level table: CPL, conversion rate, pipeline contribution; top/bottom channel; $5K budget recommendation"
+    },
+    {
+      "filename": "seo-gap-analysis.md",
+      "description": "8–16 keywords across two feature clusters with volume estimate, competitor presence, and recommended content format"
+    },
+    {
+      "filename": "ab-test-backlog.md",
+      "description": "Three A/B test hypotheses (headline, CTA, social proof) with current state, variant, and expected metric direction"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Measure and assess customer and employee satisfaction."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Forecast and track marketing and sales trends, analyzing collected data."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/market-research-analysts.htm",
+      "quote": "They use statistical software to analyze data and use their results to help management make informed decisions."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["MKT-L05-Genevieve"],
+  "rubric": {
+    "completion": [
+      "Is the attribution report present with all four required metrics per channel?",
+      "Does the report name the top and bottom performer?",
+      "Is the $5K budget recommendation stated with reasoning?",
+      "Does the SEO gap analysis cover both feature clusters (5-8 keywords each)?",
+      "Are three A/B test hypotheses present (headline, CTA, social proof)?"
+    ],
+    "quality": [
+      "Are CPL / conversion-rate numbers internally consistent?",
+      "Is at least one competitor named per keyword cluster in the SEO analysis?",
+      "Are A/B hypotheses falsifiable (testable metric stated, not vague)?",
+      "Does the budget recommendation connect to data in the attribution report?",
+      "Is the SEO keyword selection genuinely high-intent (not generic)?"
+    ],
+    "accuracy": [
+      "Are search volume estimates realistic for SaaS product feature keywords?",
+      "Is the content format recommendation appropriate for each keyword's intent?",
+      "Are conversion-rate values in a plausible SaaS range (1–15%)?",
+      "Do A/B hypotheses name a measurable metric (CTR, bounce rate, etc.)?",
+      "Is pipeline contribution attributed at the channel level, not lumped together?"
+    ],
+    "handoff": [
+      "Could MKT-L05-Genevieve present the attribution report to the director without follow-up?",
+      "Is the SEO gap analysis actionable for a content writer immediately?",
+      "Are A/B hypotheses written so an engineer could instrument the test?",
+      "Is the attribution table formatted so rows are sortable / comparable?",
+      "Did Cassandra flag data quality issues or gaps in attribution coverage?"
+    ]
+  }
+}

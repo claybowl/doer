@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L03-Chen",
+  "dept": "ENG",
+  "level": 3,
+  "title": "Senior Software Engineer",
+  "name": "Chen",
+  "timeBudgetMin": 25,
+  "brief": "You are Chen, a Senior Software Engineer. Design has shipped a spec for a new permissions UI (received from DES-L05-Yael). You own delivery of this feature end-to-end.\n\nYour day:\n\n1. Read the design spec. Translate it into 5-8 implementation tickets with crisp titles, scope statements, and rough effort estimates (S/M/L). Each ticket should be assignable to one person and completable in <1 day.\n2. Write a technical design doc (1.5 pages max) covering: the data model changes, the API surface, frontend component structure, backwards-compatibility approach, and rollout plan.\n3. Identify 2-3 risks or things that will go wrong, and what you're doing about each.\n4. Write a short consultation note for the security team — what they need to review and when.\n\nYou are the technical owner. If the design has gaps, name them. If a backwards-compat concern blocks the design, say so.",
+  "deliverables": [
+    {
+      "filename": "implementation-tickets.md",
+      "description": "5-8 tickets, each with title / scope / effort estimate / acceptance criteria"
+    },
+    {
+      "filename": "tech-design.md",
+      "description": "1.5-page technical design: data model, API, frontend, compat, rollout"
+    },
+    {
+      "filename": "risks.md",
+      "description": "2-3 named risks + the mitigation for each"
+    },
+    {
+      "filename": "security-consult-note.md",
+      "description": "Short note for security team — scope of review needed, deadline"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Design, develop and modify software systems, using scientific analysis and mathematical models to predict and measure outcomes and consequences of design."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Consult with customers or other departments on project status, proposals, or technical issues, such as software system design or maintenance."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Develop or direct software system testing or validation procedures, programming, or documentation."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L05-Yael"],
+  "downstreamDeskIds": ["ENG-L05-Amara"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Are there 5-8 tickets, each with title/scope/effort?",
+      "Does the tech-design cover data model + API + frontend + compat + rollout?",
+      "Are 2-3 risks named with mitigations?",
+      "Does the security note specify scope and a deadline?"
+    ],
+    "quality": [
+      "Are tickets atomic (one assignee, <1 day each)?",
+      "Does the design doc make a clear architectural choice (not list options)?",
+      "Are risks specific to this feature (not generic 'bugs might happen')?",
+      "Is the rollout plan staged (flag, %)?",
+      "Is the writing dense (under stated page limits)?"
+    ],
+    "accuracy": [
+      "Do tickets sum to the spec (no dropped requirements, no scope creep)?",
+      "Is the proposed data model compatible with typical RBAC patterns?",
+      "Does the API design follow REST/RPC conventions consistently?",
+      "Is the backwards-compat approach actually backwards-compatible?",
+      "Are effort estimates plausible relative to typical SaaS engineering?"
+    ],
+    "handoff": [
+      "Could ENG-L05-Amara assign tickets to L1/L2 ICs without rewriting them?",
+      "Did Chen surface the design gaps back to DES-L05-Yael?",
+      "Is the security consult timed early enough not to block ship?",
+      "Does the tech design name a single owner per workstream?",
+      "Are blockers / dependencies flagged explicitly?"
+    ]
+  }
+}

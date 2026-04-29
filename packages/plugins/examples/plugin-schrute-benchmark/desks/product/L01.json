@@ -1,0 +1,74 @@
+{
+  "id": "PROD-L01-Jorge",
+  "dept": "PROD",
+  "level": 1,
+  "title": "Associate Product Manager",
+  "name": "Jorge",
+  "timeBudgetMin": 25,
+  "brief": "You are Jorge, an Associate Product Manager at a 100-person SaaS company. You are early in your PM career and own one narrow slice of the product: the user onboarding flow.\n\nYour day:\n\n1. You have a Jira ticket from engineering: they need acceptance criteria for a small onboarding change — the 'Skip Tour' button should be hidden for free-tier users. Write acceptance criteria that are clear enough for an engineer to implement and a QA person to test. Include at least 3 specific test cases.\n2. You received a user interview transcript from a UX researcher. Read the summary notes below and extract 3-5 user pain points in structured form (pain point → evidence quote → severity: high/medium/low). You are not designing a solution — just documenting the problem clearly.\n3. Update the onboarding funnel tracking doc: the current step-completion rates are Step 1: 94%, Step 2: 71%, Step 3: 48%, Step 4: 29%. Add a brief (3-4 sentence) narrative on where the biggest drop-off is and what it might mean.\n\nStay narrow. You are not re-designing the product. You are doing the documentation and analysis work that enables better decisions upstream.",
+  "deliverables": [
+    {
+      "filename": "acceptance-criteria-skip-tour.md",
+      "description": "Acceptance criteria for the Skip Tour button change, with ≥3 QA test cases"
+    },
+    {
+      "filename": "user-pain-points.md",
+      "description": "3-5 structured pain points extracted from interview: pain point, evidence quote, severity"
+    },
+    {
+      "filename": "onboarding-funnel-notes.md",
+      "description": "Step completion rates with a 3-4 sentence narrative on drop-off"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Analyze data gathered and develop solutions or alternative methods of proceeding."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1199.00",
+      "url": "https://www.onetonline.org/link/summary/13-1199.00",
+      "quote": "Document findings of study and prepare recommendations for implementation of new systems, procedures, or organizational changes."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts, often called management consultants, propose ways to improve an organization's efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["PROD-L05-Elena"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Do acceptance criteria include ≥3 specific QA test cases?",
+      "Are 3-5 user pain points documented in structured form?",
+      "Does each pain point include a severity rating?",
+      "Does the funnel notes doc include the step completion numbers?"
+    ],
+    "quality": [
+      "Are acceptance criteria written in a format an engineer can act on (not vague)?",
+      "Are pain points grounded in evidence quotes (not inferred)?",
+      "Is the funnel narrative analytical (not just restatement of numbers)?",
+      "Is the writing concise (no filler)?",
+      "Are test cases specific enough for a QA person to execute?"
+    ],
+    "accuracy": [
+      "Do acceptance criteria match the scope (free-tier only, no regression)?",
+      "Does the pain point severity reflect interview evidence correctly?",
+      "Is the biggest drop-off identified as Step 2→3 (71%→48%)?",
+      "Are test cases valid edge cases (not duplicates of each other)?",
+      "Is the funnel narrative hypothesis-driven, not conclusive?"
+    ],
+    "handoff": [
+      "Could an engineer implement the Skip Tour change from the acceptance criteria alone?",
+      "Could PROD-L05-Elena synthesize these pain points without re-reading raw transcripts?",
+      "Are deliverable filenames predictable and consistent?",
+      "Does Jorge flag any blockers or ambiguities to upstream?",
+      "Is the funnel doc ready to drop into a sprint review deck?"
+    ]
+  }
+}

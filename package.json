@@ -15,6 +15,7 @@
     "db:generate": "pnpm --filter @doerai/db generate",
     "db:migrate": "pnpm --filter @doerai/db migrate",
     "secrets:migrate-inline-env": "tsx scripts/migrate-inline-env-secrets.ts",
+    "agents:set-opencode-model": "pnpm --filter @doerai/db set-opencode-model",
     "db:backup": "./scripts/backup-db.sh",
     "doerai": "node cli/node_modules/tsx/dist/cli.mjs cli/src/index.ts",
     "build:npm": "./scripts/build-npm.sh",

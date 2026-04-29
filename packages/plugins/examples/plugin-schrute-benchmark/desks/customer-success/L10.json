@@ -1,0 +1,84 @@
+{
+  "id": "CS-L10-Talia",
+  "dept": "CS",
+  "level": 10,
+  "title": "Chief Customer Officer",
+  "name": "Talia",
+  "timeBudgetMin": 55,
+  "brief": "You are Talia, Chief Customer Officer. You sit on the executive team, report to the CEO, and own the company's long-term customer relationships and revenue retention strategy. The board meets in two weeks. Your two biggest mandates this quarter: protect the company's NRR above 110%, and build the CS function into a revenue-generating motion (not just a retention function).\n\n1. Customer success vision: write a 1-page exec memo for the CEO and board articulating the 18-month CS vision. What does world-class customer success look like for this company? What is the single biggest strategic bet? Where are you explicitly NOT investing? This should be memorable and hard to misread.\n\n2. Board pre-read — CS section: the board meets in 14 days. Write the CS section of the board pre-read (1 page). Cover: NRR status vs. target, top churn risk summary (3 accounts, total ARR at risk), expansion wins, and the CS team's 90-day plan. Use Idowu's inputs. Make it count — board members have 4 minutes for this section.\n\n3. CS revenue strategy: CS is being asked to own a net-new expansion target of $800K next quarter. Write a 1-page strategy for how CS achieves this number: which account segments, which expansion motions (upsell, cross-sell, seat expansion), CS/Sales split on ownership, and the risk if the target is missed.\n\n4. CEO 1:1 prep: write 5-7 bullets for your weekly CEO 1:1 tomorrow. Mix: one win you want credit for, one risk they need to hear from you first, one ask (headcount, budget, or decision), and one cross-functional friction that needs CEO resolution.\n\nAt this level, your job is to make decisions stick and outcomes legible. Every word is load-bearing.",
+  "deliverables": [
+    {
+      "filename": "cs-vision-memo.md",
+      "description": "1-page 18-month CS vision: what world-class looks like, single biggest bet, explicit non-investments"
+    },
+    {
+      "filename": "board-pre-read-cs-final.md",
+      "description": "1-page board CS section: NRR vs. target, top 3 churn risks, expansion wins, 90-day plan"
+    },
+    {
+      "filename": "cs-revenue-strategy.md",
+      "description": "1-page expansion strategy: $800K target, segments, motions, CS/Sales split, miss risk"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets for CEO 1:1: win, risk, ask, cross-functional friction needing CEO resolution"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Identify, develop, or evaluate marketing strategy, based on knowledge of establishment objectives, market characteristics, and cost and markup factors."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Direct or coordinate production, processing, distribution, or marketing activities of industrial organizations."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "Chief Customer Officers who tie CS to a revenue expansion target signal board-level maturity of the CS function."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L09-Idowu"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the vision memo state ONE single biggest bet (not a list)?",
+      "Does the board pre-read cover NRR, churn risks, expansion wins, and 90-day plan?",
+      "Does the revenue strategy name specific expansion motions and the CS/Sales ownership split?",
+      "Are 5-7 CEO 1:1 bullets present with the required mix (win, risk, ask, friction)?"
+    ],
+    "quality": [
+      "Is the vision memo memorable and unambiguous (would two executives read it the same way)?",
+      "Does the board pre-read use real numbers (not directional language like 'trending up')?",
+      "Does the revenue strategy state what happens if the $800K target is missed?",
+      "Is the CEO 1:1 prep focused on what Talia uniquely knows (not a status report)?",
+      "Are non-investments in the vision memo explicit (not just 'we'll focus on X')?"
+    ],
+    "accuracy": [
+      "Does the board pre-read use NRR figures consistent with Idowu's forecast upstream?",
+      "Is the 110% NRR floor referenced as the protection threshold?",
+      "Does the $800K expansion target break down plausibly across segments and motions?",
+      "Do the top 3 churn risks in the board pre-read match the accounts Astrid flagged?",
+      "Is the CS/Sales ownership split on expansion internally consistent with the team's current structure?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting from the board pre-read alone?",
+      "Could the CFO model the CS revenue strategy without a follow-up call?",
+      "Does the vision memo set up the next quarter's OKR cascade for Idowu?",
+      "Could a board member ask 2-3 questions and get full answers from the pre-read?",
+      "Does the CEO 1:1 prep include the one piece of news they should hear from Talia first?"
+    ]
+  }
+}

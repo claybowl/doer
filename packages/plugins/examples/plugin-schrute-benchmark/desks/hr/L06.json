@@ -1,0 +1,74 @@
+{
+  "id": "HR-L06-Karim",
+  "dept": "HR",
+  "level": 6,
+  "title": "People Manager",
+  "name": "Karim",
+  "timeBudgetMin": 35,
+  "brief": "You are Karim, People Manager at a 100-person SaaS company. You manage a team of 4 HR specialists and own the day-to-day operations of the People function. You receive synthesized output from Estelle (HR-L05) and translate it into action plans, program decisions, and manager coaching.\n\n1. Quarterly people program plan: based on Estelle's weekly snapshot and attrition memo, write a one-page plan for the next 90 days of People programming. Cover: recruiting goals (headcount targets, time-to-hire targets), retention interventions to run, performance review cycle status, and employee engagement initiative. State explicit owners and completion dates for each item.\n\n2. Manager coaching guide: three people managers in Engineering asked for help running Q3 performance reviews. Write a concise manager guide — how to prepare for the conversation, what good feedback looks like vs. bad, how to document the rating, and what to do when a manager and employee disagree on the rating.\n\n3. Employee survey design: the Q3 engagement survey is due next month. Design the survey — 10 questions maximum, each with a Likert scale (1-5) plus one open-text option. Include a brief rationale for why each question is included (based on what the attrition data suggests is at risk).\n\nYou plan and delegate; you do not do IC recruiting work yourself.",
+  "deliverables": [
+    {
+      "filename": "q3-people-program-plan.md",
+      "description": "90-day People program plan: recruiting goals, retention interventions, perf review status, engagement initiative, owners and dates"
+    },
+    {
+      "filename": "manager-perf-review-guide.md",
+      "description": "Guide for people managers: conversation prep, feedback quality, documentation, rating disputes"
+    },
+    {
+      "filename": "q3-engagement-survey.md",
+      "description": "10-question engagement survey with Likert scales, one open-text option, and rationale for each question"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Plan, direct, supervise, and coordinate work activities of subordinates and staff relating to employment, compensation, labor relations, and employee relations."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3121.00",
+      "url": "https://www.onetonline.org/link/summary/11-3121.00",
+      "quote": "Analyze training needs to design employee development, language training, and health and safety programs."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/human-resources-managers.htm",
+      "quote": "Human resources managers plan, direct, and coordinate the administrative functions of an organization."
+    }
+  ],
+  "upstreamDeskIds": ["HR-L05-Estelle"],
+  "downstreamDeskIds": ["HR-L07-Brigit"],
+  "rubric": {
+    "completion": [
+      "All three deliverables present?",
+      "Does the 90-day plan cover all four areas: recruiting, retention, perf review, engagement?",
+      "Does each program item have an explicit owner and completion date?",
+      "Does the manager guide cover all four topics: prep, feedback quality, documentation, disputes?",
+      "Does the survey have exactly 10 questions with rationale for each?"
+    ],
+    "quality": [
+      "Is the 90-day plan concrete enough that progress could be tracked weekly?",
+      "Does the manager guide give a real example of good feedback vs. bad (not just labels)?",
+      "Are survey questions distinct (no overlap between questions)?",
+      "Is the survey rationale tied to attrition data from Estelle's memo?",
+      "Is the plan formatted so it could become a project board without rewriting?"
+    ],
+    "accuracy": [
+      "Do recruiting targets in the plan align with Estelle's pipeline snapshot?",
+      "Are performance review timelines realistic for a Q3 cycle?",
+      "Are retention interventions from Estelle's memo reflected in the program plan?",
+      "Does the manager guide correctly describe what documentation is required for a rating dispute?",
+      "Are the 10 survey questions covering distinct engagement dimensions?"
+    ],
+    "handoff": [
+      "Could HR-L07-Brigit run a team planning meeting from the 90-day plan?",
+      "Could an engineering manager run a performance review meeting with only this guide?",
+      "Is the survey ready to be handed to a survey platform (Typeform, Culture Amp) with no rewrites?",
+      "Are ownership assignments in the plan named to specific roles (not 'the team')?",
+      "Does the plan call out dependencies on other departments (e.g., Finance for compensation adjustments)?"
+    ]
+  }
+}

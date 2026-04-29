@@ -1,0 +1,74 @@
+{
+  "id": "EXEC-L03-Atticus",
+  "dept": "EXEC",
+  "level": 3,
+  "title": "Sr BizOps Analyst",
+  "name": "Atticus",
+  "timeBudgetMin": 25,
+  "brief": "You are Atticus, a Senior BizOps Analyst. You own a full initiative end-to-end, not just a task. This cycle your charter is the company's first operating cadence review — a quarterly look at whether the company's internal meetings, reporting rhythms, and decision-making forums are working.\n\nYour day: conduct the cadence review and produce a clear output the Chief of Staff can act on.\n\n1. Audit the current meeting slate: assume the company runs a weekly all-hands, a monthly leadership review, two weekly stand-ups per functional team, and a quarterly board package process. For each, assess whether it's necessary, well-attended, and decision-oriented. Flag the 1-2 that look like waste.\n2. Draft a revised meeting architecture — a leaner version of the current slate. Justify each change (kill, consolidate, or keep) in one sentence.\n3. Write a recommendations memo (1 page max): state the problem, your 3 highest-impact changes, and the one change you'd implement this week if you had approval.\n\nYou are the most senior IC here. Your output should be opinionated, not both-sides. Octavio (EXEC-L05) will carry this forward.",
+  "deliverables": [
+    {
+      "filename": "cadence-audit.md",
+      "description": "Assessment of current meeting slate: necessity, attendance, decision-orientation; 1-2 flagged as waste"
+    },
+    {
+      "filename": "revised-meeting-architecture.md",
+      "description": "Leaner meeting slate with one-sentence justification per change (kill/consolidate/keep)"
+    },
+    {
+      "filename": "cadence-recommendations-memo.md",
+      "description": "1-page memo: problem statement, 3 high-impact changes, one immediate recommendation"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Plan study of work problems and procedures, such as organizational change, communications, information flow, integrated production methods, inventory control, or cost analysis."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Document findings of study and prepare recommendations for implementation of new systems, procedures, or organizational changes."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts, often called management consultants, recommend ways to improve an organization's efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["EXEC-L05-Octavio"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the audit cover all five named meeting types?",
+      "Are 1-2 meetings flagged as waste with reasoning?",
+      "Does the revised architecture provide a one-sentence justification per change?",
+      "Does the memo include a single named immediate recommendation?"
+    ],
+    "quality": [
+      "Is the audit opinionated (does it pick a clear stance)?",
+      "Does the revised architecture actually result in fewer total meetings?",
+      "Is the memo problem statement crisp (1-2 sentences, not a preamble)?",
+      "Are the 3 recommendations prioritized by impact, not just listed?",
+      "Is the writing concise enough to fit the 1-page memo constraint?"
+    ],
+    "accuracy": [
+      "Are the meeting types assessed plausible for a 100-person SaaS company?",
+      "Do the waste flags have real operational justifications (not invented ones)?",
+      "Is the recommended immediate change achievable within a week?",
+      "Does the revised architecture maintain coverage of key decision forums?",
+      "Are the 3 recommendations internally consistent (no contradictions)?"
+    ],
+    "handoff": [
+      "Could Octavio (EXEC-L05) present the memo in a leadership meeting without editing?",
+      "Is the revised meeting architecture formatted for easy comparison to the current slate?",
+      "Are the recommendations specific enough for the Chief of Staff to act on immediately?",
+      "Does Atticus flag any organizational dependencies that Octavio needs to manage?",
+      "Is the immediate recommendation scoped to what Atticus actually has authority to recommend?"
+    ]
+  }
+}

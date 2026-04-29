@@ -1,0 +1,78 @@
+{
+  "id": "DES-L08-Caelan",
+  "dept": "DES",
+  "level": 8,
+  "title": "Director of Design",
+  "name": "Caelan",
+  "timeBudgetMin": 45,
+  "brief": "You are Caelan, Director of Design. You own the entire design function — product design, brand, and design systems — across a ~20-person design org. You report to the VP of Design (DES-L09-Rohan) and partner directly with the CPO and engineering leadership.\n\nYour day:\n\n1. Department strategy memo: write a 2-page strategy document covering: where the design function invests next quarter (with explicit cuts), what design's role is in the upcoming platform consolidation (partner or driver?), and what 'exceptional design quality' means for this company specifically.\n2. Design systems investment case: the design system team has a backlog of 40 open issues and three IC positions that have been vacant for 6 months. Write a 1-page business case for resolving this — cover the cost of inconsistency (developer time, QA debt, support tickets), the cost of hiring, and the risk of not acting.\n3. Hiring plan: headcount asks for next quarter by team and level, with cost of not filling each slot. (Feeds DES-L09-Rohan for budget discussions.)\n4. Brand guidelines review: the brand team produced a first draft of updated brand guidelines. Write a substantive review — what to approve, what to send back, and one principle that is currently missing from the guidelines entirely.",
+  "deliverables": [
+    {
+      "filename": "design-dept-strategy.md",
+      "description": "2-page strategy memo: investment areas, explicit cuts, design's role in platform consolidation, quality definition"
+    },
+    {
+      "filename": "design-systems-business-case.md",
+      "description": "1-page business case: cost of inconsistency, cost of hiring, risk of inaction"
+    },
+    {
+      "filename": "hiring-plan.md",
+      "description": "Headcount asks by team and level with cost-of-not-filling for each slot"
+    },
+    {
+      "filename": "brand-guidelines-review.md",
+      "description": "Substantive review: what to approve, what to revise, one missing principle"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Identify, develop, or evaluate marketing strategy, based on knowledge of establishment objectives, market characteristics, and cost and markup factors."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Advertising, promotions, and marketing managers plan programs to generate interest in products or services."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L07-Mira"],
+  "downstreamDeskIds": ["DES-L09-Rohan"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the strategy memo cover invest, cut, platform role, and quality definition?",
+      "Does the business case quantify cost of inconsistency (not just assert it)?",
+      "Does the hiring plan include cost of not filling each slot?",
+      "Does the brand review name exactly one missing principle?"
+    ],
+    "quality": [
+      "Does the strategy memo make explicit cuts (not additions only)?",
+      "Is the business case structured for a CFO/exec audience, not a design audience?",
+      "Is the hiring plan defensible at a budget conversation?",
+      "Is the brand guidelines review substantive (specific critiques, not 'looks good')?",
+      "Is the quality definition in the strategy memo specific to this company's context?"
+    ],
+    "accuracy": [
+      "Are the design system backlog numbers (40 issues, 3 vacancies) used consistently?",
+      "Are cost-of-inconsistency estimates realistic (developer hours, QA overhead)?",
+      "Does the strategy reflect Mira's cycle plan and staffing brief upstream?",
+      "Is the brand review critique technically valid design feedback?",
+      "Are headcount numbers internally consistent with current team size?"
+    ],
+    "handoff": [
+      "Could DES-L09-Rohan take the hiring plan and business case into a budget meeting?",
+      "Could the brand team act on the guidelines review without a follow-up call?",
+      "Is the strategy memo ready for DES-L09-Rohan to brief the exec team?",
+      "Are downstream decisions and owners named explicitly?",
+      "Did Caelan flag what decisions Rohan needs to make before Caelan can proceed?"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "CS-L06-Lakshmi",
+  "dept": "CS",
+  "level": 6,
+  "title": "Customer Success Manager (People Manager)",
+  "name": "Lakshmi",
+  "timeBudgetMin": 35,
+  "brief": "You are Lakshmi, CS Manager with five direct reports (Hina, Marco, Babatunde, Sigrid, and Theo). You own the health of the entire CS delivery team and report to Dion (CS-L07). You also manage the cross-functional relationship with the product team.\n\n1. Manager sync prep: Theo has handed you this week's CS team health report. Before your 1:1 with Dion, write a concise manager brief (half a page) that distills the team's health into 3-5 bullet points — wins, risks, asks. Include one specific ask of Dion (headcount, escalation support, tooling).\n\n2. Bug list and feature request handoff: using the product input brief from Sigrid (L4), compile a consolidated list of the top 5 bugs and top 5 feature requests from the CS team's accounts. Write a short cover note and send this package to PROD-L03-Kai for triage. Be clear about priority and account impact — Kai needs enough context to compare against the product backlog.\n\n3. Performance snapshot: write a one-paragraph performance note for each of your five reports. Be direct — what is each person doing well, and what is the one thing they should work on next cycle. These notes feed your quarterly review cycle.\n\nThe handoff to PROD-L03-Kai is a fixed cross-departmental edge. Make it count.",
+  "deliverables": [
+    {
+      "filename": "manager-brief-wk.md",
+      "description": "Half-page brief for Dion: 3-5 bullets on team health (wins, risks, asks), one specific ask"
+    },
+    {
+      "filename": "cs-to-product-handoff.md",
+      "description": "Cover note + top 5 bugs + top 5 feature requests for PROD-L03-Kai, with priority and account impact"
+    },
+    {
+      "filename": "team-performance-snapshot.md",
+      "description": "One-paragraph performance note per report (Hina, Marco, Babatunde, Sigrid, Theo)"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Direct the hiring, training, or performance evaluations of marketing or sales staff and oversee their daily activities."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising or promotion managers."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "CS-to-Product feedback loops that are structured (not ad-hoc) drive measurably faster resolution of top customer friction points."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L05-Theo", "CS-L04-Sigrid"],
+  "downstreamDeskIds": ["CS-L07-Dion", "PROD-L03-Kai"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the manager brief contain 3-5 bullets (wins, risks, asks)?",
+      "Is one specific ask of Dion included in the brief?",
+      "Does the product handoff contain exactly 5 bugs and 5 feature requests?",
+      "Are all five direct reports covered in the performance snapshot?"
+    ],
+    "quality": [
+      "Is the manager brief concise (half a page, not a full report)?",
+      "Does the product handoff include account impact for each item (not just a list)?",
+      "Are performance notes direct and specific (not generic praise/criticism)?",
+      "Is the cover note to Kai written for a product audience?",
+      "Does the specific ask of Dion have a rationale attached?"
+    ],
+    "accuracy": [
+      "Does the manager brief accurately reflect the health report from Theo?",
+      "Is the product handoff clearly attributed to CS-team account feedback (not invented)?",
+      "Do the performance notes match each person's role level and observed behavior?",
+      "Is the routing to PROD-L03-Kai (not another product person) explicit?",
+      "Does Lakshmi correctly escalate vs. resolve issues relative to her authority?"
+    ],
+    "handoff": [
+      "Could CS-L07-Dion read the manager brief and walk into a skip-level without prep?",
+      "Could PROD-L03-Kai triage the product handoff without a follow-up call?",
+      "Are the performance notes ready to drop into a quarterly review template?",
+      "Is the product handoff package self-contained (no reference to internal CS files)?",
+      "Does the manager brief name the one ask with enough specificity to approve or reject?"
+    ]
+  }
+}

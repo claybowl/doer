@@ -1,0 +1,75 @@
+{
+  "id": "LEGOPS-L06-Anneliese",
+  "dept": "LEGOPS",
+  "level": 6,
+  "title": "Operations Manager",
+  "name": "Anneliese",
+  "timeBudgetMin": 35,
+  "brief": "You are Anneliese, Operations Manager at a 100-person SaaS company. You sit at the legal-ops interface: you own the vendor onboarding process, the ops playbook library, and the company's RACI framework. You manage no attorneys directly — your reports are the ops coordinators — but you collaborate closely with Hideo (Senior Counsel) and report up to Vidya (Senior Procurement & Vendor Ops).\n\nToday you have three items. First, Hideo has delivered a new cloud vendor security policy. Your job is to operationalize it: translate the policy requirements into a vendor onboarding checklist (the practical steps ops coordinators run for every new cloud vendor) and identify which existing process steps need to change.\n\nSecond, Vidya has flagged that the company's RACI chart for vendor contracting is outdated — it still references roles that no longer exist. Update the RACI for the vendor contract lifecycle (NDA → MSA → sub-processor agreement → renewal) with current role names. Roles to map: Paralegal I/II, Counsel, Senior Counsel, Operations Manager, Senior Procurement Lead (Vidya), Director Ops (Soren).\n\nThird, write a 1-page ops playbook entry for the 'contract renewal reminder' process: 90-day and 30-day touchpoints, owner at each stage, escalation path if a vendor does not respond, and hand-off to legal for renewal negotiations.",
+  "deliverables": [
+    {
+      "filename": "vendor-onboarding-checklist.md",
+      "description": "Checklist translating Hideo's cloud vendor security policy into step-by-step ops coordinator actions: each step, owner, required artifact, and gating condition for next step"
+    },
+    {
+      "filename": "vendor-contract-raci.md",
+      "description": "Updated RACI table for vendor contract lifecycle (NDA → MSA → sub-processor agreement → renewal). Rows = activities, Columns = current role titles. R/A/C/I for each cell."
+    },
+    {
+      "filename": "contract-renewal-playbook.md",
+      "description": "One-page ops playbook entry: 90-day and 30-day renewal touchpoints, owner at each stage, escalation path for non-responsive vendors, hand-off to legal"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish or implement departmental policies, goals, objectives, or procedures in conjunction with board members, organization officials, or staff members."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct administrative activities directly related to making products or providing services."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Verify that all firm and regulatory policies and procedures have been documented, implemented, and communicated."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L05-Hideo"],
+  "downstreamDeskIds": ["LEGOPS-L07-Vidya"],
+  "rubric": {
+    "completion": [
+      "Is the vendor onboarding checklist produced?",
+      "Is the RACI table produced with all six current roles mapped?",
+      "Is the contract renewal playbook entry produced?",
+      "Does the checklist translate every policy requirement into a discrete step?",
+      "Does the renewal playbook include both 90-day and 30-day touchpoints?"
+    ],
+    "quality": [
+      "Is each checklist step atomic (one action, one owner, one artifact)?",
+      "Does the RACI distinguish Responsible from Accountable (not conflated)?",
+      "Is the escalation path in the renewal playbook specific (named role, named channel)?",
+      "Are gating conditions in the checklist binary (pass/fail, not 'review and assess')?",
+      "Is the playbook entry written to be executed by a coordinator without coaching?"
+    ],
+    "accuracy": [
+      "Does the checklist cover all requirements from Hideo's security policy (COI, incident notification, audit rights)?",
+      "Are RACI assignments consistent with how work actually flows (Legal = R for NDA, not ops)?",
+      "Does the renewal playbook correctly route to Hideo for negotiation at the legal hand-off point?",
+      "Are deprecated role names absent from the RACI?",
+      "Does the playbook correctly identify Anneliese as A (accountable) for the ops stages?"
+    ],
+    "handoff": [
+      "Could an ops coordinator run the vendor onboarding checklist from day one without training?",
+      "Could Vidya (L07) present the updated RACI to the department without revision?",
+      "Is the renewal playbook formatted for the ops playbook library (consistent with other entries)?",
+      "Did Anneliese flag any policy requirements that ops cannot enforce without tooling?",
+      "Could Legal use the RACI to understand their own responsibilities without asking Anneliese?"
+    ]
+  }
+}

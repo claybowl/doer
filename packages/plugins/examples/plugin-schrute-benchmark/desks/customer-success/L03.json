@@ -1,0 +1,74 @@
+{
+  "id": "CS-L03-Babatunde",
+  "dept": "CS",
+  "level": 3,
+  "title": "Customer Success Manager",
+  "name": "Babatunde",
+  "timeBudgetMin": 25,
+  "brief": "You are Babatunde, a Customer Success Manager owning a book of 30 accounts, including 5 enterprise logos. You are one week out from quarterly business reviews (QBRs) for your top three accounts.\n\n1. QBR deck outline: for your largest account, Meridian Group (500 seats, $180K ARR, 14 months old), draft a QBR slide outline — 8-10 slides covering: executive summary, product adoption metrics, ROI achieved vs. projected, open issues, roadmap preview, and proposed expansion. Do not write full slide copy — headings and 2-3 bullet points per slide.\n\n2. Account health scorecard: using the provided signals (NPS 32, feature adoption 61%, last login 3 days ago, 2 open P2 tickets), calculate a composite account health score on a 0-100 scale. Document your weighting logic and classify the account as Green / Yellow / Red.\n\n3. Escalation triage: you have three accounts flagged as at-risk this week. For each, write a one-paragraph escalation summary: what happened, what you've tried, what you need from CS-L05-Theo. Do not wait for a weekly meeting — send this now.\n\nThis is execution-level CSM work. Your deliverables feed both your team lead (Theo) and will inform the QBR conversations next week.",
+  "deliverables": [
+    {
+      "filename": "meridian-qbr-outline.md",
+      "description": "8-10 slide QBR outline for Meridian Group: headings + 2-3 bullets per slide"
+    },
+    {
+      "filename": "account-health-scorecard.md",
+      "description": "Composite health score (0-100), weighting logic, Green/Yellow/Red classification for Meridian Group"
+    },
+    {
+      "filename": "escalation-triage.md",
+      "description": "Three at-risk account escalation summaries: what happened, tried, needed from lead"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Obtain and examine all relevant information to assess validity of complaints and to determine possible causes."
+    },
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Recommend improvements in products, packaging, shipping, service, or billing methods and procedures to prevent future problems."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "Health scores combining adoption, NPS, and support load predict churn risk with greater accuracy than any single signal."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["CS-L05-Theo"],
+  "rubric": {
+    "completion": [
+      "Is the QBR outline present with 8-10 slides?",
+      "Does each slide have a heading and 2-3 bullet points?",
+      "Is the health scorecard present with a numeric score (0-100)?",
+      "Is weighting logic for the health score documented?",
+      "Are escalation summaries present for all three at-risk accounts?"
+    ],
+    "quality": [
+      "Does the QBR outline include all six required sections (exec summary, adoption, ROI, issues, roadmap, expansion)?",
+      "Is the health score classification (G/Y/R) consistent with the numeric score?",
+      "Are escalation summaries actionable (name what is needed from the lead, not just what happened)?",
+      "Is the QBR outline scannable without needing to read full slide copy?",
+      "Does the health score weighting logic add up to 100%?"
+    ],
+    "accuracy": [
+      "Does the health score correctly use all four provided signals (NPS, adoption, last login, open tickets)?",
+      "Is the account context (500 seats, $180K ARR, 14 months) referenced correctly in the QBR?",
+      "Are escalation summaries distinguishable from one another (not templated copies)?",
+      "Is the NPS of 32 interpreted correctly (below industry threshold)?",
+      "Does the QBR include an expansion proposal section as required?"
+    ],
+    "handoff": [
+      "Could CS-L05-Theo action the escalation summaries without follow-up?",
+      "Could Babatunde's sales counterpart use the QBR outline directly for prep?",
+      "Does the health scorecard methodology explain itself to a non-CS audience?",
+      "Are escalation summaries formatted for quick review (not buried in prose)?",
+      "Is the QBR outline clearly labeled for Meridian Group (not generic)?"
+    ]
+  }
+}

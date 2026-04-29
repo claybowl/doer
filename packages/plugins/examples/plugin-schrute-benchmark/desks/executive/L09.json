@@ -1,0 +1,78 @@
+{
+  "id": "EXEC-L09-Kwame",
+  "dept": "EXEC",
+  "level": 9,
+  "title": "President",
+  "name": "Kwame",
+  "timeBudgetMin": 55,
+  "brief": "You are Kwame, President. You report to Konstantin (CEO, EXEC-L10) and run the day-to-day of the business — GTM, Ops, and cross-functional execution. The company is four weeks from its annual board meeting. Petra (SVP Ops) sent you her strategy memo and hiring brief this morning. Finance (FIN-L10-Reginald) will deliver the board forecast to Konstantin shortly; your job is to make sure the operational narrative is board-ready.\n\nYour day:\n\n1. Operating plan narrative: a 2-page document for the board pre-read. Translate Petra's ops strategy and the company's operational state into a board-digestible story. Cover: what we shipped this year, where we fell short, and what we're betting on next year. This is a narrative, not a data dump.\n2. Cross-functional Q4 review: a 1-page document summarizing how the four major functions (Engineering, Sales, Operations, Finance) performed against plan this quarter. For each, one win, one miss, one forward implication.\n3. CEO prep brief: 4-6 bullets for Konstantin. What does he need to know before the board meeting? Include one thing the board will likely push on and how you'd suggest he respond.\n4. Org structure recommendation: you think one VP-level structural change is needed before the next fiscal year. Write a 1-paragraph recommendation to Konstantin — what to change, why, and the risk of not acting.\n\nYou are one degree from the board. Write accordingly.",
+  "deliverables": [
+    {
+      "filename": "operating-plan-narrative.md",
+      "description": "2-page board pre-read narrative: shipped, fell short, next year bet"
+    },
+    {
+      "filename": "q4-cross-fn-review.md",
+      "description": "1-page Q4 review: win/miss/forward implication for Eng, Sales, Ops, Finance"
+    },
+    {
+      "filename": "ceo-prep-brief.md",
+      "description": "4-6 bullet CEO prep: key signals + anticipated board pushback + suggested response"
+    },
+    {
+      "filename": "org-structure-recommendation.md",
+      "description": "1-paragraph VP-level structural change recommendation to Konstantin"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Confer with board members, organization officials, or staff members to discuss issues, coordinate activities, or resolve problems."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Analyze operations to evaluate performance of a company or its staff in meeting objectives or to determine areas of potential cost reduction, program improvement, or policy change."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["EXEC-L08-Petra"],
+  "downstreamDeskIds": ["EXEC-L10-Konstantin"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the operating plan narrative cover all three sections (shipped, fell short, next year)?",
+      "Does the Q4 review cover all four functions with win/miss/forward structure?",
+      "Does the CEO prep brief include an anticipated board pushback with a suggested response?",
+      "Is the org structure recommendation scoped to a VP-level change?"
+    ],
+    "quality": [
+      "Is the operating plan a narrative (not a bullet-list data dump)?",
+      "Are the Q4 misses stated honestly (not euphemized)?",
+      "Is the board pushback in the CEO prep brief genuinely difficult (not softball)?",
+      "Is the org recommendation written as a recommendation (takes a stance)?",
+      "Does every document reflect Kwame's role as the person who runs the business?"
+    ],
+    "accuracy": [
+      "Does the operating plan narrative align with Petra's upstream ops strategy?",
+      "Are the four function summaries in the Q4 review internally consistent?",
+      "Does the CEO prep brief reference what FIN-L10-Reginald's forecast will likely show?",
+      "Is the org structure change scoped to next fiscal year (not immediate)?",
+      "Are 'shipped' and 'fell short' claims plausible for a 100-person SaaS company?"
+    ],
+    "handoff": [
+      "Could Konstantin walk into the board meeting with only Kwame's CEO prep brief?",
+      "Is the operating plan narrative ready to include in the board pre-read packet?",
+      "Does the Q4 review give each function leader a clear signal on their standing?",
+      "Could a board member ask 1-2 questions and have them answered by the narrative?",
+      "Does the org recommendation give Konstantin enough context to decide in one conversation?"
+    ]
+  }
+}

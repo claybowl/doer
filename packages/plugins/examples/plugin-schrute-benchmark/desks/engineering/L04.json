@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L04-Sergei",
+  "dept": "ENG",
+  "level": 4,
+  "title": "Staff Engineer",
+  "name": "Sergei",
+  "timeBudgetMin": 35,
+  "brief": "You are Sergei, a Staff Engineer. Three teams (auth, billing, integrations) are independently considering adopting a new event-streaming dependency (Kafka vs NATS vs Pulsar). Your job is to make the call and write it up so it sticks.\n\nYour day:\n\n1. Write an Architecture Decision Record (ADR) using the standard template (Context / Decision / Consequences / Status). Pick one of the three options. Defend it.\n2. Produce a dependency analysis: for each of the 3 teams, list how this decision affects their current systems and what they'll need to change. Be specific.\n3. Write a migration plan with phases (proof of concept → pilot team → broader rollout) and rough timing.\n4. Identify 2-3 things that could make this decision wrong in 18 months, and what you'd watch for.\n\nYou are not directly managing anyone. Your authority is technical credibility — the writing has to do the work.",
+  "deliverables": [
+    {
+      "filename": "adr-event-streaming.md",
+      "description": "ADR with Context/Decision/Consequences/Status sections; 1.5 pages max"
+    },
+    {
+      "filename": "dependency-impact.md",
+      "description": "Per-team impact analysis: auth, billing, integrations — what changes for each"
+    },
+    {
+      "filename": "migration-plan.md",
+      "description": "Phased rollout plan with rough timing"
+    },
+    {
+      "filename": "decision-watchlist.md",
+      "description": "2-3 indicators that would invalidate the decision; tripwires"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Confer with systems analysts, engineers, programmers and others to design systems and to obtain information on project limitations and capabilities, performance requirements and interfaces."
+    },
+    {
+      "source": "O*NET",
+      "code": "15-1252.00",
+      "url": "https://www.onetonline.org/link/summary/15-1252.00",
+      "quote": "Analyze information to determine, recommend, and plan installation of a new system or modification of an existing system."
+    },
+    {
+      "source": "Industry Report",
+      "code": "ThoughtWorks Tech Radar",
+      "url": "https://www.thoughtworks.com/radar",
+      "quote": "Used as the convention for ADR structure and for tracking dependency adoption phases."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["ENG-L05-Amara", "ENG-L08-Esther"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the ADR follow Context/Decision/Consequences/Status structure?",
+      "Does the impact doc cover all 3 teams (auth, billing, integrations)?",
+      "Does the migration plan have at least 3 phases?",
+      "Are the watchlist tripwires concrete (not vague)?"
+    ],
+    "quality": [
+      "Does the ADR pick one option and commit, not hedge?",
+      "Does the impact doc tell each team what they'll change, not what they'll consider?",
+      "Is the migration plan staged with checkpoints?",
+      "Do the tripwires have measurable triggers (not 'if it gets bad')?",
+      "Is technical reasoning sound (CAP, throughput, ops burden)?"
+    ],
+    "accuracy": [
+      "Are the three options described correctly (Kafka/NATS/Pulsar properties)?",
+      "Are claims about ops burden, throughput, and ecosystem realistic?",
+      "Are the per-team impacts plausible given typical SaaS architectures?",
+      "Does the migration timing reflect typical adoption realities?",
+      "Are the watchlist indicators things you can actually observe?"
+    ],
+    "handoff": [
+      "Could ENG-L05-Amara align her teams from this ADR alone?",
+      "Could ENG-L08-Esther fund this decision without further questions?",
+      "Did Sergei name the affected teams explicitly?",
+      "Is each phase of the migration assigned a directional owner?",
+      "Are next-step actions clear?"
+    ]
+  }
+}

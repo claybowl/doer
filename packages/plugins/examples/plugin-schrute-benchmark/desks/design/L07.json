@@ -1,0 +1,78 @@
+{
+  "id": "DES-L07-Mira",
+  "dept": "DES",
+  "level": 7,
+  "title": "Senior Design Manager",
+  "name": "Mira",
+  "timeBudgetMin": 45,
+  "brief": "You are Mira, Senior Design Manager. You manage two design managers (Kofi and a second unnamed team) and own the design function's delivery across the full product surface. Your director is DES-L08-Caelan.\n\nYour day:\n\n1. Cycle plan: the new product cycle starts in one week. Write a two-page cycle ownership plan that covers: the three highest-priority design initiatives (with stated rationale), which manager owns each, the research work that needs to happen before design starts, and the definition of done for each initiative.\n2. Design quality standard update: the team has been inconsistent on interaction documentation. Write a 1-page updated standard for how interaction flows should be documented — what must be included, what format is acceptable, and what triggers a rework request. This becomes a team-level operating norm.\n3. Hiring input: Caelan has asked for a staffing brief. Write a 1-2 page brief covering: current team composition by level and specialization, where the capability gaps are, the profile of the one hire that would have the highest leverage, and salary band guidance.\n4. Stakeholder update: Product leadership asked for a design status update on two key initiatives. Write a 1-page stakeholder memo (not for designers — for PMs and execs) covering progress, risk, and what they need to decide.",
+  "deliverables": [
+    {
+      "filename": "cycle-plan.md",
+      "description": "Two-page cycle ownership plan: top 3 initiatives, owners, research prerequisites, definition of done"
+    },
+    {
+      "filename": "interaction-doc-standard.md",
+      "description": "1-page updated interaction documentation standard: required elements, format, rework triggers"
+    },
+    {
+      "filename": "staffing-brief.md",
+      "description": "1-2 page staffing brief: team composition, capability gaps, highest-leverage hire profile, salary band"
+    },
+    {
+      "filename": "stakeholder-memo.md",
+      "description": "1-page stakeholder memo for PM/exec: design progress, risk, decisions needed"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising or promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Research the target audience of projects."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Advertising, promotions, and marketing managers coordinate and assess the activities of their teams."
+    }
+  ],
+  "upstreamDeskIds": ["DES-L06-Kofi"],
+  "downstreamDeskIds": ["DES-L08-Caelan"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the cycle plan cover all three initiatives with owner, research prereqs, and definition of done?",
+      "Does the interaction doc standard specify what triggers a rework request?",
+      "Does the staffing brief include salary band guidance?",
+      "Is the stakeholder memo 1 page and targeted at non-designers?"
+    ],
+    "quality": [
+      "Is the cycle plan genuinely prioritized (not a wish list of everything)?",
+      "Is the interaction doc standard prescriptive enough to resolve the inconsistency it targets?",
+      "Is the highest-leverage hire profile specific (seniority, specialization, experience markers)?",
+      "Is the stakeholder memo written in PM/exec language (outcomes, not design process)?",
+      "Are all four documents concrete rather than aspirational?"
+    ],
+    "accuracy": [
+      "Does the cycle plan reflect the active work streams from Kofi's upstream status?",
+      "Are the three prioritized initiatives consistent with known product priorities?",
+      "Is the interaction doc standard technically consistent with current team practices?",
+      "Is the salary band guidance realistic for a senior design hire in 2025?",
+      "Does the stakeholder memo accurately reflect current design risks?"
+    ],
+    "handoff": [
+      "Could DES-L08-Caelan brief the VP on design from the cycle plan and staffing brief?",
+      "Could Kofi implement the interaction doc standard from the 1-pager alone?",
+      "Is the stakeholder memo suitable to send directly to the product VP without edits?",
+      "Are initiative owners named so Caelan can hold them accountable?",
+      "Did Mira flag any decisions she needs from Caelan before the cycle starts?"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": "FIN-L08-Pierre",
+  "dept": "FIN",
+  "level": 8,
+  "title": "Director of Finance",
+  "name": "Pierre",
+  "timeBudgetMin": 45,
+  "brief": "You are Pierre, Director of Finance at a 100-person SaaS company. You own the financial strategy for the business below the CFO level — headcount budgets, departmental allocations, audit relationship, and the forward-looking financial model that the board will see. Today is a convergence day: three cross-functional handoffs have landed simultaneously, and you need to synthesize them into a coherent departmental financial plan.\n\nYour day:\n\n1. Comp budget — headcount handoff: HR-L08-Renaud has sent the approved headcount plan (new hires, backfills, role changes). Engineering Director Esther (ENG-L08-Esther) has sent the engineering hiring plan with cost-of-vacancy analysis. Integrate both into a single headcount-driven compensation budget. Identify the total comp impact, flag any roles where the budget is underfunded, and produce a reconciled headcount schedule by department.\n2. Vendor budget allocation: LEGOPS-L07-Vidya has passed the finalized vendor budget for the year. Map it against your departmental cost center structure. Flag any vendor commitments that exceed the approved departmental envelope and propose reallocation options.\n3. Department financial plan: produce a one-page financial summary for each of the five cost centers under your purview (Finance, HR, Legal/Ops, Facilities, IT). For each: budget, forecast, key risks, and one recommended action.\n4. Audit status: your external auditor has three open PBC (prepared-by-client) items. Write the responses and attach the supporting documentation list. Set a completion date for each item.\n\nYou are the last line of financial defense before the CFO. If a number doesn't hold up, it stops here.",
+  "deliverables": [
+    {
+      "filename": "comp-budget-headcount.xlsx",
+      "description": "Integrated headcount schedule: department, role, start date, annual comp, underfunded flags — sourced from HR and ENG hiring plans"
+    },
+    {
+      "filename": "vendor-budget-allocation.md",
+      "description": "Vendor commitments mapped to cost centers, envelope exceedances flagged, reallocation options proposed"
+    },
+    {
+      "filename": "department-financial-plans.md",
+      "description": "One-page summary per cost center (5 total): budget, forecast, key risks, recommended action"
+    },
+    {
+      "filename": "audit-pbc-responses.md",
+      "description": "Responses to three open PBC items: response text, supporting document list, completion date"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Prepare operational or risk reports for management analysis."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3031.00",
+      "url": "https://www.onetonline.org/link/summary/11-3031.00",
+      "quote": "Establish procedures for custody or control of assets, records, loan collateral, or securities to ensure safekeeping."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/financial-managers.htm",
+      "quote": "Financial managers create financial reports, direct investment activities, and develop plans for the long-term financial goals of their organization."
+    }
+  ],
+  "upstreamDeskIds": ["FIN-L07-Inez", "HR-L08-Renaud", "ENG-L08-Esther", "LEGOPS-L07-Vidya"],
+  "downstreamDeskIds": ["FIN-L09-Naila"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the comp budget integrate both HR and ENG hiring plans?",
+      "Does the vendor allocation memo cover all commitments from Vidya's input?",
+      "Are all five cost centers covered in the department financial plans?",
+      "Are all three PBC items addressed with completion dates?"
+    ],
+    "quality": [
+      "Are underfunded roles identified with a specific dollar gap, not just flagged?",
+      "Are reallocation options in the vendor memo actionable (not just 'cut vendor X')?",
+      "Is each cost center plan one page and decision-ready for the CFO?",
+      "Are PBC responses written in audit-quality language?",
+      "Is the comp budget internally consistent across HR and ENG inputs?"
+    ],
+    "accuracy": [
+      "Are role costs consistent with the comp bands from HR-L08-Renaud's headcount plan?",
+      "Does the vendor allocation correctly map Vidya's commitments to the existing cost center structure?",
+      "Are the five cost center forecasts consistent with Inez's bottom-up budget numbers?",
+      "Are PBC responses factually consistent with the GL and close package?",
+      "Are underfunded flags calculated against the correct approved envelope, not last year's budget?"
+    ],
+    "handoff": [
+      "Could FIN-L09-Naila present the comp budget to the CFO without Pierre in the room?",
+      "Could HR-L08-Renaud reconcile their headcount plan against Pierre's comp budget output?",
+      "Could ENG-L08-Esther confirm their hiring plan is fully reflected in the comp budget?",
+      "Are the PBC responses ready to email to the auditor without revision?",
+      "Are items requiring CFO sign-off (budget exceedances, audit responses) explicitly escalated?"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "DES-L03-Sofía",
+  "dept": "DES",
+  "level": 3,
+  "title": "Senior Product Designer",
+  "name": "Sofía",
+  "timeBudgetMin": 25,
+  "brief": "You are Sofía, a Senior Product Designer. You own end-to-end design for the permissions management UI — a new feature that lets workspace admins assign, revoke, and audit member roles. This work will be handed to engineering (ENG-L03-Chen) once approved.\n\nYour day:\n\n1. Design spec: produce a complete design specification document for the permissions UI. Cover: user flows (happy path + 2 edge cases), component inventory (which existing design system components are used vs. which are net-new), accessibility requirements (WCAG 2.1 AA minimum), and responsive behavior for 1280px and 375px breakpoints.\n2. Prototype notes: write a Figma prototype plan — which screens are linked, what interactions are demonstrated (hover states, modal open/close, role change confirmation), and what is intentionally left static.\n3. Gap analysis: identify 2-3 areas where the product requirements are ambiguous or under-specified and write a short note on each that the Design Lead can escalate to Product.\n\nYou are the technical owner of this design. If the requirements are wrong, say so in writing.",
+  "deliverables": [
+    {
+      "filename": "permissions-design-spec.md",
+      "description": "Full design spec: user flows, component inventory, accessibility requirements, responsive breakpoints"
+    },
+    {
+      "filename": "prototype-plan.md",
+      "description": "Figma prototype plan: linked screens, demonstrated interactions, static sections"
+    },
+    {
+      "filename": "requirements-gaps.md",
+      "description": "2-3 ambiguous/under-specified areas flagged for Design Lead to escalate to Product"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "15-1255.00",
+      "url": "https://www.onetonline.org/link/summary/15-1255.00",
+      "quote": "Research and apply innovative solutions for product design, visuals, and user experience to meet the needs of individual Web development projects."
+    },
+    {
+      "source": "O*NET",
+      "code": "27-1024.00",
+      "url": "https://www.onetonline.org/link/summary/27-1024.00",
+      "quote": "Review final layouts and suggest improvements, as needed."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/computer-and-information-technology/web-developers.htm",
+      "quote": "Web designers are responsible for the visual aspects of websites, including layout, color, and font choices."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["DES-L05-Yael"],
+  "rubric": {
+    "completion": [
+      "Is a full design spec produced covering flows, components, a11y, and responsive?",
+      "Are 2 edge cases included in the user flows (not just the happy path)?",
+      "Is the component inventory split between existing system components and net-new?",
+      "Is the prototype plan present listing linked screens and demonstrated interactions?",
+      "Are 2-3 requirements gaps identified with written notes?"
+    ],
+    "quality": [
+      "Are user flows specific to the permissions feature (not generic CRUD flows)?",
+      "Does the a11y section reference WCAG 2.1 AA criteria explicitly?",
+      "Does the prototype plan distinguish what is interactive vs. static (not aspirational)?",
+      "Are gap notes written clearly enough for a PM to act on without design context?",
+      "Is the spec dense enough to replace a design walkthrough meeting?"
+    ],
+    "accuracy": [
+      "Is the component inventory consistent with a realistic design system (no invented components)?",
+      "Are the responsive breakpoints (1280px / 375px) technically plausible for a web SaaS?",
+      "Do user flows cover both admin and non-admin perspectives where relevant?",
+      "Are accessibility notes technically correct (not just 'add alt text')?",
+      "Do the flagged gaps identify actual decision points, not preference questions?"
+    ],
+    "handoff": [
+      "Could DES-L05-Yael pass the design spec to ENG-L03-Chen without supplementary briefing?",
+      "Are gap notes framed as escalation items, not complaints?",
+      "Is the prototype plan specific enough for a non-Figma user to understand?",
+      "Are component names consistent with what engineering would expect?",
+      "Did Sofía name the downstream engineering consumer (ENG-L03-Chen) in the spec?"
+    ]
+  }
+}

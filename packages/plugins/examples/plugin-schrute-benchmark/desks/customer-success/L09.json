@@ -1,0 +1,84 @@
+{
+  "id": "CS-L09-Idowu",
+  "dept": "CS",
+  "level": 9,
+  "title": "VP of Customer Success",
+  "name": "Idowu",
+  "timeBudgetMin": 55,
+  "brief": "You are Idowu, VP of Customer Success. You report to Talia (CS-L10, Chief Customer Officer) and sit on the GTM leadership team alongside Sales, Marketing, and Product VPs. You own the company's net revenue retention (NRR) number — 112% target for this fiscal year.\n\n1. NRR forecast: the quarter closes in 6 weeks. Using the department's churn risk report and expansion pipeline, write a 1-page NRR forecast. State: current trailing NRR, projected end-of-quarter NRR, the three scenarios (bear/base/bull), the key assumptions in each, and your recommended actions to protect the base case. This is the document Talia takes to the board.\n\n2. Cross-functional alignment memo: you are presenting at the GTM leadership meeting in 3 days. Write a 1-page memo for the Sales, Marketing, and Product VPs that summarizes: the CS team's top customer pain points this quarter, the handoffs that are working, and the one joint initiative you want to table for next quarter (propose it, don't just ask).\n\n3. CS org design review: headcount is frozen for one more quarter. Write a concise org design note: how do you reallocate your current team to maximize NRR impact given the constraint? Name specific people, segment reassignments, and the trade-offs you are accepting.\n\n4. Board pre-read contribution: Talia has asked for your input on the customer success section of the board pre-read. Write 1 page covering: NRR status, top churn risk summary (3 accounts), expansion wins this quarter, and the CS team's capacity headroom.\n\nAt this level, every document shapes decisions made by people who don't know the details. Your job is to make the right decision easy.",
+  "deliverables": [
+    {
+      "filename": "nrr-forecast-q.md",
+      "description": "1-page NRR forecast: trailing NRR, projected EOQ, bear/base/bull scenarios, recommended actions"
+    },
+    {
+      "filename": "gtm-alignment-memo.md",
+      "description": "1-page memo for GTM leadership: top pain points, working handoffs, one joint initiative proposal"
+    },
+    {
+      "filename": "cs-org-design-note.md",
+      "description": "Org design note: reallocation plan under headcount freeze, named people, trade-offs accepted"
+    },
+    {
+      "filename": "board-pre-read-cs.md",
+      "description": "1-page board pre-read input: NRR status, top 3 churn risks, expansion wins, capacity headroom"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3051.00",
+      "url": "https://www.onetonline.org/link/summary/11-3051.00",
+      "quote": "Prepare and maintain production reports or personnel records."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products, lines, or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "VP-level CS leaders who own NRR as a primary metric outperform peers on both retention and expansion revenue."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L08-Astrid"],
+  "downstreamDeskIds": ["CS-L10-Talia"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the NRR forecast include all three scenarios (bear/base/bull)?",
+      "Does the GTM memo include a concrete joint initiative proposal (not just a question)?",
+      "Does the org design note name specific people and segments?",
+      "Does the board pre-read cover all four required sections?"
+    ],
+    "quality": [
+      "Does the NRR forecast state key assumptions per scenario (not just numbers)?",
+      "Is the GTM memo written for peer VPs (not for Idowu's direct team)?",
+      "Does the org design note name the trade-offs explicitly (not just benefits)?",
+      "Is the board pre-read tight enough for a 3-minute read?",
+      "Does the recommended action in the NRR forecast have a named owner and deadline?"
+    ],
+    "accuracy": [
+      "Is the 112% NRR target referenced in the forecast?",
+      "Are the three churn risks in the board pre-read consistent with Astrid's churn risk report?",
+      "Is the org design reallocation internally consistent (no more FTEs than available)?",
+      "Does the GTM memo accurately characterize the state of CS-to-Product handoffs?",
+      "Are the expansion wins in the board pre-read distinct from new logo wins?"
+    ],
+    "handoff": [
+      "Could Talia take the board pre-read section to the board without rewriting?",
+      "Could the GTM VP peers make a decision on the joint initiative from the memo alone?",
+      "Could HR and Finance model the org design note without a call to Idowu?",
+      "Does the NRR forecast set up Talia for a board Q&A on customer health?",
+      "Is it clear which document goes to which audience (board, GTM, Talia)?"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "id": "ENG-L08-Esther",
+  "dept": "ENG",
+  "level": 8,
+  "title": "Director of Engineering",
+  "name": "Esther",
+  "timeBudgetMin": 45,
+  "brief": "You are Esther, Director of Engineering. You own the strategy and operating model for ~40 engineers across 3 senior managers' orgs. The CEO is asking for a clearer narrative on engineering health going into the board meeting.\n\nYour day:\n\n1. Department strategy memo: a 2-page document covering: where we invest next quarter, where we cut, what 'good' looks like in 6 months. This is the document the CTO and CEO read.\n2. Hiring plan: headcount asks for next quarter — by team, by level. State current headcount, target headcount, and the cost of NOT filling each slot. (Sent to FIN-L08-Pierre and HR-L08-Renaud for budgeting.)\n3. Launch readiness review: there's a major product launch in 30 days. Audit readiness across infra, security, monitoring, support — what's green, yellow, red. (This feeds MKT-L06-Tobias for release notes.)\n4. Tech debt position: write the org's stance on tech debt this quarter. What's allowed to slip, what's not, how much of capacity is reserved for it.\n\nYou are the highest level still close to operations. Below you everything is execution; above you everything is narrative.",
+  "deliverables": [
+    {
+      "filename": "dept-strategy-memo.md",
+      "description": "2-page strategy: invest, cut, definition-of-good for next 6 months"
+    },
+    {
+      "filename": "hiring-plan.md",
+      "description": "Headcount asks by team + level + cost of not filling"
+    },
+    {
+      "filename": "launch-readiness.md",
+      "description": "Audit across infra, security, monitoring, support: green/yellow/red"
+    },
+    {
+      "filename": "tech-debt-position.md",
+      "description": "Org stance on tech debt: what slips, what doesn't, capacity reserved"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Develop computer information resources, providing for data security and control, strategic computing, and disaster recovery."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Develop and interpret organizational goals, policies, and procedures."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-3021.00",
+      "url": "https://www.onetonline.org/link/summary/11-3021.00",
+      "quote": "Stay abreast of advances in technology."
+    }
+  ],
+  "upstreamDeskIds": ["ENG-L07-Ravi", "ENG-L04-Sergei"],
+  "downstreamDeskIds": ["ENG-L09-Tomás", "MKT-L06-Tobias", "FIN-L08-Pierre", "HR-L08-Renaud"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the strategy memo cover invest / cut / definition-of-good?",
+      "Does the hiring plan state cost of NOT filling each slot?",
+      "Does launch readiness use a green/yellow/red rating?",
+      "Does tech debt position name a numeric capacity reserve?"
+    ],
+    "quality": [
+      "Does the strategy memo make explicit cuts (not just additions)?",
+      "Is the hiring plan defensible at the budget table?",
+      "Does the readiness review name the launch blockers, not generic risks?",
+      "Is the tech debt stance enforceable (not aspirational)?",
+      "Is the writing dense enough to read in 5 minutes?"
+    ],
+    "accuracy": [
+      "Are headcount numbers internally consistent with current state?",
+      "Are the readiness ratings supported by evidence?",
+      "Do strategy claims connect to Ravi's status report upstream?",
+      "Is Sergei's ADR reflected in the strategy memo (streaming platform)?",
+      "Is the tech debt capacity reserve realistic (~10-25% typical)?"
+    ],
+    "handoff": [
+      "Could ENG-L09-Tomás brief the VP from the strategy memo?",
+      "Could MKT-L06-Tobias write release notes from the launch readiness doc?",
+      "Could FIN-L08-Pierre approve / cut headcount from this hiring plan?",
+      "Could HR-L08-Renaud start sourcing from the hiring plan?",
+      "Are downstream consumers each addressed by name in the relevant doc?"
+    ]
+  }
+}

@@ -1,0 +1,70 @@
+{
+  "id": "EXEC-L01-Roy",
+  "dept": "EXEC",
+  "level": 1,
+  "title": "BizOps Coordinator",
+  "name": "Roy",
+  "timeBudgetMin": 25,
+  "brief": "You are Roy, a BizOps Coordinator at a 100-person SaaS company. Your job is to keep the operational machinery running at the IC level — gathering data, maintaining trackers, and flagging problems before they become fires.\n\nToday you have two tasks. First: the weekly metrics tracker is stale. Pull the latest figures for headcount by department, open requisitions, and monthly recurring revenue from the shared data sources (treat them as provided), and update the master ops-metrics spreadsheet. Flag any row where a metric has moved more than 10% week-over-week with a brief annotation explaining what changed.\n\nSecond: a vendor invoice has come in for a SaaS tool the company uses. Cross-check the line items against the contract terms on file, note any discrepancy, and write a short memo (3-4 sentences) recommending whether to approve, dispute, or escalate the invoice.\n\nStay atomic. Do not redesign the tracker, propose new vendor relationships, or draft a procurement policy. Your deliverables go directly to Octavio (Chief of Staff, EXEC-L05).",
+  "deliverables": [
+    {
+      "filename": "ops-metrics-update.xlsx",
+      "description": "Updated weekly metrics tracker with headcount, open reqs, MRR; rows with >10% WoW change annotated"
+    },
+    {
+      "filename": "invoice-review-memo.md",
+      "description": "3-4 sentence memo: discrepancies found (if any), recommendation to approve/dispute/escalate, rationale"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Gather and organize information on problems or procedures."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1111.00",
+      "url": "https://www.onetonline.org/link/summary/13-1111.00",
+      "quote": "Review forms and reports and confer with management and users about format, distribution, and purpose, identifying problems and improvements."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/management-analysts.htm",
+      "quote": "Management analysts, often called management consultants, recommend ways to improve an organization's efficiency."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["EXEC-L05-Octavio"],
+  "rubric": {
+    "completion": [
+      "Are both deliverables present (tracker update + invoice memo)?",
+      "Does the tracker include headcount, open reqs, and MRR columns?",
+      "Are WoW outliers (>10%) annotated with a reason?",
+      "Does the invoice memo include a clear recommend/dispute/escalate recommendation?",
+      "Is the memo 3-4 sentences (not a wall of text)?"
+    ],
+    "quality": [
+      "Are the annotations specific (not 'metrics changed')?",
+      "Is the recommendation backed by a concrete discrepancy finding?",
+      "Is the tracker update free of formatting breaks or formula errors?",
+      "Is the writing direct and free of hedging?",
+      "Does Roy stay in scope (no policy proposals, no new vendor analysis)?"
+    ],
+    "accuracy": [
+      "Is the 10% threshold applied correctly (not 9%, not 11%)?",
+      "Does the invoice cross-check reference specific contract line items?",
+      "Are headcount and MRR figures plausible for a 100-person SaaS company?",
+      "Is the memo recommendation consistent with the discrepancy finding?",
+      "Are column headers in the tracker consistent with prior format?"
+    ],
+    "handoff": [
+      "Could Octavio (EXEC-L05) consume both deliverables in under 3 minutes?",
+      "Are flagged metrics clearly marked so the Chief of Staff can act immediately?",
+      "Is the invoice memo self-contained (no follow-up needed from Roy)?",
+      "Does Roy note any data source issues that blocked a metric update?",
+      "Are filenames predictable and consistent with the naming convention?"
+    ]
+  }
+}

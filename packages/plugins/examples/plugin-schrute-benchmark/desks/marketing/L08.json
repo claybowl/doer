@@ -1,0 +1,83 @@
+{
+  "id": "MKT-L08-Caleb",
+  "dept": "MKT",
+  "level": 8,
+  "title": "Director of Marketing",
+  "name": "Caleb",
+  "timeBudgetMin": 45,
+  "brief": "You are Caleb, Director of Marketing. You own the marketing department's strategy, headcount, and budget. You report to the VP Marketing (MKT-L09-Rosa) and manage Yara (MKT-L07) plus a broader team. Two cross-functional inputs are live today: pipeline target data coming from Legal-Ops (LEGOPS-L07-Vidya, vendor budget edge), and your output feeds directly into Sales quota planning (SALES-L08-Iliana).\n\nYour day:\n\n1. Department strategy memo: write a 2-page marketing strategy document covering the next quarter. Specifically: top three initiatives (with owner, budget, and success metrics), what you're stopping or de-prioritizing, and how marketing will support the company's $10M ARR target. This is what MKT-L09-Rosa reads before the executive team meeting.\n2. Pipeline targets for Sales: using Q3 campaign calendar data from Yara (MKT-L07) and the company's ARR target, write the pipeline target brief for SALES-L08-Iliana. Include: total MQL volume target, SQL conversion rate assumption, average contract value assumption, and how each major campaign contributes to the pipeline mix. This document directly enables quota planning.\n3. Vendor budget allocation: Vidya (LEGOPS-L07-Vidya) sent the vendor budget edge — a constraint on which external vendor contracts are approved this quarter. Using that input, write a marketing vendor spend plan: list your 4–6 active vendor contracts, their quarterly cost, whether each is within the approved envelope, and any substitution or renegotiation needed for over-budget items.\n4. Hiring update: the team has one open headcount — a Performance Marketing Manager. Write a two-paragraph role brief for Recruiting: why this role now, key responsibilities, and the two must-have qualifications.",
+  "deliverables": [
+    {
+      "filename": "dept-strategy-memo.md",
+      "description": "2-page strategy: top 3 initiatives with owner/budget/metrics, de-prioritizations, ARR contribution narrative"
+    },
+    {
+      "filename": "pipeline-targets.md",
+      "description": "Pipeline target brief for SALES-L08-Iliana: MQL volume, SQL conversion rate, ACV assumption, campaign-level contribution"
+    },
+    {
+      "filename": "vendor-spend-plan.md",
+      "description": "4-6 vendor contracts: quarterly cost, within-envelope status, substitution/renegotiation notes for any over-budget items"
+    },
+    {
+      "filename": "role-brief-perf-marketing.md",
+      "description": "Two-paragraph role brief for Recruiting: why now, key responsibilities, two must-have qualifications"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Marketing managers oversee marketing and promotions staff and manage activities designed to generate interest in their company's products or services."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gartner.com/en/marketing/insights/annual-cmo-spend-survey",
+      "quote": "Marketing budgets as a percentage of company revenue have stabilized at 9-10% for B2B technology companies, with performance marketing and content representing the largest allocations."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L07-Yara", "LEGOPS-L07-Vidya"],
+  "downstreamDeskIds": ["MKT-L09-Rosa", "SALES-L08-Iliana"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the strategy memo cover all three sections (initiatives, stops, ARR narrative)?",
+      "Does the pipeline brief include MQL volume, SQL rate, ACV, and campaign breakdown?",
+      "Does the vendor spend plan cover 4-6 contracts with envelope status?",
+      "Is the role brief two paragraphs with why-now, responsibilities, and qualifications?"
+    ],
+    "quality": [
+      "Does the strategy memo make explicit trade-offs (what's stopped, not just what's added)?",
+      "Is the pipeline brief actionable for quota planning without further inputs?",
+      "Does the vendor plan identify specific over-budget items (not just 'review needed')?",
+      "Are the two must-have qualifications defensible and not generic?",
+      "Is the ARR contribution narrative in the strategy memo quantified?"
+    ],
+    "accuracy": [
+      "Are initiative budgets internally consistent with the vendor spend plan?",
+      "Does the pipeline math (MQL × SQL rate × ACV) plausibly reach the ARR target?",
+      "Is Vidya's vendor budget constraint correctly applied to the spend plan?",
+      "Are the over-budget remediation options realistic (substitution or renegotiation)?",
+      "Does the strategy memo reflect Yara's Q3 campaign calendar as input?"
+    ],
+    "handoff": [
+      "Could MKT-L09-Rosa present the strategy memo to the executive team without Caleb?",
+      "Could SALES-L08-Iliana set quotas directly from the pipeline targets brief?",
+      "Could Legal-Ops confirm compliance from the vendor spend plan?",
+      "Could Recruiting post the role and screen candidates from the brief alone?",
+      "Are downstream consumers (Rosa, Iliana) each addressed by name in the relevant doc?"
+    ]
+  }
+}

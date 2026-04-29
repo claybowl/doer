@@ -1,0 +1,79 @@
+{
+  "id": "LEGOPS-L08-Soren",
+  "dept": "LEGOPS",
+  "level": 8,
+  "title": "Director of Operations",
+  "name": "Soren",
+  "timeBudgetMin": 45,
+  "brief": "You are Soren, Director of Operations at a 100-person SaaS company. You own department strategy, vendor program governance, the IT policy portfolio, and hiring for the Legal & Operations team. You report to Adaobi (VP Legal & Ops) and manage Vidya's team and Anneliese's ops coordinators.\n\nToday is a heavy strategy day. Vidya has delivered the vendor budget allocation and the MSA redline package. You have four tasks.\n\nFirst, the company is approaching 100 employees and the CEO has asked you to draft an IT Acceptable Use Policy (AUP) for all company systems and devices. This is a company-wide policy, not a vendor-facing one. Cover: permitted and prohibited uses of company systems, BYOD rules, remote access requirements, data classification handling (public/internal/confidential/restricted), incident reporting obligations, and enforcement consequences. Aim for 2 pages.\n\nSecond, review Vidya's vendor budget allocation memo and prepare a Director's summary for Adaobi: confirm the allocations are consistent with the company's procurement governance framework, flag any department allocation that exceeds prior-year spend by more than 25%, and note any shared-pool decisions that require VP or board approval.\n\nThird, draft a business continuity plan (BCP) overview — not the full plan, but a 1-page executive summary covering: critical operations (top 5 by business impact), primary threat scenarios, recovery time objectives (RTOs) for each critical operation, and the departmental owner responsible for each stream.\n\nFourth, build the Legal & Operations hiring plan for the next two quarters: roles, justification, level, and expected hire date. Prioritize based on current team gaps.",
+  "deliverables": [
+    {
+      "filename": "it-acceptable-use-policy.md",
+      "description": "2-page company-wide IT AUP: permitted and prohibited uses, BYOD rules, remote access requirements, data classification handling, incident reporting, enforcement consequences"
+    },
+    {
+      "filename": "vendor-budget-director-summary.md",
+      "description": "Director's review of Vidya's allocation: procurement governance check, departments exceeding 25% YoY increase flagged, shared-pool items requiring VP/board approval noted"
+    },
+    {
+      "filename": "bcp-executive-summary.md",
+      "description": "1-page BCP executive summary: top 5 critical operations, primary threat scenarios, RTOs for each, departmental owner for each recovery stream"
+    },
+    {
+      "filename": "legops-hiring-plan.md",
+      "description": "Two-quarter hiring plan for Legal & Operations: role title, level, justification (gap), expected hire date, priority (P1/P2)"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Review financial statements, sales or activity reports, or other performance data to measure productivity or goal achievement or to identify areas needing cost reduction or program improvement."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish or implement departmental policies, goals, objectives, or procedures in conjunction with board members, organization officials, or staff members."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1041.00",
+      "url": "https://www.onetonline.org/link/summary/13-1041.00",
+      "quote": "Keep informed regarding pending industry changes, trends, or best practices."
+    }
+  ],
+  "upstreamDeskIds": ["LEGOPS-L07-Vidya"],
+  "downstreamDeskIds": ["LEGOPS-L09-Adaobi"],
+  "rubric": {
+    "completion": [
+      "Is the IT AUP produced?",
+      "Is the vendor budget director's summary produced?",
+      "Is the BCP executive summary produced?",
+      "Is the Legal & Ops hiring plan produced?",
+      "Does the AUP cover all six required sections?"
+    ],
+    "quality": [
+      "Is the AUP written as an enforceable policy (consequences stated, not aspirational)?",
+      "Does the director's summary distinguish 'flag' items from 'approved as-is' items?",
+      "Does the BCP executive summary give each critical operation a specific RTO (hours/days, not 'ASAP')?",
+      "Is the hiring plan prioritized with rationale (gap description, not just role title)?",
+      "Are data classification tiers in the AUP operationally defined (what goes in each tier)?"
+    ],
+    "accuracy": [
+      "Does the AUP correctly characterize BYOD security requirements (MDM enrollment, remote wipe)?",
+      "Does the director's summary correctly calculate 25% YoY thresholds from Vidya's allocation?",
+      "Are BCP RTOs realistic for a 100-person SaaS company (not enterprise-scale)?",
+      "Does the hiring plan reflect actual gaps (not a wish list)?",
+      "Does the AUP enforcement section reference an actual disciplinary process?"
+    ],
+    "handoff": [
+      "Could Adaobi (L09) take the hiring plan to a board compensation committee without revision?",
+      "Could the IT team publish the AUP company-wide from Soren's draft?",
+      "Could Adaobi present the BCP summary to the CEO or board from this one page?",
+      "Is the director's summary self-contained enough for Adaobi to approve allocations without reviewing Vidya's raw memo?",
+      "Did Soren escalate any items that require Adaobi's sign-off before proceeding?"
+    ]
+  }
+}

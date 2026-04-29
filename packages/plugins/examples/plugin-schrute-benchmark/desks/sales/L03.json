@@ -1,0 +1,74 @@
+{
+  "id": "SALES-L03-Camila",
+  "dept": "SALES",
+  "level": 3,
+  "title": "Account Executive",
+  "name": "Camila",
+  "timeBudgetMin": 25,
+  "brief": "You are Camila, an Account Executive at a 100-person SaaS company. You own a named account list of 25 mid-market prospects and are responsible for moving deals from qualified opportunity through to closed-won.\n\n1. Deal sheet: Choose one deal in your pipeline that is at the proposal stage. Write a one-page deal sheet covering: company profile (size, industry, pain point), decision-maker map (names, titles, influence), proposed solution (which product tier, why), price and contract terms being offered, competitive threats present, and recommended close strategy.\n\n2. Proposal email: Draft the accompanying proposal email (under 200 words) to the primary decision-maker that summarizes the value proposition and requests a 30-minute call to walk through the proposal.\n\n3. Competitive comparison: For one named competitor present in your deal, write a 1-page comparison table covering 5 dimensions (e.g., pricing, integrations, support, implementation speed, compliance). Include a talking-points section for how to handle the competitor objection in a live call.\n\nDo not negotiate pricing outside the approved discount schedule. Flag any request for non-standard terms to the Sales Lead.",
+  "deliverables": [
+    {
+      "filename": "deal-sheet.md",
+      "description": "One-page deal sheet: company profile, decision-maker map, solution, terms, competitive threats, close strategy"
+    },
+    {
+      "filename": "proposal-email.md",
+      "description": "Under-200-word proposal email to primary decision-maker with clear next-step ask"
+    },
+    {
+      "filename": "competitive-comparison.md",
+      "description": "1-page 5-dimension competitor comparison table plus live-call objection talking points"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Develop sales presentations or proposals to explain service specifications."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Negotiate prices or terms of sales or service agreements."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/sales/sales-representatives-wholesale-and-manufacturing.htm",
+      "quote": "Sales representatives spend much of their time traveling to and visiting with current and prospective customers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["SALES-L05-Felipe"],
+  "rubric": {
+    "completion": [
+      "Is the deal sheet present with all six required sections?",
+      "Is the proposal email present and under 200 words?",
+      "Is the competitor comparison table present with exactly 5 dimensions?",
+      "Does the comparison include a talking-points section for the live-call objection?",
+      "Did Camila flag any non-standard terms for the Sales Lead?"
+    ],
+    "quality": [
+      "Is the decision-maker map specific (names + titles + influence level)?",
+      "Does the close strategy name concrete next steps with dates?",
+      "Are all five comparison dimensions genuinely differentiating (not trivial)?",
+      "Are objection talking points written as actual spoken language, not bullet fragments?",
+      "Is the proposal email persuasive without being hyperbolic?"
+    ],
+    "accuracy": [
+      "Do the proposed terms align with the approved discount schedule?",
+      "Is the competitive comparison factually consistent (no contradictory claims)?",
+      "Does the pain point in the deal sheet match the proposed solution tier?",
+      "Are the decision-maker titles plausible for a mid-market company?",
+      "Is the competitive threat realistic (a named, real-world-style competitor)?"
+    ],
+    "handoff": [
+      "Could SALES-L05-Felipe review this deal in a pipeline meeting without extra context?",
+      "Is any request for non-standard terms clearly flagged for escalation?",
+      "Is the proposal email ready to send without further editing?",
+      "Could a new AE cover this deal from the deal sheet alone?",
+      "Are close strategy next steps owner-assigned with target dates?"
+    ]
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "id": "SALES-L02-Dimitri",
+  "dept": "SALES",
+  "level": 2,
+  "title": "Business Development Representative",
+  "name": "Dimitri",
+  "timeBudgetMin": 25,
+  "brief": "You are Dimitri, a Business Development Representative (BDR) at a 100-person SaaS company. You handle mid-funnel prospecting: moving leads from first touch to qualified opportunity.\n\n1. Sequence tracking: Review a provided 30-lead outreach sequence. Identify which leads are at each stage (day-1 email, day-3 follow-up, day-7 call, stalled). Produce a status table and flag the 5 leads most likely to convert based on engagement signals (opens, link clicks, reply sentiment).\n\n2. Follow-up outreach: For the top 3 engaged leads, write a personalized follow-up message (email or LinkedIn DM, under 100 words each) referencing their specific engagement signal and offering a concrete next step.\n\n3. CRM hygiene: Identify 5 common CRM data gaps in the lead list (e.g., missing phone, company size unknown, wrong title) and write a brief remediation checklist — what data to gather, where to look, and how to enter it.\n\n4. Market intel note: From the trade publications and alerts you reviewed this week, write a 3-bullet market conditions note flagging anything relevant to your outreach territory.",
+  "deliverables": [
+    {
+      "filename": "sequence-status.md",
+      "description": "Stage-by-stage status table for 30 leads, with top-5 conversion candidates flagged"
+    },
+    {
+      "filename": "follow-up-messages.md",
+      "description": "Three personalized follow-up messages (email or LinkedIn DM) referencing engagement signals"
+    },
+    {
+      "filename": "crm-hygiene-checklist.md",
+      "description": "5 identified CRM data gaps with remediation steps (data to gather, source, entry instructions)"
+    },
+    {
+      "filename": "market-intel-note.md",
+      "description": "3-bullet market conditions note relevant to outreach territory"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Attend sales or trade meetings or read related publications to obtain information about market conditions, business trends, regulations, or industry developments."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Maintain customer records using automated systems."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/sales/sales-representatives-wholesale-and-manufacturing.htm",
+      "quote": "Sales representatives spend much of their time traveling to and visiting with current and prospective customers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["SALES-L05-Felipe"],
+  "rubric": {
+    "completion": [
+      "Is the sequence status table present and covers all 30 leads?",
+      "Are exactly 5 top-conversion candidates flagged with reasoning?",
+      "Are three follow-up messages present, one per top-engaged lead?",
+      "Does the CRM hygiene checklist name exactly 5 gaps with remediation steps?",
+      "Is the market intel note present with at least 3 bullets?"
+    ],
+    "quality": [
+      "Do follow-up messages explicitly reference the engagement signal (e.g., 'you clicked the pricing link')?",
+      "Is each follow-up under 100 words with a clear CTA?",
+      "Are CRM gap remediation steps actionable (specific source + entry path)?",
+      "Does the market intel note connect to territory strategy, not generic industry news?",
+      "Is the status table scannable without reading every row?"
+    ],
+    "accuracy": [
+      "Do the flagged conversion candidates align with engagement signal logic?",
+      "Are all 30 leads accounted for in the status table?",
+      "Are CRM data gaps realistic (types that commonly appear in lead records)?",
+      "Is the market intel grounded in plausible current sources (publication names, dates)?",
+      "Do follow-up messages match the lead's stage in the sequence?"
+    ],
+    "handoff": [
+      "Could SALES-L05-Felipe prioritize the leads without reading all 30 rows?",
+      "Are next-step owners clear in each follow-up message?",
+      "Is the CRM checklist ready to hand to a data ops or admin contact?",
+      "Are engagement signal descriptions precise enough to be verified in the CRM?",
+      "Are any leads flagged as disqualified or out-of-ICP?"
+    ]
+  }
+}

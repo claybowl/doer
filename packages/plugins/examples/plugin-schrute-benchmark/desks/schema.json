@@ -1,0 +1,138 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://donjon.agency/schemas/schrute-100/desk.json",
+  "title": "Schrute-100 Desk",
+  "description": "One desk in the 100-desk benchmark. 10 departments × 10 levels.",
+  "type": "object",
+  "required": [
+    "id",
+    "dept",
+    "level",
+    "title",
+    "name",
+    "brief",
+    "deliverables",
+    "citations",
+    "upstreamDeskIds",
+    "downstreamDeskIds",
+    "rubric",
+    "timeBudgetMin"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^(EXEC|ENG|PROD|DES|SALES|MKT|CS|FIN|HR|LEGOPS)-L(0[1-9]|10)-[A-Za-zÀ-ÿ]+$",
+      "description": "Format: <DEPT>-L<level>-<Name>. Examples: ENG-L03-Chen, EXEC-L10-Konstantin"
+    },
+    "dept": {
+      "type": "string",
+      "enum": ["EXEC", "ENG", "PROD", "DES", "SALES", "MKT", "CS", "FIN", "HR", "LEGOPS"],
+      "description": "Department code"
+    },
+    "level": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 10,
+      "description": "Seniority level. L1 = entry IC, L10 = C-level."
+    },
+    "title": {
+      "type": "string",
+      "description": "Job title shown in UI, e.g. 'Senior Software Engineer'"
+    },
+    "name": {
+      "type": "string",
+      "description": "Single-word first name, frozen across runs for stable comparison"
+    },
+    "brief": {
+      "type": "string",
+      "description": "Full task brief in second person. 3-6 paragraphs. Lists tasks, context, time pressure. Should fit the time budget."
+    },
+    "deliverables": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["filename", "description"],
+        "additionalProperties": false,
+        "properties": {
+          "filename": { "type": "string", "description": "e.g. 'pr-summary.md', 'forecast-q3.xlsx'" },
+          "description": { "type": "string", "description": "What the file should contain" }
+        }
+      }
+    },
+    "citations": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "required": ["source", "url"],
+        "additionalProperties": false,
+        "properties": {
+          "source": {
+            "type": "string",
+            "enum": ["O*NET", "BLS OOH", "Industry Report"]
+          },
+          "code": {
+            "type": "string",
+            "description": "O*NET-SOC code (e.g. '15-1252.00') or report identifier"
+          },
+          "url": { "type": "string", "format": "uri" },
+          "quote": {
+            "type": "string",
+            "description": "Exact wording referenced in the brief"
+          }
+        }
+      }
+    },
+    "upstreamDeskIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Desk IDs whose output this desk consumes. Empty for L1 leaf nodes."
+    },
+    "downstreamDeskIds": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Desk IDs that consume this desk's output."
+    },
+    "rubric": {
+      "type": "object",
+      "required": ["completion", "quality", "accuracy", "handoff"],
+      "additionalProperties": false,
+      "description": "Yes/no checks the 3 LLM judges grade against. 5-8 checks per component.",
+      "properties": {
+        "completion": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 8,
+          "items": { "type": "string" }
+        },
+        "quality": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 8,
+          "items": { "type": "string" }
+        },
+        "accuracy": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 8,
+          "items": { "type": "string" }
+        },
+        "handoff": {
+          "type": "array",
+          "minItems": 5,
+          "maxItems": 8,
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "timeBudgetMin": {
+      "type": "integer",
+      "minimum": 25,
+      "maximum": 55,
+      "description": "Tier by level: L1-L3=25, L4-L6=35, L7-L8=45, L9-L10=55"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "LEGOPS-L02-Saoirse",
+  "dept": "LEGOPS",
+  "level": 2,
+  "title": "Paralegal II",
+  "name": "Saoirse",
+  "timeBudgetMin": 25,
+  "brief": "You are Saoirse, a Paralegal II at a 100-person SaaS company. You handle more complex document tasks than L1 and are the team's go-to for contract research and tracker maintenance.\n\nToday you have three tasks. First, a sales rep flagged that a prospect is asking about GDPR data processing addendum (DPA) requirements. Pull together a two-to-three paragraph research note summarizing what a standard DPA must contain under GDPR Article 28 — subject matter, duration, nature and purpose of processing, categories of data subjects, and obligations/rights of the controller. No legal opinions; just a factual summary the senior counsel can use as a starting point.\n\nSecond, the contract management spreadsheet has 12 entries marked 'pending signature.' Review each entry and categorize it: (a) waiting on counter-party, (b) waiting on internal approval, or (c) stale/needs follow-up (no activity >30 days). Produce a triage table.\n\nThird, pull the three most recent executed vendor agreements from the filing system and confirm that each has an attached certificate of insurance (COI). Flag any that are missing.",
+  "deliverables": [
+    {
+      "filename": "gdpr-dpa-research-note.md",
+      "description": "2-3 paragraph factual summary of GDPR Article 28 DPA requirements: subject matter, duration, nature/purpose of processing, categories of data, controller/processor obligations"
+    },
+    {
+      "filename": "contract-triage-table.md",
+      "description": "Table of 12 pending-signature contracts categorized as: (a) waiting on counter-party, (b) waiting on internal approval, (c) stale/needs follow-up. Include last-activity date."
+    },
+    {
+      "filename": "coi-audit-note.md",
+      "description": "For each of the 3 most recent executed vendor agreements: vendor name, agreement date, COI present (Y/N), and action required if missing"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "23-2011.00",
+      "url": "https://www.onetonline.org/link/summary/23-2011.00",
+      "quote": "Investigate facts and law of cases and search pertinent sources, such as public records and internet sources, to determine causes of action and to prepare cases."
+    },
+    {
+      "source": "O*NET",
+      "code": "23-2011.00",
+      "url": "https://www.onetonline.org/link/summary/23-2011.00",
+      "quote": "Gather and analyze research data, such as statutes, decisions, and legal articles, codes, and documents."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/legal/paralegals-and-legal-assistants.htm",
+      "quote": "Paralegals and legal assistants perform a variety of tasks to support lawyers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["LEGOPS-L05-Hideo"],
+  "rubric": {
+    "completion": [
+      "Is the GDPR DPA research note produced?",
+      "Does the research note cover all five Article 28 elements?",
+      "Is the contract triage table produced with all three categories?",
+      "Does the COI audit note cover all three vendor agreements?",
+      "Are missing COIs explicitly flagged with action required?"
+    ],
+    "quality": [
+      "Is the GDPR note factual only (no legal opinions)?",
+      "Is the triage table scannable in under one minute?",
+      "Does each triage row include a last-activity date?",
+      "Is the COI audit structured as a table (not prose)?",
+      "Is writing concise with no filler?"
+    ],
+    "accuracy": [
+      "Does the DPA note accurately reflect GDPR Article 28 requirements?",
+      "Is 'stale' correctly defined as >30 days no activity?",
+      "Are categories (a), (b), (c) mutually exclusive and collectively exhaustive?",
+      "Is the COI check clearly defined (attached file, not verbal confirmation)?",
+      "Are vendor agreement dates correctly pulled from executed docs?"
+    ],
+    "handoff": [
+      "Could LEGOPS-L05-Hideo action the contract triage without follow-up questions?",
+      "Could senior counsel use the DPA note without re-researching from scratch?",
+      "Is the COI audit actionable (clear owner for each missing COI)?",
+      "Are all three deliverables independently usable?",
+      "Did Saoirse flag any blockers (e.g., missing access to filing system)?"
+    ]
+  }
+}

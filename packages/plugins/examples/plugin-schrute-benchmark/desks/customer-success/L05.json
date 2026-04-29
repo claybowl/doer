@@ -1,0 +1,74 @@
+{
+  "id": "CS-L05-Theo",
+  "dept": "CS",
+  "level": 5,
+  "title": "Customer Success Lead",
+  "name": "Theo",
+  "timeBudgetMin": 35,
+  "brief": "You are Theo, Customer Success Lead. You are the first synthesis tier for the CS team. Your four ICs (Hina, Marco, Babatunde, Sigrid) each fed you work this week: triage logs, onboarding notes, escalation triage, and NPS analysis respectively. You consume their output and turn it into a weekly team health report plus next-cycle priorities.\n\n1. Weekly CS health report: synthesize all four ICs' output into a 1-page team health snapshot. Cover: ticket queue status (volume, P1s, resolution rate), onboarding pipeline health (how many accounts are on track vs. at-risk), churn risk summary (accounts flagged, actions in flight), NPS trend, and one recommendation for the manager (CS-L06-Lakshmi).\n\n2. Next-cycle task assignments: write a concise task board for the next two weeks — 3-5 priorities per IC, with due dates and success criteria. Make decisions. Do not ask ICs to figure out their own priorities.\n\n3. Escalation review: of the escalations Babatunde flagged, decide which ones you can resolve yourself vs. which need to go to Lakshmi. Write a one-paragraph decision note per escalation.\n\nYou are the team's nerve center. The health report you produce is what Lakshmi reads before her manager sync. Quality of synthesis matters more than raw output volume.",
+  "deliverables": [
+    {
+      "filename": "cs-team-health-weekly.md",
+      "description": "1-page CS team health snapshot: tickets, onboarding pipeline, churn risk, NPS trend, one recommendation"
+    },
+    {
+      "filename": "next-cycle-tasks.md",
+      "description": "Task board for next 2 weeks: 3-5 priorities per IC with due dates and success criteria"
+    },
+    {
+      "filename": "escalation-decisions.md",
+      "description": "Per-escalation decision notes: resolve self vs. escalate to Lakshmi, with reasoning"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-4051.00",
+      "url": "https://www.onetonline.org/link/summary/43-4051.00",
+      "quote": "Check to ensure that appropriate changes were made to resolve customers' problems."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Direct the hiring, training, or performance evaluations of marketing or sales staff and oversee their daily activities."
+    },
+    {
+      "source": "Industry Report",
+      "url": "https://www.gainsight.com/blog/the-state-of-customer-success/",
+      "quote": "CS leads who produce weekly health reports reduce manager decision latency by 40% compared to ad-hoc status updates."
+    }
+  ],
+  "upstreamDeskIds": ["CS-L01-Hina", "CS-L02-Marco", "CS-L03-Babatunde", "CS-L04-Sigrid"],
+  "downstreamDeskIds": ["CS-L06-Lakshmi"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the health report reference all four upstream ICs' contributions?",
+      "Does the task board cover all four ICs (Hina, Marco, Babatunde, Sigrid)?",
+      "Is each IC assigned 3-5 next-cycle priorities?",
+      "Does the escalation decisions file address all of Babatunde's flagged escalations?"
+    ],
+    "quality": [
+      "Is the health report scannable in under 3 minutes?",
+      "Does the recommendation to Lakshmi reflect the data (not a generic suggestion)?",
+      "Are task assignments opinionated (Theo decides, not delegates decision-making)?",
+      "Do success criteria in the task board have measurable outcomes?",
+      "Are escalation decisions clearly reasoned (not just 'resolve' or 'escalate')?"
+    ],
+    "accuracy": [
+      "Does the health report correctly synthesize (not just concatenate) the IC inputs?",
+      "Are escalation decisions consistent with the information Babatunde provided?",
+      "Does the NPS trend section use Sigrid's NPS data correctly?",
+      "Are due dates in the task board realistic for a 2-week window?",
+      "Does Theo accurately attribute which IC flagged which issue?"
+    ],
+    "handoff": [
+      "Could CS-L06-Lakshmi brief her manager from the health report alone?",
+      "Could each IC pick up their task board assignments without a meeting?",
+      "Are escalations routed with enough context for Lakshmi to act without asking?",
+      "Is the recommendation to Lakshmi formatted for a sync agenda?",
+      "Does the health report have a clear timestamp / week label?"
+    ]
+  }
+}

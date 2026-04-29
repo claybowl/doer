@@ -1,0 +1,74 @@
+{
+  "id": "SALES-L01-Aisha",
+  "dept": "SALES",
+  "level": 1,
+  "title": "Sales Development Representative",
+  "name": "Aisha",
+  "timeBudgetMin": 25,
+  "brief": "You are Aisha, a Sales Development Representative (SDR) at a 100-person SaaS company. Your job today is to work a prospecting block and document your outreach activity.\n\n1. Prospecting: Using the provided target account list, identify 10 new prospects who match the ideal customer profile (ICP). For each prospect record the company name, contact name, title, LinkedIn URL, and a one-sentence personalization hook. Output this as a structured CSV or table.\n\n2. Cold outreach: Write three cold-outreach email templates (each under 80 words) tailored to three different buyer personas: VP of Engineering, Head of Operations, and CFO. Each template should name a specific pain point and include a single clear call-to-action.\n\n3. Call notes: You took a 12-minute discovery call earlier today. Write up the call notes in a standard format: contact, company, date, pain points surfaced, objections raised, agreed next step.\n\nStay in prospecting mode — do not attempt to close deals or make pricing decisions. Flag anything that needs senior rep review.",
+  "deliverables": [
+    {
+      "filename": "prospect-list.csv",
+      "description": "10 prospects with company, contact, title, LinkedIn URL, and personalization hook"
+    },
+    {
+      "filename": "cold-email-templates.md",
+      "description": "Three sub-80-word cold email templates, one per buyer persona, each with a clear CTA"
+    },
+    {
+      "filename": "discovery-call-notes.md",
+      "description": "Structured call notes: contact, company, date, pain points, objections, next step"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Identify prospective customers using business directories, leads from clients, or information from conferences or trade shows."
+    },
+    {
+      "source": "O*NET",
+      "code": "41-3091.00",
+      "url": "https://www.onetonline.org/link/summary/41-3091.00",
+      "quote": "Contact prospective or existing customers to discuss how services can meet their needs."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/sales/sales-representatives-wholesale-and-manufacturing.htm",
+      "quote": "Sales representatives spend much of their time traveling to and visiting with current and prospective customers."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["SALES-L05-Felipe"],
+  "rubric": {
+    "completion": [
+      "Is the prospect list present with all required fields for 10 contacts?",
+      "Are three distinct cold email templates delivered?",
+      "Does each template target a different buyer persona?",
+      "Are discovery call notes present with all six required sections?",
+      "Did Aisha flag any items requiring senior rep review?"
+    ],
+    "quality": [
+      "Are personalization hooks specific (not generic 'I noticed your company…')?",
+      "Does each email stay under 80 words?",
+      "Is each CTA a single, unambiguous action (not multiple asks)?",
+      "Are call notes written in a format a colleague could act on without follow-up?",
+      "Is the prospect list free of duplicate entries?"
+    ],
+    "accuracy": [
+      "Do the three email personas match the VP Engineering, Head of Operations, and CFO roles?",
+      "Does each email's pain point align logically with the buyer persona?",
+      "Are the call notes internally consistent (pain points and next step align)?",
+      "Are prospect titles realistic for the target ICP?",
+      "Is the prospect list structured in a valid CSV or table format?"
+    ],
+    "handoff": [
+      "Could SALES-L05-Felipe act on the prospect list without reformatting it?",
+      "Are objections in the call notes written as exact quotes or close paraphrases?",
+      "Are next-step owners named (Aisha vs. prospect vs. AE)?",
+      "Are any stalled or hot leads flagged with a priority note?",
+      "Is each deliverable independently readable without context from the others?"
+    ]
+  }
+}

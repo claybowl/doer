@@ -1,0 +1,70 @@
+{
+  "id": "MKT-L02-Lior",
+  "dept": "MKT",
+  "level": 2,
+  "title": "Content Writer",
+  "name": "Lior",
+  "timeBudgetMin": 25,
+  "brief": "You are Lior, a Content Writer on the marketing team. You write blog posts, email copy, and short-form social content that serves both brand awareness and demand generation goals.\n\nToday's work:\n\n1. Blog post draft: write a 600–800 word blog post on the topic \"How SaaS teams waste 20% of their week on manual data handoffs — and how to fix it.\" The audience is operations managers and team leads at mid-market companies. Lead with a concrete scenario, use two or three supporting data points (from publicly available research; cite them inline), and close with a soft CTA to request a demo.\n2. Email subject line test set: write five subject-line variants for a nurture email campaign promoting a free ROI calculator tool. Each variant should use a different persuasion technique (curiosity, scarcity, social proof, benefit-led, question-based). Include a one-line note on the technique used.\n\nAvoid generic B2B filler phrases like \"streamline your workflows\" without grounding them in specifics. Write like a person, not a content-farm.",
+  "deliverables": [
+    {
+      "filename": "blog-draft-data-handoffs.md",
+      "description": "600–800 word blog post with scenario lede, 2-3 cited data points, and soft CTA"
+    },
+    {
+      "filename": "email-subject-lines.md",
+      "description": "Five subject-line variants, each labeled with its persuasion technique and a one-line rationale"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "27-3043.00",
+      "url": "https://www.onetonline.org/link/summary/27-3043.00",
+      "quote": "Write fiction or nonfiction prose such as short stories, novels, biographies, articles, descriptive or critical analyses, and essays."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1161.00",
+      "url": "https://www.onetonline.org/link/summary/13-1161.00",
+      "quote": "Devise and evaluate methods and procedures for collecting data, such as surveys, opinion polls, or questionnaires."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/media-and-communication/writers-and-authors.htm",
+      "quote": "Writers and authors develop written content for various types of media, including books, magazines, and online publications."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["MKT-L05-Genevieve"],
+  "rubric": {
+    "completion": [
+      "Is the blog post present and at least 600 words?",
+      "Does the blog post include at least two cited data points?",
+      "Are all five email subject-line variants written?",
+      "Is each subject line labeled with its persuasion technique?",
+      "Is a one-line rationale included for each subject line?"
+    ],
+    "quality": [
+      "Does the blog post open with a concrete scenario (not a generic statement)?",
+      "Are data citations specific enough to verify (author, publication, year)?",
+      "Do the five subject-line techniques genuinely differ from one another?",
+      "Is the blog CTA present but not heavy-handed?",
+      "Is the writing free of filler phrases (streamline, leverage, etc.)?"
+    ],
+    "accuracy": [
+      "Are the cited data points plausibly accurate (not invented statistics)?",
+      "Is the target audience (ops managers, mid-market) reflected in the tone?",
+      "Are the persuasion-technique labels correctly matched to the technique used?",
+      "Is the 20%-time-wasted premise credibly supported by the content?",
+      "Is the CTA relevant to the blog topic (not a generic 'contact us')?"
+    ],
+    "handoff": [
+      "Could MKT-L05-Genevieve approve the blog post for publication with minor edits?",
+      "Are inline citations formatted so an editor can verify them quickly?",
+      "Are the subject lines ready for an A/B test setup without further editing?",
+      "Is the blog post formatted in markdown suitable for CMS import?",
+      "Did Lior flag any sourcing ambiguities or missing data clearly?"
+    ]
+  }
+}

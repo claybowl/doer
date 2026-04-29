@@ -1,0 +1,78 @@
+{
+  "id": "MKT-L05-Genevieve",
+  "dept": "MKT",
+  "level": 5,
+  "title": "Marketing Lead",
+  "name": "Genevieve",
+  "timeBudgetMin": 35,
+  "brief": "You are Genevieve, Marketing Lead for the demand generation sub-team. Four ICs report to you: Tamika (coordinator), Lior (content writer), Cassandra (senior specialist), and Rashid (marketing ops lead). Today they each delivered their work; you consume it and turn it into a team status summary and next-sprint plan.\n\nYour day:\n\n1. Sprint-end synthesis: write a 1-page summary for MKT-L06-Tobias covering what the team produced this sprint, what is at risk or blocked, and one recommendation. Specifically integrate: Tamika's content calendar fixes and campaign intake, Lior's blog draft and subject lines, Cassandra's attribution and SEO gap analysis, and Rashid's ops audit and scoring refresh.\n2. Next-sprint plan: define 4–6 campaign workstreams for the next two weeks. For each: name, owner, rough effort (days), priority (P1/P2/P3), and success metric. Use Cassandra's SEO gap and Rashid's SOP as input — what should the team build next?\n3. Performance coaching note: pick one IC and write a brief (5–7 bullet) coaching note. What did they do well, what's one area to sharpen, and what's one specific next opportunity for them?\n4. Team OKR check-in: the team's current-quarter OKR is 'Generate 300 MQLs from content by end of Q2.' Write a 3–5 sentence status update: where you are, what will get you there, what could stop you.\n\nYou are the first synthesis tier. Your writing compresses four ICs into a signal the manager can act on.",
+  "deliverables": [
+    {
+      "filename": "sprint-summary.md",
+      "description": "1-page synthesis: shipped work, blocked/at-risk items, one recommendation for MKT-L06-Tobias"
+    },
+    {
+      "filename": "next-sprint-plan.md",
+      "description": "4-6 workstreams with name, owner, effort, priority, and success metric"
+    },
+    {
+      "filename": "coaching-note.md",
+      "description": "5-7 bullet coaching note for one IC: what went well, one improvement area, one growth opportunity"
+    },
+    {
+      "filename": "okr-check-in.md",
+      "description": "3-5 sentence OKR status update: current position, path forward, key risk"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/advertising-promotions-and-marketing-managers.htm",
+      "quote": "Marketing managers plan programs to generate interest in products or services and oversee marketing staff."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L01-Tamika", "MKT-L02-Lior", "MKT-L03-Cassandra", "MKT-L04-Rashid"],
+  "downstreamDeskIds": ["MKT-L06-Tobias"],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the sprint summary reference all four upstream IC contributions?",
+      "Are 4-6 workstreams listed in the next-sprint plan?",
+      "Is the coaching note at least 5 bullets for a named IC?",
+      "Is the OKR check-in 3-5 sentences with current position and key risk?"
+    ],
+    "quality": [
+      "Is the sprint summary scannable in under 3 minutes?",
+      "Does the next-sprint plan use Cassandra's SEO gap and Rashid's SOP as inputs?",
+      "Is the coaching note specific (not generic 'great job')?",
+      "Does the OKR check-in name a concrete path to 300 MQLs?",
+      "Is the recommendation in the sprint summary actionable for the manager?"
+    ],
+    "accuracy": [
+      "Does the sprint summary correctly characterize each IC's contribution?",
+      "Do priority ratings in the next-sprint plan align with the OKR?",
+      "Is the MQL count in the OKR check-in realistic given the attribution data upstream?",
+      "Are effort estimates in the sprint plan realistic (not all P1)?",
+      "Is the coaching IC correctly attributed (not confused with another team member)?"
+    ],
+    "handoff": [
+      "Could MKT-L06-Tobias run a team status update from the sprint summary alone?",
+      "Are blockers from the team explicitly named for the manager?",
+      "Is the next-sprint plan ready for a planning discussion without Genevieve present?",
+      "Does the OKR check-in give Tobias enough signal to escalate if needed?",
+      "Are IC credits clear (who did what) in the sprint summary?"
+    ]
+  }
+}

@@ -1,0 +1,74 @@
+{
+  "id": "FIN-L02-Wendell",
+  "dept": "FIN",
+  "level": 2,
+  "title": "Junior Accountant",
+  "name": "Wendell",
+  "timeBudgetMin": 25,
+  "brief": "You are Wendell, a Junior Accountant at a 100-person SaaS company. You sit one step above data entry — you own month-end journal entries and basic financial statement prep for your assigned accounts.\n\nYour day:\n\n1. Prepare adjusting journal entries for this month's accruals. You have three items: (a) prepaid insurance amortization — $1,800/month; (b) accrued wages — $22,400 for the last 3 days of the month not yet in payroll; (c) depreciation on a $48,000 server rack over 36 months straight-line. Write each entry with debit/credit accounts, amounts, and a one-line memo.\n2. Trial balance check: a trial balance export has a $340 out-of-balance condition. Identify the most likely causes (transposition error, missing entry, etc.) and propose a step-by-step investigation plan.\n3. Draft the prepaid-expense roll-forward schedule for the month: open balance, additions, amortization, closing balance. Format as a simple table.\n\nDo not post entries to the ledger — the Senior Accountant (FIN-L03-Hadiya) reviews and posts.",
+  "deliverables": [
+    {
+      "filename": "adjusting-entries.md",
+      "description": "Three journal entries with debit/credit accounts, dollar amounts, and one-line memos for each"
+    },
+    {
+      "filename": "trial-balance-investigation.md",
+      "description": "Root-cause hypotheses for the $340 out-of-balance, step-by-step investigation checklist"
+    },
+    {
+      "filename": "prepaid-rollforward.xlsx",
+      "description": "Prepaid-expense schedule: opening balance, additions, amortization, closing balance by expense type"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-3031.00",
+      "url": "https://www.onetonline.org/link/summary/43-3031.00",
+      "quote": "Classify, record, and summarize numerical and financial data to compile and keep financial records, using journals and ledgers or computers."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-2011.00",
+      "url": "https://www.onetonline.org/link/summary/13-2011.00",
+      "quote": "Prepare adjusting journal entries."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/accountants-and-auditors.htm",
+      "quote": "Accountants and auditors prepare and examine financial records, identify potential areas of opportunity and risk, and provide solutions."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["FIN-L03-Hadiya", "FIN-L05-Camille"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Are all three adjusting journal entries documented?",
+      "Does the trial balance investigation produce a step-by-step plan, not just guesses?",
+      "Does the prepaid roll-forward have all four columns (open, add, amort, close)?",
+      "Are debit/credit amounts present for each journal entry?"
+    ],
+    "quality": [
+      "Are debits and credits correctly assigned for each entry type?",
+      "Is the investigation plan actionable (not vague)?",
+      "Is the prepaid roll-forward table clean and machine-readable?",
+      "Are one-line memos descriptive enough for an auditor to understand the entry?",
+      "Is the math correct on all three journal entries?"
+    ],
+    "accuracy": [
+      "Is the prepaid insurance amortization calculated correctly ($1,800/month)?",
+      "Is the accrued wages entry for the right amount ($22,400)?",
+      "Is the depreciation entry $1,333.33/month ($48,000 / 36)?",
+      "Are the hypothesized causes of the $340 discrepancy technically valid?",
+      "Does the roll-forward closing balance equal opening + additions - amortization?"
+    ],
+    "handoff": [
+      "Could FIN-L03-Hadiya post these entries without asking Wendell follow-up questions?",
+      "Is each journal entry memo sufficient for an external auditor's review?",
+      "Is the investigation checklist sequenced so the most common cause is checked first?",
+      "Is the roll-forward formatted consistently with standard month-end close packages?",
+      "Did Wendell flag any entries where he was uncertain about account classification?"
+    ]
+  }
+}

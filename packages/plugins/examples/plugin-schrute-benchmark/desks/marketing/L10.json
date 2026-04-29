@@ -1,0 +1,84 @@
+{
+  "id": "MKT-L10-Ezekiel",
+  "dept": "MKT",
+  "level": 10,
+  "title": "Chief Marketing Officer",
+  "name": "Ezekiel",
+  "timeBudgetMin": 55,
+  "brief": "You are Ezekiel, Chief Marketing Officer. You sit on the executive team, report to the CEO, and own the company's brand, demand generation, and market position. The board meets in three weeks. You have a $4.8M annual marketing budget, a team of 18, and a growth target that requires marketing-sourced pipeline to increase 35% year-over-year.\n\nYour day:\n\n1. Marketing vision memo: write a 1-page document for the executive team and board. Where is the company's market position going over the next 18 months? What makes the brand hard to copy? What is the one marketing bet that will define the year — and what does it cost? Be willing to kill a sacred cow if it's not working.\n2. Board pre-read on marketing health: 1 page. Headline number (pipeline contribution YTD), velocity trend (are MQLs accelerating or decelerating?), top campaign ROI and worst-performing campaign, and top 2 marketing risks. The board has 3 minutes — make every word earn its place.\n3. Budget reallocation decision: Q2 underspend of $180K needs to be redeployed into Q3 or returned to Finance. Analyze three redeployment options (you define them), state expected pipeline impact for each, and recommend one. Acknowledge the option you're not taking and why.\n4. CEO 1:1 prep: write 5-7 bullets for your CEO meeting this week. Mix: a market signal the CEO needs to hear, a win worth celebrating, a budget or resourcing ask, and one piece of news you're surfacing proactively (don't let them hear it from someone else first).",
+  "deliverables": [
+    {
+      "filename": "marketing-vision.md",
+      "description": "1-page exec/board memo: 18-month market position direction, brand moat, one big bet with cost"
+    },
+    {
+      "filename": "board-pre-read-marketing.md",
+      "description": "1-page board pre-read: pipeline YTD, MQL velocity trend, top and worst campaign ROI, top 2 risks"
+    },
+    {
+      "filename": "budget-reallocation.md",
+      "description": "Three Q3 redeployment options with expected pipeline impact; one recommendation with rationale; one explicit rejection"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 CEO prep bullets: market signal, win, ask, and one proactively surfaced item"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Formulate, direct, or coordinate marketing activities or policies to promote products or services, working with advertising and promotion managers."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or to increase productivity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1011.00",
+      "url": "https://www.onetonline.org/link/summary/11-1011.00",
+      "quote": "Prepare or present reports concerning activities, expenses, budgets, government statutes or rulings, or other items affecting businesses or program services."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["MKT-L09-Rosa"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "All four deliverables present?",
+      "Does the vision memo name ONE big bet with a cost?",
+      "Does the board pre-read fit on one page with all four required sections?",
+      "Does the budget reallocation doc present all three options with pipeline impact?",
+      "Are 5-7 CEO 1:1 bullets present with the four required types?"
+    ],
+    "quality": [
+      "Is the marketing vision specific (a concrete direction, not a slogan)?",
+      "Does the board pre-read use real numbers (not 'trending positively')?",
+      "Does the budget recommendation acknowledge the rejected option explicitly?",
+      "Is the CEO prep focused (no items the CEO should hear from someone else first)?",
+      "Is every document scannable in under 3 minutes?"
+    ],
+    "accuracy": [
+      "Does the vision align with Rosa's OKR cascade upstream?",
+      "Are pipeline YTD and MQL velocity numbers realistic for a $4.8M budget SaaS team?",
+      "Do the three redeployment options cost exactly $180K (or explain any variance)?",
+      "Is the brand moat claim defensible (not vaporware positioning)?",
+      "Are the top 2 marketing risks genuinely different from each other (not variations of the same risk)?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting armed with the pre-read alone?",
+      "Could the CFO evaluate the budget reallocation recommendation without follow-up?",
+      "Does the vision memo set up next quarter's OKR cascade?",
+      "Could a board member ask 1-2 informed questions after reading the pre-read?",
+      "Does the CEO 1:1 prep protect Ezekiel from being blindsided on the proactive item?"
+    ]
+  }
+}

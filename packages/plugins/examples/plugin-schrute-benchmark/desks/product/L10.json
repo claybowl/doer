@@ -1,0 +1,84 @@
+{
+  "id": "PROD-L10-Beatrix",
+  "dept": "PROD",
+  "level": 10,
+  "title": "Chief Product Officer",
+  "name": "Beatrix",
+  "timeBudgetMin": 55,
+  "brief": "You are Beatrix, Chief Product Officer. You sit on the executive team, report to the CEO, and own the product vision for the entire company. Today is a board-prep week and a major strategic decision is on the table: whether to expand into a second product line or deepen the core product.\n\nYour day:\n\n1. Write the product vision memo for the board (1-2 pages). Where is this product going in 18-24 months? What is the durable wedge — the thing that makes the product genuinely hard to copy? What is the one bet that, if right, changes the trajectory of the company? The board has limited time. Every sentence must earn its place.\n2. Write a strategic options memo on the product expansion question: (a) double-down on core product, (b) launch adjacent product line, (c) platform play (open APIs + ecosystem). For each option: investment required, expected outcome, risk, and your recommendation with a clear rationale. Do not hedge — choose one and defend it.\n3. Board meeting prep: write the product section of the board pre-read (1 page). Cover: product health metrics (use real-looking numbers), top 3 risks, and 1-2 decisions you need from the board.\n4. CEO 1:1 prep: 5-7 bullets for your CEO meeting tomorrow. Mix: a win you want credited to the product org, an organizational ask, a risk the CEO needs to own, and the one strategic conversation you don't want them to be blindsided by in the board meeting.\n\nAt this level, your job is to be right about the future, and to make the case compellingly enough that the organization can act on it.",
+  "deliverables": [
+    {
+      "filename": "product-vision-board-memo.md",
+      "description": "1-2 page board memo: 18-24 month vision, durable wedge, one trajectory-changing bet"
+    },
+    {
+      "filename": "strategic-options-memo.md",
+      "description": "3-option analysis: core deepening, adjacent product, platform play — with explicit recommendation"
+    },
+    {
+      "filename": "board-pre-read-product.md",
+      "description": "1-page board pre-read: product health metrics, top 3 risks, 1-2 decisions needed from board"
+    },
+    {
+      "filename": "ceo-1on1-prep.md",
+      "description": "5-7 bullets: win to credit, org ask, risk for CEO to own, board blindspot conversation"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Direct, plan, or implement policies, objectives, or activities of organizations or businesses to ensure continuing operations, to maximize returns on investments, or to increase productivity."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Analyze operations to evaluate performance of a company or its staff in meeting objectives or to determine areas of potential cost reduction, program improvement, or policy change."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Use sales forecasting or strategic planning to ensure the sale and profitability of products or services, analyzing business developments and monitoring market trends."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/top-executives.htm",
+      "quote": "Top executives plan strategies and policies to ensure that an organization meets its goals."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L09-Anika"],
+  "downstreamDeskIds": [],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the vision memo name ONE durable wedge (not a list)?",
+      "Does the strategic options memo cover all three options with a single explicit recommendation?",
+      "Does the board pre-read include metrics, risks, AND board decisions needed?",
+      "Are 5-7 CEO 1:1 bullets present with the four required elements?"
+    ],
+    "quality": [
+      "Does the vision memo make an argument for why this wedge is durable (not just described)?",
+      "Does the strategic options memo choose a path and defend it (not hedge across all three)?",
+      "Are board pre-read metrics real-looking numbers (not 'metrics trending positively')?",
+      "Does the strategic options memo honestly state the risk of the chosen option?",
+      "Is every document scannable in <3 minutes?"
+    ],
+    "accuracy": [
+      "Does the vision memo align with Anika's strategy narrative upstream?",
+      "Are the three strategic options genuinely distinct (not variants of the same choice)?",
+      "Are product health metrics plausible for a 100-person SaaS (ARR, NPS, activation rate)?",
+      "Is the 'one bet' in the vision memo consistent with the recommended option in the strategic memo?",
+      "Does the CEO prep include a risk that genuinely requires CEO authority to own?"
+    ],
+    "handoff": [
+      "Could the CEO walk into the board meeting from the pre-read and vision memo alone?",
+      "Could the CFO and CTO model the recommended strategic option from the options memo?",
+      "Could Anika brief the board's product committee from the vision memo without Beatrix present?",
+      "Does the CEO prep name a specific conversation (not a vague 'alignment needed')?",
+      "Are next-step decisions framed as 'who decides, by when'?"
+    ]
+  }
+}

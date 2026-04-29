@@ -1,0 +1,74 @@
+{
+  "id": "FIN-L01-Tyler",
+  "dept": "FIN",
+  "level": 1,
+  "title": "AP/AR Specialist",
+  "name": "Tyler",
+  "timeBudgetMin": 25,
+  "brief": "You are Tyler, an AP/AR Specialist at a 100-person SaaS company. You handle the daily transactional backbone of the finance function — invoices in, payments out, records clean.\n\nYour day:\n\n1. Process the AP batch: you have 12 vendor invoices sitting in the queue. Match each invoice against its purchase order, verify amounts, and code each line item to the correct GL account. Flag any that lack a PO or show a >5% variance.\n2. AR aging check: pull the current AR aging report from the accounting system. Identify all accounts 30+ days overdue. Draft a follow-up email template for the collections outreach on the two largest overdue balances.\n3. Bank reconciliation stub: reconcile today's bank feed (10 transactions) against the GL. Note any unmatched items and propose the correct GL treatment for each.\n\nDo not approve payments or write off balances — those require manager sign-off. Stay transactional.",
+  "deliverables": [
+    {
+      "filename": "ap-batch-log.xlsx",
+      "description": "12-row invoice log: vendor, PO reference, amount, GL code, match status (OK / FLAG), flag reason if applicable"
+    },
+    {
+      "filename": "ar-aging-summary.md",
+      "description": "Aging buckets (current, 30, 60, 90+ days), top-2 overdue accounts highlighted, draft collections email template"
+    },
+    {
+      "filename": "bank-recon-stub.md",
+      "description": "10-transaction reconciliation: matched vs. unmatched, proposed GL treatment for exceptions"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "43-3031.00",
+      "url": "https://www.onetonline.org/link/summary/43-3031.00",
+      "quote": "Match order forms with invoices, and record the necessary information."
+    },
+    {
+      "source": "O*NET",
+      "code": "43-3031.00",
+      "url": "https://www.onetonline.org/link/summary/43-3031.00",
+      "quote": "Reconcile or note and report discrepancies found in records."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/office-and-administrative-support/bookkeeping-accounting-and-auditing-clerks.htm",
+      "quote": "Bookkeeping, accounting, and auditing clerks produce financial records for organizations."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["FIN-L05-Camille"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the AP batch log cover all 12 invoices?",
+      "Are flagged invoices given explicit flag reasons?",
+      "Does the AR aging summary include all four aging buckets?",
+      "Is the bank reconciliation stub present with unmatched items noted?"
+    ],
+    "quality": [
+      "Are GL codes plausible and consistently applied?",
+      "Is the collections email professional and specific to the overdue accounts?",
+      "Are the flag criteria (missing PO or >5% variance) applied correctly?",
+      "Is the reconciliation stub structured so a manager can review it in under 2 minutes?",
+      "Is the AR summary scannable (not a wall of text)?"
+    ],
+    "accuracy": [
+      "Do invoice amounts, PO references, and GL codes form a consistent set?",
+      "Are aging-bucket totals mathematically coherent?",
+      "Are unmatched bank items described with enough detail to resolve?",
+      "Does the flag logic correctly exclude items within the 5% tolerance?",
+      "Are proposed GL treatments standard for the transaction types listed?"
+    ],
+    "handoff": [
+      "Could FIN-L05-Camille approve or escalate flagged invoices from the AP log alone?",
+      "Is the collections email ready to send with only recipient/amount substitution?",
+      "Are unmatched reconciliation items clearly marked as needing manager decision?",
+      "Would the AR aging summary feed into a monthly close report without rework?",
+      "Did Tyler flag any items requiring manager approval rather than acting unilaterally?"
+    ]
+  }
+}

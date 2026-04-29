@@ -1,0 +1,80 @@
+{
+  "id": "HR-L04-Manolo",
+  "dept": "HR",
+  "level": 4,
+  "title": "People Business Partner",
+  "name": "Manolo",
+  "timeBudgetMin": 35,
+  "brief": "You are Manolo, a People Business Partner (PBP) at a 100-person SaaS company. You are embedded with the Engineering and Product orgs (~50 people), acting as the strategic HR contact for those teams. Your work today crosses compensation analysis, performance advisory, and policy coordination.\n\n1. Comp benchmarking memo: the Engineering leadership team is asking whether the current salary bands for Senior and Staff Engineers are competitive. Pull together a benchmarking memo that compares the internal bands to three market references (Radford/Mercer tiers, Levels.fyi median, local cost-of-labor index). Identify any roles that are clearly off-band and recommend whether to adjust this cycle or hold for the next annual review.\n\n2. Performance improvement plan (PIP) draft: a Senior Engineer has had two quarters of below-expectations ratings and the engineering manager wants to begin a formal PIP. Write the PIP document covering: the specific performance gaps, measurable improvement targets, a 90-day timeline with 30/60/90 checkpoints, and support resources offered.\n\n3. Policy clarification note: three engineers asked about the remote work reimbursement policy (home office stipend, internet subsidy). Write a concise internal FAQ (5-7 Q&As) grounded in the current policy, flagging any ambiguities that need legal or leadership sign-off before publishing.\n\nYou are the cross-functional connector. Your output has to work for both the engineering manager and the HR function.",
+  "deliverables": [
+    {
+      "filename": "comp-benchmarking-memo.md",
+      "description": "Benchmarking memo comparing internal Senior/Staff Engineer bands to 3 market sources; band gap analysis and cycle recommendation"
+    },
+    {
+      "filename": "pip-senior-engineer.md",
+      "description": "PIP document: performance gaps, measurable targets, 90-day timeline with 30/60/90 checkpoints, support resources"
+    },
+    {
+      "filename": "remote-work-faq.md",
+      "description": "5-7 Q&A FAQ on home office stipend and internet subsidy policy; ambiguities flagged for legal/leadership review"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "13-1141.00",
+      "url": "https://www.onetonline.org/link/summary/13-1141.00",
+      "quote": "Evaluate job positions, determining classification, exempt or non-exempt status, and salary."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1141.00",
+      "url": "https://www.onetonline.org/link/summary/13-1141.00",
+      "quote": "Develop, implement, administer, and evaluate personnel and labor relations programs, including performance appraisal, affirmative action, and employment equity programs."
+    },
+    {
+      "source": "O*NET",
+      "code": "13-1071.00",
+      "url": "https://www.onetonline.org/link/summary/13-1071.00",
+      "quote": "Advise management on organizing, preparing, or implementing recruiting or retention programs."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/business-and-financial/compensation-benefits-and-job-analysis-specialists.htm",
+      "quote": "Compensation, benefits, and job analysis specialists oversee wage and nonwage programs that an organization provides to its employees."
+    }
+  ],
+  "upstreamDeskIds": [],
+  "downstreamDeskIds": ["HR-L05-Estelle"],
+  "rubric": {
+    "completion": [
+      "Are all three deliverables present?",
+      "Does the benchmarking memo reference at least 3 market data sources?",
+      "Does the PIP include 30/60/90 day checkpoints with measurable targets at each?",
+      "Does the FAQ contain 5-7 Q&As (not more, not fewer)?",
+      "Are ambiguous policy areas flagged explicitly in the FAQ?"
+    ],
+    "quality": [
+      "Does the benchmarking memo distinguish between Senior and Staff Engineer bands (not combined)?",
+      "Are PIP targets specific and measurable (not 'improve communication')?",
+      "Does the FAQ use plain English accessible to engineers, not HR jargon?",
+      "Does the comp memo make a clear recommendation (adjust now vs. hold)?",
+      "Is the PIP structured so the manager can run each checkpoint meeting from the doc?"
+    ],
+    "accuracy": [
+      "Are the three market reference sources cited by name (Radford, Levels.fyi, etc.)?",
+      "Is the PIP timeline 90 days with checkpoints at exactly 30, 60, and 90 days?",
+      "Are the performance gaps in the PIP tied to specific behaviors, not personality?",
+      "Is the remote work reimbursement FAQ factually consistent (no contradictions)?",
+      "Is the comp band recommendation supported by the benchmarking evidence presented?"
+    ],
+    "handoff": [
+      "Could HR-L05-Estelle approve the benchmarking memo for Director review?",
+      "Could the engineering manager deliver the PIP meeting from this document alone?",
+      "Could the FAQ be published to the internal wiki with only the flagged items resolved?",
+      "Are all three deliverables labeled with the intended audience (manager, HR, all-hands)?",
+      "Does the comp memo state clearly which roles are at risk of attrition if bands aren't adjusted?"
+    ]
+  }
+}

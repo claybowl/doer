@@ -1,0 +1,79 @@
+{
+  "id": "PROD-L06-Hassan",
+  "dept": "PROD",
+  "level": 6,
+  "title": "Director of Product",
+  "name": "Hassan",
+  "timeBudgetMin": 35,
+  "brief": "You are Hassan, Director of Product. You manage a team of 5 PMs through Elena (Group PM). Today you received Elena's sprint synthesis, escalation note, and the refined OKRs. You also have a stakeholder alignment meeting to prep for and a PM performance review cycle to kick off.\n\nYour day:\n\n1. Review Elena's sprint summary and escalation note. Write a decision record resolving the dependency conflict she escalated: state the decision, the rationale, the trade-offs you are accepting, and who owns follow-through. This will be shared with Elena and the engineering leads.\n2. Write the product team's quarterly roadmap memo (1.5 pages): the 3-4 themes for the quarter, what we are deliberately NOT doing, and the one bet that if it works will matter most. This is the document that goes to the VP (PROD-L08-Diego) for approval.\n3. Prepare a 30-minute stakeholder alignment agenda for a cross-functional meeting with Engineering, Design, and CS. The agenda should include: pre-read link, objective of the meeting, 4-5 agenda items with time allocations, and desired outcomes.\n4. Write 2-3 performance coaching notes — one for an IC who is excelling (Jorge), one who is developing well (Nadia), one who needs a direct conversation about scope creep (assume a generic PM). Each note: 3-5 bullets, specific, actionable.\n\nYou are making calls that affect multiple teams. Be explicit about what you're deciding, not just recommending.",
+  "deliverables": [
+    {
+      "filename": "dependency-decision-record.md",
+      "description": "Decision on escalated conflict: decision, rationale, trade-offs, owner of follow-through"
+    },
+    {
+      "filename": "quarterly-roadmap-memo.md",
+      "description": "1.5-page roadmap: 3-4 themes, deliberate cuts, the one bet for the quarter"
+    },
+    {
+      "filename": "stakeholder-alignment-agenda.md",
+      "description": "30-min agenda: pre-read, objective, 4-5 timed items, desired outcomes"
+    },
+    {
+      "filename": "pm-coaching-notes.md",
+      "description": "3 coaching notes (excelling, developing, scope-creep) — 3-5 bullets each, specific"
+    }
+  ],
+  "citations": [
+    {
+      "source": "O*NET",
+      "code": "11-2021.00",
+      "url": "https://www.onetonline.org/link/summary/11-2021.00",
+      "quote": "Evaluate the financial aspects of product development, such as budgets, expenditures, research and development appropriations, or return-on-investment and profit-loss projections."
+    },
+    {
+      "source": "O*NET",
+      "code": "11-1021.00",
+      "url": "https://www.onetonline.org/link/summary/11-1021.00",
+      "quote": "Establish and implement departmental policies, goals, objectives, and procedures, conferring with board members, organization officials, and staff members as necessary."
+    },
+    {
+      "source": "BLS OOH",
+      "url": "https://www.bls.gov/ooh/management/marketing-managers.htm",
+      "quote": "Marketing managers plan programs to generate interest in products or services and coordinate with other managers, including sales managers."
+    }
+  ],
+  "upstreamDeskIds": ["PROD-L05-Elena"],
+  "downstreamDeskIds": ["PROD-L07-Mei"],
+  "rubric": {
+    "completion": [
+      "Are all four deliverables present?",
+      "Does the decision record include rationale and named follow-through owner?",
+      "Does the roadmap memo name 3-4 themes and at least one explicit cut?",
+      "Does the agenda have 4-5 timed items summing to ~30 minutes?",
+      "Are there coaching notes for all three profiles (excelling, developing, scope-creep)?"
+    ],
+    "quality": [
+      "Is the decision record a decision (not a recommendation to keep discussing)?",
+      "Does the roadmap memo identify 'the one bet' explicitly?",
+      "Is the agenda structured to reach a decision (not just share updates)?",
+      "Are coaching notes specific to the individual (not copy-paste generic feedback)?",
+      "Is the roadmap framing compelling enough for VP-level review?"
+    ],
+    "accuracy": [
+      "Does the decision record address the specific conflict Elena escalated?",
+      "Are roadmap themes consistent with the OKRs Elena refined?",
+      "Do the agenda desired outcomes match the meeting's stated objective?",
+      "Are coaching notes calibrated to seniority (APM vs PM feedback differs)?",
+      "Does the 'one bet' in the roadmap have a clear hypothesis (not just an area)?",
+      "Are trade-offs in the decision record honest (not just upside framing)?"
+    ],
+    "handoff": [
+      "Could PROD-L07-Mei absorb the roadmap memo for a VP presentation without rework?",
+      "Could Elena communicate the dependency decision to engineering from the decision record?",
+      "Could the meeting participants prepare from the agenda alone?",
+      "Could HR use the coaching notes to contextualize performance review ratings?",
+      "Are next-step owners and deadlines named in at least the decision record and roadmap?"
+    ]
+  }
+}
