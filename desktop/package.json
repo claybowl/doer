@@ -1,6 +1,6 @@
 {
   "name": "@doer/desktop",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "private": true,
   "description": "Doer desktop shell (Electron)",
   "main": ".vite/build/main.js",
