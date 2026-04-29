@@ -12,7 +12,7 @@
 <p align="center">
   <a href="https://github.com/doerai/doer/blob/master/LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="MIT License" /></a>
   <a href="https://github.com/doerai/doer/stargazers"><img src="https://img.shields.io/github/stars/doerai/doer?style=flat" alt="Stars" /></a>
-  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/discord/000000000?label=discord" alt="Discord" /></a>
+  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/badge/discord-join-5865F2?logo=discord&logoColor=white" alt="Discord" /></a>
 </p>
 
 <br/>
@@ -23,11 +23,9 @@
 
 <br/>
 
-## What is Doer?
+# Open-source orchestration for autonomous AI companies
 
-# Open-source orchestration for zero-human companies
-
-**If OpenClaw is an _employee_, Doer is the _company_**
+**If OpenClaw is an _employee_, Doer is the _company_.**
 
 Doer is a Node.js server and React UI that orchestrates a team of AI agents to run a business. Bring your own agents, assign goals, and track your agents' work and costs from one dashboard.
 
@@ -40,10 +38,6 @@ It looks like a task manager — but under the hood it has org charts, budgets, 
 | **01** | Define the goal | _"Build the #1 AI note-taking app to $1M MRR."_                    |
 | **02** | Hire the team   | CEO, CTO, engineers, designers, marketers — any bot, any provider. |
 | **03** | Approve and run | Review strategy. Set budgets. Hit go. Monitor from the dashboard.  |
-
-<br/>
-
-> **COMING SOON: Clipmart** — Download and run entire companies with one click. Browse pre-built company templates — full org structures, agent configs, and skills — and import them into your Doer instance in seconds.
 
 <br/>
 
@@ -129,14 +123,14 @@ Monitor and manage your autonomous businesses from anywhere.
 
 ## Problems Doer solves
 
-| Without Doer                                                                                                                     | With Doer                                                                                                                         |
-| ------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| ❌ You have 20 Claude Code tabs open and can't track which one does what. On reboot you lose everything.                              | ✅ Tasks are ticket-based, conversations are threaded, sessions persist across reboots.                                                |
-| ❌ You manually gather context from several places to remind your bot what you're actually doing.                                     | ✅ Context flows from the task up through the project and company goals — your agent always knows what to do and why.                  |
+| Without Doer | With Doer |
+| --- | --- |
+| ❌ You have 20 Claude Code tabs open and can't track which one does what. On reboot you lose everything. | ✅ Tasks are ticket-based, conversations are threaded, sessions persist across reboots. |
+| ❌ You manually gather context from several places to remind your bot what you're actually doing. | ✅ Context flows from the task up through the project and company goals — your agent always knows what to do and why. |
 | ❌ Folders of agent configs are disorganized and you're re-inventing task management, communication, and coordination between agents. | ✅ Doer gives you org charts, ticketing, delegation, and governance out of the box — so you run a company, not a pile of scripts. |
-| ❌ Runaway loops waste hundreds of dollars of tokens and max your quota before you even know what happened.                           | ✅ Cost tracking surfaces token budgets and throttles agents when they're out. Management prioritizes with budgets.                    |
-| ❌ You have recurring jobs (customer support, social, reports) and have to remember to manually kick them off.                        | ✅ Heartbeats handle regular work on a schedule. Management supervises.                                                                |
-| ❌ You have an idea, you have to find your repo, fire up Claude Code, keep a tab open, and babysit it.                                | ✅ Add a task in Doer. Your coding agent works on it until it's done. Management reviews their work.                              |
+| ❌ Runaway loops waste hundreds of dollars of tokens and max your quota before you even know what happened. | ✅ Cost tracking surfaces token budgets and throttles agents when they're out. Management prioritizes with budgets. |
+| ❌ You have recurring jobs (customer support, social, reports) and have to remember to manually kick them off. | ✅ Heartbeats handle regular work on a schedule. Management supervises. |
+| ❌ You have an idea, you have to find your repo, fire up Claude Code, keep a tab open, and babysit it. | ✅ Add a task in Doer. Your coding agent works on it until it's done. Management reviews their work. |
 
 <br/>
 
@@ -144,28 +138,28 @@ Monitor and manage your autonomous businesses from anywhere.
 
 Doer handles the hard orchestration details correctly.
 
-|                                   |                                                                                                               |
-| --------------------------------- | ------------------------------------------------------------------------------------------------------------- |
-| **Atomic execution.**             | Task checkout and budget enforcement are atomic, so no double-work and no runaway spend.                      |
-| **Persistent agent state.**       | Agents resume the same task context across heartbeats instead of restarting from scratch.                     |
-| **Runtime skill injection.**      | Agents can learn Doer workflows and project context at runtime, without retraining.                      |
-| **Governance with rollback.**     | Approval gates are enforced, config changes are revisioned, and bad changes can be rolled back safely.        |
-| **Goal-aware execution.**         | Tasks carry full goal ancestry so agents consistently see the "why," not just a title.                        |
-| **Portable company templates.**   | Export/import orgs, agents, and skills with secret scrubbing and collision handling.                          |
+| | |
+| --- | --- |
+| **Atomic execution.** | Task checkout and budget enforcement are atomic, so no double-work and no runaway spend. |
+| **Persistent agent state.** | Agents resume the same task context across heartbeats instead of restarting from scratch. |
+| **Runtime skill injection.** | Agents can learn Doer workflows and project context at runtime, without retraining. |
+| **Governance with rollback.** | Approval gates are enforced, config changes are revisioned, and bad changes can be rolled back safely. |
+| **Goal-aware execution.** | Tasks carry full goal ancestry so agents consistently see the "why," not just a title. |
+| **Portable company templates.** | Export/import orgs, agents, and skills with secret scrubbing and collision handling. |
 | **True multi-company isolation.** | Every entity is company-scoped, so one deployment can run many companies with separate data and audit trails. |
 
 <br/>
 
 ## What Doer is not
 
-|                              |                                                                                                                      |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| **Not a chatbot.**           | Agents have jobs, not chat windows.                                                                                  |
-| **Not an agent framework.**  | We don't tell you how to build agents. We tell you how to run a company made of them.                                |
-| **Not a workflow builder.**  | No drag-and-drop pipelines. Doer models companies — with org charts, goals, budgets, and governance.            |
-| **Not a prompt manager.**    | Agents bring their own prompts, models, and runtimes. Doer manages the organization they work in.               |
+| | |
+| --- | --- |
+| **Not a chatbot.** | Agents have jobs, not chat windows. |
+| **Not an agent framework.** | We don't tell you how to build agents. We tell you how to run a company made of them. |
+| **Not a workflow builder.** | No drag-and-drop pipelines. Doer models companies — with org charts, goals, budgets, and governance. |
+| **Not a prompt manager.** | Agents bring their own prompts, models, and runtimes. Doer manages the organization they work in. |
 | **Not a single-agent tool.** | This is for teams. If you have one agent, you probably don't need Doer. If you have twenty — you definitely do. |
-| **Not a code review tool.**  | Doer orchestrates work, not pull requests. Bring your own review process.                                       |
+| **Not a code review tool.** | Doer orchestrates work, not pull requests. Bring your own review process. |
 
 <br/>
 
@@ -174,30 +168,24 @@ Doer handles the hard orchestration details correctly.
 Open source. Self-hosted. No Doer account required.
 
 ```bash
-npx doerai onboard --yes
-```
-
-Or manually:
-
-```bash
 git clone https://github.com/doerai/doer.git
 cd doer
 pnpm install
 pnpm dev
 ```
 
-This starts the API server at `http://localhost:3100`. An embedded PostgreSQL database is created automatically — no setup required.
+Open `http://localhost:3100`. An embedded PostgreSQL database is created automatically — no external setup required.
 
-> **Requirements:** Node.js 20+, pnpm 9.15+
+> **Requirements:** Node.js 20+, pnpm 9+
 
 <br/>
 
 ## FAQ
 
 **What does a typical setup look like?**
-Locally, a single Node.js process manages an embedded Postgres and local file storage. For production, point it at your own Postgres and deploy however you like. Configure projects, agents, and goals — the agents take care of the rest.
+A single Node.js process manages an embedded Postgres and local file storage. For production, point it at your own Postgres and deploy however you like. Configure projects, agents, and goals — the agents take care of the rest.
 
-If you're a solo-entreprenuer you can use Tailscale to access Doer on the go. Then later you can deploy to e.g. Vercel when you need it.
+If you're a solo entrepreneur, use Tailscale to access Doer on the go. Deploy to Vercel or a VPS when you need it public.
 
 **Can I run multiple companies?**
 Yes. A single deployment can run an unlimited number of companies with complete data isolation.
@@ -205,13 +193,11 @@ Yes. A single deployment can run an unlimited number of companies with complete 
 **How is Doer different from agents like OpenClaw or Claude Code?**
 Doer _uses_ those agents. It orchestrates them into a company — with org charts, budgets, goals, governance, and accountability.
 
-**Why should I use Doer instead of just pointing my OpenClaw to Asana or Trello?**
-Agent orchestration has subtleties in how you coordinate who has work checked out, how to maintain sessions, monitoring costs, establishing governance - Doer does this for you.
-
-(Bring-your-own-ticket-system is on the Roadmap)
+**Why should I use Doer instead of pointing my OpenClaw at Asana or Trello?**
+Agent orchestration has subtleties: coordinating who has work checked out, maintaining sessions, monitoring costs, establishing governance. Doer does all of this. (Bring-your-own-ticket-system is on the roadmap.)
 
 **Do agents run continuously?**
-By default, agents run on scheduled heartbeats and event-based triggers (task assignment, @-mentions). You can also hook in continuous agents like OpenClaw. You bring your agent and Doer coordinates.
+By default, agents run on scheduled heartbeats and event-based triggers (task assignment, @-mentions). You can also hook in continuous agents like OpenClaw. You bring your agent — Doer coordinates.
 
 <br/>
 
@@ -219,13 +205,13 @@ By default, agents run on scheduled heartbeats and event-based triggers (task as
 
 ```bash
 pnpm dev              # Full dev (API + UI, watch mode)
-pnpm dev:once         # Full dev without file watching
+pnpm dev:once         # Single boot, no file watching
 pnpm dev:server       # Server only
-pnpm build            # Build all
-pnpm typecheck        # Type checking
-pnpm test:run         # Run tests
-pnpm db:generate      # Generate DB migration
-pnpm db:migrate       # Apply migrations
+pnpm build            # Build all packages
+pnpm typecheck        # Type-check all packages
+pnpm test:run         # Run unit tests
+pnpm db:generate      # Compile schema + generate migration
+pnpm db:migrate       # Apply pending migrations
 ```
 
 See [doc/DEVELOPING.md](doc/DEVELOPING.md) for the full development guide.
@@ -234,18 +220,18 @@ See [doc/DEVELOPING.md](doc/DEVELOPING.md) for the full development guide.
 
 ## Roadmap
 
-- ✅ Plugin system (e.g. add a knowledge base, custom tracing, queues, etc)
-- ✅ Get OpenClaw / claw-style agent employees
-- ✅ companies.sh - import and export entire organizations
-- ✅ Easy AGENTS.md configurations
+- ✅ Plugin system (add a knowledge base, custom tracing, queues, etc.)
+- ✅ OpenClaw / claw-style agent employees
+- ✅ Company import & export
+- ✅ AGENTS.md configuration format
 - ✅ Skills Manager
 - ✅ Scheduled Routines
-- ✅ Better Budgeting
+- ✅ Budget enforcement
+- ⚪ Clipmart — browse and install pre-built company templates
 - ⚪ Artifacts & Deployments
 - ⚪ CEO Chat
-- ⚪ MAXIMIZER MODE
 - ⚪ Multiple Human Users
-- ⚪ Cloud / Sandbox agents (e.g. Cursor / e2b agents)
+- ⚪ Cloud / Sandbox agents (Cursor, e2b)
 - ⚪ Cloud deployments
 - ⚪ Desktop App
 
@@ -253,7 +239,7 @@ See [doc/DEVELOPING.md](doc/DEVELOPING.md) for the full development guide.
 
 ## Community & Plugins
 
-Find Plugins and more at [awesome-doer](https://github.com/gsxdsm/awesome-doer)
+Find plugins and more at [awesome-doer](https://github.com/gsxdsm/awesome-doer).
 
 ## Contributing
 
@@ -265,7 +251,7 @@ We welcome contributions. See the [contributing guide](CONTRIBUTING.md) for deta
 
 - [Discord](https://discord.gg/m4HZY7xNG3) — Join the community
 - [GitHub Issues](https://github.com/doerai/doer/issues) — bugs and feature requests
-- [GitHub Discussions](https://github.com/doerai/doer/discussions) — ideas and RFC
+- [GitHub Discussions](https://github.com/doerai/doer/discussions) — ideas and RFCs
 
 <br/>
 
@@ -275,7 +261,7 @@ MIT &copy; 2026 Doer
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/image?repos=doerai/doer&type=date&legend=top-left)](https://www.star-history.com/?repos=doerai%2Fpaperclip&type=date&legend=top-left)
+[![Star History Chart](https://api.star-history.com/image?repos=doerai/doer&type=date&legend=top-left)](https://www.star-history.com/?repos=doerai%2Fdoer&type=date&legend=top-left)
 
 <br/>
 
