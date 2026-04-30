@@ -2,6 +2,7 @@ import * as React from "react";
 import { NavLink, Outlet, useLocation, useNavigate, useParams } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { useDialog } from "@/context/DialogContext";
+import { ToastViewport } from "@/components/ToastViewport";
 import { Icon, I } from "./utils";
 import "./tokens.css";
 
@@ -574,6 +575,9 @@ export function FernwehShell() {
       >
         <Outlet context={{ look, theme }} />
       </main>
+
+      {/* Toast notifications — must live here since Fernweh doesn't use Layout */}
+      <ToastViewport />
 
       {/* Tweaks panel */}
       <div className={`fw-tweaks ${tweaksOpen ? "open" : ""}`}>

@@ -120,13 +120,13 @@ export function ToggleField({
         data-slot="toggle"
         className={cn(
           "relative inline-flex h-5 w-9 items-center rounded-full transition-colors",
-          checked ? "bg-green-600" : "bg-muted"
+          checked ? "bg-green-600" : "bg-zinc-400 dark:bg-zinc-600"
         )}
         onClick={() => onChange(!checked)}
       >
         <span
           className={cn(
-            "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
+            "inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform",
             checked ? "translate-x-4.5" : "translate-x-0.5"
           )}
         />
@@ -169,13 +169,13 @@ export function ToggleWithNumber({
           data-slot="toggle"
           className={cn(
             "relative inline-flex h-5 w-9 items-center rounded-full transition-colors shrink-0",
-            checked ? "bg-green-600" : "bg-muted"
+            checked ? "bg-green-600" : "bg-zinc-400 dark:bg-zinc-600"
           )}
           onClick={() => onCheckedChange(!checked)}
         >
           <span
             className={cn(
-              "inline-block h-3.5 w-3.5 rounded-full bg-white transition-transform",
+              "inline-block h-3.5 w-3.5 rounded-full bg-white shadow transition-transform",
               checked ? "translate-x-4.5" : "translate-x-0.5"
             )}
           />
