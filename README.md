@@ -1,25 +1,5 @@
 # The operating system for autonomous AI companies
 
-<p align="center">
-  <img src="doc/assets/header.png" alt="Doer — Control plane for autonomous AI companies" width="100%" />
-</p>
-
-<p align="center">
-  <strong>If an AI agent is an employee, Doer is the company.</strong>
-</p>
-
-<p align="center">
-  Doer is an open-source Node.js server and React dashboard that orchestrates teams of AI agents into autonomous businesses — with org charts, budgets, governance, goal alignment, and real-time oversight.
-</p>
-
-<p align="center">
-  <a href="https://discord.gg/m4HZY7xNG3"><img src="https://img.shields.io/discord/m4HZY7xNG3?label=Discord&color=5865F2" alt="Discord" /></a>
-  <a href="https://github.com/doerai/doer/blob/main/LICENSE"><img src="https://img.shields.io/github/license/doerai/doer" alt="License" /></a>
-  <a href="https://github.com/doerai/doer/stargazers"><img src="https://img.shields.io/github/stars/doerai/doer" alt="Stars" /></a>
-</p>
-
-<br/>
-
 ---
 
 ## The thesis
