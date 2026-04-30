@@ -1,112 +1,150 @@
 # AGENTS.md
 
-Guidance for human and AI contributors working in this repository.
+Guidance for AI contributors working in the Doer repository.
 
 ## 1. Purpose
 
-Doer is a control plane for AI-agent companies.
-The current implementation target is V1 and is defined in `doc/SPEC-implementation.md`.
+Doer is a control plane for AI-agent companies — not a chatbot or task manager. It orchestrates teams of AI agents with cost control, governance, approval gates, and goal-ancestry tracing.
+
+The current implementation target is V1, defined in `doc/SPEC-implementation.md`. Long-horizon product context lives in `doc/SPEC.md`.
 
 ## 2. Read This First
 
 Before making changes, read in this order:
 
-1. `doc/GOAL.md`
-2. `doc/PRODUCT.md`
-3. `doc/SPEC-implementation.md`
-4. `doc/DEVELOPING.md`
-5. `doc/DATABASE.md`
-
-`doc/SPEC.md` is long-horizon product context.
-`doc/SPEC-implementation.md` is the concrete V1 build contract.
+1. `doc/GOAL.md` — vision and thesis
+2. `doc/PRODUCT.md` — product definition, principles, user flows
+3. `doc/SPEC-implementation.md` — concrete V1 build contract
+4. `doc/DEVELOPING.md` — full dev guide, Docker, worktrees
+5. `doc/DATABASE.md` — schema, migrations, DB modes
 
 ## 3. Repo Map
 
-- `server/`: Express REST API and orchestration services
-- `ui/`: React + Vite board UI
-- `packages/db/`: Drizzle schema, migrations, DB clients
-- `packages/shared/`: shared types, constants, validators, API path constants
-- `packages/adapters/`: agent adapter implementations (Claude, Codex, Cursor, etc.)
-- `packages/adapter-utils/`: shared adapter utilities
-- `packages/plugins/`: plugin system packages
-- `doc/`: operational and product docs
+```
+server/           Express REST API + orchestration services (@doerai/server)
+ui/               React 19 + Vite board UI (@doerai/ui), served by API in dev
+cli/              doerai CLI package
+packages/
+  db/             Drizzle ORM schema, migrations, PGlite client (@doerai/db)
+  shared/         Shared types, constants, validators, API path constants
+  adapters/       Agent adapter packages (claude-local, codex-local, cursor,
+                  gemini-local, letta-cloud, openclaw-gateway, opencode-local, pi-local)
+  adapter-utils/  Shared adapter utilities
+  plugins/        Plugin system + example plugins
+  plugin-sdk/     Plugin SDK (must be built before server typecheck)
+desktop/          Electron desktop shell (separate release flow)
+doc/              Architecture, product, spec docs
+evals/            PromptFoo eval framework
+skills/           Runtime skill injection for agents
+```
 
-## 4. Dev Setup (Auto DB)
+**Adapter registry:** `server/src/adapters/registry.ts` — register new adapters here. The `letta-cloud` adapter is the most current reference pattern. Letta agents use `kimi-k2-5`, not Anthropic models.
 
-Use embedded PGlite in dev by leaving `DATABASE_URL` unset.
+## 4. Dev Commands
+
+All commands run from repo root. pnpm 9.15.4 required. Node 20+.
 
 ```sh
 pnpm install
-pnpm dev
+pnpm dev              # API + UI watch mode, auto-restart on workspace changes
+pnpm dev:once         # single boot, no file watching
+pnpm dev:server       # server only
+pnpm dev:ui           # UI only
+pnpm build            # build all packages
+pnpm -r typecheck     # type-check all packages
+pnpm test:run         # run unit tests (vitest, non-interactive)
+pnpm test             # vitest watch mode
+pnpm test:e2e         # Playwright E2E tests
+pnpm evals:smoke      # PromptFoo eval suite
+pnpm db:generate      # compile schema + generate migration
+pnpm db:migrate       # apply pending migrations
 ```
 
-This starts:
+**Single test file:** `pnpm vitest run path/to/test.ts`
 
-- API: `http://localhost:3100`
-- UI: `http://localhost:3100` (served by API server in dev middleware mode)
-
-Quick checks:
-
+**Health check:**
 ```sh
 curl http://localhost:3100/api/health
 curl http://localhost:3100/api/companies
 ```
 
-Reset local dev DB:
-
+**Reset local dev DB (embedded PGlite):**
 ```sh
-rm -rf data/pglite
-pnpm dev
+rm -rf data/pglite && pnpm dev
+# or for the default instance:
+rm -rf ~/.doer/instances/default/db && pnpm dev
 ```
 
-## 5. Core Engineering Rules
+**One-command bootstrap:** `pnpm doerai run` — auto-onboards, runs doctor, starts server.
 
-1. Keep changes company-scoped.
-Every domain entity should be scoped to a company and company boundaries must be enforced in routes/services.
+**Docker quickstart:** `docker compose -f docker-compose.quickstart.yml up --build`
 
-2. Keep contracts synchronized.
-If you change schema/API behavior, update all impacted layers:
-- `packages/db` schema and exports
-- `packages/shared` types/constants/validators
-- `server` routes/services
-- `ui` API clients and pages
+## 5. Monorepo Conventions
 
-3. Preserve control-plane invariants.
-- Single-assignee task model
-- Atomic issue checkout semantics
-- Approval gates for governed actions
-- Budget hard-stop auto-pause behavior
-- Activity logging for mutating actions
-
-4. Do not replace strategic docs wholesale unless asked.
-Prefer additive updates. Keep `doc/SPEC.md` and `doc/SPEC-implementation.md` aligned.
-
-5. Keep plan docs dated and centralized.
-New plan documents belong in `doc/plans/` and should use `YYYY-MM-DD-slug.md` filenames.
+- **Package manager:** pnpm 9.15.4 (enforced via `packageManager` in root package.json)
+- **Workspace:** `pnpm-workspace.yaml` covers `packages/*`, `packages/adapters/*`, `packages/plugins/*`, `packages/plugins/examples/*`, `server`, `ui`, `cli`
+- **TypeScript:** `NodeNext` module resolution, `ES2023` target, `strict` enabled. `tsconfig.base.json` excludes `* 2.*`, `* 3.*`, `* copy.*` files.
+- **Lockfile policy:** CI owns `pnpm-lock.yaml`. **Do not commit it in PRs.** PR CI blocks manual lockfile edits and validates dependency resolution when manifests change.
 
 ## 6. Database Change Workflow
 
 When changing data model:
 
 1. Edit `packages/db/src/schema/*.ts`
-2. Ensure new tables are exported from `packages/db/src/schema/index.ts`
-3. Generate migration:
+2. Export new tables from `packages/db/src/schema/index.ts`
+3. `pnpm db:generate` — this **compiles packages/db first** (drizzle.config.ts reads `dist/schema/*.js`), then generates migration
+4. `pnpm -r typecheck` to validate
 
-```sh
-pnpm db:generate
+**Key note:** `packages/db/drizzle.config.ts` reads compiled schema from `dist/schema/*.js`. `pnpm db:generate` handles the compile step, but if you run drizzle-kit directly, ensure the package is built first.
+
+## 7. Contract Sync Rule
+
+Schema/API changes must propagate through all four layers:
+
+```
+packages/db  →  packages/shared  →  server  →  ui
 ```
 
-4. Validate compile:
+When modifying:
+- **DB layer:** schema, migrations, exports
+- **Shared layer:** types, constants, validators, API path constants
+- **Server layer:** routes, services, auth checks
+- **UI layer:** API clients, pages, company-scoped components
 
-```sh
-pnpm -r typecheck
-```
+## 8. Core Engineering Rules
 
-Notes:
-- `packages/db/drizzle.config.ts` reads compiled schema from `dist/schema/*.js`
-- `pnpm db:generate` compiles `packages/db` first
+1. **Company-scoped everything.** Every domain entity belongs to a company. Routes and services must enforce company boundaries. Agent API keys must not access other companies.
 
-## 7. Verification Before Hand-off
+2. **Preserve control-plane invariants:**
+   - Single-assignee task model with atomic issue checkout
+   - Approval gates for governed actions (hires, CEO strategy)
+   - Budget hard-stop auto-pause when limits are hit
+   - Activity logging for all mutating actions
+   - Agent keys hashed at rest, scoped to their company
+
+3. **Do not replace strategic docs wholesale.** Prefer additive updates. Keep `doc/SPEC.md` and `doc/SPEC-implementation.md` aligned.
+
+4. **Plan docs dated and centralized.** New plans go in `doc/plans/YYYY-MM-DD-slug.md`.
+
+## 9. API and Auth Expectations
+
+- Base path: `/api`
+- Board access = full-control operator context
+- Agent access = bearer API keys (`agent_api_keys`), hashed at rest
+- When adding endpoints:
+  - Apply company access checks
+  - Enforce actor permissions (board vs agent)
+  - Write activity log entries for mutations
+  - Return consistent HTTP errors (`400/401/403/404/409/422/500`)
+
+## 10. UI Expectations
+
+- Keep routes and nav aligned with available API surface
+- Use company selection context for company-scoped pages
+- Surface failures clearly; do not silently ignore API errors
+- The UI is served by the API server in dev (same origin). In production it's a static build served from Express.
+
+## 11. Verification Before Hand-off
 
 Run this full check before claiming done:
 
@@ -118,31 +156,39 @@ pnpm build
 
 If anything cannot be run, explicitly report what was not run and why.
 
-## 8. API and Auth Expectations
+**CI runs:** typecheck → test → build → release canary dry-run (on PRs). E2E runs separately with `DOER_E2E_SKIP_LLM=true`.
 
-- Base path: `/api`
-- Board access is treated as full-control operator context
-- Agent access uses bearer API keys (`agent_api_keys`), hashed at rest
-- Agent keys must not access other companies
+## 12. Release Model
 
-When adding endpoints:
+- **Calendar versioning:** `YYYY.MDD.P` (stable), `YYYY.MDD.P-canary.N` (canary)
+- **Canaries:** auto-published on every push to `master` via GitHub Actions
+- **Stables:** manually promoted from a chosen commit via `workflow_dispatch`
+- **Release notes:** `releases/vYYYY.MDD.P.md` (stable only)
+- **Desktop:** separate Electron release flow in `desktop/`, published to S3 + auto-updater
 
-- apply company access checks
-- enforce actor permissions (board vs agent)
-- write activity log entries for mutations
-- return consistent HTTP errors (`400/401/403/404/409/422/500`)
+## 13. Worktree Development
 
-## 9. UI Expectations
+When working from multiple git worktrees, use isolated Doer instances to avoid DB collisions:
 
-- Keep routes and nav aligned with available API surface
-- Use company selection context for company-scoped pages
-- Surface failures clearly; do not silently ignore API errors
+```sh
+pnpm doerai worktree init
+# or combined:
+pnpm doerai worktree:make <branch-name>
+```
 
-## 10. Definition of Done
+This creates an isolated instance under `~/.doer-worktrees/instances/<worktree-id>/` with a free app port and embedded PG port. Normal commands like `pnpm dev` auto-scope to the worktree instance when inside one.
+
+## 14. Definition of Done
 
 A change is done when all are true:
 
 1. Behavior matches `doc/SPEC-implementation.md`
-2. Typecheck, tests, and build pass
+2. Typecheck, tests, and build pass (or explicitly noted why not)
 3. Contracts are synced across db/shared/server/ui
 4. Docs updated when behavior or commands change
+5. No `pnpm-lock.yaml` committed (CI owns it)
+
+## 15. Commit Style
+
+- Co-author line: `Co-Authored-By: Doer <noreply@doer.donjon.agency>`
+- Do not commit `pnpm-lock.yaml`
