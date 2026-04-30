@@ -17,3 +17,5 @@ export { accessRoutes } from "./access.js";
 export { instanceSettingsRoutes } from "./instance-settings.js";
 export { lettaProxyRoutes } from "./letta-proxy.js";
 export { memfsRoutes } from "./memfs.js";
+export { workspaceRoutes } from "./workspaces.js";
+export { agentMemoryRoutes } from "./agent-memory.js";

@@ -30,6 +30,8 @@ import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { lettaProxyRoutes } from "./routes/letta-proxy.js";
 import { memfsRoutes } from "./routes/memfs.js";
+import { agentMemoryRoutes } from "./routes/agent-memory.js";
+import { workspaceRoutes } from "./routes/workspaces.js";
 import {
   deliverableRoutes,
   shareTokenRoutes,
@@ -39,6 +41,7 @@ import { pluginRoutes } from "./routes/plugins.js";
 import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { billingRoutes } from "./routes/billing.js";
 import { webhookRoutes } from "./routes/webhooks.js";
+import { runRoutes } from "./routes/runs.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -152,8 +155,10 @@ export async function createApp(
   api.use(companySkillRoutes(db));
   api.use(agentRoutes(db));
   api.use("/agents", lettaProxyRoutes(db));
+  api.use(agentMemoryRoutes(db));
   api.use(assetRoutes(db, opts.storageService));
   api.use(projectRoutes(db));
+  api.use(workspaceRoutes(db));
   api.use(issueRoutes(db, opts.storageService));
   api.use(routineRoutes(db));
   api.use(executionWorkspaceRoutes(db));
@@ -171,6 +176,7 @@ export async function createApp(
   api.use(portalRoutes(db, opts.storageService));
   api.use(billingRoutes(db));
   api.use(webhookRoutes(db));
+  api.use(runRoutes(db));
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);
