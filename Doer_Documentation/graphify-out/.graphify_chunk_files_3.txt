@@ -1,0 +1,22 @@
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/API 2.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/SPEC-implementation.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/SPEC.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/README-draft.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/DOCKER.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/TASKS-mcp.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/memory-landscape.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/DATABASE.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/experimental/issue-worktree-support.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-02-21-humans-and-permissions-implementation.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-03-13-workspace-product-model-and-work-product.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-03-17-memory-service-surface-api.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-03-13-company-import-export-v2.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-02-20-storage-system-implementation.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-02-19-ceo-agent-creation-and-hiring.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-02-20-issue-run-orchestration-plan.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-04-21-wiki-graph-plugin.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-04-23-deliverables-track-a.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-03-14-adapter-skill-sync-rollout.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-04-17-memfs-memory 2.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/workspace-technical-implementation.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/doc/plans/2026-04-26-af-import-plugin.md

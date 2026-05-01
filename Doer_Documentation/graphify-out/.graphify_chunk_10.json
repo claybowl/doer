@@ -1,0 +1,599 @@
+{
+  "chunk_metadata": {
+    "chunk_id": 10,
+    "total_chunks": 10,
+    "files_processed": 15,
+    "extraction_date": "2026-04-28"
+  },
+  "nodes": [
+    {
+      "id": "doc_gremlin_skill",
+      "type": "document",
+      "label": "Super-Gremlin Operating Protocol",
+      "source": "skills/gremlin/SKILL.md",
+      "description": "Complete execution protocol for specialized autonomous agents in Donjon Intelligence Systems fleet"
+    },
+    {
+      "id": "doc_shipping_velocity",
+      "type": "document",
+      "label": "Shipping Velocity Methodology",
+      "source": "skills/shipping-velocity/SKILL.md",
+      "description": "Framework for shipping features fast without cutting corners through recon-triage-surgical-verify-checkpoint loop"
+    },
+    {
+      "id": "doc_deliverable_skill",
+      "type": "document",
+      "label": "Deliverable Skill",
+      "source": "skills/deliverable/SKILL.md",
+      "description": "Protocol for producing human-facing files (docx, xlsx, pdf, pptx) instead of markdown outputs"
+    },
+    {
+      "id": "gremlin_identity_system",
+      "type": "concept",
+      "label": "Gremlin Identity and Specialization",
+      "description": "Each Super-Gremlin has unique persona, specialty, and learnings stored in Letta memory blocks"
+    },
+    {
+      "id": "gremlin_fleet_hierarchy",
+      "type": "concept",
+      "label": "Gremlin Fleet Hierarchy",
+      "description": "DonDog (strategy) → Alfie (orchestration) → Super-Gremlin (execution) → results"
+    },
+    {
+      "id": "gremlin_heartbeat_protocol",
+      "type": "concept",
+      "label": "Gremlin Heartbeat Protocol",
+      "description": "Five-phase execution: pre-flight checks, wake and load identity, get assignment, execute with excellence, report and remember"
+    },
+    {
+      "id": "gremlin_preflight_checks",
+      "type": "concept",
+      "label": "Gremlin Pre-flight Checks (Phase 0)",
+      "description": "Verify required environment variables (LETTA_API_KEY, LETTA_AGENT_ID, DOER_API_KEY, etc.) before task execution"
+    },
+    {
+      "id": "gremlin_wake_identity",
+      "type": "concept",
+      "label": "Gremlin Wake and Load Identity (Phase 1)",
+      "description": "Load Letta memory blocks (persona, learnings, archival) and get Doer identity from API"
+    },
+    {
+      "id": "gremlin_assignment_checkout",
+      "type": "concept",
+      "label": "Gremlin Task Assignment and Checkout (Phase 2)",
+      "description": "Check inbox, prioritize DOER_TASK_ID, atomic checkout with 409 conflict detection"
+    },
+    {
+      "id": "gremlin_execution_phase",
+      "type": "concept",
+      "label": "Gremlin Execution Phase (Phase 3)",
+      "description": "Apply specialty with full filesystem, bash, python, web search, and git access; work iteratively with subtasks"
+    },
+    {
+      "id": "gremlin_reporting",
+      "type": "concept",
+      "label": "Gremlin Reporting and Learning (Phase 4)",
+      "description": "Update Doer issue with status, report to Alfie via Letta, save learnings to memory, update current_task block"
+    },
+    {
+      "id": "gremlin_standards",
+      "type": "concept",
+      "label": "Gremlin Standards",
+      "description": "Four pillars: Quality (no garbage), Transparency (accurate reports), Economy (efficient resource use), Learning (every run teaches)"
+    },
+    {
+      "id": "gremlin_task_queue",
+      "type": "concept",
+      "label": "Gremlin Task Queue",
+      "description": "Tasks arrive via Doer issues assigned to gremlin; inbox is authoritative task queue"
+    },
+    {
+      "id": "gremlin_special_tooling",
+      "type": "concept",
+      "label": "Gremlin Special Tooling",
+      "description": "Full access: Letta API (memory), Doer API (issues), bash, python, git, web search, filesystem"
+    },
+    {
+      "id": "shipping_velocity_act1_recon",
+      "type": "concept",
+      "label": "Shipping Velocity Act 1: Recon Before Code",
+      "description": "Always look at existing code first (Glob, Grep, Read) to find plot twists and patterns before building"
+    },
+    {
+      "id": "shipping_velocity_act2_triage",
+      "type": "concept",
+      "label": "Shipping Velocity Act 2: Honest Scope Triage",
+      "description": "Classify work: can crush tonight, doable but careful, needs session, multi-day with design doc"
+    },
+    {
+      "id": "shipping_velocity_act3_surgical",
+      "type": "concept",
+      "label": "Shipping Velocity Act 3: Surgical Execution",
+      "description": "Touch only what you must; match patterns; prefer pure functions; backwards-compatible by default"
+    },
+    {
+      "id": "shipping_velocity_act4_verify",
+      "type": "concept",
+      "label": "Shipping Velocity Act 4: Verify at Right Granularity",
+      "description": "Match verification to change size: unit tests for functions, typecheck for packages, full suite for cross-cutting"
+    },
+    {
+      "id": "shipping_velocity_act5_checkpoint",
+      "type": "concept",
+      "label": "Shipping Velocity Act 5: Checkpoint and Commit",
+      "description": "Commit after each meaningful unit with story-telling messages explaining WHY not just WHAT"
+    },
+    {
+      "id": "shipping_velocity_hub_and_spokes",
+      "type": "concept",
+      "label": "Shipping Velocity Pattern: Hub and Spokes",
+      "description": "Build hub page with cards linking to existing canonical edit surfaces instead of reskinning everything"
+    },
+    {
+      "id": "shipping_velocity_backwards_compat",
+      "type": "concept",
+      "label": "Shipping Velocity Pattern: Backwards-Compat Parallel Attach",
+      "description": "For renames, create new alongside old, let consumers migrate at pace, retire old after transition window"
+    },
+    {
+      "id": "shipping_velocity_pure_functions",
+      "type": "concept",
+      "label": "Shipping Velocity Pattern: Pure Functions with I/O at Edges",
+      "description": "Core logic pure, I/O at boundaries for testability and preview-before-commit UX"
+    },
+    {
+      "id": "shipping_velocity_two_phase_risky",
+      "type": "concept",
+      "label": "Shipping Velocity Pattern: Two-Phase Plans for Risky Things",
+      "description": "Code change passive, user runs script when ready with idempotent dry-run mode"
+    },
+    {
+      "id": "shipping_velocity_communication_mission",
+      "type": "concept",
+      "label": "Shipping Velocity Communication: Mission Snapshot",
+      "description": "One-liner on what we're doing right now with optional 2-3 bullet plan"
+    },
+    {
+      "id": "shipping_velocity_communication_decision",
+      "type": "concept",
+      "label": "Shipping Velocity Communication: Decision Table",
+      "description": "Options table with pros/cons/effort and recommended verdict clearly marked"
+    },
+    {
+      "id": "shipping_velocity_communication_nextsteps",
+      "type": "concept",
+      "label": "Shipping Velocity Communication: Next Steps",
+      "description": "Owner, Action, When, Success criteria format closing every substantive reply"
+    },
+    {
+      "id": "deliverable_rule",
+      "type": "concept",
+      "label": "Deliverable Rule: Files Not Markdown",
+      "description": "Human-facing outputs must be real files (docx/xlsx/pdf/pptx), not markdown inline comments"
+    },
+    {
+      "id": "deliverable_audience_distinction",
+      "type": "concept",
+      "label": "Deliverable Audience Distinction",
+      "description": "Other agents/planning = markdown; Doer user/sharing = real files"
+    },
+    {
+      "id": "deliverable_format_mapping",
+      "type": "concept",
+      "label": "Deliverable Format Mapping",
+      "description": "Reports/prose → docx, tables/trackers → xlsx, presentations → pptx, data → csv, charts → png"
+    },
+    {
+      "id": "deliverable_word_recipe",
+      "type": "concept",
+      "label": "Deliverable: Word (.docx) with python-docx",
+      "description": "Recipe using Document(), add_heading(), add_paragraph(), tables, styles for docx generation"
+    },
+    {
+      "id": "deliverable_excel_recipe",
+      "type": "concept",
+      "label": "Deliverable: Excel (.xlsx) with openpyxl",
+      "description": "Recipe using Workbook(), styling headers, data rows, column widths, freeze panes for xlsx"
+    },
+    {
+      "id": "deliverable_pdf_pptx_csv",
+      "type": "concept",
+      "label": "Deliverable: PDF, PPTX, CSV Recipes",
+      "description": "reportlab for PDF, python-pptx for PPTX, csv module for CSV, matplotlib for PNG charts"
+    },
+    {
+      "id": "deliverable_publish_local",
+      "type": "concept",
+      "label": "Deliverable Publish: Local Agents",
+      "description": "POST multipart to /api/companies/COMPANY_ID/deliverables with kind, filename, title, issueId"
+    },
+    {
+      "id": "deliverable_publish_letta",
+      "type": "concept",
+      "label": "Deliverable Publish: Letta Cloud Agents",
+      "description": "Call produce_deliverable tool with base64-encoded file content from inside Letta agent"
+    },
+    {
+      "id": "deliverable_fields_controlled",
+      "type": "concept",
+      "label": "Deliverable Fields User Controls",
+      "description": "file, kind, filename, title, description, projectId, issueId, routineRunId, metadata"
+    },
+    {
+      "id": "deliverable_fields_server",
+      "type": "concept",
+      "label": "Deliverable Fields Server Assigns",
+      "description": "storagePath, contentType, sizeBytes, checksumSha256, clientVisible, producedByAgentId, producedByRunId"
+    },
+    {
+      "id": "deliverable_idempotency",
+      "type": "concept",
+      "label": "Deliverable Idempotency and Updates",
+      "description": "Multiple calls create new rows, not duplicates; in-place updates not supported, soft-delete old + create new"
+    },
+    {
+      "id": "gremlin_memory_blocks",
+      "type": "concept",
+      "label": "Gremlin Memory Blocks",
+      "description": "Persona block (identity), learnings block (lessons), archival block (searchable knowledge), current_task block"
+    },
+    {
+      "id": "gremlin_iteration_strategy",
+      "type": "concept",
+      "label": "Gremlin Iteration and Blocking",
+      "description": "Large tasks: post plan first, execute steps, comment progress, create subtasks to hand off"
+    }
+  ],
+  "edges": [
+    {
+      "source": "doc_gremlin_skill",
+      "target": "gremlin_identity_system",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Gremlin skill explicitly references persona and learnings memory blocks",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_gremlin_skill",
+      "target": "gremlin_fleet_hierarchy",
+      "type": "establishes",
+      "confidence": 1.0,
+      "rationale_for": "Skill describes clear fleet structure with DonDog, Alfie, and Gremlins",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_gremlin_skill",
+      "target": "gremlin_heartbeat_protocol",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Five-phase heartbeat sequence is central to the skill",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_heartbeat_protocol",
+      "target": "gremlin_preflight_checks",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Phase 0 of heartbeat protocol",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_heartbeat_protocol",
+      "target": "gremlin_wake_identity",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Phase 1 of heartbeat protocol",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_heartbeat_protocol",
+      "target": "gremlin_assignment_checkout",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Phase 2 of heartbeat protocol",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_heartbeat_protocol",
+      "target": "gremlin_execution_phase",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Phase 3 of heartbeat protocol",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_heartbeat_protocol",
+      "target": "gremlin_reporting",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Phase 4 of heartbeat protocol",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_gremlin_skill",
+      "target": "gremlin_standards",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Skill lists four standards: Quality, Transparency, Economy, Learning",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_gremlin_skill",
+      "target": "gremlin_special_tooling",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "Tool Access Reference section lists all available capabilities",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_execution_phase",
+      "target": "gremlin_special_tooling",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Execution phase applies these tools to complete work",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_act1_recon",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Act 1 section explicitly covers recon with Glob, Grep, Read",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_act2_triage",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Act 2 section defines four-bucket triage table",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_act3_surgical",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Act 3 section covers Karpathy Rule #3 and surgical execution principles",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_act4_verify",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Act 4 section with verification table matching change size",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_act5_checkpoint",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Act 5 section on checkpointing and commit messaging",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_hub_and_spokes",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Decision frameworks section includes hub-and-spokes pattern",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_backwards_compat",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Decision frameworks section includes backwards-compat parallel attach",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_pure_functions",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Decision frameworks section includes pure functions with I/O edges",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_two_phase_risky",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Decision frameworks section includes two-phase for risky things",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_communication_mission",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Communication patterns section includes Mission Snapshot",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_communication_decision",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Communication patterns section includes Decision Table",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_shipping_velocity",
+      "target": "shipping_velocity_communication_nextsteps",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Communication patterns section includes Next Steps",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_rule",
+      "type": "establishes",
+      "confidence": 1.0,
+      "rationale_for": "Central rule of deliverable skill: files not markdown",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_audience_distinction",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "First section maps audience to output format",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_format_mapping",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "When skill activates section maps task type to file format",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_word_recipe",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Word section with python-docx recipe",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_excel_recipe",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Excel section with openpyxl recipe",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_pdf_pptx_csv",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Other formats section covers PDF, PPTX, CSV, PNG",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_publish_local",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "Publishing section for local-execution agents",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_publish_letta",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "Publishing section for Letta Cloud agents",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_fields_controlled",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Fields you control section",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_fields_server",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Fields you do NOT control section",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_deliverable_skill",
+      "target": "deliverable_idempotency",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "Idempotency section explains behavior with multiple calls",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_wake_identity",
+      "target": "gremlin_memory_blocks",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Wake phase loads from Letta memory blocks",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_reporting",
+      "target": "gremlin_memory_blocks",
+      "type": "updates",
+      "confidence": 1.0,
+      "rationale_for": "Reporting phase saves learnings and updates current_task block",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "gremlin_execution_phase",
+      "target": "gremlin_iteration_strategy",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Execution phase applies iteration strategy for large tasks",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "shipping_velocity_act3_surgical",
+      "target": "shipping_velocity_backwards_compat",
+      "type": "related",
+      "confidence": 0.9,
+      "rationale_for": "Backwards-compat is specific instance of surgical principle",
+      "tag": "INFERRED"
+    },
+    {
+      "source": "gremlin_standards",
+      "target": "shipping_velocity_act4_verify",
+      "type": "related",
+      "confidence": 0.85,
+      "rationale_for": "Both emphasize quality verification without skipping steps",
+      "tag": "INFERRED"
+    },
+    {
+      "source": "gremlin_task_queue",
+      "target": "gremlin_assignment_checkout",
+      "type": "enables",
+      "confidence": 1.0,
+      "rationale_for": "Task queue (Doer inbox) is checked during Phase 2 assignment",
+      "tag": "EXTRACTED"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyperedge_gremlin_execution_stack",
+      "label": "Super-Gremlin Complete Execution Stack",
+      "nodes": ["gremlin_heartbeat_protocol", "gremlin_memory_blocks", "gremlin_special_tooling", "gremlin_standards", "gremlin_task_queue"],
+      "description": "Integrated system for autonomous execution with persistent memory, tool access, quality standards, and work queue",
+      "confidence": 0.95
+    },
+    {
+      "id": "hyperedge_shipping_velocity_five_acts",
+      "label": "Shipping Velocity Five-Act Methodology",
+      "nodes": ["shipping_velocity_act1_recon", "shipping_velocity_act2_triage", "shipping_velocity_act3_surgical", "shipping_velocity_act4_verify", "shipping_velocity_act5_checkpoint"],
+      "description": "Complete framework for fast shipping without cutting corners through sequential verification gates",
+      "confidence": 0.95
+    },
+    {
+      "id": "hyperedge_shipping_velocity_decision_patterns",
+      "label": "Shipping Velocity Decision Framework Patterns",
+      "nodes": ["shipping_velocity_hub_and_spokes", "shipping_velocity_backwards_compat", "shipping_velocity_pure_functions", "shipping_velocity_two_phase_risky"],
+      "description": "Reusable architectural patterns for common shipping scenarios",
+      "confidence": 0.9
+    },
+    {
+      "id": "hyperedge_deliverable_production_pipeline",
+      "label": "Deliverable Production and Publishing Pipeline",
+      "nodes": ["deliverable_format_mapping", "deliverable_word_recipe", "deliverable_excel_recipe", "deliverable_publish_local", "deliverable_publish_letta"],
+      "description": "End-to-end workflow from format selection through recipe implementation to platform-specific publication",
+      "confidence": 0.95
+    }
+  ]
+}

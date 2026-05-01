@@ -1355,7 +1355,6 @@ function AgentConfigurePage({
         updatePermissions={updatePermissions}
         companyId={companyId}
         hidePromptTemplate
-        hideInstructionsFile
       />
       <div>
         <h3 className="text-sm font-medium mb-3">API Keys</h3>

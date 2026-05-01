@@ -1,0 +1,15 @@
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/server/src/onboarding-assets/ceo/TOOLS.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/gremlin/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/shipping-velocity/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer-create-agent/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer-create-agent/references/api-reference.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer-create-plugin/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/deliverable/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/para-memory-files/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/para-memory-files/references/schemas.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer/references/company-skills.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/doer/references/api-reference.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/letta-memory/SKILL.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/skills/letta-memory/references/api.md
+/sessions/gracious-epic-hawking/mnt/donjon-paperclip/Doer_Documentation/ui/README.md

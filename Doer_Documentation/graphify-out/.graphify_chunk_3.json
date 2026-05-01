@@ -1,0 +1,726 @@
+{
+  "nodes": [
+    {
+      "id": "company",
+      "label": "Company",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent",
+      "label": "Agent",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issue",
+      "label": "Issue",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "memory",
+      "label": "Memory",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "adapter",
+      "label": "Adapter",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "run",
+      "label": "Run",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "activity_log",
+      "label": "Activity Log",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "budget",
+      "label": "Budget",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "approval",
+      "label": "Approval",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skill",
+      "label": "Skill",
+      "file_type": "document",
+      "source_file": "doc/spec.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "drizzle_orm",
+      "label": "Drizzle ORM",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "server",
+      "label": "Server",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "ui",
+      "label": "UI",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "pglite",
+      "label": "PGlite",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "letta_cloud",
+      "label": "Letta Cloud",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "openclaw",
+      "label": "OpenClaw",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "codex",
+      "label": "Codex",
+      "file_type": "document",
+      "source_file": "doc/spec_impl.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "api_route",
+      "label": "API Route",
+      "file_type": "document",
+      "source_file": "doc/api2.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authorization",
+      "label": "Authorization",
+      "file_type": "document",
+      "source_file": "doc/api2.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "request",
+      "label": "Request",
+      "file_type": "document",
+      "source_file": "doc/api2.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "response",
+      "label": "Response",
+      "file_type": "document",
+      "source_file": "doc/api2.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_scope",
+      "label": "Company Scope",
+      "file_type": "document",
+      "source_file": "doc/api2.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "memory_service",
+      "label": "Memory Service",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "memfs",
+      "label": "Memfs",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "wiki_graph",
+      "label": "Wiki Graph",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deliverables",
+      "label": "Deliverables",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "workspace",
+      "label": "Workspace",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "storage_system",
+      "label": "Storage System",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "humans_and_permissions",
+      "label": "Humans and Permissions",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "import_export",
+      "label": "Import Export",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "af_import",
+      "label": "AF Import",
+      "file_type": "document",
+      "source_file": "doc/plans/plans.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "company",
+      "target": "agent",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company",
+      "target": "issue",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent",
+      "target": "memory",
+      "relation": "has",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent",
+      "target": "skill",
+      "relation": "exposes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "issue",
+      "target": "run",
+      "relation": "generates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "run",
+      "target": "activity_log",
+      "relation": "logs_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company",
+      "target": "budget",
+      "relation": "enforces",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "approval",
+      "target": "issue",
+      "relation": "gates",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent",
+      "target": "adapter",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "server",
+      "target": "database",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "ui",
+      "target": "server",
+      "relation": "queries",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/SPEC-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_scope",
+      "target": "authorization",
+      "relation": "enforces",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/API 2.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "api_route",
+      "target": "company_scope",
+      "relation": "respects",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/API 2.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memory_service",
+      "target": "memory",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-17-memory-service-surface-api.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memfs",
+      "target": "storage_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-17-memfs-memory 2.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_graph",
+      "target": "memfs",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "deliverables",
+      "target": "issue",
+      "relation": "tracks",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-23-deliverables-track-a.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workspace",
+      "target": "company",
+      "relation": "contains",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/workspace-technical-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "humans_and_permissions",
+      "target": "authorization",
+      "relation": "specifies",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "import_export",
+      "target": "company",
+      "relation": "serializes",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-company-import-export-v2.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "af_import",
+      "target": "agent",
+      "relation": "loads",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-26-af-import-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent",
+      "target": "run",
+      "relation": "produces",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "doc/SPEC.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memory_service",
+      "target": "agent",
+      "relation": "manages_state_of",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-03-17-memory-service-surface-api.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "letta_cloud",
+      "target": "agent",
+      "relation": "hosts",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "doc/SPEC-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "pglite",
+      "target": "storage_system",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "doc/SPEC-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memfs",
+      "target": "agent",
+      "relation": "stores_memory_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-04-17-memfs-memory 2.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_graph",
+      "target": "memory",
+      "relation": "visualizes",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "deliverables",
+      "target": "agent",
+      "relation": "tracks_outputs_of",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "doc/plans/2026-04-23-deliverables-track-a.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memory_service",
+      "target": "memfs",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "storage_system",
+      "target": "memfs",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "wiki_graph",
+      "target": "memory",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "agent_orchestration_pattern",
+      "label": "Agent Orchestration Pattern",
+      "nodes": [
+        "agent",
+        "adapter",
+        "memory"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "doc/SPEC.md"
+    },
+    {
+      "id": "governance_pattern",
+      "label": "Governance & Control Pattern",
+      "nodes": [
+        "company",
+        "budget",
+        "approval"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.9,
+      "source_file": "doc/SPEC.md"
+    },
+    {
+      "id": "storage_abstraction_pattern",
+      "label": "Storage Abstraction Layer",
+      "nodes": [
+        "memfs",
+        "storage_system",
+        "pglite"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-04-17-memfs-memory 2.md"
+    },
+    {
+      "id": "memory_visualization_pipeline",
+      "label": "Memory Visualization Pipeline",
+      "nodes": [
+        "memory",
+        "wiki_graph",
+        "agent"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "doc/plans/2026-04-21-wiki-graph-plugin.md"
+    },
+    {
+      "id": "work_product_lifecycle",
+      "label": "Work Product Lifecycle",
+      "nodes": [
+        "issue",
+        "run",
+        "deliverables"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-04-23-deliverables-track-a.md"
+    }
+  ],
+  "input_tokens": 41572,
+  "output_tokens": 0
+}

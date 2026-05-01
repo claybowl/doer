@@ -1,0 +1,1512 @@
+{
+  "nodes": [
+    {
+      "id": "agent_authentication_system",
+      "label": "Agent Authentication System",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auth_tier_1_local_adapter",
+      "label": "Authentication Tier 1: Local Adapter (JWT)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auth_tier_2_cli_driven",
+      "label": "Authentication Tier 2: CLI-Driven Key Exchange",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auth_tier_3_self_registration",
+      "label": "Authentication Tier 3: Agent Self-Registration",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "approval_gates_requirement",
+      "label": "Approval Gates by Default",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "humans_and_permissions_model",
+      "label": "Humans and Permissions Model",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_mode_local_trusted",
+      "label": "Deployment Mode: Local Trusted",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_mode_cloud_hosted",
+      "label": "Deployment Mode: Cloud Hosted",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "better_auth_integration",
+      "label": "Better Auth for Human Authentication",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "memfs_memory_substrate",
+      "label": "Memfs Memory Substrate",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "memfs_strategy_pattern",
+      "label": "Memfs Strategy Pattern (Adapter Layer)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "letta_memory_blocks",
+      "label": "Letta Core Memory Blocks",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skill_management_ui",
+      "label": "Skills UI Product Plan",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_skills_library",
+      "label": "Company Skills Library (Scope)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_skill_attachments",
+      "label": "Agent Skill Attachments",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skills_sh_compatibility",
+      "label": "skills.sh Compatibility Requirement",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doer_skill_tightening",
+      "label": "Doer Skill Tightening Plan",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-doer-skill-tightening-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "heartbeat_procedure_optimization",
+      "label": "Heartbeat Procedure Hot-Path Optimization",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-doer-skill-tightening-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "docker_release_e2e_testing",
+      "label": "Docker Release Browser E2E Testing",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-docker-release-browser-e2e.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "smoke_testing_automation",
+      "label": "Smoke Testing Automation (Docker)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-docker-release-browser-e2e.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "electron_ship_plan",
+      "label": "Electron Ship Arsenal",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-23-electron-ship-arsenal.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "pglite_embedded_database",
+      "label": "PGlite Embedded Database",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-23-electron-ship-arsenal.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "electron_ipc_architecture",
+      "label": "Electron IPC Architecture (electron-trpc)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-23-electron-ship-arsenal.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_auth_consolidation",
+      "label": "Deployment/Auth Mode Consolidation",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authenticated_deployment_mode",
+      "label": "Authenticated Deployment Mode",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "private_network_exposure",
+      "label": "Private Network Exposure Policy",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "public_exposure_policy",
+      "label": "Public Exposure Policy",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_mgmt_ceo_patch",
+      "label": "Agent Management: CEO Patch Rights",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "config_revision_history",
+      "label": "Agent Configuration Revision History",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issue_approval_linkage",
+      "label": "Issue-Approval Direct Linkage",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "comment_markdown_quality",
+      "label": "Comment Markdown Quality Requirements",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "release_automation_versioning",
+      "label": "Release Automation and Versioning",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "calendar_versioning_scheme",
+      "label": "Calendar Versioning Scheme (YYYY.MDD.P)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "canary_auto_publish",
+      "label": "Auto-Publish Canaries from Master",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "stable_promote_workflow",
+      "label": "Stable Release Promotion Workflow",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "module_system",
+      "label": "Doer Module System",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_templates",
+      "label": "Company Templates",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_store",
+      "label": "Company Store",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "module_hooks",
+      "label": "Module Hooks Pattern",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "guided_onboarding",
+      "label": "Guided Onboarding (Interview-First)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "onboarding_profile",
+      "label": "Onboarding Profile Type",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "auto_runtime_detection",
+      "label": "Auto-Detection of Runtime Environments",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_chat_ui",
+      "label": "Agent Chat UI",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-11-agent-chat-ui-and-issue-backed-conversations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issue_backed_conversations",
+      "label": "Issue-Backed Conversations Model",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-11-agent-chat-ui-and-issue-backed-conversations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "assistant_ui_kit",
+      "label": "assistant-ui Kit",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-11-agent-chat-ui-and-issue-backed-conversations.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "budget_policies_enforcement",
+      "label": "Budget Policies and Enforcement",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_monthly_budget",
+      "label": "Agent Monthly Recurring Budget",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "project_lifetime_budget",
+      "label": "Project Lifetime Total Budget",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "budget_hard_stop",
+      "label": "Budget Hard-Stop Enforcement",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "kitchen_sink_plugin",
+      "label": "Kitchen Sink Example Plugin",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-plugin-kitchen-sink-example.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "plugin_worker_apis",
+      "label": "Plugin Worker APIs",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-plugin-kitchen-sink-example.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "plugin_ui_surfaces",
+      "label": "Plugin UI Surfaces",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-plugin-kitchen-sink-example.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_evals_framework",
+      "label": "Agent Evals Framework",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "promptfoo_integration",
+      "label": "Promptfoo Integration (Bootstrap Layer)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doer_scenario_evals",
+      "label": "Doer Scenario Evals (Long-term)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "eval_bundle_concept",
+      "label": "Eval Bundle (Adapter + Model + Prompt + Skills)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "workspace_product_model",
+      "label": "Workspace Product Model",
+      "file_type": "document",
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "project_workspace_object",
+      "label": "Project Workspace (Durable Object)",
+      "file_type": "document",
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "execution_workspace_concept",
+      "label": "Execution Workspace (Runtime)",
+      "file_type": "document",
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "heartbeat_orchestration",
+      "label": "Heartbeat Orchestration",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "instruction_stack_layers",
+      "label": "9-Layer Instruction Stack",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "layer_drift_problem",
+      "label": "Layer Drift Failure Mode",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "salience_competition_problem",
+      "label": "Salience Competition Failure Mode",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cognitive_overload_problem",
+      "label": "Cognitive Overload Failure Mode",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "mode_switched_wakes",
+      "label": "Mode-Switched Wakes (Orchestration Pattern A)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_auth_jwt_implementation",
+      "label": "Agent Authentication JWT Implementation",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "hs256_jwt_token",
+      "label": "HS256 JWT Token Format",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "dual_auth_path",
+      "label": "Dual Authentication Path (DB Key + JWT)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "workspace_strategy_git_worktrees",
+      "label": "Workspace Strategy and Git Worktrees",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "git_worktree_strategy",
+      "label": "Git Worktree Strategy (Implementation)",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "workspace_runtime_services",
+      "label": "Workspace Runtime Services",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cursor_cloud_adapter",
+      "label": "Cursor Cloud Agent Adapter",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-cursor-cloud-adapter.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cursor_api_integration",
+      "label": "Cursor REST API Integration",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-cursor-cloud-adapter.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cursor_webhook_callbacks",
+      "label": "Cursor Webhook Status Updates",
+      "file_type": "document",
+      "source_file": "doc/plans/2026-02-23-cursor-cloud-adapter.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "agent_authentication_system",
+      "target": "auth_tier_1_local_adapter",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_authentication_system",
+      "target": "auth_tier_2_cli_driven",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_authentication_system",
+      "target": "auth_tier_3_self_registration",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_authentication_system",
+      "target": "approval_gates_requirement",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "auth_tier_1_local_adapter",
+      "target": "hs256_jwt_token",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_auth_jwt_implementation",
+      "target": "hs256_jwt_token",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_auth_jwt_implementation",
+      "target": "dual_auth_path",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "dual_auth_path",
+      "target": "hs256_jwt_token",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication-implementation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "humans_and_permissions_model",
+      "target": "deployment_mode_local_trusted",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "humans_and_permissions_model",
+      "target": "deployment_mode_cloud_hosted",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_mode_cloud_hosted",
+      "target": "better_auth_integration",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_auth_consolidation",
+      "target": "authenticated_deployment_mode",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authenticated_deployment_mode",
+      "target": "private_network_exposure",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authenticated_deployment_mode",
+      "target": "public_exposure_policy",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-23-deployment-auth-mode-consolidation.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memfs_memory_substrate",
+      "target": "memfs_strategy_pattern",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "memfs_memory_substrate",
+      "target": "letta_memory_blocks",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_management_ui",
+      "target": "company_skills_library",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skill_management_ui",
+      "target": "agent_skill_attachments",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_skills_library",
+      "target": "skills_sh_compatibility",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-skills-ui-product-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doer_skill_tightening",
+      "target": "heartbeat_procedure_optimization",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-doer-skill-tightening-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_procedure_optimization",
+      "target": "doer_skill_tightening",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-doer-skill-tightening-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "docker_release_e2e_testing",
+      "target": "smoke_testing_automation",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-17-docker-release-browser-e2e.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "electron_ship_plan",
+      "target": "pglite_embedded_database",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-23-electron-ship-arsenal.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "electron_ship_plan",
+      "target": "electron_ipc_architecture",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-23-electron-ship-arsenal.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_mgmt_ceo_patch",
+      "target": "agent_mgmt_ceo_patch",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "config_revision_history",
+      "target": "agent_mgmt_ceo_patch",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "issue_approval_linkage",
+      "target": "approval_gates_requirement",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "comment_markdown_quality",
+      "target": "skill_management_ui",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "doc/plans/2026-02-19-agent-mgmt-followup-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "release_automation_versioning",
+      "target": "calendar_versioning_scheme",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "release_automation_versioning",
+      "target": "canary_auto_publish",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "release_automation_versioning",
+      "target": "stable_promote_workflow",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-17-release-automation-and-versioning.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "module_system",
+      "target": "company_templates",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "module_system",
+      "target": "company_store",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "module_system",
+      "target": "module_hooks",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-16-module-system.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "guided_onboarding",
+      "target": "onboarding_profile",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "guided_onboarding",
+      "target": "auto_runtime_detection",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_chat_ui",
+      "target": "issue_backed_conversations",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-11-agent-chat-ui-and-issue-backed-conversations.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_chat_ui",
+      "target": "assistant_ui_kit",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-11-agent-chat-ui-and-issue-backed-conversations.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "budget_policies_enforcement",
+      "target": "agent_monthly_budget",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "budget_policies_enforcement",
+      "target": "project_lifetime_budget",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "budget_policies_enforcement",
+      "target": "budget_hard_stop",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "kitchen_sink_plugin",
+      "target": "plugin_worker_apis",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-plugin-kitchen-sink-example.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "kitchen_sink_plugin",
+      "target": "plugin_ui_surfaces",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-plugin-kitchen-sink-example.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_evals_framework",
+      "target": "promptfoo_integration",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_evals_framework",
+      "target": "doer_scenario_evals",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doer_scenario_evals",
+      "target": "eval_bundle_concept",
+      "relation": "uses",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workspace_product_model",
+      "target": "project_workspace_object",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workspace_product_model",
+      "target": "execution_workspace_concept",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_orchestration",
+      "target": "instruction_stack_layers",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_orchestration",
+      "target": "layer_drift_problem",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_orchestration",
+      "target": "salience_competition_problem",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_orchestration",
+      "target": "cognitive_overload_problem",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_orchestration",
+      "target": "mode_switched_wakes",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workspace_strategy_git_worktrees",
+      "target": "git_worktree_strategy",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workspace_strategy_git_worktrees",
+      "target": "workspace_runtime_services",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "git_worktree_strategy",
+      "target": "execution_workspace_concept",
+      "relation": "implements",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "doc/plans/2026-03-10-workspace-strategy-and-git-worktrees.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cursor_cloud_adapter",
+      "target": "cursor_api_integration",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-23-cursor-cloud-adapter.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cursor_cloud_adapter",
+      "target": "cursor_webhook_callbacks",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-23-cursor-cloud-adapter.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "letta_memory_blocks",
+      "target": "memfs_strategy_pattern",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.7,
+      "source_file": "doc/plans/2026-04-17-memfs-memory.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "guided_onboarding",
+      "target": "deployment_mode_local_trusted",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.65,
+      "source_file": "doc/plans/2026-03-13-features.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_procedure_optimization",
+      "target": "instruction_stack_layers",
+      "relation": "references",
+      "confidence": "INFERRED",
+      "confidence_score": 0.75,
+      "source_file": "doc/plans/2026-03-13-doer-skill-tightening-plan.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "auth_system_design",
+      "label": "Agent Authentication Tier System",
+      "nodes": [
+        "auth_tier_1_local_adapter",
+        "auth_tier_2_cli_driven",
+        "auth_tier_3_self_registration"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-02-18-agent-authentication.md"
+    },
+    {
+      "id": "deployment_modes",
+      "label": "Deployment Mode Strategies",
+      "nodes": [
+        "deployment_mode_local_trusted",
+        "deployment_mode_cloud_hosted",
+        "authenticated_deployment_mode"
+      ],
+      "relation": "implement",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "doc/plans/2026-02-21-humans-and-permissions.md"
+    },
+    {
+      "id": "instruction_failure_modes",
+      "label": "Heartbeat Instruction Stack Failure Modes",
+      "nodes": [
+        "layer_drift_problem",
+        "salience_competition_problem",
+        "cognitive_overload_problem"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-04-25-heartbeat-orchestration.md"
+    },
+    {
+      "id": "budget_enforcement_tiers",
+      "label": "Budget Control System",
+      "nodes": [
+        "agent_monthly_budget",
+        "project_lifetime_budget",
+        "budget_hard_stop"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-14-budget-policies-and-enforcement.md"
+    },
+    {
+      "id": "eval_framework_approach",
+      "label": "Two-Stage Evaluation Strategy",
+      "nodes": [
+        "promptfoo_integration",
+        "doer_scenario_evals",
+        "eval_bundle_concept"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/plans/2026-03-13-agent-evals-framework.md"
+    },
+    {
+      "id": "workspace_execution_model",
+      "label": "Workspace Execution Model",
+      "nodes": [
+        "project_workspace_object",
+        "execution_workspace_concept",
+        "workspace_runtime_services"
+      ],
+      "relation": "participate_in",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/plans/workspace-product-model-and-work-product.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

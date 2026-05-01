@@ -1,0 +1,750 @@
+{
+  "communities": {
+    "0": [
+      "alchemist_agent",
+      "archive_agent",
+      "barrister_agent",
+      "brand_voice_specialty",
+      "bug_fixing_specialty",
+      "code_refactoring_specialty",
+      "codebase_exploration_specialty",
+      "competitive_intelligence_specialty",
+      "content_production_specialty",
+      "context_management_specialty",
+      "dependency_management_specialty",
+      "devops_specialty",
+      "gizmo_agent",
+      "imp_agent",
+      "integration_specialty",
+      "legal_compliance_specialty",
+      "local_agent",
+      "maker_agent",
+      "market_research_specialty",
+      "marshal_agent",
+      "mechanic_agent",
+      "pitch_agent",
+      "presentation_specialty",
+      "product_management_specialty",
+      "prospector_agent",
+      "qa_testing_specialty",
+      "scavenger_agent",
+      "scout_agent",
+      "siren_agent",
+      "spyglass_agent",
+      "strategic_planning_specialty",
+      "strategos_agent",
+      "super_gremlin_pattern",
+      "technomancer_agent",
+      "tulsa_market_specialty"
+    ],
+    "1": [
+      "adapter_system",
+      "agent_employee",
+      "api_authentication",
+      "autonomous_economy_vision",
+      "cli_interface",
+      "cli_tool",
+      "cliphub_registry",
+      "company_entity",
+      "company_store",
+      "company_templates",
+      "control_plane_layer",
+      "development_environment",
+      "doer_control_plane",
+      "doer_nervesystem",
+      "doer_system",
+      "execution_adapters",
+      "issue_entity",
+      "issue_management",
+      "module_hooks",
+      "module_system",
+      "rest_api",
+      "task_hierarchy",
+      "task_management_model",
+      "workflow_states"
+    ],
+    "2": [
+      "agent_adapter_system",
+      "agent_runs_subsystem",
+      "agent_session_persistence",
+      "agents_runtime_guide",
+      "agents_runtime_spec",
+      "cognitive_overload_problem",
+      "constitution_priority_model",
+      "doer_letta_architecture",
+      "doer_skill_tightening",
+      "drafter_spec",
+      "environment_variables_ref",
+      "heartbeat_orchestration",
+      "heartbeat_procedure_optimization",
+      "instruction_stack_layers",
+      "layer_drift_problem",
+      "letta_adapter_pattern",
+      "letta_bridge_report",
+      "letta_cloud_agents",
+      "mode_switched_wakes",
+      "paperclip_to_doer_rename",
+      "produce_deliverable_tool",
+      "run_log_store",
+      "salience_competition_problem",
+      "wakeup_coordinator"
+    ],
+    "3": [
+      "account_research_specialty",
+      "agent_communication",
+      "agents_employees",
+      "alfie_commander",
+      "alfie_supervisor",
+      "artificer_agent",
+      "blueprint_agent",
+      "budget_enforcement",
+      "closer_agent",
+      "cost_reporting",
+      "doer_task_management",
+      "heartbeat_protocol",
+      "heartbeats_wake_cycles",
+      "hunter_agent",
+      "issues_tasks",
+      "letta_cloud_memory",
+      "letta_memory_system",
+      "scribe_agent",
+      "skills_instructions",
+      "sleuth_agent",
+      "super_gremlin_protocol",
+      "task_checkout"
+    ],
+    "4": [
+      "activity_log",
+      "adapter",
+      "af_import",
+      "agent",
+      "approval",
+      "budget",
+      "company",
+      "deliverables",
+      "import_export",
+      "issue",
+      "letta_cloud",
+      "memfs",
+      "memory",
+      "memory_service",
+      "pglite",
+      "run",
+      "skill",
+      "storage_system",
+      "wiki_graph",
+      "workspace"
+    ],
+    "5": [
+      "doc_plugin_hello_world",
+      "doc_plugin_sdk_readme",
+      "hello_world_minimal",
+      "plugin_agent_sessions",
+      "plugin_bundler_presets",
+      "plugin_capabilities",
+      "plugin_context_api",
+      "plugin_event_system",
+      "plugin_hooks",
+      "plugin_job_scheduling",
+      "plugin_launcher",
+      "plugin_manifest",
+      "plugin_sdk_ui",
+      "plugin_sdk_worker",
+      "plugin_streaming",
+      "plugin_testing",
+      "plugin_ui_no_shared_kit",
+      "ui_slot_types"
+    ],
+    "6": [
+      "doc_shipping_velocity",
+      "gremlin_standards",
+      "shipping_velocity_act1_recon",
+      "shipping_velocity_act2_triage",
+      "shipping_velocity_act3_surgical",
+      "shipping_velocity_act4_verify",
+      "shipping_velocity_act5_checkpoint",
+      "shipping_velocity_backwards_compat",
+      "shipping_velocity_communication_decision",
+      "shipping_velocity_communication_mission",
+      "shipping_velocity_communication_nextsteps",
+      "shipping_velocity_hub_and_spokes",
+      "shipping_velocity_pure_functions",
+      "shipping_velocity_two_phase_risky"
+    ],
+    "7": [
+      "agent_lifecycle_states",
+      "agent_pause_resume",
+      "agent_termination",
+      "api_companies_crud",
+      "company_ceo_agent_creation",
+      "company_creation_setup",
+      "company_goal_definition",
+      "dashboard_agent_status",
+      "goals_hierarchy",
+      "managing_tasks_issue_hierarchy",
+      "org_structure_chain_of_command",
+      "org_structure_reporting_hierarchy",
+      "projects_workspaces"
+    ],
+    "8": [
+      "doc_gremlin_skill",
+      "gremlin_assignment_checkout",
+      "gremlin_execution_phase",
+      "gremlin_fleet_hierarchy",
+      "gremlin_heartbeat_protocol",
+      "gremlin_identity_system",
+      "gremlin_iteration_strategy",
+      "gremlin_memory_blocks",
+      "gremlin_preflight_checks",
+      "gremlin_reporting",
+      "gremlin_special_tooling",
+      "gremlin_task_queue",
+      "gremlin_wake_identity"
+    ],
+    "9": [
+      "deliverable_audience_distinction",
+      "deliverable_excel_recipe",
+      "deliverable_fields_controlled",
+      "deliverable_fields_server",
+      "deliverable_format_mapping",
+      "deliverable_idempotency",
+      "deliverable_pdf_pptx_csv",
+      "deliverable_publish_letta",
+      "deliverable_publish_local",
+      "deliverable_rule",
+      "deliverable_word_recipe",
+      "doc_deliverable_skill"
+    ],
+    "10": [
+      "aaron_bundy",
+      "ai_agent_intake_capability",
+      "biby_law_firm",
+      "bundy_law",
+      "courtney_driskell",
+      "driskell_law",
+      "edwards_furlong_law",
+      "jacob_biby",
+      "mark_edwards",
+      "prospect_qualification_workflow",
+      "prospector_tulsa_law_report"
+    ],
+    "11": [
+      "don_151_task",
+      "don_179_task",
+      "don_218_task",
+      "don_389_task",
+      "don_51_task",
+      "servicepro_electrician_vertical",
+      "servicepro_hvac_vertical",
+      "servicepro_plumbing_vertical",
+      "servicepro_roofing_vertical"
+    ],
+    "12": [
+      "authenticated_deployment_mode",
+      "authenticated_mode",
+      "deployment_auth_consolidation",
+      "deployment_modes",
+      "deployment_overview",
+      "local_trusted_mode",
+      "private_network_exposure",
+      "public_exposure_policy",
+      "tailscale_private_access"
+    ],
+    "13": [
+      "agent_auth_jwt_implementation",
+      "agent_authentication_system",
+      "approval_gates_requirement",
+      "auth_tier_1_local_adapter",
+      "auth_tier_2_cli_driven",
+      "auth_tier_3_self_registration",
+      "dual_auth_path",
+      "hs256_jwt_token",
+      "issue_approval_linkage"
+    ],
+    "14": [
+      "adapter_model",
+      "adapter_registry",
+      "claude_local_adapter",
+      "codex_local_adapter",
+      "gemini_local_adapter",
+      "http_adapter",
+      "process_adapter",
+      "session_persistence",
+      "skills_injection"
+    ],
+    "15": [
+      "company_package_format",
+      "spec_agent_md",
+      "spec_company_md",
+      "spec_doer_mapping",
+      "spec_package_format",
+      "spec_skill_md",
+      "spec_source_references",
+      "spec_vendor_extensions"
+    ],
+    "16": [
+      "auto_runtime_detection",
+      "better_auth_integration",
+      "deployment_mode_cloud_hosted",
+      "deployment_mode_local_trusted",
+      "guided_onboarding",
+      "humans_and_permissions_model",
+      "onboarding_profile"
+    ],
+    "17": [
+      "api_error_codes",
+      "api_issues_checkout",
+      "api_issues_documents",
+      "dashboard_task_breakdown",
+      "evals_core_cases",
+      "managing_tasks_atomic_checkout",
+      "managing_tasks_status_lifecycle"
+    ],
+    "18": [
+      "adapter_claude_local",
+      "adapter_codex_local",
+      "adapter_openclaw_gateway",
+      "adapter_pi_local",
+      "doer_architecture",
+      "openclaw_gateway_transport",
+      "package_adapter_utils"
+    ],
+    "19": [
+      "execution_workspace_concept",
+      "git_worktree_strategy",
+      "project_workspace_object",
+      "workspace_product_model",
+      "workspace_runtime_services",
+      "workspace_strategy_git_worktrees"
+    ],
+    "20": [
+      "agent_config_ui_spec",
+      "cliphub_plan",
+      "issue_document_system",
+      "issue_documents_plan",
+      "team_blueprint_configuration",
+      "ui_spec"
+    ],
+    "21": [
+      "doc_plugin_wiki_graph",
+      "wiki_graph_ingest",
+      "wiki_graph_karpathy_style",
+      "wiki_graph_lint",
+      "wiki_graph_memfs_publish",
+      "wiki_graph_query"
+    ],
+    "22": [
+      "doc_create_doer_plugin",
+      "plugin_deployment_model",
+      "plugin_dev_workflow",
+      "plugin_local_dev_path",
+      "plugin_scaffold_templates",
+      "plugin_scaffolding_tool"
+    ],
+    "23": [
+      "agent_skill_attachments",
+      "comment_markdown_quality",
+      "company_skills_library",
+      "skill_management_ui",
+      "skills_sh_compatibility"
+    ],
+    "24": [
+      "api_approvals_workflow",
+      "approval_ceo_strategy",
+      "approval_hire_agent",
+      "approval_workflow_gates",
+      "evals_governance_cases"
+    ],
+    "25": [
+      "api_route",
+      "authorization",
+      "company_scope",
+      "humans_and_permissions"
+    ],
+    "26": [
+      "calendar_versioning_scheme",
+      "canary_auto_publish",
+      "release_automation_versioning",
+      "stable_promote_workflow"
+    ],
+    "27": [
+      "agent_monthly_budget",
+      "budget_hard_stop",
+      "budget_policies_enforcement",
+      "project_lifetime_budget"
+    ],
+    "28": [
+      "agent_evals_framework",
+      "doer_scenario_evals",
+      "eval_bundle_concept",
+      "promptfoo_integration"
+    ],
+    "29": [
+      "opencode_plugin_ideas",
+      "plugin_authoring_guide",
+      "plugin_distribution_model",
+      "plugin_spec_plugin_framework"
+    ],
+    "30": [
+      "doc_letta_bridge_readme",
+      "letta_bridge_agent_browser",
+      "letta_bridge_connection",
+      "letta_bridge_sync"
+    ],
+    "31": [
+      "don_125_task",
+      "don_128_task",
+      "don_129_task"
+    ],
+    "32": [
+      "letta_memory_blocks",
+      "memfs_memory_substrate",
+      "memfs_strategy_pattern"
+    ],
+    "33": [
+      "electron_ipc_architecture",
+      "electron_ship_plan",
+      "pglite_embedded_database"
+    ],
+    "34": [
+      "agent_chat_ui",
+      "assistant_ui_kit",
+      "issue_backed_conversations"
+    ],
+    "35": [
+      "kitchen_sink_plugin",
+      "plugin_ui_surfaces",
+      "plugin_worker_apis"
+    ],
+    "36": [
+      "cursor_api_integration",
+      "cursor_cloud_adapter",
+      "cursor_webhook_callbacks"
+    ],
+    "37": [
+      "database_config",
+      "docker_deployment",
+      "local_development_guide"
+    ],
+    "38": [
+      "budget_auto_pause",
+      "budget_enforcement_thresholds",
+      "dashboard_cost_summary"
+    ],
+    "39": [
+      "routines_concurrency_policy",
+      "routines_scheduling",
+      "routines_triggers"
+    ],
+    "40": [
+      "agents_config_revisions",
+      "agents_heartbeat",
+      "api_authentication_jwt"
+    ],
+    "41": [
+      "server",
+      "ui"
+    ],
+    "42": [
+      "docker_release_e2e_testing",
+      "smoke_testing_automation"
+    ],
+    "43": [
+      "agent_mgmt_ceo_patch",
+      "config_revision_history"
+    ],
+    "44": [
+      "approval_system",
+      "governance_approvals"
+    ],
+    "45": [
+      "api_cost_events",
+      "cost_event_tracking"
+    ],
+    "46": [
+      "company_export_import",
+      "company_import_collision_handling"
+    ],
+    "47": [
+      "activity_log_api",
+      "activity_log_filtering"
+    ],
+    "48": [
+      "evals_phase_0",
+      "evals_smoke_test"
+    ],
+    "49": [
+      "servicepro_outreach_status"
+    ],
+    "50": [
+      "don_81_task"
+    ],
+    "51": [
+      "drizzle_orm"
+    ],
+    "52": [
+      "openclaw"
+    ],
+    "53": [
+      "codex"
+    ],
+    "54": [
+      "request"
+    ],
+    "55": [
+      "response"
+    ],
+    "56": [
+      "storage_config"
+    ],
+    "57": [
+      "activity_log_audit_trail"
+    ],
+    "58": [
+      "api_authentication_keys"
+    ],
+    "59": [
+      "api_base_url"
+    ],
+    "60": [
+      "api_dashboard_endpoint"
+    ],
+    "61": [
+      "spec_task_md"
+    ],
+    "62": [
+      "spec_project_md"
+    ],
+    "63": [
+      "graph_edge_type_extracted"
+    ],
+    "64": [
+      "graph_edge_type_inferred"
+    ],
+    "65": [
+      "package_db"
+    ],
+    "66": [
+      "package_shared"
+    ],
+    "67": [
+      "agent_patterns"
+    ]
+  },
+  "cohesion": {
+    "0": 0.06,
+    "1": 0.09,
+    "2": 0.09,
+    "3": 0.11,
+    "4": 0.13,
+    "5": 0.16,
+    "6": 0.15,
+    "7": 0.15,
+    "8": 0.18,
+    "9": 0.17,
+    "10": 0.18,
+    "11": 0.22,
+    "12": 0.22,
+    "13": 0.25,
+    "14": 0.33,
+    "15": 0.29,
+    "16": 0.29,
+    "17": 0.29,
+    "18": 0.43,
+    "19": 0.33,
+    "20": 0.33,
+    "21": 0.33,
+    "22": 0.33,
+    "23": 0.4,
+    "24": 0.4,
+    "25": 0.5,
+    "26": 0.5,
+    "27": 0.5,
+    "28": 0.5,
+    "29": 0.5,
+    "30": 0.5,
+    "31": 0.67,
+    "32": 1.0,
+    "33": 0.67,
+    "34": 0.67,
+    "35": 0.67,
+    "36": 0.67,
+    "37": 0.67,
+    "38": 0.67,
+    "39": 0.67,
+    "40": 0.67,
+    "41": 1.0,
+    "42": 1.0,
+    "43": 2.0,
+    "44": 1.0,
+    "45": 1.0,
+    "46": 1.0,
+    "47": 1.0,
+    "48": 1.0,
+    "49": 1.0,
+    "50": 1.0,
+    "51": 1.0,
+    "52": 1.0,
+    "53": 1.0,
+    "54": 1.0,
+    "55": 1.0,
+    "56": 1.0,
+    "57": 1.0,
+    "58": 1.0,
+    "59": 1.0,
+    "60": 1.0,
+    "61": 1.0,
+    "62": 1.0,
+    "63": 1.0,
+    "64": 1.0,
+    "65": 1.0,
+    "66": 1.0,
+    "67": 1.0
+  },
+  "gods": [
+    {
+      "id": "super_gremlin_pattern",
+      "label": "Super-Gremlin Pattern",
+      "degree": 18
+    },
+    {
+      "id": "doc_plugin_sdk_readme",
+      "label": "Plugin SDK README",
+      "degree": 13
+    },
+    {
+      "id": "doc_shipping_velocity",
+      "label": "Shipping Velocity Methodology",
+      "degree": 12
+    },
+    {
+      "id": "doc_deliverable_skill",
+      "label": "Deliverable Skill",
+      "degree": 11
+    },
+    {
+      "id": "doer_control_plane",
+      "label": "Doer Control Plane",
+      "degree": 10
+    },
+    {
+      "id": "agent",
+      "label": "Agent",
+      "degree": 10
+    },
+    {
+      "id": "heartbeat_protocol",
+      "label": "Heartbeat Protocol",
+      "degree": 8
+    },
+    {
+      "id": "super_gremlin_protocol",
+      "label": "Super-Gremlin Protocol",
+      "degree": 7
+    },
+    {
+      "id": "heartbeat_orchestration",
+      "label": "Heartbeat Orchestration",
+      "degree": 7
+    },
+    {
+      "id": "adapter_model",
+      "label": "Adapter Model",
+      "degree": 7
+    }
+  ],
+  "surprises": [
+    {
+      "source": "Heartbeat Protocol",
+      "target": "Doer Control Plane",
+      "source_files": [
+        "agents/hunter/AGENTS.md",
+        "doc/PRODUCT.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; bridges separate communities"
+    },
+    {
+      "source": "Heartbeats (Wake Cycles)",
+      "target": "Heartbeat Protocol",
+      "source_files": [
+        "docs/start/core-concepts.md",
+        "agents/hunter/AGENTS.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "implements",
+      "why": "connects across different repos/directories; peripheral node `Heartbeats (Wake Cycles)` unexpectedly reaches hub `Heartbeat Protocol`"
+    },
+    {
+      "source": "Heartbeat Protocol",
+      "target": "Atomic Task Checkout",
+      "source_files": [
+        "agents/hunter/AGENTS.md",
+        "docs/guides/agent-developer/task-workflow.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `Atomic Task Checkout` unexpectedly reaches hub `Heartbeat Protocol`"
+    },
+    {
+      "source": "Heartbeat Protocol",
+      "target": "Cost Reporting",
+      "source_files": [
+        "agents/hunter/AGENTS.md",
+        "docs/guides/agent-developer/cost-reporting.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `Cost Reporting` unexpectedly reaches hub `Heartbeat Protocol`"
+    },
+    {
+      "source": "Heartbeat Protocol",
+      "target": "Agent Communication via Comments",
+      "source_files": [
+        "agents/hunter/AGENTS.md",
+        "docs/guides/agent-developer/comments-and-communication.md"
+      ],
+      "confidence": "EXTRACTED",
+      "relation": "references",
+      "why": "connects across different repos/directories; peripheral node `Agent Communication via Comments` unexpectedly reaches hub `Heartbeat Protocol`"
+    }
+  ],
+  "questions": [
+    {
+      "type": "bridge_node",
+      "question": "Why does `Heartbeat Protocol` connect `Community 3` to `Community 1`?",
+      "why": "High betweenness centrality (0.041) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Super-Gremlin Pattern` connect `Community 0` to `Community 3`?",
+      "why": "High betweenness centrality (0.035) - this node is a cross-community bridge."
+    },
+    {
+      "type": "bridge_node",
+      "question": "Why does `Hunter` connect `Community 3` to `Community 0`?",
+      "why": "High betweenness centrality (0.032) - this node is a cross-community bridge."
+    },
+    {
+      "type": "isolated_nodes",
+      "question": "What connects `Alfie Commander`, `Letta Cloud Memory`, `Doer Task Management` to the rest of the system?",
+      "why": "167 weakly-connected nodes found - possible documentation gaps or missing edges."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 0` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.06 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 1` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09 - nodes in this community are weakly interconnected."
+    },
+    {
+      "type": "low_cohesion",
+      "question": "Should `Community 2` be split into smaller, more focused modules?",
+      "why": "Cohesion score 0.09 - nodes in this community are weakly interconnected."
+    }
+  ]
+}

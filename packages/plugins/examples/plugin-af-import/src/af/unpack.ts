@@ -1,6 +1,18 @@
 import type { AfFile, AfMemoryBlock, AfTool } from "./types.js";
 
 /**
+ * Result of building the LeCo file map.
+ *
+ * `files` is the path→content map the caller writes to disk.
+ * `warnings` are non-fatal observations (skipped tools, slug
+ * collisions, etc.) the caller may want to surface.
+ */
+export interface LecoFileMap {
+  files: Map<string, string>;
+  warnings: string[];
+}
+
+/**
  * Build the file map (path → content) for unpacking a .af to the
  * Letta-Code (LeCo) filesystem layout.
  *
@@ -13,20 +25,21 @@ import type { AfFile, AfMemoryBlock, AfTool } from "./types.js";
  *   .letta/agent.json              — name, model, embedding, tags
  *   .letta/system.md               — system prompt
  *   .letta/memory/<sluggified>.md  — one file per memory block
- *   .letta/tools/<name>.py         — one file per custom tool
+ *   .letta/tools/<name>.py         — one file per custom tool with source_code
  *   .letta/archival/<NNNN>.json    — archival memory chunks (optional)
  *   README.md                      — auto-generated from agent metadata
  *   .gitignore                     — runtime/session artifacts
  *
- * Tonight: scaffold + tested file-map shape. Session 2 will add proper
- * archival chunking, tool-source escaping, and per-block frontmatter.
+ * Skipped: tools without `source_code` (Letta runtime / MCP tools that
+ * don't have user-authored Python source). One warning per skip.
  */
 
 export function buildLecoFileMap(
   af: AfFile,
   options: { excludeMessages?: boolean } = {},
-): Map<string, string> {
+): LecoFileMap {
   const files = new Map<string, string>();
+  const warnings: string[] = [];
   const excludeMessages = options.excludeMessages ?? true;
 
   // ── .letta/agent.json — metadata only, system prompt lives in system.md
@@ -50,15 +63,29 @@ export function buildLecoFileMap(
   // ── .letta/system.md — the system prompt
   files.set(".letta/system.md", `${af.agent.system.trim()}\n`);
 
-  // ── .letta/memory/<label>.md — one file per memory block
+  // ── .letta/memory/<label>.md — one file per memory block (slug-collision-safe)
+  const memorySlugs = new Map<string, number>();
   for (const block of af.memory_blocks) {
-    const slug = sluggifyLabel(block.label);
+    const slug = uniqueSlug(sluggifyLabel(block.label), memorySlugs, warnings, block.label, "memory block");
     files.set(`.letta/memory/${slug}.md`, formatMemoryBlock(block));
   }
 
-  // ── .letta/tools/<name>.py — one file per custom tool
+  // ── .letta/tools/<name>.py — one file per custom tool with source_code
+  // Tools without source_code are Letta runtime / MCP tools — emit a warning per skip.
   for (const tool of af.tools ?? []) {
-    files.set(`.letta/tools/${tool.name}.py`, formatTool(tool));
+    if (!tool.source_code || tool.source_code.trim().length === 0) {
+      warnings.push(
+        `Skipped tool '${tool.name}' — no source_code available (likely a Letta runtime or MCP tool, not user-authored Python).`,
+      );
+      continue;
+    }
+    if (tool.source_type && tool.source_type !== "python") {
+      warnings.push(
+        `Skipped tool '${tool.name}' — unsupported source_type '${tool.source_type}'. Only 'python' is supported today.`,
+      );
+      continue;
+    }
+    files.set(`.letta/tools/${safeFilename(tool.name)}.py`, formatTool(tool));
   }
 
   // ── .letta/archival/<NNNN>.json — archival memory (Session 2 will chunk properly)
@@ -93,7 +120,31 @@ export function buildLecoFileMap(
     ].join("\n"),
   );
 
-  return files;
+  return { files, warnings };
+}
+
+function uniqueSlug(
+  base: string,
+  used: Map<string, number>,
+  warnings: string[],
+  originalLabel: string,
+  kind: string,
+): string {
+  const safeBase = base.length > 0 ? base : "unnamed";
+  const count = used.get(safeBase) ?? 0;
+  used.set(safeBase, count + 1);
+  if (count === 0) return safeBase;
+  const suffixed = `${safeBase}-${count}`;
+  warnings.push(
+    `Slug collision on ${kind} '${originalLabel}' — emitted as '${suffixed}.md' to avoid overwriting '${safeBase}.md'.`,
+  );
+  return suffixed;
+}
+
+function safeFilename(name: string): string {
+  // Tool names are typically already filesystem-safe, but defensively strip
+  // anything that could cause directory traversal or platform issues.
+  return name.replace(/[^\w.-]+/g, "_").replace(/^[.-]+/, "_");
 }
 
 function sluggifyLabel(label: string): string {

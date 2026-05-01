@@ -1,0 +1,637 @@
+{
+  "nodes": [
+    {
+      "id": "doer_system",
+      "label": "Doer Control Plane",
+      "file_type": "document",
+      "source_file": "docs/start/what-is-doer.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "control_plane_layer",
+      "label": "Control Plane Layer",
+      "file_type": "document",
+      "source_file": "docs/start/architecture.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "execution_adapters",
+      "label": "Execution Adapters",
+      "file_type": "document",
+      "source_file": "docs/start/architecture.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_entity",
+      "label": "Company",
+      "file_type": "document",
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agents_employees",
+      "label": "AI Agents (Employees)",
+      "file_type": "document",
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issues_tasks",
+      "label": "Issues (Tasks)",
+      "file_type": "document",
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "heartbeats_wake_cycles",
+      "label": "Heartbeats (Wake Cycles)",
+      "file_type": "document",
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "governance_approvals",
+      "label": "Governance & Approvals",
+      "file_type": "document",
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "adapter_model",
+      "label": "Adapter Model",
+      "file_type": "document",
+      "source_file": "docs/start/architecture.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "claude_local_adapter",
+      "label": "Claude Local Adapter",
+      "file_type": "document",
+      "source_file": "docs/adapters/claude-local.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "codex_local_adapter",
+      "label": "Codex Local Adapter",
+      "file_type": "document",
+      "source_file": "docs/adapters/codex-local.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "gemini_local_adapter",
+      "label": "Gemini Local Adapter",
+      "file_type": "document",
+      "source_file": "docs/adapters/gemini-local.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "process_adapter",
+      "label": "Process Adapter",
+      "file_type": "document",
+      "source_file": "docs/adapters/process.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "http_adapter",
+      "label": "HTTP Adapter",
+      "file_type": "document",
+      "source_file": "docs/adapters/http.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "heartbeat_protocol",
+      "label": "Heartbeat Protocol",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/heartbeat-protocol.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skills_instructions",
+      "label": "Skills (Reusable Instructions)",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/writing-a-skill.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "task_checkout",
+      "label": "Atomic Task Checkout",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/task-workflow.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cost_reporting",
+      "label": "Cost Reporting",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/cost-reporting.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "approval_system",
+      "label": "Approval System",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/handling-approvals.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_communication",
+      "label": "Agent Communication via Comments",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/comments-and-communication.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cli_interface",
+      "label": "CLI Interface",
+      "file_type": "document",
+      "source_file": "docs/cli/overview.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "session_persistence",
+      "label": "Session Persistence",
+      "file_type": "document",
+      "source_file": "docs/adapters/claude-local.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "budget_enforcement",
+      "label": "Budget Enforcement",
+      "file_type": "document",
+      "source_file": "docs/guides/agent-developer/cost-reporting.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "adapter_registry",
+      "label": "Adapter Registry System",
+      "file_type": "document",
+      "source_file": "docs/adapters/creating-an-adapter.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "skills_injection",
+      "label": "Skills Injection Mechanism",
+      "file_type": "document",
+      "source_file": "docs/adapters/creating-an-adapter.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "doer_system",
+      "target": "control_plane_layer",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/what-is-doer.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doer_system",
+      "target": "execution_adapters",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/what-is-doer.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "control_plane_layer",
+      "target": "company_entity",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/architecture.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_entity",
+      "target": "agents_employees",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_employees",
+      "target": "issues_tasks",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_employees",
+      "target": "heartbeats_wake_cycles",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/core-concepts.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "execution_adapters",
+      "target": "adapter_model",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_model",
+      "target": "claude_local_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_model",
+      "target": "codex_local_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_model",
+      "target": "process_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_model",
+      "target": "http_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_model",
+      "target": "gemini_local_adapter",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeats_wake_cycles",
+      "target": "heartbeat_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/heartbeat-protocol.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_protocol",
+      "target": "task_checkout",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/heartbeat-protocol.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agents_employees",
+      "target": "skills_instructions",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/writing-a-skill.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_protocol",
+      "target": "cost_reporting",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/cost-reporting.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cost_reporting",
+      "target": "budget_enforcement",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/cost-reporting.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "governance_approvals",
+      "target": "approval_system",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/handling-approvals.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_protocol",
+      "target": "agent_communication",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/comments-and-communication.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_local_adapter",
+      "target": "session_persistence",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/claude-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "codex_local_adapter",
+      "target": "session_persistence",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/codex-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_local_adapter",
+      "target": "session_persistence",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/gemini-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_registry",
+      "target": "adapter_model",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/creating-an-adapter.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "skills_injection",
+      "target": "skills_instructions",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/creating-an-adapter.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "claude_local_adapter",
+      "target": "skills_injection",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/claude-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "codex_local_adapter",
+      "target": "skills_injection",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/codex-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "gemini_local_adapter",
+      "target": "skills_injection",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/gemini-local.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "control_plane_layer",
+      "target": "cli_interface",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/cli/overview.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "execution_adapters",
+      "target": "heartbeat_protocol",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/architecture.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "task_checkout",
+      "target": "issues_tasks",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/task-workflow.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "adapter_execution_flow",
+      "label": "Adapter Execution Flow",
+      "nodes": [
+        "heartbeats_wake_cycles",
+        "execution_adapters",
+        "heartbeat_protocol"
+      ],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/start/architecture.md"
+    },
+    {
+      "id": "agent_work_pattern",
+      "label": "Agent Work Pattern",
+      "nodes": [
+        "agents_employees",
+        "issues_tasks",
+        "task_checkout"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/task-workflow.md"
+    },
+    {
+      "id": "local_adapters_ecosystem",
+      "label": "Local Adapters Ecosystem",
+      "nodes": [
+        "claude_local_adapter",
+        "codex_local_adapter",
+        "gemini_local_adapter"
+      ],
+      "relation": "form",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/adapters/overview.md"
+    },
+    {
+      "id": "heartbeat_workflow",
+      "label": "Complete Heartbeat Workflow",
+      "nodes": [
+        "heartbeats_wake_cycles",
+        "task_checkout",
+        "agent_communication"
+      ],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "docs/guides/agent-developer/heartbeat-protocol.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}

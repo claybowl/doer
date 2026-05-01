@@ -1,14 +1,24 @@
 /**
  * TypeScript shape of the Letta .af agent file format.
  *
- * Verified against an exported Drafter .af on 2026-04-26 — fields
- * marked `optional` were absent in that sample but documented as
- * possible by Letta's spec. Validate against a real export before
- * trusting these in production code.
+ * Letta has shipped two distinct on-disk shapes:
+ *   1. "single" — `{ agent, memory_blocks, tools, ... }`. Documented in
+ *      Letta's earlier spec; matches the Drafter sample observed
+ *      2026-04-26.
+ *   2. "org bundle" — `{ agents: [...], blocks: [...], tools: [...],
+ *      groups, sources, files, mcp_servers, skills, metadata,
+ *      created_at }`. Verified against 7 fresh exports 2026-04-27 —
+ *      what `client.agents.export_file()` returns today. Blocks and
+ *      tools live at top-level; the agent references them by id via
+ *      `agents[0].block_ids` / `agents[0].tool_ids`.
  *
- * Letta's .af spec is versioned implicitly by their export tooling
- * — there's no `version` field at the top level. We assume any field
- * we don't recognize is fine to pass through verbatim.
+ * `parseAfFile()` detects which shape it received and normalizes the
+ * org-bundle into `AfFile` so the rest of the plugin (unpack.ts) only
+ * has to think about one shape.
+ *
+ * Neither shape carries a top-level version field; shape detection IS
+ * our version discriminator. If Letta ships a third shape, add a third
+ * branch in `parseAfFile()` rather than rewriting `AfFile`.
  */
 
 export interface AfFile {
@@ -20,6 +30,56 @@ export interface AfFile {
   messages?: AfMessage[];
   /** Anything else Letta tacked on; preserve verbatim on round-trip. */
   [key: string]: unknown;
+}
+
+/**
+ * Letta's current org-bundle export shape. The agent the user wants is
+ * `agents[0]` (Letta exports a single agent per file as a single-element
+ * array — multi-agent bundles are an open question; we take the first
+ * and warn if there are more). Memory blocks and tools live at the top
+ * level and are referenced by id from the agent.
+ */
+export interface AfOrgBundle {
+  agents: AfBundledAgent[];
+  blocks?: AfBundledBlock[];
+  tools?: AfBundledTool[];
+  groups?: unknown[];
+  files?: unknown[];
+  sources?: unknown[];
+  mcp_servers?: unknown[];
+  skills?: unknown[];
+  metadata?: Record<string, unknown>;
+  created_at?: string;
+  [key: string]: unknown;
+}
+
+export interface AfBundledAgent extends AfAgent {
+  block_ids?: string[];
+  tool_ids?: string[];
+  /** Sometimes inline (older bundles); usually empty in current export. */
+  memory_blocks?: AfMemoryBlock[];
+  /** Sometimes inline; usually empty in current export. */
+  tools?: AfTool[];
+  /** Letta's current export puts the model handle inside llm_config, not at top level. */
+  llm_config?: {
+    handle?: string;
+    model?: string;
+    [key: string]: unknown;
+  };
+  /** Same story for embedding. */
+  embedding_config?: {
+    handle?: string;
+    embedding_model?: string;
+    [key: string]: unknown;
+  };
+}
+
+export interface AfBundledBlock extends AfMemoryBlock {
+  id?: string;
+}
+
+export interface AfBundledTool extends AfTool {
+  id?: string;
 }
 
 export interface AfAgent {

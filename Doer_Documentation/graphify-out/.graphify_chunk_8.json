@@ -1,0 +1,567 @@
+{
+  "chunk_metadata": {
+    "chunk_id": 8,
+    "total_chunks": 10,
+    "files_processed": 22,
+    "extraction_date": "2026-04-28"
+  },
+  "nodes": [
+    {
+      "id": "doc_plugin_sdk_readme",
+      "type": "document",
+      "label": "Plugin SDK README",
+      "source": "packages/plugins/sdk/README.md",
+      "description": "Official TypeScript SDK reference for Doer plugin authors covering worker, UI, testing, and bundler modules"
+    },
+    {
+      "id": "doc_plugin_hello_world",
+      "type": "document",
+      "label": "Hello World Example Plugin",
+      "source": "packages/plugins/examples/plugin-hello-world-example/README.md",
+      "description": "First-party minimal reference plugin demonstrating dashboardWidget slot and basic lifecycle hooks"
+    },
+    {
+      "id": "doc_plugin_wiki_graph",
+      "type": "document",
+      "label": "Wiki Graph Plugin",
+      "source": "packages/plugins/examples/plugin-wiki-graph/README.md",
+      "description": "Karpathy-style wiki and Graphify knowledge graph over memfs memory and gremlin outputs"
+    },
+    {
+      "id": "doc_letta_bridge_readme",
+      "type": "document",
+      "label": "Letta Bridge Plugin",
+      "source": "packages/plugins/examples/letta-bridge/letta-bridge/README.md",
+      "description": "Connects Doer to Letta Cloud agents with syncing, streaming chat, and memory viewer"
+    },
+    {
+      "id": "doc_create_doer_plugin",
+      "type": "document",
+      "label": "Create Doer Plugin Scaffolding",
+      "source": "packages/plugins/create-doer-plugin/README.md",
+      "description": "Tool for scaffolding new Doer plugins with templates, manifest generation, and build configuration"
+    },
+    {
+      "id": "plugin_sdk_worker",
+      "type": "concept",
+      "label": "Plugin Worker",
+      "description": "Server-side plugin runtime entry point defined via definePlugin, handles setup lifecycle and context APIs"
+    },
+    {
+      "id": "plugin_sdk_ui",
+      "type": "concept",
+      "label": "Plugin UI Layer",
+      "description": "React-based client-side plugin UI using hooks like usePluginData, usePluginAction, usePluginStream"
+    },
+    {
+      "id": "plugin_manifest",
+      "type": "concept",
+      "label": "Plugin Manifest",
+      "description": "Configuration object declaring entrypoints, capabilities, UI slots, launchers, and metadata"
+    },
+    {
+      "id": "ui_slot_types",
+      "type": "concept",
+      "label": "UI Slot Types",
+      "description": "Mount points for plugin components: page, sidebar, settingsPage, dashboardWidget, detailTab, etc."
+    },
+    {
+      "id": "plugin_context_api",
+      "type": "concept",
+      "label": "Plugin Context API",
+      "description": "Worker-side APIs provided during setup: events, jobs, tools, data, actions, streams, state, agents, etc."
+    },
+    {
+      "id": "plugin_capabilities",
+      "type": "concept",
+      "label": "Plugin Capabilities",
+      "description": "Declared permissions system for plugins covering company data, runtime, agent, and UI operations"
+    },
+    {
+      "id": "plugin_event_system",
+      "type": "concept",
+      "label": "Plugin Event System",
+      "description": "Core domain events subscription and plugin-to-plugin event routing via ctx.events"
+    },
+    {
+      "id": "plugin_job_scheduling",
+      "type": "concept",
+      "label": "Plugin Job Scheduling",
+      "description": "Scheduled jobs using cron expressions with run context and handler registration"
+    },
+    {
+      "id": "plugin_hooks",
+      "type": "concept",
+      "label": "Plugin Lifecycle Hooks",
+      "description": "Required setup and optional onHealth, onConfigChanged, onShutdown, onValidateConfig, onWebhook hooks"
+    },
+    {
+      "id": "plugin_launcher",
+      "type": "concept",
+      "label": "Plugin Launcher",
+      "description": "Host-rendered entry points (buttons, menu items) with placement zones and render environments"
+    },
+    {
+      "id": "plugin_streaming",
+      "type": "concept",
+      "label": "Plugin Streaming (SSE)",
+      "description": "Real-time event streaming from worker to UI using server-sent events (SSE) and usePluginStream hook"
+    },
+    {
+      "id": "plugin_agent_sessions",
+      "type": "concept",
+      "label": "Agent Sessions (Two-way Chat)",
+      "description": "Multi-turn conversational sessions with agents via ctx.agents.sessions with streaming callbacks"
+    },
+    {
+      "id": "plugin_testing",
+      "type": "concept",
+      "label": "Plugin Testing Utilities",
+      "description": "createTestHarness for unit/integration tests with in-memory host harness and event emission"
+    },
+    {
+      "id": "plugin_bundler_presets",
+      "type": "concept",
+      "label": "Plugin Bundler Presets",
+      "description": "createPluginBundlerPresets for esbuild/rollup configuration for worker, manifest, and UI builds"
+    },
+    {
+      "id": "hello_world_minimal",
+      "type": "concept",
+      "label": "Hello World Minimal Plugin",
+      "description": "Simplest reference plugin using dashboardWidget slot with basic lifecycle and manifest"
+    },
+    {
+      "id": "wiki_graph_karpathy_style",
+      "type": "concept",
+      "label": "Karpathy-style Wiki Graph",
+      "description": "Combines LLM wiki with knowledge graph over memfs memory and gremlin outputs for documentation"
+    },
+    {
+      "id": "wiki_graph_ingest",
+      "type": "concept",
+      "label": "Wiki Graph Ingest Phase",
+      "description": "Walks memfs and gremlin outputs, extracts nodes/edges, caches files, generates wiki pages"
+    },
+    {
+      "id": "wiki_graph_query",
+      "type": "concept",
+      "label": "Wiki Graph Query Phase",
+      "description": "Searchable wiki browser and interactive vis.js graph with clickable nodes linking to pages"
+    },
+    {
+      "id": "wiki_graph_lint",
+      "type": "concept",
+      "label": "Wiki Graph Lint Phase",
+      "description": "Scheduled job checking for orphan pages, contradictions, stale claims, and suggested questions"
+    },
+    {
+      "id": "wiki_graph_memfs_publish",
+      "type": "concept",
+      "label": "Wiki Graph Publish to Memfs",
+      "description": "Approval-gated action copying wiki into Letta agent shared memory for agent access"
+    },
+    {
+      "id": "letta_bridge_connection",
+      "type": "concept",
+      "label": "Letta Bridge Connection",
+      "description": "API key-based connection to Letta Cloud with test connection and auto-sync capabilities"
+    },
+    {
+      "id": "letta_bridge_agent_browser",
+      "type": "concept",
+      "label": "Letta Agent Browser",
+      "description": "UI for listing and managing Letta agents with memory viewer tab and streaming chat"
+    },
+    {
+      "id": "letta_bridge_sync",
+      "type": "concept",
+      "label": "Letta Agent Sync",
+      "description": "Hourly automatic synchronization of agent mappings to Doer state"
+    },
+    {
+      "id": "plugin_scaffolding_tool",
+      "type": "concept",
+      "label": "Plugin Scaffolding Tool",
+      "description": "create-doer-plugin CLI for generating new plugins with templates and build configuration"
+    },
+    {
+      "id": "plugin_scaffold_templates",
+      "type": "concept",
+      "label": "Plugin Scaffold Templates",
+      "description": "Three templates: default, connector, and workspace with category selection"
+    },
+    {
+      "id": "plugin_dev_workflow",
+      "type": "concept",
+      "label": "Plugin Development Workflow",
+      "description": "pnpm dev for watch mode, pnpm dev:ui for local preview with hot-reload, pnpm test for testing"
+    },
+    {
+      "id": "plugin_deployment_model",
+      "type": "concept",
+      "label": "Plugin Deployment Model",
+      "description": "Local path for development, npm packages for production with writable filesystem and npm at runtime"
+    },
+    {
+      "id": "plugin_ui_no_shared_kit",
+      "type": "concept",
+      "label": "Plugin UI No Shared Component Kit",
+      "description": "Plugins build UI with plain React components and CSS, no host-provided stable component library yet"
+    },
+    {
+      "id": "plugin_local_dev_path",
+      "type": "concept",
+      "label": "Plugin Local Development Path",
+      "description": "Development convenience using repo-local path install, reinstall needed after pulling changes"
+    },
+    {
+      "id": "graph_edge_type_extracted",
+      "type": "concept",
+      "label": "Graph Edge Type: EXTRACTED",
+      "description": "Edge confidence 1.0 indicating direct textual extraction from documentation"
+    },
+    {
+      "id": "graph_edge_type_inferred",
+      "type": "concept",
+      "label": "Graph Edge Type: INFERRED",
+      "description": "Edge confidence 0.6-0.9 indicating logical inference from multiple sources"
+    }
+  ],
+  "edges": [
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_sdk_worker",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "SDK README explicitly defines worker entrypoint and definePlugin/runWorker API",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_sdk_ui",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "SDK README covers UI entry from @doerai/plugin-sdk/ui with hooks",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_manifest",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "README describes manifest entrypoints and required declarations",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "ui_slot_types",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "README section on 'Slot types / launcher placement zones' with hierarchy",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_context_api",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Context (ctx) in setup section lists all available APIs",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_capabilities",
+      "type": "defines",
+      "confidence": 1.0,
+      "rationale_for": "Comprehensive capabilities section organized by scope",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_event_system",
+      "type": "specifies",
+      "confidence": 1.0,
+      "rationale_for": "Events section covers subscription, filtering, and plugin-to-plugin routing",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_job_scheduling",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Scheduled jobs section with cron format and job context",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_launcher",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Launcher surfaces and modals section with placement zones and render options",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_streaming",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Real-time streaming section covers ctx.streams.open/emit/close API",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_agent_sessions",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Agent sessions section with multi-turn chat and streaming callbacks",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_testing",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Testing utilities section with createTestHarness example",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_sdk_readme",
+      "target": "plugin_bundler_presets",
+      "type": "documents",
+      "confidence": 1.0,
+      "rationale_for": "Bundler presets section for esbuild and rollup configuration",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_sdk_worker",
+      "target": "plugin_hooks",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Worker lifecycle in SDK README defines setup as required and others as optional",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_context_api",
+      "target": "plugin_event_system",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "ctx.events is part of context API for event handling",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_context_api",
+      "target": "plugin_job_scheduling",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "ctx.jobs is part of context API for job registration",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_context_api",
+      "target": "plugin_streaming",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "ctx.streams is part of context API for real-time event streaming",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_context_api",
+      "target": "plugin_agent_sessions",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "ctx.agents.sessions is part of context API for agent communication",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_hello_world",
+      "target": "hello_world_minimal",
+      "type": "demonstrates",
+      "confidence": 1.0,
+      "rationale_for": "README describes it as first-party minimal reference showing smallest possible UI extension",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "hello_world_minimal",
+      "target": "ui_slot_types",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Hello world example uses dashboardWidget slot type",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "hello_world_minimal",
+      "target": "plugin_manifest",
+      "type": "uses",
+      "confidence": 1.0,
+      "rationale_for": "Example shows manifest with dashboardWidget slot and entrypoints",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_plugin_wiki_graph",
+      "target": "wiki_graph_karpathy_style",
+      "type": "demonstrates",
+      "confidence": 1.0,
+      "rationale_for": "README describes Karpathy-pattern wiki combined with Graphify knowledge graph",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "wiki_graph_karpathy_style",
+      "target": "wiki_graph_ingest",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Ingest is first of three Karpathy-pattern operations described",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "wiki_graph_karpathy_style",
+      "target": "wiki_graph_query",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Query is second of three Karpathy-pattern operations",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "wiki_graph_karpathy_style",
+      "target": "wiki_graph_lint",
+      "type": "includes_phase",
+      "confidence": 1.0,
+      "rationale_for": "Lint is third of three Karpathy-pattern operations",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "wiki_graph_karpathy_style",
+      "target": "wiki_graph_memfs_publish",
+      "type": "includes_optional",
+      "confidence": 1.0,
+      "rationale_for": "Optional publish-to-memfs phase described in README",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_letta_bridge_readme",
+      "target": "letta_bridge_connection",
+      "type": "demonstrates",
+      "confidence": 1.0,
+      "rationale_for": "Letta Bridge README describes API key connection and test",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "letta_bridge_connection",
+      "target": "letta_bridge_agent_browser",
+      "type": "enables",
+      "confidence": 1.0,
+      "rationale_for": "Connection setup enables agent browser and memory viewer",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "letta_bridge_agent_browser",
+      "target": "letta_bridge_sync",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "Agent browser capability includes hourly auto-sync",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "doc_create_doer_plugin",
+      "target": "plugin_scaffolding_tool",
+      "type": "demonstrates",
+      "confidence": 1.0,
+      "rationale_for": "README describes the create-doer-plugin scaffolding tool",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_scaffolding_tool",
+      "target": "plugin_scaffold_templates",
+      "type": "provides",
+      "confidence": 1.0,
+      "rationale_for": "Tool supports three templates: default, connector, and workspace",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_scaffolding_tool",
+      "target": "plugin_dev_workflow",
+      "type": "enables",
+      "confidence": 1.0,
+      "rationale_for": "Scaffolding creates project structure enabling pnpm dev/test workflow",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_sdk_ui",
+      "target": "plugin_ui_no_shared_kit",
+      "type": "documents_constraint",
+      "confidence": 1.0,
+      "rationale_for": "SDK README states no host-provided component kit exists yet",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_deployment_model",
+      "target": "plugin_local_dev_path",
+      "type": "includes",
+      "confidence": 1.0,
+      "rationale_for": "Local-path installs described as development workflow convenience",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_scaffolding_tool",
+      "target": "plugin_deployment_model",
+      "type": "documents",
+      "confidence": 0.8,
+      "rationale_for": "Scaffold README notes npm package deployment for production",
+      "tag": "INFERRED"
+    },
+    {
+      "source": "plugin_manifest",
+      "target": "plugin_capabilities",
+      "type": "declares",
+      "confidence": 1.0,
+      "rationale_for": "Capabilities are declared in manifest.capabilities",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "ui_slot_types",
+      "target": "plugin_launcher",
+      "type": "related",
+      "confidence": 0.9,
+      "rationale_for": "Same set of values used for both slot types and launcher placement zones",
+      "tag": "EXTRACTED"
+    },
+    {
+      "source": "plugin_launcher",
+      "target": "plugin_manifest",
+      "type": "declared_in",
+      "confidence": 1.0,
+      "rationale_for": "Launchers declared in manifest.ui.launchers",
+      "tag": "EXTRACTED"
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "hyperedge_plugin_authoring_stack",
+      "label": "Plugin Authoring Complete Stack",
+      "nodes": ["plugin_sdk_worker", "plugin_sdk_ui", "plugin_manifest", "plugin_testing", "plugin_bundler_presets", "plugin_dev_workflow"],
+      "description": "Integrated set of SDK modules and workflows for complete plugin authoring lifecycle",
+      "confidence": 0.95
+    },
+    {
+      "id": "hyperedge_plugin_context_capabilities",
+      "label": "Plugin Context and Capabilities System",
+      "nodes": ["plugin_context_api", "plugin_event_system", "plugin_job_scheduling", "plugin_streaming", "plugin_agent_sessions", "plugin_capabilities"],
+      "description": "Interconnected permission and runtime context system enabling plugin functionality",
+      "confidence": 0.95
+    },
+    {
+      "id": "hyperedge_ui_extension_framework",
+      "label": "Plugin UI Extension Framework",
+      "nodes": ["ui_slot_types", "plugin_launcher", "plugin_sdk_ui", "plugin_ui_no_shared_kit"],
+      "description": "Coordinate system for mounting plugin UI components at various host locations",
+      "confidence": 0.9
+    },
+    {
+      "id": "hyperedge_wiki_graph_triple",
+      "label": "Wiki Graph Three-Phase Architecture",
+      "nodes": ["wiki_graph_ingest", "wiki_graph_query", "wiki_graph_lint", "wiki_graph_memfs_publish"],
+      "description": "Complete Karpathy-pattern workflow for knowledge extraction, querying, maintenance, and publication",
+      "confidence": 0.95
+    }
+  ]
+}

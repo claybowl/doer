@@ -13,9 +13,13 @@ const manifest: PaperclipPluginManifestV1 = {
   author: "Doer",
   categories: ["automation", "ui"],
   capabilities: [
-    // Read-only for now — actual fs.write + shell.exec capabilities will
-    // be requested when the import job is implemented (Session 2-3).
     "ui.dashboardWidget.register",
+    // Worker registers `import-af-file` which the UI calls to unpack a .af.
+    // The action body uses Node fs directly; the plugin SDK doesn't expose
+    // a separate fs.write capability today (verified 2026-04-29). Path
+    // validation lives in `writeLecoToDisk` — refuses non-empty target,
+    // refuses entries that resolve outside the target.
+    "ui.action.register",
   ],
   entrypoints: {
     worker: "./dist/worker.js",

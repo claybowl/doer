@@ -1,0 +1,696 @@
+{
+  "nodes": [
+    {
+      "id": "sleuth_agent",
+      "label": "Sleuth Agent",
+      "file_type": "document",
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "artificer_agent",
+      "label": "Artificer Agent",
+      "file_type": "document",
+      "source_file": "agents/artificer/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "scribe_agent",
+      "label": "Scribe Agent",
+      "file_type": "document",
+      "source_file": "agents/scribe/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "closer_agent",
+      "label": "Closer Agent",
+      "file_type": "document",
+      "source_file": "agents/closer/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "blueprint_agent",
+      "label": "Blueprint Agent",
+      "file_type": "document",
+      "source_file": "agents/blueprint/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "super_gremlin_protocol",
+      "label": "Super-Gremlin Protocol",
+      "file_type": "concept",
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "letta_cloud_memory",
+      "label": "Letta Cloud Memory System",
+      "file_type": "concept",
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "heartbeat_protocol",
+      "label": "Heartbeat Protocol",
+      "file_type": "concept",
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doer_control_plane",
+      "label": "Doer Control Plane",
+      "file_type": "concept",
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_entity",
+      "label": "Company Entity",
+      "file_type": "concept",
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "agent_employee",
+      "label": "Agent as Employee",
+      "file_type": "concept",
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "task_hierarchy",
+      "label": "Task Hierarchy Model",
+      "file_type": "concept",
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "adapter_system",
+      "label": "Adapter System",
+      "file_type": "concept",
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "rest_api",
+      "label": "REST API",
+      "file_type": "concept",
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "api_authentication",
+      "label": "API Authentication",
+      "file_type": "concept",
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issue_management",
+      "label": "Issue Management",
+      "file_type": "concept",
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cli_tool",
+      "label": "CLI Tool",
+      "file_type": "concept",
+      "source_file": "doc/CLI.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "deployment_modes",
+      "label": "Deployment Modes",
+      "file_type": "concept",
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "local_trusted_mode",
+      "label": "Local Trusted Mode",
+      "file_type": "concept",
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "authenticated_mode",
+      "label": "Authenticated Mode",
+      "file_type": "concept",
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "task_management_model",
+      "label": "Task Management Data Model",
+      "file_type": "document",
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "workflow_states",
+      "label": "Workflow States",
+      "file_type": "concept",
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "issue_entity",
+      "label": "Issue Entity",
+      "file_type": "concept",
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "cliphub_registry",
+      "label": "ClipHub Registry",
+      "file_type": "concept",
+      "source_file": "doc/CLIPHUB.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "company_templates",
+      "label": "Company Templates",
+      "file_type": "concept",
+      "source_file": "doc/CLIPHUB.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "autonomous_economy_vision",
+      "label": "Autonomous Economy Vision",
+      "file_type": "concept",
+      "source_file": "doc/GOAL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "doer_nervesystem",
+      "label": "Doer as Nervous System",
+      "file_type": "concept",
+      "source_file": "doc/GOAL.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "development_environment",
+      "label": "Development Environment",
+      "file_type": "concept",
+      "source_file": "doc/DEVELOPING.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    },
+    {
+      "id": "alfie_supervisor",
+      "label": "Alfie Supervisor Agent",
+      "file_type": "concept",
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "source_url": null,
+      "captured_at": null,
+      "author": null,
+      "contributor": null
+    }
+  ],
+  "edges": [
+    {
+      "source": "sleuth_agent",
+      "target": "super_gremlin_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "artificer_agent",
+      "target": "super_gremlin_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/artificer/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "scribe_agent",
+      "target": "super_gremlin_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/scribe/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "closer_agent",
+      "target": "super_gremlin_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/closer/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "blueprint_agent",
+      "target": "super_gremlin_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/blueprint/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "sleuth_agent",
+      "target": "alfie_supervisor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "artificer_agent",
+      "target": "alfie_supervisor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/artificer/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "scribe_agent",
+      "target": "alfie_supervisor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/scribe/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "closer_agent",
+      "target": "alfie_supervisor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/closer/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "blueprint_agent",
+      "target": "alfie_supervisor",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/blueprint/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "super_gremlin_protocol",
+      "target": "letta_cloud_memory",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "super_gremlin_protocol",
+      "target": "heartbeat_protocol",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/sleuth/AGENTS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "heartbeat_protocol",
+      "target": "doer_control_plane",
+      "relation": "references",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_entity",
+      "target": "doer_control_plane",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "agent_employee",
+      "target": "company_entity",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "task_hierarchy",
+      "target": "company_entity",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "adapter_system",
+      "target": "doer_control_plane",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/PRODUCT.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "rest_api",
+      "target": "doer_control_plane",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "api_authentication",
+      "target": "rest_api",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "issue_management",
+      "target": "rest_api",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "issue_management",
+      "target": "task_hierarchy",
+      "relation": "semantically_similar_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.85,
+      "source_file": "doc/API.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cli_tool",
+      "target": "doer_control_plane",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/CLI.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "local_trusted_mode",
+      "target": "deployment_modes",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "authenticated_mode",
+      "target": "deployment_modes",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "deployment_modes",
+      "target": "doer_control_plane",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/DEPLOYMENT-MODES.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "issue_entity",
+      "target": "task_management_model",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "workflow_states",
+      "target": "issue_entity",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "task_management_model",
+      "target": "doer_control_plane",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/TASKS.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_templates",
+      "target": "cliphub_registry",
+      "relation": "implements",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/CLIPHUB.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "company_templates",
+      "target": "company_entity",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/CLIPHUB.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "cliphub_registry",
+      "target": "doer_control_plane",
+      "relation": "conceptually_related_to",
+      "confidence": "INFERRED",
+      "confidence_score": 0.8,
+      "source_file": "doc/CLIPHUB.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "autonomous_economy_vision",
+      "target": "doer_control_plane",
+      "relation": "rationale_for",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/GOAL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "doer_nervesystem",
+      "target": "autonomous_economy_vision",
+      "relation": "conceptually_related_to",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/GOAL.md",
+      "source_location": null,
+      "weight": 1.0
+    },
+    {
+      "source": "development_environment",
+      "target": "doer_control_plane",
+      "relation": "shares_data_with",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "doc/DEVELOPING.md",
+      "source_location": null,
+      "weight": 1.0
+    }
+  ],
+  "hyperedges": [
+    {
+      "id": "super_gremlin_agent_fleet",
+      "label": "Super-Gremlin Agent Fleet",
+      "nodes": ["sleuth_agent", "artificer_agent", "scribe_agent", "closer_agent", "blueprint_agent"],
+      "relation": "participate_in",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "agents/sleuth/AGENTS.md"
+    },
+    {
+      "id": "doer_core_layers",
+      "label": "Doer Control Plane Architecture",
+      "nodes": ["doer_control_plane", "rest_api", "cli_tool", "deployment_modes"],
+      "relation": "implement",
+      "confidence": "EXTRACTED",
+      "confidence_score": 0.95,
+      "source_file": "doc/PRODUCT.md"
+    },
+    {
+      "id": "company_management_pattern",
+      "label": "Company Management Pattern",
+      "nodes": ["company_entity", "agent_employee", "task_hierarchy"],
+      "relation": "form",
+      "confidence": "INFERRED",
+      "confidence_score": 0.9,
+      "source_file": "doc/PRODUCT.md"
+    }
+  ],
+  "input_tokens": 0,
+  "output_tokens": 0
+}
