@@ -77,6 +77,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
 import { AgentIcon, AgentIconPicker } from "../components/AgentIconPicker";
 import { RunTranscriptView, type TranscriptMode } from "../components/transcript/RunTranscriptView";
+import { AgentChatPanel } from "../components/AgentChatPanel";
 import {
   isUuidLike,
   type Agent,
@@ -223,7 +224,7 @@ function scrollToContainerBottom(container: ScrollContainer, behavior: ScrollBeh
   container.scrollTo({ top: container.scrollHeight, behavior });
 }
 
-type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "memory" | "runs" | "budget";
+type AgentDetailView = "dashboard" | "instructions" | "configuration" | "skills" | "memory" | "runs" | "budget" | "chat";
 
 function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "instructions" || value === "prompts") return "instructions";
@@ -232,6 +233,7 @@ function parseAgentDetailView(value: string | null): AgentDetailView {
   if (value === "memory") return "memory";
   if (value === "budget") return "budget";
   if (value === "runs") return value;
+  if (value === "chat") return "chat";
   return "dashboard";
 }
 
@@ -921,6 +923,7 @@ export function AgentDetail() {
               { value: "memory", label: "Memory" },
               { value: "runs", label: "Runs" },
               { value: "budget", label: "Budget" },
+              { value: "chat", label: "Chat" },
             ]}
             value={activeView}
             onValueChange={(value) => navigate(`/agents/${canonicalAgentRef}/${value}`)}
@@ -1062,6 +1065,12 @@ export function AgentDetail() {
             onSave={(amount) => budgetMutation.mutate(amount)}
             variant="plain"
           />
+        </div>
+      ) : null}
+
+      {activeView === "chat" && agent ? (
+        <div className="flex flex-col h-[calc(100vh-220px)] border border-border rounded-lg overflow-hidden">
+          <AgentChatPanel agentId={agent.id} adapterType={agent.adapterType} />
         </div>
       ) : null}
     </div>

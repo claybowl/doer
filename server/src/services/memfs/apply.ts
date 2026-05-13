@@ -26,6 +26,7 @@ export interface ApplyMemfsBindingsInput {
   db: Db;
   agent: { id: string; companyId: string };
   adapterType: string;
+  lettaAgentId?: string | null;
   /** Mutated in-place with LETTA_MEMFS_DIR + DOER_MEMFS_MOUNTS on success. */
   adapterEnv: Record<string, string>;
   workingDirectory: string;
@@ -54,7 +55,7 @@ export interface ApplyMemfsBindingsResult {
 export async function applyMemfsBindingsToWorkspace(
   input: ApplyMemfsBindingsInput,
 ): Promise<ApplyMemfsBindingsResult> {
-  const { db, agent, adapterType, adapterEnv, workingDirectory, onLog } = input;
+  const { db, agent, adapterType, lettaAgentId, adapterEnv, workingDirectory, onLog } = input;
 
   const svc = memfsService(db);
   let bindings: ResolvedMemfsBinding[] = [];
@@ -68,14 +69,15 @@ export async function applyMemfsBindingsToWorkspace(
 
   // Back-compat: if no explicit bindings and LETTA_AGENT_ID is set, synthesize
   // a default fs-mount binding that targets the user's local Letta memory dir.
-  const lettaAgentId = (adapterEnv["LETTA_AGENT_ID"] ?? "").trim();
-  if (bindings.length === 0 && lettaAgentId) {
-    const synthetic = synthesizeLegacyLettaBinding(lettaAgentId);
+  const fallbackLettaAgentId =
+    (adapterEnv["LETTA_AGENT_ID"] ?? "").trim() || (lettaAgentId ?? "").trim();
+  if (bindings.length === 0 && fallbackLettaAgentId) {
+    const synthetic = synthesizeLegacyLettaBinding(fallbackLettaAgentId);
     if (synthetic) {
       bindings = [synthetic];
       await onLog?.(
         "stdout",
-        `[doer] memfs: no bindings found; using legacy fs-mount for LETTA_AGENT_ID=${lettaAgentId}\n`,
+        `[doer] memfs: no bindings found; using legacy fs-mount for LETTA_AGENT_ID=${fallbackLettaAgentId}\n`,
       );
     }
   }

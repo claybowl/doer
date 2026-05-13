@@ -1,6 +1,6 @@
-import { and, asc, eq, isNull } from "drizzle-orm";
+import { and, asc, count, eq, isNull } from "drizzle-orm";
 import type { Db } from "@doerai/db";
-import { goals } from "@doerai/db";
+import { goals, issues } from "@doerai/db";
 
 type GoalReader = Pick<Db, "select">;
 
@@ -42,9 +42,41 @@ export async function getDefaultCompanyGoal(db: GoalReader, companyId: string) {
     .then((rows) => rows[0] ?? null);
 }
 
+export async function getGoalProgress(db: Db, goalId: string) {
+  // Count issues linked to this goal by status
+  const issueCounts = await db
+    .select({ status: issues.status, cnt: count() })
+    .from(issues)
+    .where(eq(issues.goalId, goalId))
+    .groupBy(issues.status);
+
+  const issueCount = issueCounts.reduce((sum, r) => sum + Number(r.cnt), 0);
+  const doneCount = issueCounts.filter((r) => r.status === "done").reduce((sum, r) => sum + Number(r.cnt), 0);
+  const inProgressCount = issueCounts.filter((r) => r.status === "in_progress").reduce((sum, r) => sum + Number(r.cnt), 0);
+  const todoCount = issueCounts.filter((r) => r.status === "todo").reduce((sum, r) => sum + Number(r.cnt), 0);
+  const percentComplete = issueCount > 0 ? Math.round((doneCount / issueCount) * 100) : 0;
+
+  // Count child goals
+  const childGoals = await db
+    .select({ status: goals.status, cnt: count() })
+    .from(goals)
+    .where(eq(goals.parentId, goalId))
+    .groupBy(goals.status);
+
+  const childGoalCount = childGoals.reduce((sum, r) => sum + Number(r.cnt), 0);
+  const childGoalsAchieved = childGoals.filter((r) => r.status === "achieved").reduce((sum, r) => sum + Number(r.cnt), 0);
+
+  return { goalId, issueCount, doneCount, inProgressCount, todoCount, percentComplete, childGoalCount, childGoalsAchieved };
+}
+
 export function goalService(db: Db) {
   return {
-    list: (companyId: string) => db.select().from(goals).where(eq(goals.companyId, companyId)),
+    list: (companyId: string, filters?: { level?: string; status?: string }) => {
+      const conditions = [eq(goals.companyId, companyId)];
+      if (filters?.level) conditions.push(eq(goals.level, filters.level));
+      if (filters?.status) conditions.push(eq(goals.status, filters.status));
+      return db.select().from(goals).where(and(...conditions));
+    },
 
     getById: (id: string) =>
       db
@@ -54,6 +86,8 @@ export function goalService(db: Db) {
         .then((rows) => rows[0] ?? null),
 
     getDefaultCompanyGoal: (companyId: string) => getDefaultCompanyGoal(db, companyId),
+
+    getProgress: (goalId: string) => getGoalProgress(db, goalId),
 
     create: (companyId: string, data: Omit<typeof goals.$inferInsert, "companyId">) =>
       db

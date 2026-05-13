@@ -48,6 +48,7 @@ import { notFound, unprocessable } from "../errors.js";
 import type { StorageService } from "../storage/types.js";
 import { accessService } from "./access.js";
 import { agentService } from "./agents.js";
+import { agentWorkspaceService } from "./agent-workspaces.js";
 import { agentInstructionsService } from "./agent-instructions.js";
 import { assetService } from "./assets.js";
 import { generateReadme } from "./company-export-readme.js";
@@ -626,6 +627,36 @@ function disableImportedTimerHeartbeat(runtimeConfig: unknown) {
   heartbeat.enabled = false;
   next.heartbeat = heartbeat;
   return next;
+}
+
+function buildPortableAgentWorkspaceMetadata(input: {
+  adapterConfig: Record<string, unknown>;
+  metadata: Record<string, unknown> | null;
+}) {
+  const lettaAgentId = asString(input.adapterConfig.agentId) ?? asString(input.adapterConfig.lettaAgentId);
+  const managedHosted = input.metadata?.managedHosted === true || input.metadata?.managedBy === "donjon" || input.adapterConfig.managedHosted === true;
+  return {
+    mode: managedHosted ? "managed_hosted" as const : "doer_native" as const,
+    pathPolicy: "deterministic" as const,
+    includeSnapshot: false,
+    subdirs: ["memory", "instructions", "skills", "tools", "runs", "outputs", "state"],
+    lettaAgentId: lettaAgentId ?? null,
+  };
+}
+
+function normalizePortableAgentWorkspace(value: unknown): CompanyPortabilityAgentManifestEntry["workspace"] {
+  if (!isPlainRecord(value)) return null;
+  const mode = value.mode === "managed_hosted" ? "managed_hosted" : "doer_native";
+  const subdirs = Array.isArray(value.subdirs)
+    ? value.subdirs.filter((entry): entry is string => typeof entry === "string" && entry.trim().length > 0)
+    : ["memory", "instructions", "skills", "tools", "runs", "outputs", "state"];
+  return {
+    mode,
+    pathPolicy: "deterministic",
+    includeSnapshot: value.includeSnapshot === true,
+    subdirs,
+    lettaAgentId: asString(value.lettaAgentId),
+  };
 }
 
 function normalizePortableProjectWorkspaceExtension(
@@ -2336,6 +2367,7 @@ function buildManifestFromPackageFiles(
     const extensionRuntime = isPlainRecord(extension.runtime) ? extension.runtime : null;
     const extensionPermissions = isPlainRecord(extension.permissions) ? extension.permissions : null;
     const extensionMetadata = isPlainRecord(extension.metadata) ? extension.metadata : null;
+    const extensionWorkspace = normalizePortableAgentWorkspace(extension.workspace);
     const adapterConfig = isPlainRecord(extensionAdapter?.config)
       ? extensionAdapter.config
       : {};
@@ -2361,6 +2393,7 @@ function buildManifestFromPackageFiles(
           ? Math.max(0, Math.floor(extension.budgetMonthlyCents))
           : 0,
       metadata: extensionMetadata,
+      workspace: extensionWorkspace,
     });
 
     manifest.envInputs.push(...readAgentEnvInputs(extension, slug));
@@ -2620,6 +2653,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
   const agents = agentService(db);
   const assetRecords = assetService(db);
   const instructions = agentInstructionsService();
+  const agentWorkspaces = agentWorkspaceService();
   const access = accessService(db);
   const projects = projectService(db);
   const issues = issueService(db);
@@ -3084,6 +3118,10 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           permissions: portablePermissions,
           budgetMonthlyCents: (agent.budgetMonthlyCents ?? 0) > 0 ? agent.budgetMonthlyCents : undefined,
           metadata: (agent.metadata as Record<string, unknown> | null) ?? null,
+          workspace: buildPortableAgentWorkspaceMetadata({
+            adapterConfig: agent.adapterConfig as Record<string, unknown>,
+            metadata: (agent.metadata as Record<string, unknown> | null) ?? null,
+          }),
         });
         if (isPlainRecord(extension) && agentEnvInputs.length > 0) {
           extension.inputs = {
@@ -3937,6 +3975,17 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           } catch (err) {
             warnings.push(`Failed to materialize instructions bundle for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
           }
+          try {
+            await agentWorkspaces.ensure({
+              id: updated.id,
+              companyId: updated.companyId,
+              name: updated.name,
+              adapterConfig: updated.adapterConfig as Record<string, unknown>,
+              metadata: (updated.metadata as Record<string, unknown> | null) ?? null,
+            });
+          } catch (err) {
+            warnings.push(`Failed to ensure native workspace for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
+          }
           importedSlugToAgentId.set(planAgent.slug, updated.id);
           existingSlugToAgentId.set(normalizeAgentUrlKey(updated.name) ?? updated.id, updated.id);
           resultAgents.push({
@@ -3967,6 +4016,17 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           created = await agents.update(created.id, { adapterConfig: materialized.adapterConfig }) ?? created;
         } catch (err) {
           warnings.push(`Failed to materialize instructions bundle for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+        try {
+          await agentWorkspaces.ensure({
+            id: created.id,
+            companyId: created.companyId,
+            name: created.name,
+            adapterConfig: created.adapterConfig as Record<string, unknown>,
+            metadata: (created.metadata as Record<string, unknown> | null) ?? null,
+          });
+        } catch (err) {
+          warnings.push(`Failed to ensure native workspace for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
         }
         importedSlugToAgentId.set(planAgent.slug, created.id);
         existingSlugToAgentId.set(normalizeAgentUrlKey(created.name) ?? created.id, created.id);

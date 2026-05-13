@@ -100,10 +100,10 @@ jobs:
           S3_FOLDER: beta
         run: pnpm run release
 
-      # Always upload build artifacts to GitHub so you can grab the installer
-      # even on dry runs. Artifacts expire after 14 days.
-      - name: Upload artifacts
-        if: always()
+      # Upload artifacts to GitHub only on dry runs (real releases go to R2).
+      # Short retention keeps quota in check — grab the installer within 3 days.
+      - name: Upload artifacts (dry run only)
+        if: ${{ inputs.dry_run }}
         uses: actions/upload-artifact@v4
         with:
           name: doer-desktop-${{ matrix.platform }}-${{ matrix.arch }}
@@ -112,4 +112,5 @@ jobs:
             desktop/out/make/**/*.zip
             desktop/out/make/**/*.nupkg
           if-no-files-found: warn
-          retention-days: 14
+          retention-days: 3
+          overwrite: true

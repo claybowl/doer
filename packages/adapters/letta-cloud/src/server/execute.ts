@@ -4,15 +4,124 @@ import {
   attachTool,
   DELIVERABLE_TOOL_NAME,
   ensureDeliverableTool,
+  ensureGoalTools,
   fetchAgentSnapshot,
   getLettaClient,
+  READ_GOALS_TOOL_NAME,
+  CREATE_GOAL_TOOL_NAME,
+  UPDATE_GOAL_STATUS_TOOL_NAME,
 } from "./letta-client.js";
+import {
+  GET_FLEET_STATUS_TOOL_NAME,
+  SCHEDULE_COUNCIL_TOOL_NAME,
+  EMERGENCY_PAUSE_AGENT_TOOL_NAME,
+  CLONE_FROM_TEMPLATE_TOOL_NAME,
+  BULK_DISPATCH_TOOL_NAME,
+  REASSIGN_TASK_TOOL_NAME,
+  FORECAST_CAPACITY_TOOL_NAME,
+  BUILD_DEPENDENCY_GRAPH_TOOL_NAME,
+  ANALYZE_ISSUE_PATTERNS_TOOL_NAME,
+  SCAN_FLEET_ANOMALIES_TOOL_NAME,
+  AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
+  GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+  interceptGetFleetStatus,
+  interceptScheduleCouncil,
+  interceptEmergencyPauseAgent,
+  interceptCloneFromTemplate,
+  interceptBulkDispatch,
+  interceptReassignTask,
+  interceptForecastCapacity,
+  interceptBuildDependencyGraph,
+  interceptAnalyzeIssuePatterns,
+  interceptScanFleetAnomalies,
+  interceptAuditAgentCompliance,
+  interceptGenerateWeeklyBrief,
+} from "./tool-intercepts.js";
 import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
 
 // Process-local cache: agents we've verified have produce_deliverable
 // attached. Cleared on adapter restart, which is fine — re-attach is
 // idempotent and runs at most once per agent per server lifetime.
 const deliverableToolVerifiedAgents = new Set<string>();
+
+// Process-local cache: agents we've verified have new tools attached.
+const newToolsVerifiedAgents = new Set<string>();
+
+/** Tool suites per agent role/name — maps to {toolName: toolId} */
+const AGENT_TOOL_SUITES: Record<string, Record<string, string>> = {
+  dondog: {
+    get_fleet_status: "tool-de2e637c-6a63-42ca-b5a9-1526898fe95a",
+    schedule_council: "tool-61a62f60-bf24-4a63-8da3-4476463f6d2d",
+    emergency_pause_agent: "tool-e0b561ef-200f-49c9-a344-87675c13043f",
+    clone_from_template: "tool-bf99b29d-4b40-4751-a6f6-f0e53f4ff471",
+  },
+  alfie: {
+    check_gremlin_ready: "tool-4fb6c6e6-5a0f-421e-8ea2-de1c4ba9d220",
+    bulk_dispatch: "tool-ced0e140-08b5-4d32-b69d-a3ce3192644e",
+    reassign_task: "tool-d18286a4-60ee-46e9-8ff4-354f69a0f48f",
+    estimate_gremlin_capacity: "tool-62823eef-ccd8-45a9-9916-65bf3e848a28",
+  },
+  chef: {
+    build_dependency_graph: "tool-d8cc8a69-c239-4db3-8149-98775bb00ca7",
+    forecast_capacity: "tool-276e7177-919e-4e95-8a1a-919ee296ebf8",
+    create_milestone: "tool-748cf557-7281-4610-af43-e05ccc8e82c7",
+    analyze_issue_patterns: "tool-b85bef4d-fa65-4511-b5d1-c19ff7e40c62",
+  },
+  "tower keeper": {
+    scan_fleet_anomalies: "tool-df4d46d8-a0c9-469a-af16-59b52740db2e",
+    audit_agent_compliance: "tool-9931bd80-8407-4624-8ab3-a2647b462e1d",
+    detect_memory_bloat: "tool-18173fe0-e512-4fc0-8946-378d2ba2a7d9",
+    generate_weekly_brief: "tool-9b497c06-4e9f-4200-8673-4c50943f3cae",
+  },
+};
+
+/**
+ * Self-heal hook: ensure new tool suites are attached per agent role.
+ * Uses agent name (lowercased) to look up the correct suite.
+ * Non-blocking — logs but doesn't abort the run.
+ */
+async function ensureNewToolsAttached(
+  ctx: AdapterExecutionContext,
+  config: LettaCloudAdapterConfig,
+  snapshot: Awaited<ReturnType<typeof import("./letta-client.js").fetchAgentSnapshot>>,
+): Promise<void> {
+  const agentId = config.agentId;
+  if (newToolsVerifiedAgents.has(agentId)) return;
+
+  const agentName = (ctx.agent?.name ?? "").toLowerCase().trim();
+  const suite = AGENT_TOOL_SUITES[agentName];
+  if (!suite) {
+    // Agent has no special suite — skip
+    newToolsVerifiedAgents.add(agentId);
+    return;
+  }
+
+  try {
+    const attachedNames = new Set(snapshot.tools.map((t) => t.name));
+    const missing: string[] = [];
+
+    for (const [toolName, toolId] of Object.entries(suite)) {
+      if (!attachedNames.has(toolName)) {
+        missing.push(toolName);
+        await attachTool(config, toolId);
+      }
+    }
+
+    if (missing.length > 0) {
+      await ctx.onLog(
+        "stdout",
+        `[letta-cloud] self-heal: attached ${missing.join(", ")} to ${agentId}\n`,
+      );
+    }
+    newToolsVerifiedAgents.add(agentId);
+  } catch (err) {
+    await ctx.onLog(
+      "stderr",
+      `[letta-cloud] self-heal failed for new tools on ${agentId}: ${err instanceof Error ? err.message : String(err)}\n`,
+    );
+    // Don't cache failure — next wake retries
+  }
+}
 
 /**
  * Self-heal hook: ensure the produce_deliverable tool is registered AND
@@ -340,6 +449,91 @@ export function buildWakeMessage(
   ].join("\n");
 }
 
+// ── Goal tool proxy helpers ───────────────────────────────────────────────
+
+async function proxyGoalToolCall(
+  ctx: AdapterExecutionContext,
+  toolName: string,
+  args: Record<string, unknown>,
+): Promise<void> {
+  const env = buildPaperclipEnv(ctx.agent);
+  const apiUrl = env.DOER_API_URL;
+  if (!apiUrl) {
+    console.warn(`[letta-cloud] No DOER_API_URL resolved; cannot proxy goal tool ${toolName}`);
+    return;
+  }
+
+  const base = apiUrl.replace(/\/+$/, "");
+  const companyId = ctx.agent.companyId;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+    ...(ctx.authToken ? { Authorization: `Bearer ${ctx.authToken}` } : {}),
+  };
+
+  try {
+    if (toolName === READ_GOALS_TOOL_NAME) {
+      const params = new URLSearchParams();
+      if (typeof args.level === "string") params.set("level", args.level);
+      if (typeof args.status === "string") params.set("status", args.status);
+      const qs = params.toString() ? `?${params.toString()}` : "";
+      const res = await fetch(`${base}/api/companies/${companyId}/goals${qs}`, { headers });
+      const goals = await res.json();
+      console.info(`[letta-cloud] read_goals returned ${Array.isArray(goals) ? goals.length : "?"} goals`);
+    } else if (toolName === CREATE_GOAL_TOOL_NAME) {
+      const body = {
+        title: args.title,
+        description: args.description,
+        level: args.level,
+        parentId: args.parent_id ?? null,
+        ownerAgentId: args.owner_agent_id ?? null,
+        status: "active",
+      };
+      const res = await fetch(`${base}/api/companies/${companyId}/goals`, {
+        method: "POST",
+        headers,
+        body: JSON.stringify(body),
+      });
+      const goal = await res.json();
+      console.info(`[letta-cloud] create_goal created: ${goal?.id ?? "?"} — ${goal?.title ?? "?"}`);
+    } else if (toolName === UPDATE_GOAL_STATUS_TOOL_NAME) {
+      const goalId = args.goal_id;
+      if (!goalId || typeof goalId !== "string") {
+        console.warn(`[letta-cloud] update_goal_status missing goal_id`);
+        return;
+      }
+      const res = await fetch(`${base}/api/goals/${goalId}`, {
+        method: "PATCH",
+        headers,
+        body: JSON.stringify({ status: args.status }),
+      });
+      const goal = await res.json();
+      console.info(`[letta-cloud] update_goal_status: ${goal?.id ?? "?"} → ${goal?.status ?? "?"}`);
+    }
+  } catch (err) {
+    console.warn(`[letta-cloud] goal tool proxy failed for ${toolName}:`, err instanceof Error ? err.message : err);
+  }
+}
+
+async function ensureGoalToolsAttached(
+  config: LettaCloudAdapterConfig,
+  agentId: string,
+  snapshot: Awaited<ReturnType<typeof import("./letta-client.js").fetchAgentSnapshot>>,
+): Promise<void> {
+  if (goalToolsVerifiedAgents.has(agentId)) return;
+  try {
+    const { readGoalsId, createGoalId, updateGoalStatusId } = await ensureGoalTools(config);
+    const attachedIds = new Set(snapshot.tools.map((t) => t.id));
+    await Promise.all([
+      !attachedIds.has(readGoalsId) ? attachTool(config, readGoalsId) : Promise.resolve(),
+      !attachedIds.has(createGoalId) ? attachTool(config, createGoalId) : Promise.resolve(),
+      !attachedIds.has(updateGoalStatusId) ? attachTool(config, updateGoalStatusId) : Promise.resolve(),
+    ]);
+    goalToolsVerifiedAgents.add(agentId);
+  } catch (err) {
+    console.warn(`[letta-cloud] Could not ensure goal tools for agent ${agentId}:`, err instanceof Error ? err.message : err);
+  }
+}
+
 // ── Emit helpers — one JSON line per stdout write ──────────────────────────
 // The UI parser (`parseLettaCloudStdoutLine`) will parse these back into
 // TranscriptEntry objects for the real-time dashboard transcript.
@@ -362,6 +556,14 @@ async function executeStreaming(
   // the verification; subsequent wakes are cached. See
   // ensureDeliverableToolAttached for rationale.
   await ensureDeliverableToolAttached(ctx, config);
+
+  // Self-heal: ensure goal tools (read_goals, create_goal, update_goal_status)
+  // are attached. Non-blocking — failure logs but doesn't abort the run.
+  const snapshot = await fetchAgentSnapshot(config).catch(() => null);
+  if (snapshot) {
+    void ensureGoalToolsAttached(config, config.agentId, snapshot);
+    void ensureNewToolsAttached(ctx, config, snapshot);
+  }
 
   // Emit the user message so the transcript shows the full conversation
   await emit(ctx, { type: "user_message", content: userMessage });
@@ -517,6 +719,59 @@ async function executeStreaming(
               pendingSideEffects.push(
                 postDeliverableFromToolCall(ctx, input as Record<string, unknown>),
               );
+            }
+
+            // Interception: goal tool stubs — proxy to Doer API
+            if (
+              (name === READ_GOALS_TOOL_NAME || name === CREATE_GOAL_TOOL_NAME || name === UPDATE_GOAL_STATUS_TOOL_NAME) &&
+              input &&
+              typeof input === "object" &&
+              !Array.isArray(input)
+            ) {
+              pendingSideEffects.push(
+                proxyGoalToolCall(ctx, name, input as Record<string, unknown>),
+              );
+            }
+
+            // ── New tool intercepts ──────────────────────────────────────────
+            const NEW_TOOL_NAMES = new Set([
+              GET_FLEET_STATUS_TOOL_NAME,
+              SCHEDULE_COUNCIL_TOOL_NAME,
+              EMERGENCY_PAUSE_AGENT_TOOL_NAME,
+              CLONE_FROM_TEMPLATE_TOOL_NAME,
+              BULK_DISPATCH_TOOL_NAME,
+              REASSIGN_TASK_TOOL_NAME,
+              FORECAST_CAPACITY_TOOL_NAME,
+              BUILD_DEPENDENCY_GRAPH_TOOL_NAME,
+              ANALYZE_ISSUE_PATTERNS_TOOL_NAME,
+              SCAN_FLEET_ANOMALIES_TOOL_NAME,
+              AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
+              GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+            ]);
+            if (
+              NEW_TOOL_NAMES.has(name) &&
+              input &&
+              typeof input === "object" &&
+              !Array.isArray(input)
+            ) {
+              const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<void>> = {
+                [GET_FLEET_STATUS_TOOL_NAME]: interceptGetFleetStatus,
+                [SCHEDULE_COUNCIL_TOOL_NAME]: interceptScheduleCouncil,
+                [EMERGENCY_PAUSE_AGENT_TOOL_NAME]: interceptEmergencyPauseAgent,
+                [CLONE_FROM_TEMPLATE_TOOL_NAME]: interceptCloneFromTemplate,
+                [BULK_DISPATCH_TOOL_NAME]: interceptBulkDispatch,
+                [REASSIGN_TASK_TOOL_NAME]: interceptReassignTask,
+                [FORECAST_CAPACITY_TOOL_NAME]: interceptForecastCapacity,
+                [BUILD_DEPENDENCY_GRAPH_TOOL_NAME]: interceptBuildDependencyGraph,
+                [ANALYZE_ISSUE_PATTERNS_TOOL_NAME]: interceptAnalyzeIssuePatterns,
+                [SCAN_FLEET_ANOMALIES_TOOL_NAME]: interceptScanFleetAnomalies,
+                [AUDIT_AGENT_COMPLIANCE_TOOL_NAME]: interceptAuditAgentCompliance,
+                [GENERATE_WEEKLY_BRIEF_TOOL_NAME]: interceptGenerateWeeklyBrief,
+              };
+              const fn = interceptors[name];
+              if (fn) {
+                pendingSideEffects.push(fn(ctx, input as Record<string, unknown>));
+              }
             }
           }
         }

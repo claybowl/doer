@@ -823,7 +823,16 @@ export function issueRoutes(db: Db, storage: StorageService) {
       updatedAt: issue.updatedAt ? issue.updatedAt.toISOString() : new Date().toISOString(),
     });
 
-    res.status(201).json(issue);
+    // Soft warning if no goalId and company has active goals
+    let goalWarning: string | undefined;
+    if (!req.body.goalId) {
+      const activeGoals = await goalService(db).list(companyId, { status: "active" });
+      if (activeGoals.length > 0) {
+        goalWarning = "Issue created without a goal link. Consider associating this issue with an active goal.";
+      }
+    }
+
+    res.status(201).json(goalWarning ? { ...issue, _warning: goalWarning } : issue);
   });
 
   router.patch("/issues/:id", validate(updateIssueSchema), async (req, res) => {

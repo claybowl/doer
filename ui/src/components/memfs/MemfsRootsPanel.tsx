@@ -22,7 +22,7 @@ export function MemfsRootsPanel({ companyId }: MemfsRootsPanelProps) {
     queryFn: () => memfsApi.listRoots(companyId),
   });
 
-  const [rootPath, setRootPath] = useState("");
+  const [rootPath, setRootPath] = useState("~/.letta");
   const [label, setLabel] = useState("letta");
   const [kind, setKind] = useState<MemfsRootKind>("local-fs");
   const [formError, setFormError] = useState<string | null>(null);
@@ -35,7 +35,7 @@ export function MemfsRootsPanel({ companyId }: MemfsRootsPanelProps) {
         label: label.trim() || "letta",
       }),
     onSuccess: () => {
-      setRootPath("");
+      setRootPath("~/.letta");
       setLabel("letta");
       setKind("local-fs");
       setFormError(null);
@@ -174,7 +174,7 @@ export function MemfsRootsPanel({ companyId }: MemfsRootsPanelProps) {
               type="text"
               value={rootPath}
               onChange={(e) => setRootPath(e.target.value)}
-              placeholder="/Users/you/.letta"
+              placeholder="~/.letta"
             />
           </Field>
           {formError && (

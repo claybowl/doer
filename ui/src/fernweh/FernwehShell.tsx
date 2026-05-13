@@ -225,7 +225,7 @@ export function FernwehShell() {
                 className="fw-uc"
                 style={{ color: "var(--ink-faint)", fontSize: 9, letterSpacing: "0.1em" }}
               >
-                Fernweh
+                {`Version ${__APP_VERSION__}`}
               </span>
             </div>
           </div>

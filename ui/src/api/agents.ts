@@ -1,6 +1,7 @@
 import type {
   Agent,
   AgentDetail,
+  AgentWorkspaceSummary,
   AgentInstructionsBundle,
   AgentInstructionsFileDetail,
   AgentSkillSnapshot,
@@ -97,6 +98,10 @@ export const agentsApi = {
   },
   getConfiguration: (id: string, companyId?: string) =>
     api.get<Record<string, unknown>>(agentPath(id, companyId, "/configuration")),
+  workspace: (id: string, companyId?: string) =>
+    api.get<AgentWorkspaceSummary>(agentPath(id, companyId, "/workspace")),
+  ensureWorkspace: (id: string, companyId?: string) =>
+    api.post<AgentWorkspaceSummary>(agentPath(id, companyId, "/workspace/ensure"), {}),
   listConfigRevisions: (id: string, companyId?: string) =>
     api.get<AgentConfigRevision[]>(agentPath(id, companyId, "/config-revisions")),
   getConfigRevision: (id: string, revisionId: string, companyId?: string) =>

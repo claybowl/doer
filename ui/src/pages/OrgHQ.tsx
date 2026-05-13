@@ -1,68 +1,119 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link } from "@/lib/router";
 import { useQuery } from "@tanstack/react-query";
-import { agentsApi } from "../api/agents";
+import { dashboardApi } from "../api/dashboard";
+import { activityApi } from "../api/activity";
+import { goalsApi } from "../api/goals";
 import { useCompany } from "../context/CompanyContext";
 import { useBreadcrumbs } from "../context/BreadcrumbContext";
 import { queryKeys } from "../lib/queryKeys";
-import { Building2, Zap, Clock, Users, ArrowRight, BookOpen, Rss } from "lucide-react";
+import {
+  Building2,
+  Zap,
+  Clock,
+  Users,
+  ArrowRight,
+  Target,
+  AlertTriangle,
+  CheckCircle2,
+  CircleDot,
+  Loader2,
+} from "lucide-react";
+import { cn } from "../lib/utils";
+import { GoalTree } from "../components/GoalTree";
 
-type FeedTab = "updates" | "docs";
+function timeAgo(dateStr: string): string {
+  const diff = Date.now() - new Date(dateStr).getTime();
+  const mins = Math.floor(diff / 60_000);
+  if (mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  return `${Math.floor(hrs / 24)}d ago`;
+}
 
-const FEED_CARDS = [
-  {
-    tag: "TUTORIAL",
-    tagColor: "text-emerald-400",
-    tagBg: "bg-emerald-950/60",
-    title: "Building Your First Automation in 5 Steps",
-  },
-  {
-    tag: "ENGINEERING",
-    tagColor: "text-violet-400",
-    tagBg: "bg-violet-950/60",
-    title: "How We Cut API Latency by 60% with Edge Functions",
-  },
-  {
-    tag: "VISION",
-    tagColor: "text-red-400",
-    tagBg: "bg-red-950/60",
-    title: "The Agentic Web: Why 2026 Changes Everything",
-  },
-];
-
-const DOC_LINKS = [
-  { title: "Getting Started", description: "Deploy your first agent in 10 minutes." },
-  { title: "Agent Architecture", description: "How Doer models multi-agent workflows." },
-  { title: "Cost & Budget Controls", description: "Hard stops, approvals, and spend governance." },
-  { title: "Routines & Automations", description: "Schedule recurring agent tasks." },
-  { title: "API Reference", description: "REST endpoints, auth, and rate limits." },
-];
+function actionLabel(action: string): string {
+  const map: Record<string, string> = {
+    "issue.created": "created issue",
+    "issue.updated": "updated issue",
+    "issue.status_changed": "moved issue",
+    "goal.created": "created goal",
+    "goal.updated": "updated goal",
+    "agent.hired": "hired agent",
+    "agent.terminated": "terminated agent",
+    "run.started": "started run",
+    "run.completed": "completed run",
+  };
+  return map[action] ?? action;
+}
 
 export function OrgHQ() {
   const { selectedCompanyId, selectedCompany } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
-  const [activeTab, setActiveTab] = useState<FeedTab>("updates");
 
   useEffect(() => {
     setBreadcrumbs([{ label: "HQ" }]);
   }, [setBreadcrumbs]);
 
-  const { data: agents } = useQuery({
-    queryKey: queryKeys.agents.list(selectedCompanyId!),
-    queryFn: () => agentsApi.list(selectedCompanyId!),
+  const { data: summary } = useQuery({
+    queryKey: ["dashboard", "summary", selectedCompanyId],
+    queryFn: () => dashboardApi.summary(selectedCompanyId!),
     enabled: !!selectedCompanyId,
+    refetchInterval: 30_000,
   });
 
-  const activeAgentCount = agents?.filter((a) => a.status === "active").length ?? 0;
-  const totalAgentCount = agents?.length ?? 0;
+  const { data: activity } = useQuery({
+    queryKey: ["activity", selectedCompanyId, "hq"],
+    queryFn: () => activityApi.list(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    refetchInterval: 30_000,
+  });
+
+  const { data: activeGoals } = useQuery({
+    queryKey: queryKeys.goals.list(selectedCompanyId!, { status: "active" }),
+    queryFn: () => goalsApi.list(selectedCompanyId!, { status: "active" }),
+    enabled: !!selectedCompanyId,
+    refetchInterval: 60_000,
+  });
+
+  const recentActivity = (activity ?? []).slice(0, 12);
+
+  const agentRunning = summary?.agents.running ?? 0;
+  const agentError = summary?.agents.error ?? 0;
+  const tasksInProgress = summary?.tasks.inProgress ?? 0;
+  const tasksOpen = summary?.tasks.open ?? 0;
+  const tasksDone = summary?.tasks.done ?? 0;
+  const taskBlocked = summary?.tasks.blocked ?? 0;
+
+  // Fleet state: error > warning > running > idle
+  const fleetState: "error" | "warning" | "running" | "idle" =
+    agentError > 0 ? "error" :
+    taskBlocked > 0 ? "warning" :
+    agentRunning > 0 ? "running" : "idle";
+
+  const fleetConfig = {
+    error: { label: "Fleet needs attention", color: "text-red-400", bg: "bg-red-950/40 border-red-800/60", icon: AlertTriangle },
+    warning: { label: "Some tasks blocked", color: "text-yellow-400", bg: "bg-yellow-950/40 border-yellow-800/60", icon: AlertTriangle },
+    running: { label: "Fleet running", color: "text-emerald-400", bg: "bg-emerald-950/40 border-emerald-800/60", icon: Loader2 },
+    idle: { label: "Fleet idle", color: "text-muted-foreground", bg: "bg-muted/20 border-border", icon: CheckCircle2 },
+  }[fleetState];
+
+  const FleetIcon = fleetConfig.icon;
 
   return (
     <div className="flex flex-col min-h-0 h-full overflow-y-auto">
       {/* Top bar */}
       <div className="flex items-center justify-between px-8 py-4 shrink-0 border-b border-border">
-        <h1 className="text-lg font-semibold text-foreground">
-          Welcome to {selectedCompany?.name ?? "HQ"}
-        </h1>
+        <div className="flex items-center gap-3">
+          <h1 className="text-lg font-semibold text-foreground">
+            {selectedCompany?.name ?? "HQ"}
+          </h1>
+          {/* Fleet state indicator */}
+          <div className={cn("flex items-center gap-1.5 px-2.5 py-1 rounded-full border text-xs font-medium", fleetConfig.bg, fleetConfig.color)}>
+            <FleetIcon className={cn("h-3 w-3", fleetState === "running" && "animate-spin")} />
+            {fleetConfig.label}
+          </div>
+        </div>
         <Link
           to="/agents/new"
           className="flex items-center gap-1.5 px-4 py-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-semibold transition-colors"
@@ -73,147 +124,79 @@ export function OrgHQ() {
 
       <div className="flex flex-1 min-h-0 gap-6 px-8 py-6">
         {/* Main column */}
-        <div className="flex flex-col flex-1 min-w-0 gap-8">
-          {/* Hero */}
-          <div className="flex flex-col gap-3">
-            <div className="flex flex-col gap-0">
-              <h2 className="text-5xl font-extrabold text-foreground leading-tight">
-                Orchestrate anything.
-              </h2>
-              <h2 className="text-5xl font-extrabold text-emerald-400 leading-tight">
-                Ship faster.
-              </h2>
-            </div>
-            <p className="text-sm text-muted-foreground max-w-lg mt-1">
-              Doer turns your workflows into intelligent automation — deploy agents, govern costs,
-              and reclaim your time.
-            </p>
-            <div className="flex items-center gap-3 mt-2">
-              <Link
-                to="/agents/new"
-                className="flex items-center gap-1.5 px-5 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-semibold transition-colors"
-              >
-                Get Started <ArrowRight className="h-3.5 w-3.5" />
-              </Link>
-              <a
-                href="https://docs.doer.ai"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 px-4 py-2 rounded-lg text-muted-foreground hover:text-foreground text-sm font-medium transition-colors"
-              >
-                Read the Docs
-              </a>
-            </div>
-          </div>
+        <div className="flex flex-col flex-1 min-w-0 gap-6">
 
-          {/* Stats bar */}
-          <div className="grid grid-cols-4 gap-6">
+          {/* Stats bar — real data */}
+          <div className="grid grid-cols-4 gap-4">
             <StatBlock
-              label="AGENTS ACTIVE"
-              value={String(activeAgentCount || totalAgentCount)}
-              sub={totalAgentCount > 0 ? `${totalAgentCount} total` : "No agents yet"}
+              label="RUNNING"
+              value={String(agentRunning)}
+              sub={`${summary?.agents.active ?? 0} active agents`}
               valueClassName="text-emerald-400"
             />
             <StatBlock
-              label="AGENTS TOTAL"
-              value={String(totalAgentCount)}
-              sub="across all projects"
+              label="IN PROGRESS"
+              value={String(tasksInProgress)}
+              sub={`${tasksOpen} open total`}
             />
             <StatBlock
-              label="HOURS SAVED"
-              value="—"
-              sub="Coming soon"
+              label="DONE"
+              value={String(tasksDone)}
+              sub="issues completed"
+              valueClassName="text-emerald-400"
             />
             <StatBlock
-              label="TEAM MEMBERS"
-              value="—"
-              sub="Invite your team"
+              label="BLOCKED"
+              value={String(taskBlocked)}
+              sub={agentError > 0 ? `${agentError} agents in error` : "needs attention"}
+              valueClassName={taskBlocked > 0 || agentError > 0 ? "text-yellow-400" : "text-foreground"}
             />
           </div>
 
-          {/* Feed tabs */}
-          <div className="flex flex-col gap-4">
-            <div className="flex items-center gap-6 border-b border-border">
-              <button
-                onClick={() => setActiveTab("updates")}
-                className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                  activeTab === "updates"
-                    ? "border-emerald-400 text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Rss className="h-3.5 w-3.5" />
-                Blog &amp; Updates
-              </button>
-              <button
-                onClick={() => setActiveTab("docs")}
-                className={`flex items-center gap-1.5 pb-2 text-sm font-medium transition-colors border-b-2 -mb-px ${
-                  activeTab === "docs"
-                    ? "border-emerald-400 text-foreground"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <BookOpen className="h-3.5 w-3.5" />
-                Documentation
-              </button>
+          {/* Active Goals */}
+          {activeGoals && activeGoals.length > 0 && (
+            <div className="flex flex-col gap-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-1.5">
+                  <Target className="h-3.5 w-3.5" />
+                  Active Goals
+                </h3>
+                <Link to="/goals" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                  View all →
+                </Link>
+              </div>
+              <GoalTree goals={activeGoals} goalLink={(g) => `/goals/${g.id}`} />
+            </div>
+          )}
+
+          {/* Recent Activity */}
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase flex items-center gap-1.5">
+                <CircleDot className="h-3.5 w-3.5" />
+                Recent Activity
+              </h3>
+              <Link to="/activity" className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                View all →
+              </Link>
             </div>
 
-            {activeTab === "updates" && (
-              <div className="flex flex-col gap-4">
-                {/* Featured card */}
-                <div className="rounded-xl border border-border bg-card p-5 flex flex-col gap-3">
-                  <span className="text-[10px] font-semibold tracking-widest text-emerald-400 uppercase">
-                    ✦ Featured — Product Update
-                  </span>
-                  <h3 className="text-base font-bold text-foreground">
-                    Introducing Doer HQ: Autonomous Agent Orchestration
-                  </h3>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Multi-step reasoning, persistent memory, and tool chaining — all in one visual canvas.
-                    Deploy your first autonomous workflow in under 10 minutes.
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">Don Clayjon · Apr 2, 2026</span>
-                    <button className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
-                      Read more →
-                    </button>
-                  </div>
-                </div>
-
-                {/* Feed cards grid */}
-                <div className="grid grid-cols-3 gap-4">
-                  {FEED_CARDS.map((card) => (
-                    <div key={card.tag} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
-                      <span className={`inline-flex px-2 py-0.5 rounded text-[9px] font-bold tracking-wider w-fit ${card.tagColor} ${card.tagBg}`}>
-                        {card.tag}
+            {recentActivity.length === 0 ? (
+              <p className="text-xs text-muted-foreground">No activity yet.</p>
+            ) : (
+              <div className="border border-border rounded-lg divide-y divide-border">
+                {recentActivity.map((event) => (
+                  <div key={event.id} className="flex items-center gap-3 px-3 py-2 text-xs">
+                    <span className="text-muted-foreground shrink-0 w-24 truncate">
+                      {timeAgo(typeof event.createdAt === "string" ? event.createdAt : new Date(event.createdAt).toISOString())}
+                    </span>
+                    <span className="text-muted-foreground shrink-0">{actionLabel(event.action)}</span>
+                    {event.details && typeof event.details === "object" && "title" in event.details && (
+                      <span className="flex-1 truncate text-foreground">
+                        {String((event.details as Record<string, unknown>).title ?? "")}
                       </span>
-                      <div className="h-16 rounded-md bg-muted/30" />
-                      <p className="text-xs font-semibold text-foreground leading-snug">{card.title}</p>
-                      <button className="text-xs font-medium text-emerald-400 hover:text-emerald-300 transition-colors text-left">
-                        Read →
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {activeTab === "docs" && (
-              <div className="flex flex-col gap-2">
-                {DOC_LINKS.map((doc) => (
-                  <a
-                    key={doc.title}
-                    href="https://docs.doer.ai"
-                    target="_blank"
-                    rel="noreferrer"
-                    className="flex items-center justify-between px-4 py-3 rounded-lg border border-border bg-card hover:bg-accent/40 transition-colors group"
-                  >
-                    <div>
-                      <p className="text-sm font-medium text-foreground">{doc.title}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{doc.description}</p>
-                    </div>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors shrink-0" />
-                  </a>
+                    )}
+                  </div>
                 ))}
               </div>
             )}
@@ -221,54 +204,71 @@ export function OrgHQ() {
         </div>
 
         {/* Right sidebar */}
-        <div className="flex flex-col gap-4 w-72 shrink-0">
+        <div className="flex flex-col gap-4 w-64 shrink-0">
           {/* Quick Actions */}
           <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
             <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
               Quick Actions
             </h4>
-            <div className="flex flex-col gap-2">
-              <QuickAction
-                icon={<Building2 className="h-4 w-4" />}
-                label="New Agent"
-                to="/agents/new"
-              />
-              <QuickAction
-                icon={<Zap className="h-4 w-4" />}
-                label="New Routine"
-                to="/routines"
-              />
-              <QuickAction
-                icon={<Clock className="h-4 w-4" />}
-                label="View Activity"
-                to="/activity"
-              />
-              <QuickAction
-                icon={<Users className="h-4 w-4" />}
-                label="Org Chart"
-                to="/org"
-              />
+            <div className="flex flex-col gap-1">
+              <QuickAction icon={<Building2 className="h-4 w-4" />} label="New Agent" to="/agents/new" />
+              <QuickAction icon={<Zap className="h-4 w-4" />} label="New Routine" to="/routines" />
+              <QuickAction icon={<Target className="h-4 w-4" />} label="Goals" to="/goals" />
+              <QuickAction icon={<Clock className="h-4 w-4" />} label="Activity" to="/activity" />
+              <QuickAction icon={<Users className="h-4 w-4" />} label="Org Chart" to="/org" />
             </div>
           </div>
 
-          {/* Platform summary */}
+          {/* Fleet health detail */}
           <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3">
             <h4 className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Platform
+              Fleet Health
             </h4>
-            <div className="flex flex-col gap-2 text-sm text-muted-foreground">
-              <div className="flex items-center justify-between">
-                <span>Agents</span>
-                <span className="font-medium text-foreground">{totalAgentCount}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span>Active</span>
-                <span className="font-medium text-emerald-400">{activeAgentCount}</span>
-              </div>
+            <div className="flex flex-col gap-2 text-xs">
+              <HealthRow label="Running" value={agentRunning} valueClass="text-emerald-400" />
+              <HealthRow label="Active" value={summary?.agents.active ?? 0} />
+              <HealthRow label="Paused" value={summary?.agents.paused ?? 0} />
+              {agentError > 0 && (
+                <HealthRow label="Error" value={agentError} valueClass="text-red-400" />
+              )}
             </div>
+
+            <div className="border-t border-border pt-3 flex flex-col gap-2 text-xs">
+              <HealthRow label="In Progress" value={tasksInProgress} valueClass="text-emerald-400" />
+              <HealthRow label="Open" value={tasksOpen} />
+              {taskBlocked > 0 && (
+                <HealthRow label="Blocked" value={taskBlocked} valueClass="text-yellow-400" />
+              )}
+              {summary?.pendingApprovals != null && summary.pendingApprovals > 0 && (
+                <HealthRow label="Approvals" value={summary.pendingApprovals} valueClass="text-yellow-400" link="/approvals" />
+              )}
+            </div>
+
+            {summary?.costs && (
+              <div className="border-t border-border pt-3 flex flex-col gap-1.5 text-xs">
+                <div className="flex items-center justify-between text-muted-foreground">
+                  <span>Month spend</span>
+                  <span className="font-medium text-foreground">
+                    ${((summary.costs.monthSpendCents ?? 0) / 100).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function HealthRow({ label, value, valueClass, link }: { label: string; value: number; valueClass?: string; link?: string }) {
+  const val = (
+    <span className={cn("font-medium tabular-nums", valueClass ?? "text-foreground")}>{value}</span>
+  );
+  return (
+    <div className="flex items-center justify-between text-muted-foreground">
+      <span>{label}</span>
+      {link ? <Link to={link} className="hover:underline">{val}</Link> : val}
     </div>
   );
 }
@@ -285,11 +285,11 @@ function StatBlock({
   valueClassName?: string;
 }) {
   return (
-    <div className="flex flex-col gap-1">
+    <div className="rounded-xl border border-border bg-card p-4 flex flex-col gap-1">
       <span className="text-[10px] font-semibold tracking-widest text-muted-foreground uppercase">
         {label}
       </span>
-      <span className={`text-4xl font-bold ${valueClassName}`}>{value}</span>
+      <span className={cn("text-3xl font-bold", valueClassName)}>{value}</span>
       <span className="text-xs text-muted-foreground">{sub}</span>
     </div>
   );

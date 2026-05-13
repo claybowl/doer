@@ -7,6 +7,7 @@ import { executionWorkspacesApi } from "../api/execution-workspaces";
 import { issuesApi } from "../api/issues";
 import { instanceSettingsApi } from "../api/instanceSettings";
 import { projectsApi } from "../api/projects";
+import { goalsApi } from "../api/goals";
 import { agentsApi } from "../api/agents";
 import { authApi } from "../api/auth";
 import { assetsApi } from "../api/assets";
@@ -42,6 +43,7 @@ import {
   AlertTriangle,
   Tag,
   Calendar,
+  Target,
   Paperclip as Doer,
   FileText,
   Loader2,
@@ -286,6 +288,8 @@ export function NewIssueDialog() {
   const [executionWorkspaceMode, setExecutionWorkspaceMode] = useState<string>("shared_workspace");
   const [selectedExecutionWorkspaceId, setSelectedExecutionWorkspaceId] = useState("");
   const [expanded, setExpanded] = useState(false);
+  const [goalId, setGoalId] = useState<string>("");
+  const [goalOpen, setGoalOpen] = useState(false);
   const [dialogCompanyId, setDialogCompanyId] = useState<string | null>(null);
   const [stagedFiles, setStagedFiles] = useState<StagedIssueFile[]>([]);
   const [isFileDragOver, setIsFileDragOver] = useState(false);
@@ -314,6 +318,11 @@ export function NewIssueDialog() {
   const { data: projects } = useQuery({
     queryKey: queryKeys.projects.list(effectiveCompanyId!),
     queryFn: () => projectsApi.list(effectiveCompanyId!),
+    enabled: !!effectiveCompanyId && newIssueOpen,
+  });
+  const { data: activeGoals } = useQuery({
+    queryKey: queryKeys.goals.list(effectiveCompanyId!, { status: "active" }),
+    queryFn: () => goalsApi.list(effectiveCompanyId!, { status: "active" }),
     enabled: !!effectiveCompanyId && newIssueOpen,
   });
   const { data: reusableExecutionWorkspaces } = useQuery({
@@ -662,6 +671,7 @@ export function NewIssueDialog() {
       ...(selectedAssigneeAgentId ? { assigneeAgentId: selectedAssigneeAgentId } : {}),
       ...(selectedAssigneeUserId ? { assigneeUserId: selectedAssigneeUserId } : {}),
       ...(projectId ? { projectId } : {}),
+      ...(goalId ? { goalId } : {}),
       ...(projectWorkspaceId ? { projectWorkspaceId } : {}),
       ...(assigneeAdapterOverrides ? { assigneeAdapterOverrides } : {}),
       ...(executionWorkspacePolicy?.enabled ? { executionWorkspacePreference: executionWorkspaceMode } : {}),
@@ -1386,6 +1396,44 @@ export function NewIssueDialog() {
               ))}
             </PopoverContent>
           </Popover>
+
+          {/* Goal chip */}
+          {activeGoals && activeGoals.length > 0 && (
+            <Popover open={goalOpen} onOpenChange={setGoalOpen}>
+              <PopoverTrigger asChild>
+                <button className={cn(
+                  "inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors",
+                  goalId ? "text-foreground" : "text-muted-foreground"
+                )}>
+                  <Target className="h-3 w-3" />
+                  {goalId ? (activeGoals.find((g) => g.id === goalId)?.title ?? "Goal") : "Goal"}
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-60 p-1" align="start">
+                {goalId && (
+                  <button
+                    className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-muted-foreground"
+                    onClick={() => { setGoalId(""); setGoalOpen(false); }}
+                  >
+                    Clear goal
+                  </button>
+                )}
+                {activeGoals.map((g) => (
+                  <button
+                    key={g.id}
+                    className={cn(
+                      "flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-left",
+                      g.id === goalId && "bg-accent"
+                    )}
+                    onClick={() => { setGoalId(g.id); setGoalOpen(false); }}
+                  >
+                    <Target className="h-3 w-3 shrink-0 text-muted-foreground" />
+                    <span className="truncate">{g.title}</span>
+                  </button>
+                ))}
+              </PopoverContent>
+            </Popover>
+          )}
 
           {/* Labels chip (placeholder) */}
           <button className="inline-flex items-center gap-1.5 rounded-md border border-border px-2 py-1 text-xs hover:bg-accent/50 transition-colors text-muted-foreground">

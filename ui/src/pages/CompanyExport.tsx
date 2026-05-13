@@ -4,7 +4,6 @@ import type {
   Agent,
   CompanyPortabilityFileEntry,
   CompanyPortabilityExportPreviewResult,
-  CompanyPortabilityExportResult,
   CompanyPortabilityManifest,
   Project,
 } from "@doerai/shared";
@@ -31,6 +30,7 @@ import { getPortableFileDataUrl, getPortableFileText, isPortableImageFile } from
 import {
   Download,
   Package,
+  RefreshCw,
   Search,
 } from "lucide-react";
 import {
@@ -320,7 +320,7 @@ function paginateTaskNodes(
 }
 
 function downloadZip(
-  exported: CompanyPortabilityExportResult,
+  exported: { files: Record<string, CompanyPortabilityFileEntry>; rootPath: string },
   selectedFiles: Set<string>,
   effectiveFiles: Record<string, CompanyPortabilityFileEntry>,
 ) {
@@ -577,7 +577,7 @@ function expandAncestors(filePath: string): string[] {
   return dirs;
 }
 
-export function CompanyExport() {
+export function CompanyExport({ fernweh = false }: { fernweh?: boolean } = {}) {
   const { selectedCompanyId, selectedCompany } = useCompany();
   const { setBreadcrumbs } = useBreadcrumbs();
   const { pushToast } = useToast();
@@ -599,11 +599,14 @@ export function CompanyExport() {
   });
 
   const [exportData, setExportData] = useState<CompanyPortabilityExportPreviewResult | null>(null);
+  const [previewError, setPreviewError] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [expandedDirs, setExpandedDirs] = useState<Set<string>>(new Set());
   const [checkedFiles, setCheckedFiles] = useState<Set<string>>(new Set());
   const [treeSearch, setTreeSearch] = useState("");
   const [taskLimit, setTaskLimit] = useState(TASKS_PAGE_SIZE);
+  const [includeSkills, setIncludeSkills] = useState(true);
+  const [isDownloading, setIsDownloading] = useState(false);
   const savedExpandedRef = useRef<Set<string> | null>(null);
   const initialFileFromUrl = useRef(filePathFromLocation(location.pathname));
   const currentUserId = session?.user?.id ?? session?.session?.userId ?? null;
@@ -680,11 +683,12 @@ export function CompanyExport() {
   const exportPreviewMutation = useMutation({
     mutationFn: () =>
       companiesApi.exportPreview(selectedCompanyId!, {
-        include: { company: true, agents: true, projects: true, issues: true },
+        include: { company: true, agents: true, projects: true, issues: true, skills: includeSkills },
         sidebarOrder,
       }),
     onSuccess: (result) => {
       setExportData(result);
+      setPreviewError(null);
       setCheckedFiles((prev) =>
         buildInitialExportCheckedFiles(
           Object.keys(result.files),
@@ -717,46 +721,61 @@ export function CompanyExport() {
       }
     },
     onError: (err) => {
-      pushToast({
-        tone: "error",
-        title: "Export failed",
-        body: err instanceof Error ? err.message : "Failed to load export data.",
-      });
+      const msg = err instanceof Error ? err.message : "Failed to load export data.";
+      setPreviewError(msg);
+      pushToast({ tone: "error", title: "Export preview failed", body: msg });
     },
   });
 
-  const downloadMutation = useMutation({
-    mutationFn: () =>
-      companiesApi.exportPackage(selectedCompanyId!, {
-        include: { company: true, agents: true, projects: true, issues: true },
-        selectedFiles: Array.from(checkedFiles).sort(),
-        sidebarOrder,
-      }),
-    onSuccess: (result) => {
-      const resultCheckedFiles = new Set(Object.keys(result.files));
-      downloadZip(result, resultCheckedFiles, result.files);
+  // Single-pass download: zip client-side from already-fetched preview data.
+  // No second server round-trip needed.
+  function handleDownload() {
+    if (!exportData || checkedFiles.size === 0 || isDownloading) return;
+    setIsDownloading(true);
+    try {
+      downloadZip(exportData, checkedFiles, effectiveFiles);
       pushToast({
         tone: "success",
         title: "Export downloaded",
-        body: `${resultCheckedFiles.size} file${resultCheckedFiles.size === 1 ? "" : "s"} exported as ${result.rootPath}.zip`,
+        body: `${checkedFiles.size} file${checkedFiles.size === 1 ? "" : "s"} exported as ${exportData.rootPath}.zip`,
       });
-    },
-    onError: (err) => {
+    } catch (err) {
       pushToast({
         tone: "error",
         title: "Export failed",
-        body: err instanceof Error ? err.message : "Failed to build export package.",
+        body: err instanceof Error ? err.message : "Failed to build zip.",
       });
-    },
-  });
+    } finally {
+      setIsDownloading(false);
+    }
+  }
+
+  function handleRefresh() {
+    if (exportPreviewMutation.isPending) return;
+    setExportData(null);
+    setPreviewError(null);
+    exportPreviewMutation.mutate();
+  }
 
   useEffect(() => {
     if (!selectedCompanyId || exportPreviewMutation.isPending) return;
     if (!isSessionFetched || !areAgentsFetched || !areProjectsFetched) return;
     setExportData(null);
+    setPreviewError(null);
     exportPreviewMutation.mutate();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCompanyId, isSessionFetched, areAgentsFetched, areProjectsFetched, sidebarOrderKey]);
+
+  // Re-fetch when skills toggle changes (after initial load)
+  const isFirstMount = useRef(true);
+  useEffect(() => {
+    if (isFirstMount.current) { isFirstMount.current = false; return; }
+    if (!selectedCompanyId || exportPreviewMutation.isPending) return;
+    setExportData(null);
+    setPreviewError(null);
+    exportPreviewMutation.mutate();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [includeSkills]);
 
   const tree = useMemo(
     () => (exportData ? buildFileTree(exportData.files) : []),
@@ -905,17 +924,30 @@ export function CompanyExport() {
     });
   }
 
-  function handleDownload() {
-    if (!exportData || checkedFiles.size === 0 || downloadMutation.isPending) return;
-    downloadMutation.mutate();
-  }
-
   if (!selectedCompanyId) {
     return <EmptyState icon={Package} message="Select a company to export." />;
   }
 
   if (exportPreviewMutation.isPending && !exportData) {
-    return <PageSkeleton variant="detail" />;
+    return (
+      <div className="flex flex-col items-center justify-center gap-3 py-24 text-muted-foreground">
+        <RefreshCw className="h-6 w-6 animate-spin" />
+        <span className="text-sm">Building export preview…</span>
+      </div>
+    );
+  }
+
+  if (previewError && !exportData) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-4 py-24">
+        <Package className="h-8 w-8 text-muted-foreground" />
+        <p className="text-sm text-destructive">{previewError}</p>
+        <Button size="sm" variant="outline" onClick={handleRefresh}>
+          <RefreshCw className="mr-1.5 h-3.5 w-3.5" />
+          Retry
+        </Button>
+      </div>
+    );
   }
 
   if (!exportData) {
@@ -928,10 +960,14 @@ export function CompanyExport() {
       })()
     : null;
 
+  // Height strategy: in Fernweh the parent is already a flex column with
+  // overflow:hidden, so we use h-full. In classic layout we use the viewport calc.
+  const bodyHeight = fernweh ? "h-full" : "h-[calc(100vh-9rem)]";
+
   return (
-    <div>
+    <div className={cn("flex flex-col", fernweh ? "h-full" : "")}>
       {/* Sticky top action bar */}
-      <div className="sticky top-0 z-10 border-b border-border bg-background px-5 py-3">
+      <div className="sticky top-0 z-10 border-b border-border bg-background px-5 py-3 shrink-0">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-4 text-sm">
             <span className="font-medium">
@@ -946,30 +982,67 @@ export function CompanyExport() {
               </span>
             )}
           </div>
-          <Button
-            size="sm"
-            onClick={handleDownload}
-            disabled={selectedCount === 0 || downloadMutation.isPending}
-          >
-            <Download className="mr-1.5 h-3.5 w-3.5" />
-            {downloadMutation.isPending
-              ? "Building export..."
-              : `Export ${selectedCount} file${selectedCount === 1 ? "" : "s"}`}
-          </Button>
+          <div className="flex items-center gap-2">
+            {/* Skills toggle */}
+            <button
+              type="button"
+              onClick={() => setIncludeSkills((v) => !v)}
+              title={includeSkills ? "Exclude skills from export" : "Include skills in export"}
+              className={cn(
+                "inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-xs transition-colors",
+                includeSkills
+                  ? "border-border bg-accent/40 text-foreground"
+                  : "border-border bg-transparent text-muted-foreground hover:bg-accent/20",
+              )}
+            >
+              Skills {includeSkills ? "on" : "off"}
+            </button>
+
+            {/* Refresh */}
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={handleRefresh}
+              disabled={exportPreviewMutation.isPending}
+              title="Refresh export preview"
+            >
+              <RefreshCw className={cn("h-3.5 w-3.5", exportPreviewMutation.isPending && "animate-spin")} />
+            </Button>
+
+            {/* Download — single client-side pass, no server round-trip */}
+            <Button
+              size="sm"
+              onClick={handleDownload}
+              disabled={selectedCount === 0 || isDownloading}
+            >
+              <Download className="mr-1.5 h-3.5 w-3.5" />
+              {isDownloading
+                ? "Zipping…"
+                : `Export ${selectedCount} file${selectedCount === 1 ? "" : "s"}`}
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Warnings */}
       {warnings.length > 0 && (
-        <div className="mx-5 mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+        <div className="mx-5 mt-3 rounded-md border border-amber-500/30 bg-amber-500/5 px-4 py-3 shrink-0">
           {warnings.map((w) => (
             <div key={w} className="text-xs text-amber-500">{w}</div>
           ))}
         </div>
       )}
 
+      {/* Refresh-in-progress overlay banner */}
+      {exportPreviewMutation.isPending && exportData && (
+        <div className="mx-5 mt-3 flex items-center gap-2 rounded-md border border-border bg-accent/10 px-4 py-2 text-xs text-muted-foreground shrink-0">
+          <RefreshCw className="h-3 w-3 animate-spin" />
+          Refreshing preview…
+        </div>
+      )}
+
       {/* Two-column layout */}
-      <div className="grid h-[calc(100vh-12rem)] gap-0 xl:grid-cols-[19rem_minmax(0,1fr)]">
+      <div className={cn("grid flex-1 gap-0 overflow-hidden xl:grid-cols-[19rem_minmax(0,1fr)]", bodyHeight)}>
         <aside className="flex flex-col border-r border-border overflow-hidden">
           <div className="border-b border-border px-4 py-3 shrink-0">
             <h2 className="text-base font-semibold">Package files</h2>

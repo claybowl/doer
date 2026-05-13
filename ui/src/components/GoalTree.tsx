@@ -4,6 +4,9 @@ import { StatusBadge } from "./StatusBadge";
 import { ChevronRight } from "lucide-react";
 import { cn } from "../lib/utils";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { goalsApi } from "../api/goals";
+import { queryKeys } from "../lib/queryKeys";
 
 interface GoalTreeProps {
   goals: Goal[];
@@ -18,6 +21,30 @@ interface GoalNodeProps {
   depth: number;
   goalLink?: (goal: Goal) => string;
   onSelect?: (goal: Goal) => void;
+}
+
+function GoalProgressBar({ goalId }: { goalId: string }) {
+  const { data: progress } = useQuery({
+    queryKey: queryKeys.goals.progress(goalId),
+    queryFn: () => goalsApi.getProgress(goalId),
+    staleTime: 30_000,
+  });
+
+  if (!progress || progress.issueCount === 0) return null;
+
+  return (
+    <div className="flex items-center gap-1.5 shrink-0">
+      <div className="w-16 h-1.5 rounded-full bg-muted overflow-hidden">
+        <div
+          className="h-full rounded-full bg-primary transition-all"
+          style={{ width: `${progress.percentComplete}%` }}
+        />
+      </div>
+      <span className="text-[10px] text-muted-foreground tabular-nums">
+        {progress.doneCount}/{progress.issueCount}
+      </span>
+    </div>
+  );
 }
 
 function GoalNode({ goal, children, allGoals, depth, goalLink, onSelect }: GoalNodeProps) {
@@ -45,6 +72,7 @@ function GoalNode({ goal, children, allGoals, depth, goalLink, onSelect }: GoalN
       )}
       <span className="text-xs text-muted-foreground capitalize">{goal.level}</span>
       <span className="flex-1 truncate">{goal.title}</span>
+      <GoalProgressBar goalId={goal.id} />
       <StatusBadge status={goal.status} />
     </>
   );

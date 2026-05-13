@@ -43,6 +43,7 @@ import {
 import { issueService } from "./issues.js";
 import { executionWorkspaceService } from "./execution-workspaces.js";
 import { workspaceOperationService } from "./workspace-operations.js";
+import { agentWorkspaceService } from "./agent-workspaces.js";
 import { applyMemfsBindingsToWorkspace } from "./memfs/apply.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
@@ -779,6 +780,7 @@ export function heartbeatService(db: Db) {
   const issuesSvc = issueService(db);
   const executionWorkspacesSvc = executionWorkspaceService(db);
   const workspaceOperationsSvc = workspaceOperationService(db);
+  const agentWorkspaces = agentWorkspaceService();
   const activeRunExecutions = new Set<string>();
   const budgetHooks = {
     cancelWorkForScope: cancelBudgetScopeWork,
@@ -2261,6 +2263,23 @@ export function heartbeatService(db: Db) {
           ]
         : []),
     ];
+    const nativeAgentWorkspace = await agentWorkspaces.ensure({
+      id: agent.id,
+      companyId: agent.companyId,
+      name: agent.name,
+      adapterConfig: agent.adapterConfig,
+      metadata: agent.metadata,
+    }).catch((err) => {
+      runtimeWorkspaceWarnings.push(
+        `Native agent workspace could not be prepared: ${err instanceof Error ? err.message : String(err)}.`,
+      );
+      return null;
+    });
+    const agentHome = nativeAgentWorkspace?.rootPath ?? await (async () => {
+      const home = resolveDefaultAgentWorkspaceDir(agent.id);
+      await fs.mkdir(home, { recursive: true });
+      return home;
+    })();
     context.paperclipWorkspace = {
       cwd: executionWorkspace.cwd,
       source: executionWorkspace.source,
@@ -2272,12 +2291,13 @@ export function heartbeatService(db: Db) {
       repoRef: executionWorkspace.repoRef,
       branchName: executionWorkspace.branchName,
       worktreePath: executionWorkspace.worktreePath,
-      agentHome: await (async () => {
-        const home = resolveDefaultAgentWorkspaceDir(agent.id);
-        await fs.mkdir(home, { recursive: true });
-        return home;
-      })(),
+      agentHome,
     };
+    if (nativeAgentWorkspace) {
+      context.paperclipAgentWorkspace = nativeAgentWorkspace;
+    } else {
+      delete context.paperclipAgentWorkspace;
+    }
     context.paperclipWorkspaces = resolvedWorkspace.workspaceHints;
     const runtimeServiceIntents = (() => {
       const runtimeConfig = parseObject(resolvedConfig.workspaceRuntime);
@@ -2440,11 +2460,46 @@ export function heartbeatService(db: Db) {
         const logEntry = formatRuntimeWorkspaceWarningLog(warning);
         await onLog(logEntry.stream, logEntry.chunk);
       }
-      const adapterEnv = Object.fromEntries(
+      const adapterEnv: Record<string, string> = Object.fromEntries(
         Object.entries(parseObject(resolvedConfig.env)).filter(
           (entry): entry is [string, string] => typeof entry[0] === "string" && typeof entry[1] === "string",
         ),
       );
+      adapterEnv.AGENT_HOME = agentHome;
+      adapterEnv.DOER_AGENT_WORKSPACE = agentHome;
+      if (nativeAgentWorkspace) {
+        adapterEnv.DOER_AGENT_MEMORY_DIR = nativeAgentWorkspace.directories.memory.path;
+        adapterEnv.DOER_AGENT_INSTRUCTIONS_DIR = nativeAgentWorkspace.directories.instructions.path;
+        adapterEnv.DOER_AGENT_SKILLS_DIR = nativeAgentWorkspace.directories.skills.path;
+        adapterEnv.DOER_AGENT_TOOLS_DIR = nativeAgentWorkspace.directories.tools.path;
+        adapterEnv.DOER_AGENT_RUNS_DIR = nativeAgentWorkspace.directories.runs.path;
+        adapterEnv.DOER_AGENT_OUTPUTS_DIR = nativeAgentWorkspace.directories.outputs.path;
+        adapterEnv.DOER_AGENT_STATE_DIR = nativeAgentWorkspace.directories.state.path;
+      }
+      const memfsApply = await applyMemfsBindingsToWorkspace({
+        db,
+        agent: {
+          id: agent.id,
+          companyId: agent.companyId,
+        },
+        adapterType: agent.adapterType,
+        lettaAgentId: readNonEmptyString((resolvedConfig as Record<string, unknown>).agentId),
+        adapterEnv,
+        workingDirectory: executionWorkspace.cwd,
+        onLog,
+      });
+      if (memfsApply.mounted.length > 0) {
+        context.paperclipMemfsMounts = memfsApply.mounted;
+      } else {
+        delete context.paperclipMemfsMounts;
+      }
+      const runtimeConfigForAdapter: Record<string, unknown> = {
+        ...runtimeConfig,
+        env: {
+          ...parseObject((resolvedConfig as Record<string, unknown>).env),
+          ...adapterEnv,
+        },
+      };
       const runtimeServices = await ensureRuntimeServicesForRun({
         db,
         runId: run.id,
@@ -2523,7 +2578,7 @@ export function heartbeatService(db: Db) {
         runId: run.id,
         agent,
         runtime: runtimeForAdapter,
-        config: runtimeConfig,
+        config: runtimeConfigForAdapter,
         context,
         onLog,
         onMeta: onAdapterMeta,
@@ -3802,7 +3857,11 @@ export function heartbeatService(db: Db) {
     readLog: async (runId: string, opts?: { offset?: number; limitBytes?: number }) => {
       const run = await getRun(runId);
       if (!run) throw notFound("Heartbeat run not found");
-      if (!run.logStore || !run.logRef) throw notFound("Run log not found");
+      // Run exists but hasn't opened a log file yet (still queued or just claimed).
+      // Return empty content rather than 404 so the client knows to retry later.
+      if (!run.logStore || !run.logRef) {
+        return { runId, store: "local_file", logRef: "", content: "", nextOffset: 0 };
+      }
 
       const result = await runLogStore.read(
         {

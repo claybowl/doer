@@ -411,19 +411,25 @@ function EndpointCard({
 }) {
   const qc = useQueryClient();
   const { selectedCompany } = useCompany();
-  const company = selectedCompany;
+  const companyId = selectedCompany?.id;
   const [showLog, setShowLog] = React.useState(false);
   const [pingMsg, setPingMsg] = React.useState<{ ok: boolean; text: string } | null>(null);
 
   const updateMut = useMutation({
     mutationFn: (patch: Parameters<typeof webhooksApi.update>[1]) =>
       webhooksApi.update(endpoint.id, patch),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(company!.id) }),
+    onSuccess: () => {
+      if (!companyId) return;
+      qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(companyId) });
+    },
   });
 
   const deleteMut = useMutation({
     mutationFn: () => webhooksApi.delete(endpoint.id),
-    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(company!.id) }),
+    onSuccess: () => {
+      if (!companyId) return;
+      qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(companyId) });
+    },
   });
 
   const rotateMut = useMutation({
@@ -579,23 +585,25 @@ function EndpointCard({
 
 export function FernwehWebhooks() {
   const { selectedCompany } = useCompany();
-  const company = selectedCompany;
+  const companyId = selectedCompany?.id;
   const qc = useQueryClient();
 
   const [formTarget, setFormTarget] = React.useState<WebhookEndpoint | "new" | null>(null);
   const [pendingSecret, setPendingSecret] = React.useState<string | null>(null);
 
   const { data, isLoading, isError } = useQuery({
-    queryKey: queryKeys.webhooks.list(company!.id),
-    queryFn: () => webhooksApi.list(company!.id),
-    enabled: !!company,
+    queryKey: queryKeys.webhooks.list(companyId ?? "__empty__"),
+    queryFn: () => webhooksApi.list(companyId!),
+    enabled: !!companyId,
   });
 
   const createMut = useMutation({
     mutationFn: (v: { name: string; url: string; events: string[] }) =>
-      webhooksApi.create(company!.id, v),
+      webhooksApi.create(companyId!, v),
     onSuccess: (result) => {
-      qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(company!.id) });
+      if (companyId) {
+        qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(companyId) });
+      }
       setFormTarget(null);
       if (result.secret) setPendingSecret(result.secret);
     },
@@ -605,10 +613,21 @@ export function FernwehWebhooks() {
     mutationFn: ({ id, patch }: { id: string; patch: Parameters<typeof webhooksApi.update>[1] }) =>
       webhooksApi.update(id, patch),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(company!.id) });
+      if (companyId) {
+        qc.invalidateQueries({ queryKey: queryKeys.webhooks.list(companyId) });
+      }
       setFormTarget(null);
     },
   });
+
+  if (!selectedCompany) {
+    return (
+      <ErrorState
+        error="No company selected"
+        hint="Choose a company from the sidebar, then open Webhooks again."
+      />
+    );
+  }
 
   if (isLoading) return <LoadingState />;
   if (isError) return <ErrorState error="Failed to load webhooks" hint="Check your connection and try again." />;

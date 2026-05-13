@@ -120,6 +120,13 @@ export interface CompanyPortabilityAgentManifestEntry {
   permissions: Record<string, unknown>;
   budgetMonthlyCents: number;
   metadata: Record<string, unknown> | null;
+  workspace?: {
+    mode: "doer_native" | "managed_hosted";
+    pathPolicy: "deterministic";
+    includeSnapshot: boolean;
+    subdirs: string[];
+    lettaAgentId?: string | null;
+  } | null;
 }
 
 export interface CompanyPortabilitySkillManifestEntry {

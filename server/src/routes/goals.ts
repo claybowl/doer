@@ -2,7 +2,7 @@ import { Router } from "express";
 import type { Db } from "@doerai/db";
 import { createGoalSchema, updateGoalSchema } from "@doerai/shared";
 import { validate } from "../middleware/validate.js";
-import { goalService, logActivity } from "../services/index.js";
+import { getGoalProgress, goalService, logActivity } from "../services/index.js";
 import { assertCompanyAccess, getActorInfo } from "./authz.js";
 
 export function goalRoutes(db: Db) {
@@ -12,8 +12,22 @@ export function goalRoutes(db: Db) {
   router.get("/companies/:companyId/goals", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
-    const result = await svc.list(companyId);
+    const level = req.query.level as string | undefined;
+    const status = req.query.status as string | undefined;
+    const result = await svc.list(companyId, { level, status });
     res.json(result);
+  });
+
+  router.get("/goals/:id/progress", async (req, res) => {
+    const id = req.params.id as string;
+    const goal = await svc.getById(id);
+    if (!goal) {
+      res.status(404).json({ error: "Goal not found" });
+      return;
+    }
+    assertCompanyAccess(req, goal.companyId);
+    const progress = await getGoalProgress(db, id);
+    res.json(progress);
   });
 
   router.get("/goals/:id", async (req, res) => {

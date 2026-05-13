@@ -19,6 +19,7 @@ import {
   updateMemoryBlock,
   attachTool,
   detachTool,
+  sendChatMessage,
 } from "@doerai/adapter-letta-cloud/server";
 import type { LettaCloudAdapterConfig } from "@doerai/adapter-letta-cloud";
 import { agentService } from "../services/index.js";
@@ -103,6 +104,23 @@ export function lettaProxyRoutes(db: Db) {
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       res.status(errorStatus(message)).json({ error: message });
+    }
+  });
+
+  /** POST /agents/:papercipAgentId/letta/chat */
+  router.post("/:papercipAgentId/letta/chat", async (req: Request, res: Response) => {
+    const { message } = req.body as { message?: string };
+    if (!message?.trim()) {
+      res.status(400).json({ error: "message is required" });
+      return;
+    }
+    try {
+      const config = await getAgentAdapterConfig(String(req.params.papercipAgentId));
+      const messages = await sendChatMessage(config, message.trim());
+      res.json({ messages });
+    } catch (err: unknown) {
+      const errMsg = err instanceof Error ? err.message : String(err);
+      res.status(errorStatus(errMsg)).json({ error: errMsg });
     }
   });
 

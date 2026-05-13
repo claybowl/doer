@@ -21,6 +21,7 @@ import {
   type HeartbeatAmp,
 } from "./utils";
 import type { Agent } from "@doerai/shared";
+import type { LiveRunForIssue } from "@/api/heartbeats";
 import { OutputsSection } from "./OutputsSection";
 import { useLiveRunTranscripts } from "@/components/transcript/useLiveRunTranscripts";
 import type { TranscriptEntry } from "@/adapters";
@@ -146,6 +147,36 @@ function QuickAction({
   );
 }
 
+function formatDurationShort(start: Date | string | null): string {
+  if (!start) return "";
+  const ms = Date.now() - new Date(start).getTime();
+  if (ms < 0) return "";
+  const secs = Math.floor(ms / 1000);
+  if (secs < 60) return `${secs}s`;
+  const mins = Math.floor(secs / 60);
+  const rem = secs % 60;
+  return `${mins}m ${rem}s`;
+}
+
+// Extract a human task name from run trigger detail or fallback to source
+function workingOnLabel(run: LiveRunForIssue): string {
+  if (run.triggerDetail) {
+    // Clean up common trigger detail patterns
+    const cleaned = run.triggerDetail
+      .replace(/^issue-[a-f0-9-]+$/i, "Working on task")
+      .replace(/^heartbeat-\S+/, "Scheduled heartbeat")
+      .replace(/^routine-\S+/, "Routine run")
+      .replace(/_/g, " ");
+    if (cleaned.length > 3) return cleaned;
+  }
+  const source = run.invocationSource?.replace(/_/g, " ");
+  if (source === "timer") return "Scheduled heartbeat";
+  if (source === "assignment") return "Assigned task";
+  if (source === "on demand") return "Manual run";
+  if (source === "webhook") return "Webhook triggered";
+  if (source === "routine") return "Routine";
+  return source ?? "Working";
+}
 function pulseStatus(agent: Agent): FwStatus {
   if (agent.status === "running" || agent.status === "active") return "running";
   if (agent.status === "paused" || agent.status === "terminated" || agent.status === "pending_approval") return "paused";
@@ -153,95 +184,79 @@ function pulseStatus(agent: Agent): FwStatus {
   return "idle";
 }
 
-// Live dialogue feed shown inside each running agent card.
-// Shows only assistant text — no tool calls, no user prompts, no system noise.
-function LiveTranscriptFeed({
+// Simple, client-friendly status line for a running agent card.
+// Shows exactly one thing: what the agent is doing right now, and for how long.
+function AgentStatusFeed({
+  run,
   entries,
-  hasOutput,
 }: {
+  run: LiveRunForIssue;
   entries: TranscriptEntry[];
-  hasOutput: boolean;
 }) {
-  const bottomRef = React.useRef<HTMLDivElement>(null);
-
-  const visible = React.useMemo(() => {
-    return entries
-      .filter((e) => e.kind === "assistant" || e.kind === "thinking")
-      .slice(-10);
+  // Find the most recent assistant or thinking message
+  const latest = React.useMemo(() => {
+    for (let i = entries.length - 1; i >= 0; i--) {
+      const e = entries[i];
+      if (e.kind === "assistant" || e.kind === "thinking") {
+        const text = e.text.trim();
+        if (text.length > 3) return text;
+      }
+    }
+    return null;
   }, [entries]);
 
-  React.useEffect(() => {
-    bottomRef.current?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-  }, [visible.length]);
-
-  if (visible.length === 0) {
-    const idleBeats: HeartbeatAmp[] = Array.from({ length: 40 }, (_, i) =>
-      i % 3 === 0 ? "work" : "tick"
-    ) as HeartbeatAmp[];
-    return (
-      <div style={{ flex: 1, display: "flex", alignItems: "center" }}>
-        <HeartbeatRibbon beats={idleBeats} width={320} height={28} />
-      </div>
-    );
-  }
+  const workingOn = workingOnLabel(run);
+  const runningFor = formatDurationShort(run.startedAt);
 
   return (
-    <div style={{ flex: 1, minHeight: 0, position: "relative", overflow: "hidden" }}>
-      {/* Top fade so older text dissolves out */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          right: 0,
-          height: 32,
-          background: "linear-gradient(to bottom, color-mix(in oklab, var(--accent) 3%, var(--bg-raised)), transparent)",
-          zIndex: 1,
-          pointerEvents: "none",
-        }}
-      />
-      <div
-        style={{
-          height: "100%",
-          overflowY: "auto",
-          scrollbarWidth: "none",
-          display: "flex",
-          flexDirection: "column",
-          gap: 6,
-          paddingTop: 2,
-          paddingBottom: 2,
-        }}
-      >
-        {visible.map((entry, i) => {
-          const isLast = i === visible.length - 1;
-          const isThinking = entry.kind === "thinking";
-          const raw = entry.text.trim();
-          const text = raw.length > 220 ? raw.slice(0, 217) + "…" : raw;
-          const ageRatio = i / Math.max(1, visible.length - 1);
-          return (
-            <p
-              key={i}
-              style={{
-                margin: 0,
-                fontSize: isLast ? 12.5 : 12,
-                lineHeight: 1.6,
-                color: isLast
-                  ? "var(--ink)"
-                  : isThinking
-                  ? "var(--ink-faint)"
-                  : "var(--ink-dim)",
-                opacity: 0.35 + ageRatio * 0.65,
-                fontStyle: isThinking ? "italic" : "normal",
-                whiteSpace: "pre-wrap",
-                wordBreak: "break-word",
-              }}
-            >
-              {isThinking ? `· ${text}` : text}
-            </p>
-          );
-        })}
-        <div ref={bottomRef} />
+    <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 10, overflow: "hidden" }}>
+      {/* What the agent is working on */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
+        <span style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>
+          Working on
+        </span>
+        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)", lineHeight: 1.5 }}>
+          {workingOn}
+        </span>
       </div>
+
+      {/* How long it's been running */}
+      {runningFor && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span style={{
+            width: 6, height: 6, borderRadius: "50%",
+            background: "var(--pulse)",
+            animation: "fw-pulse 1.6s ease-in-out infinite",
+          }} />
+          <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>
+            Running for {runningFor}
+          </span>
+        </div>
+      )}
+
+      {/* Latest thought / message — just one line, client-readable */}
+      {latest && (
+        <div style={{
+          marginTop: "auto",
+          padding: "10px 12px",
+          borderRadius: 8,
+          background: "color-mix(in oklab, var(--accent) 6%, var(--bg-raised))",
+          border: "1px solid color-mix(in oklab, var(--accent) 15%, var(--line))",
+        }}>
+          <p style={{
+            margin: 0,
+            fontSize: 12,
+            lineHeight: 1.55,
+            color: "var(--ink)",
+            display: "-webkit-box",
+            WebkitLineClamp: 3,
+            WebkitBoxOrient: "vertical",
+            overflow: "hidden",
+          }}>
+            {latest.length > 200 ? latest.slice(0, 197) + "…" : latest}
+          </p>
+        </div>
+      )}
     </div>
   );
 }
@@ -439,7 +454,7 @@ export function FernwehDashboard() {
             {liveRuns.map((run) => {
               const transcript = transcriptByRun.get(run.id) ?? [];
               const hasOutput = hasOutputForRun(run.id);
-              const cardHeight = liveRuns.length <= 2 ? 260 : liveRuns.length <= 4 ? 200 : 160;
+              const cardHeight = liveRuns.length <= 2 ? 320 : liveRuns.length <= 4 ? 260 : 220;
               return (
                 <NavLink
                   key={run.id}
@@ -484,8 +499,7 @@ export function FernwehDashboard() {
                           {run.agentName}
                         </div>
                         <div style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 2 }}>
-                          {run.adapterType.replace(/_/g, " ")}
-                          {run.triggerDetail ? ` · ${run.triggerDetail}` : ""}
+                          {workingOnLabel(run)}
                         </div>
                       </div>
                       <span className="fw-chip pulse" style={{ fontSize: 10, flexShrink: 0 }}>
@@ -493,8 +507,8 @@ export function FernwehDashboard() {
                       </span>
                     </div>
 
-                    {/* Live dialogue feed */}
-                    <LiveTranscriptFeed entries={transcript} hasOutput={hasOutput} />
+                    {/* Status feed */}
+                    <AgentStatusFeed run={run} entries={transcript} />
 
                     {/* Meta */}
                     <div
@@ -507,7 +521,7 @@ export function FernwehDashboard() {
                         flexShrink: 0,
                       }}
                     >
-                      <span>{run.invocationSource}</span>
+                      <span>{run.adapterType.replace(/_/g, " ")}</span>
                       <span>{run.startedAt ? formatRelative(run.startedAt) : "just started"}</span>
                     </div>
                   </div>

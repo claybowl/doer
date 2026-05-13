@@ -12,6 +12,7 @@ import type { ToastTone } from "@/context/ToastContext";
 import { queryKeys } from "@/lib/queryKeys";
 import type {
   AgentDetail,
+  AgentWorkspaceSummary,
   AgentSkillSnapshot,
   AgentInstructionsBundle,
   AgentInstructionsFileDetail,
@@ -37,16 +38,17 @@ import { OutputsSection } from "./OutputsSection";
 import { BudgetPolicyCard } from "@/components/BudgetPolicyCard";
 import { AgentConfigForm } from "@/components/AgentConfigForm";
 import { MemfsBindingsPanel } from "@/components/memfs/MemfsBindingsPanel";
+import { AgentChatPanel } from "@/components/AgentChatPanel";
 
 /* ============================================================
    FernwehAgentDetail — full-parity agent detail page.
    Route: /:companyPrefix/agents/:agentId
           /:companyPrefix/agents/:agentId/:tab
 
-   Tabs: overview | instructions | skills | configuration | memory | runs | budget
+   Tabs: overview | instructions | skills | configuration | memory | runs | budget | chat
 ============================================================ */
 
-type AgentTab = "overview" | "instructions" | "skills" | "configuration" | "memory" | "runs" | "budget";
+type AgentTab = "overview" | "instructions" | "skills" | "configuration" | "memory" | "runs" | "budget" | "chat";
 
 const ALL_TABS: { id: AgentTab; label: string }[] = [
   { id: "overview", label: "Overview" },
@@ -56,11 +58,12 @@ const ALL_TABS: { id: AgentTab; label: string }[] = [
   { id: "memory", label: "Memory" },
   { id: "runs", label: "Runs" },
   { id: "budget", label: "Budget" },
+  { id: "chat", label: "Chat" },
 ];
 
 function parseTab(raw: string | undefined): AgentTab {
   if (raw === "instructions" || raw === "skills" || raw === "configuration" ||
-      raw === "memory" || raw === "runs" || raw === "budget") return raw;
+      raw === "memory" || raw === "runs" || raw === "budget" || raw === "chat") return raw;
   return "overview";
 }
 
@@ -747,7 +750,45 @@ function MemoryTab({ agentId, companyId }: { agentId: string; companyId: string 
   );
 }
 
+function ChatTab({ agent }: { agent: AgentDetail }) {
+  return (
+    <div style={{ maxWidth: 760 }}>
+      <AgentChatPanel agentId={agent.id} adapterType={agent.adapterType} fernweh />
+    </div>
+  );
+}
+
 /* ── Runs tab ────────────────────────────────────────────── */
+
+function runTaskLabel(run: HeartbeatRun): string {
+  if (run.triggerDetail) {
+    const cleaned = run.triggerDetail
+      .replace(/^issue-[a-f0-9-]+$/i, "Working on task")
+      .replace(/^heartbeat-\S+/, "Scheduled heartbeat")
+      .replace(/^routine-\S+/, "Routine run")
+      .replace(/_/g, " ");
+    if (cleaned.length > 3) return cleaned;
+  }
+  const source = run.invocationSource?.replace(/_/g, " ");
+  if (source === "timer") return "Scheduled heartbeat";
+  if (source === "assignment") return "Assigned task";
+  if (source === "on demand") return "Manual run";
+  if (source === "webhook") return "Webhook triggered";
+  if (source === "routine") return "Routine";
+  return source ?? "Run";
+}
+
+function runDuration(run: HeartbeatRun): string {
+  if (!run.startedAt) return "queued";
+  const endMs = run.finishedAt ? new Date(run.finishedAt).getTime() : Date.now();
+  const ms = endMs - new Date(run.startedAt).getTime();
+  if (ms < 0) return "queued";
+  const secs = Math.floor(ms / 1000);
+  if (secs < 60) return `${secs}s`;
+  const mins = Math.floor(secs / 60);
+  const rem = secs % 60;
+  return `${mins}m ${rem}s`;
+}
 
 const RUN_STATUS_COLORS: Record<string, string> = {
   succeeded: "var(--accent)",
@@ -770,12 +811,10 @@ function RunsTab({
   runs,
   prefix,
   agentId,
-  companyId,
 }: {
   runs: HeartbeatRun[];
   prefix: string;
   agentId: string;
-  companyId: string;
 }) {
   const sorted = [...runs].sort(
     (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
@@ -791,8 +830,8 @@ function RunsTab({
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-      <div style={{ fontSize: 11, color: "var(--ink-faint)" }}>
-        Showing {sorted.length} most recent runs.{" "}
+      <div style={{ fontSize: 11, color: "var(--ink-faint)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span>{sorted.length} most recent</span>
         <NavLink
           to={`/${prefix}/agents/${agentId}/runs`}
           style={{ color: "var(--accent)", textDecoration: "none" }}
@@ -804,21 +843,17 @@ function RunsTab({
         {sorted.map((run, idx) => {
           const isLive = run.status === "running" || run.status === "queued";
           const dotColor = RUN_STATUS_COLORS[run.status] ?? "var(--ink-faint)";
-          const durationMs =
-            run.startedAt && run.finishedAt
-              ? new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime()
-              : null;
-          const durationSec = durationMs !== null ? Math.round(durationMs / 1000) : null;
-
+          const task = runTaskLabel(run);
+          const duration = runDuration(run);
           return (
             <NavLink
               key={run.id}
               to={`/${prefix}/agents/${agentId}/runs/${run.id}`}
               style={{
-                padding: "11px 16px",
+                padding: "12px 16px",
                 display: "grid",
                 gridTemplateColumns: "8px 1fr auto auto",
-                gap: 12,
+                gap: 14,
                 alignItems: "center",
                 borderBottom: idx < sorted.length - 1 ? "1px solid var(--line-soft)" : "none",
                 fontSize: 12,
@@ -837,40 +872,22 @@ function RunsTab({
                   animation: isLive ? "fw-pulse 1.4s ease-in-out infinite" : "none",
                 }}
               />
-              {/* Main info */}
-              <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                  <span className="fw-mono" style={{ color: "var(--ink-faint)", fontSize: 10 }}>
-                    {run.id.slice(0, 8)}
-                  </span>
-                  <span
-                    style={{
-                      fontSize: 10, padding: "1px 6px", borderRadius: 4,
-                      background: "var(--bg-sunken)", color: "var(--ink-dim)",
-                    }}
-                  >
-                    {SOURCE_LABELS[run.invocationSource] ?? run.invocationSource}
-                  </span>
-                  {run.triggerDetail && (
-                    <span style={{ fontSize: 11, color: "var(--ink-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 200 }}>
-                      {run.triggerDetail}
-                    </span>
-                  )}
-                </div>
-                {durationSec !== null && (
-                  <div style={{ fontSize: 10, color: "var(--ink-faint)" }}>
-                    {durationSec}s
-                    {run.usageJson?.total_tokens ? ` · ${Number(run.usageJson.total_tokens).toLocaleString()} tokens` : ""}
-                    {run.usageJson?.cost_cents ? ` · ${formatCents(Number(run.usageJson.cost_cents))}` : ""}
-                  </div>
-                )}
+              {/* What + how long */}
+              <div style={{ display: "flex", flexDirection: "column", gap: 3, minWidth: 0 }}>
+                <span style={{ fontWeight: 500, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  {task}
+                </span>
+                <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
+                  {isLive ? `Running for ${duration}` : `Took ${duration}`}
+                  {run.usageJson?.total_tokens ? ` · ${Number(run.usageJson.total_tokens).toLocaleString()} tokens` : ""}
+                </span>
               </div>
               {/* Status */}
-              <span className="fw-mono" style={{ fontSize: 11, color: dotColor }}>
+              <span style={{ fontSize: 11, fontWeight: 500, color: dotColor }}>
                 {run.status}
               </span>
-              {/* Time */}
-              <span className="fw-mono" style={{ fontSize: 10, color: "var(--ink-faint)" }}>
+              {/* When */}
+              <span style={{ fontSize: 10, color: "var(--ink-faint)", whiteSpace: "nowrap" }}>
                 {run.startedAt ? formatRelative(run.startedAt) : "queued"}
               </span>
             </NavLink>
@@ -976,6 +993,10 @@ function OverviewTab({
   runsLoading,
   issues,
   issuesLoading,
+  workspace,
+  workspaceLoading,
+  ensureWorkspace,
+  ensuringWorkspace,
   updateMutation,
 }: {
   agent: AgentDetail;
@@ -985,6 +1006,10 @@ function OverviewTab({
   runsLoading: boolean;
   issues: Issue[];
   issuesLoading: boolean;
+  workspace: AgentWorkspaceSummary | null;
+  workspaceLoading: boolean;
+  ensureWorkspace: () => void;
+  ensuringWorkspace: boolean;
   updateMutation: { mutate: (data: Record<string, unknown>) => void; isPending: boolean };
 }) {
   return (
@@ -1060,6 +1085,58 @@ function OverviewTab({
         </Section>
       </div>
 
+      <Section
+        title="Native workspace"
+        hint={workspace?.exists ? "ready" : workspaceLoading ? "checking" : "needs setup"}
+        right={
+          <button
+            onClick={ensureWorkspace}
+            disabled={ensuringWorkspace}
+            style={{
+              padding: "5px 10px",
+              borderRadius: 6,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink-dim)",
+              fontSize: 11,
+              cursor: ensuringWorkspace ? "wait" : "pointer",
+            }}
+          >
+            {ensuringWorkspace ? "Ensuring…" : "Ensure workspace"}
+          </button>
+        }
+      >
+        <div className="fw-card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 10 }}>
+          {workspaceLoading && !workspace ? (
+            <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Loading workspace…</span>
+          ) : workspace ? (
+            <>
+              <div style={{ display: "grid", gridTemplateColumns: "120px 1fr", gap: 8, fontSize: 12 }}>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Root</span>
+                <code style={{ color: "var(--ink)", wordBreak: "break-all" }}>{workspace.rootPath}</code>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Memory</span>
+                <code style={{ color: "var(--ink-dim)", wordBreak: "break-all" }}>{workspace.directories.memory.path}</code>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Outputs</span>
+                <code style={{ color: "var(--ink-dim)", wordBreak: "break-all" }}>{workspace.directories.outputs.path}</code>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>State</span>
+                <code style={{ color: "var(--ink-dim)", wordBreak: "break-all" }}>{workspace.directories.state.path}</code>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Letta ID</span>
+                <code style={{ color: "var(--ink-dim)", wordBreak: "break-all" }}>{workspace.lettaAgentId ?? "—"}</code>
+              </div>
+              {workspace.warnings.length > 0 && (
+                <div style={{ paddingTop: 8, borderTop: "1px solid var(--line-soft)", display: "flex", flexDirection: "column", gap: 4 }}>
+                  {workspace.warnings.map((warning) => (
+                    <span key={warning} style={{ fontSize: 11, color: "var(--warn)" }}>{warning}</span>
+                  ))}
+                </div>
+              )}
+            </>
+          ) : (
+            <span style={{ fontSize: 12, color: "var(--ink-faint)" }}>Workspace status unavailable.</span>
+          )}
+        </div>
+      </Section>
+
       {/* Recent runs */}
       <Section title="Recent runs" hint={`${runs.length}`}>
         {runsLoading && runs.length === 0 ? (
@@ -1094,7 +1171,7 @@ function OverviewTab({
                   }
                 />
                 <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                  {run.invocationSource} · {run.triggerDetail ?? "—"}
+                  {runTaskLabel(run)}
                 </span>
                 <span className="fw-mono" style={{ color: "var(--ink-dim)" }}>{run.status}</span>
                 <span className="fw-mono" style={{ color: "var(--ink-faint)" }}>
@@ -1185,6 +1262,7 @@ export function FernwehAgentDetail() {
   }>();
   const { selectedCompany } = useCompany();
   const { openNewIssue } = useDialog();
+  const { pushToast } = useToast();
   const navigate = useNavigate();
   const qc = useQueryClient();
 
@@ -1209,6 +1287,12 @@ export function FernwehAgentDetail() {
   const issuesQuery = useQuery<Issue[]>({
     queryKey: ["issues", "agent", agentId ?? "none"],
     queryFn: () => issuesApi.list(companyId!, { assigneeAgentId: agentId }) as Promise<Issue[]>,
+    enabled: !!(companyId && agentId),
+  });
+
+  const workspaceQuery = useQuery<AgentWorkspaceSummary>({
+    queryKey: ["agents", "workspace", agentId ?? "none"],
+    queryFn: () => agentsApi.workspace(agentId!, companyId),
     enabled: !!(companyId && agentId),
   });
 
@@ -1253,6 +1337,17 @@ export function FernwehAgentDetail() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.agents.detail(agentId!) });
       if (companyId) qc.invalidateQueries({ queryKey: queryKeys.agents.list(companyId) });
+    },
+  });
+
+  const ensureWorkspaceMutation = useMutation({
+    mutationFn: () => agentsApi.ensureWorkspace(agentId!, companyId),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["agents", "workspace", agentId ?? "none"] });
+      pushToast({ title: "Workspace ready", body: "Native agent workspace ensured.", tone: "success" });
+    },
+    onError: (err) => {
+      pushToast({ title: "Workspace failed", body: err instanceof Error ? err.message : "Unknown error", tone: "error" });
     },
   });
 
@@ -1477,6 +1572,10 @@ export function FernwehAgentDetail() {
           runsLoading={runsQuery.isLoading}
           issues={issues}
           issuesLoading={issuesQuery.isLoading}
+          workspace={workspaceQuery.data ?? null}
+          workspaceLoading={workspaceQuery.isLoading}
+          ensureWorkspace={() => ensureWorkspaceMutation.mutate()}
+          ensuringWorkspace={ensureWorkspaceMutation.isPending}
           updateMutation={updateMutation}
         />
       )}
@@ -1498,11 +1597,15 @@ export function FernwehAgentDetail() {
       )}
 
       {activeTab === "runs" && companyId && agentId && (
-        <RunsTab runs={runs} prefix={prefix} agentId={agentId} companyId={companyId} />
+        <RunsTab runs={runs} prefix={prefix} agentId={agentId} />
       )}
 
       {activeTab === "budget" && companyId && (
         <BudgetTab agent={agent} companyId={companyId} />
+      )}
+
+      {activeTab === "chat" && (
+        <ChatTab agent={agent} />
       )}
 
       {/* Footer */}

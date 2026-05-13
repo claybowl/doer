@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import type { LiveEvent } from "@doerai/shared";
+import { ApiError } from "../../api/client";
 import { instanceSettingsApi } from "../../api/instanceSettings";
 import { heartbeatsApi, type LiveRunForIssue } from "../../api/heartbeats";
 import { buildTranscript, getUIAdapter, type RunLogChunk, type TranscriptEntry } from "../../adapters";
@@ -68,6 +69,8 @@ export function useLiveRunTranscripts({
   const seenChunkKeysRef = useRef(new Set<string>());
   const pendingLogRowsByRunRef = useRef(new Map<string, string>());
   const logOffsetByRunRef = useRef(new Map<string, number>());
+  // Run IDs that returned 404 — skip these forever, they don't exist on this server.
+  const notFoundRunIdsRef = useRef(new Set<string>());
   const { data: generalSettings } = useQuery({
     queryKey: queryKeys.instance.generalSettings,
     queryFn: () => instanceSettingsApi.getGeneral(),
@@ -129,6 +132,11 @@ export function useLiveRunTranscripts({
         logOffsetByRunRef.current.delete(runId);
       }
     }
+    for (const runId of notFoundRunIdsRef.current) {
+      if (!knownRunIds.has(runId)) {
+        notFoundRunIdsRef.current.delete(runId);
+      }
+    }
   }, [runs]);
 
   useEffect(() => {
@@ -137,6 +145,9 @@ export function useLiveRunTranscripts({
     let cancelled = false;
 
     const readRunLog = async (run: LiveRunForIssue) => {
+      // Skip runs we already know don't exist on this server.
+      if (notFoundRunIdsRef.current.has(run.id)) return;
+
       const offset = logOffsetByRunRef.current.get(run.id) ?? 0;
       try {
         const result = await heartbeatsApi.log(run.id, offset, LOG_READ_LIMIT_BYTES);
@@ -151,8 +162,15 @@ export function useLiveRunTranscripts({
         if (result.content.length > 0) {
           logOffsetByRunRef.current.set(run.id, offset + result.content.length);
         }
-      } catch {
-        // Ignore log read errors while output is initializing.
+      } catch (err) {
+        // 404 = run doesn't exist in the DB at all (e.g. stale ID from a previous DB).
+        // Mark it so we never poll it again.
+        if (err instanceof ApiError && err.status === 404) {
+          notFoundRunIdsRef.current.add(run.id);
+          return;
+        }
+        // All other errors (network blip, 5xx, run exists but log not ready) are
+        // transient — ignore and retry next interval.
       }
     };
 
@@ -267,7 +285,11 @@ export function useLiveRunTranscripts({
         socket.onmessage = null;
         socket.onerror = null;
         socket.onclose = null;
-        socket.close(1000, "live_run_transcripts_unmount");
+        // In React StrictMode dev, cleanup can run while ws is still CONNECTING.
+        // Closing during CONNECTING triggers noisy browser warnings even though this is expected.
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.close(1000, "live_run_transcripts_unmount");
+        }
       }
     };
   }, [activeRunIds, companyId, runById]);

@@ -29,6 +29,7 @@ import {
 import { validate } from "../middleware/validate.js";
 import {
   agentService,
+  agentWorkspaceService,
   agentInstructionsService,
   accessService,
   approvalService,
@@ -48,6 +49,7 @@ import { assertBoard, assertCompanyAccess, assertInstanceAdmin, getActorInfo } f
 import { findServerAdapter, listAdapterModels } from "../adapters/index.js";
 import { redactEventPayload } from "../redaction.js";
 import { redactCurrentUserValue } from "../log-redaction.js";
+import { logger } from "../middleware/logger.js";
 import { renderOrgChartSvg, renderOrgChartPng, type OrgNode, type OrgChartStyle, ORG_CHART_STYLES } from "./org-chart-svg.js";
 import { instanceSettingsService } from "../services/instance-settings.js";
 import { runClaudeLogin } from "@doerai/adapter-claude-local/server";
@@ -84,6 +86,7 @@ export function agentRoutes(db: Db) {
 
   const router = Router();
   const svc = agentService(db);
+  const agentWorkspaces = agentWorkspaceService();
   const access = accessService(db);
   const approvalsSvc = approvalService(db);
   const budgets = budgetService(db);
@@ -96,6 +99,23 @@ export function agentRoutes(db: Db) {
   const instanceSettings = instanceSettingsService(db);
   const planEnforcement = planEnforcementService(db);
   const strictSecretsMode = process.env.DOER_SECRETS_STRICT_MODE === "true";
+
+  async function ensureNativeWorkspaceForAgent(agent: NonNullable<Awaited<ReturnType<typeof svc.getById>>>) {
+    try {
+      await agentWorkspaces.ensure({
+        id: agent.id,
+        companyId: agent.companyId,
+        name: agent.name,
+        adapterConfig: agent.adapterConfig,
+        metadata: agent.metadata,
+      });
+    } catch (err) {
+      logger.warn(
+        { err, agentId: agent.id, companyId: agent.companyId },
+        "failed to ensure native agent workspace",
+      );
+    }
+  }
 
   async function getCurrentUserRedactionOptions() {
     return {
@@ -1017,6 +1037,60 @@ export function agentRoutes(db: Db) {
     res.json(await buildAgentDetail(agent));
   });
 
+  router.get("/agents/:id/workspace", async (req, res) => {
+    const id = req.params.id as string;
+    const agent = await svc.getById(id);
+    if (!agent) {
+      res.status(404).json({ error: "Agent not found" });
+      return;
+    }
+    assertCompanyAccess(req, agent.companyId);
+    if (req.actor.type === "agent" && req.actor.agentId !== id) {
+      const canRead = await actorCanReadConfigurationsForCompany(req, agent.companyId);
+      if (!canRead) {
+        res.status(403).json({ error: "Forbidden" });
+        return;
+      }
+    }
+    res.json(await agentWorkspaces.inspect({
+      id: agent.id,
+      companyId: agent.companyId,
+      name: agent.name,
+      adapterConfig: agent.adapterConfig,
+      metadata: agent.metadata,
+    }));
+  });
+
+  router.post("/agents/:id/workspace/ensure", async (req, res) => {
+    const id = req.params.id as string;
+    const agent = await svc.getById(id);
+    if (!agent) {
+      res.status(404).json({ error: "Agent not found" });
+      return;
+    }
+    await assertCanUpdateAgent(req, agent);
+    const workspace = await agentWorkspaces.ensure({
+      id: agent.id,
+      companyId: agent.companyId,
+      name: agent.name,
+      adapterConfig: agent.adapterConfig,
+      metadata: agent.metadata,
+    });
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId: agent.companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      runId: actor.runId,
+      action: "agent.workspace_ensured",
+      entityType: "agent",
+      entityId: agent.id,
+      details: { rootPath: workspace.rootPath },
+    });
+    res.json(workspace);
+  });
+
   router.get("/agents/:id/configuration", async (req, res) => {
     const id = req.params.id as string;
     const agent = await svc.getById(id);
@@ -1209,6 +1283,7 @@ export function agentRoutes(db: Db) {
       lastHeartbeatAt: null,
     });
     const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
+    await ensureNativeWorkspaceForAgent(agent);
 
     let approval: Awaited<ReturnType<typeof approvalsSvc.getById>> | null = null;
     const actor = getActorInfo(req);
@@ -1354,6 +1429,7 @@ export function agentRoutes(db: Db) {
       lastHeartbeatAt: null,
     });
     const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
+    await ensureNativeWorkspaceForAgent(agent);
 
     const actor = getActorInfo(req);
     await logActivity(db, {
@@ -1785,6 +1861,7 @@ export function agentRoutes(db: Db) {
       res.status(404).json({ error: "Agent not found" });
       return;
     }
+    await ensureNativeWorkspaceForAgent(agent);
 
     await logActivity(db, {
       companyId: agent.companyId,

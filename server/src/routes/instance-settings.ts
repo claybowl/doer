@@ -4,6 +4,7 @@ import { patchInstanceExperimentalSettingsSchema, patchInstanceGeneralSettingsSc
 import { forbidden } from "../errors.js";
 import { validate } from "../middleware/validate.js";
 import { instanceSettingsService, logActivity } from "../services/index.js";
+import { listServerAdapters, listAdapterModels } from "../adapters/index.js";
 import { getActorInfo } from "./authz.js";
 
 function assertCanManageInstanceSettings(req: Request) {
@@ -58,6 +59,27 @@ export function instanceSettingsRoutes(db: Db) {
   router.get("/instance/settings/experimental", async (req, res) => {
     assertCanManageInstanceSettings(req);
     res.json(await svc.getExperimental());
+  });
+
+  // Legacy adapter-manager endpoint consumed by Fernweh instance settings cards.
+  // Keep this lightweight until the full external adapter manager lands.
+  router.get("/adapters", async (req, res) => {
+    assertCanManageInstanceSettings(req);
+    const adapters = listServerAdapters();
+    const payload = await Promise.all(
+      adapters.map(async (adapter) => {
+        const models = await listAdapterModels(adapter.type).catch(() => []);
+        return {
+          type: adapter.type,
+          label: adapter.type,
+          source: "builtin" as const,
+          modelsCount: models.length,
+          loaded: true,
+          disabled: false,
+        };
+      }),
+    );
+    res.json(payload);
   });
 
   router.patch(

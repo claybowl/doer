@@ -445,7 +445,7 @@ export function App() {
             <Route path="company/skills" element={<FernwehCompanySkills />} />
             <Route path="company/skills/:skillId" element={<FernwehCompanySkills />} />
             <Route path="company/webhooks" element={<FernwehWebhooks />} />
-            <Route path="company/export" element={<FernwehCompanyExport />} />
+            <Route path="company/export/*" element={<FernwehCompanyExport />} />
             <Route path="company/import" element={<FernwehCompanyImport />} />
             <Route path="preferences" element={<FernwehPreferences />} />
             <Route path="instance" element={<FernwehInstanceSettings />} />

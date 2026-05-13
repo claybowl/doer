@@ -105,25 +105,26 @@ export function WikiGraphPage(props: PluginPageProps) {
   return (
     <div style={container}>
       <header>
-        <h1 style={{ margin: 0, fontSize: 24 }}>Wiki & Graph</h1>
-        <p style={{ margin: "4px 0 0 0", color: "#9ca3af", fontSize: 13 }}>
+        <h1 key="title" style={{ margin: 0, fontSize: 24 }}>Wiki & Graph</h1>
+        <p key="subtitle" style={{ margin: "4px 0 0 0", color: "#9ca3af", fontSize: 13 }}>
           Karpathy-style wiki + Graphify-style knowledge graph across memfs memory
           and gremlin outputs.
         </p>
       </header>
 
       <section style={statRow}>
-        <Stat label="Nodes" value={graph.data?.nodes.length ?? 0} />
-        <Stat label="Edges" value={graph.data?.edges.length ?? 0} />
-        <Stat label="Tokens spent" value={stats.data?.tokensSpent ?? 0} />
+        <Stat key="nodes" label="Nodes" value={graph.data?.nodes.length ?? 0} />
+        <Stat key="edges" label="Edges" value={graph.data?.edges.length ?? 0} />
+        <Stat key="tokens" label="Tokens spent" value={stats.data?.tokensSpent ?? 0} />
         <Stat
+          key="cache-hit"
           label="Cache hit %"
           value={Math.round((stats.data?.cacheHitRate ?? 0) * 100)}
         />
       </section>
 
       {!hasGraph && (
-        <section style={emptyState}>
+        <section key="empty-state" style={emptyState}>
           <h2 style={{ marginTop: 0 }}>No graph yet</h2>
           <p>
             Run an ingest to walk memfs memory + gremlin outputs, extract
@@ -131,13 +132,13 @@ export function WikiGraphPage(props: PluginPageProps) {
             extraction pipeline lands in Phase 2.
           </p>
           <p style={{ fontSize: 12, color: "#6b7280", marginTop: 16 }}>
-            See <code>doc/plans/2026-04-21-wiki-graph-plugin.md</code>.
+            See <code key="plan-doc">doc/plans/2026-04-21-wiki-graph-plugin.md</code>.
           </p>
         </section>
       )}
 
       {hasGraph && (
-        <section style={card}>
+        <section key="graph-state" style={card}>
           {/* Phase 2: <GraphView nodes={graph.data.nodes} edges={graph.data.edges} /> */}
           <p style={{ color: "#9ca3af" }}>Graph render wires up in Phase 2.</p>
         </section>

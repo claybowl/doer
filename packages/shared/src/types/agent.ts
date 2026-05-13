@@ -89,6 +89,37 @@ export interface AgentDetail extends Agent {
   access: AgentAccessState;
 }
 
+export interface AgentWorkspaceDirectorySummary {
+  path: string;
+  exists: boolean;
+}
+
+export interface AgentWorkspaceManifest {
+  schemaVersion: number;
+  agentId: string;
+  companyId: string;
+  agentName: string;
+  lettaAgentId: string | null;
+  managedHosted: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AgentWorkspaceSummary {
+  agentId: string;
+  companyId: string;
+  rootPath: string;
+  legacyRootPath: string;
+  manifestPath: string;
+  manifest: AgentWorkspaceManifest | null;
+  lettaAgentId: string | null;
+  managedHosted: boolean;
+  exists: boolean;
+  legacyExists: boolean;
+  directories: Record<"memory" | "instructions" | "skills" | "tools" | "runs" | "outputs" | "state", AgentWorkspaceDirectorySummary>;
+  warnings: string[];
+}
+
 export interface AgentKeyCreated {
   id: string;
   name: string;

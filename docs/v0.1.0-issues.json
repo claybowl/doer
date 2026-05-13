@@ -1,0 +1,121 @@
+[
+  {
+    "phase": 1,
+    "title": "Audit and validate memfs bindings for all 24 gremlins + core agents",
+    "priority": "high",
+    "assignee": "Gizmo",
+    "description": "## Context\nPRD v0.1.0 section 4.5 — foundational for HQ observability, Goals system, and Letta workspace migration.\n\n## Task\nFor each agent in the DonJon company (24 gremlins + DonDog, Chef, Alfie):\n1. Verify memfs binding exists and is valid (`persona.md` readable, git remote reachable)\n2. Log any broken or missing bindings\n3. Repair broken bindings where possible\n4. Document results in a report\n\n## Success Criteria\n- All 27 agents have valid memfs bindings\n- Startup health check function written: `validateMemfsBinding(agentId)` → `{ valid: boolean, errors: string[] }`\n- Report committed to `/docs/memfs-audit-results.md`\n\n## Agents to check\nAll agents in company 27b25893-0ff4-4d81-b45b-9631e04b769a\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.5"
+  },
+  {
+    "phase": 1,
+    "title": "Add level + status filter params to GET /companies/:id/goals endpoint",
+    "priority": "high",
+    "assignee": "Technomancer",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — Goals Everywhere. Currently the goals list endpoint returns all goals with no filtering.\n\n## Task\nUpdate `server/src/routes/goals.ts` to support query params:\n- `?level=company|team|agent|task` (optional)\n- `?status=planned|active|achieved|cancelled` (optional)\n- Both can be combined: `?level=team&status=active`\n\n## Files to change\n- `server/src/routes/goals.ts` — add query param parsing\n- `packages/shared/src/api.ts` — update type if needed\n\n## Success Criteria\n- `GET /companies/:id/goals?level=team&status=active` returns only team-level active goals\n- Single param works: `?status=active` returns all active goals regardless of level\n- No params returns all goals (backward compatible)\n- Tests added\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 1,
+    "title": "Build GET /goals/:id/progress endpoint",
+    "priority": "high",
+    "assignee": "Technomancer",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — needed for HQ Goal Hierarchy Tree and Goals Dashboard.\n\n## Task\nCreate new endpoint: `GET /goals/:id/progress`\n\nResponse shape:\n```json\n{\n  \"goalId\": \"string\",\n  \"issueCount\": 0,\n  \"doneCount\": 0,\n  \"inProgressCount\": 0,\n  \"todoCount\": 0,\n  \"percentComplete\": 0,\n  \"childGoalCount\": 0,\n  \"childGoalsAchieved\": 0\n}\n```\n\n## Implementation\n- Count issues where `goalId = :id` grouped by status\n- Count child goals where `parentId = :id`, and how many have status = 'achieved'\n- percentComplete = doneCount / issueCount * 100 (0 if issueCount = 0)\n\n## Files to change\n- `server/src/routes/goals.ts` — add new route\n- `server/src/services/goals.ts` — add `getProgress(id)` method\n- DB query joins `issues` table on `goalId`\n\n## Success Criteria\n- Returns correct counts for a goal with linked issues\n- Returns zeros gracefully for goal with no linked issues\n- Tested with at least 3 test cases\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 1,
+    "title": "Add goalId warning on issue creation when active goals exist",
+    "priority": "medium",
+    "assignee": "Technomancer",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — enforce goal linkage without breaking existing flows.\n\n## Task\nIn the issue creation endpoint (`POST /companies/:id/issues` or equivalent):\n- If `goalId` is null/undefined AND the company has at least one active goal\n- Add a warning to the response (NOT a hard block): `{ warning: 'Issue created without a goal link. Consider associating this issue with an active goal.' }`\n- Log the warning server-side\n\n## Success Criteria\n- Issues without goalId still create successfully (no breaking change)\n- Warning present in response when company has active goals\n- No warning when company has no active goals\n- Tests added\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 2,
+    "title": "Add read_goals, create_goal, update_goal_status tools to DonDog/Chef/Alfie Letta adapters",
+    "priority": "high",
+    "assignee": "Gizmo",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — agents need to read and write goals as part of their normal operation.\n\n## Task\nAdd three new custom tools to the Letta Cloud adapter for DonDog, Chef, and Alfie:\n\n### read_goals(level?, status?)\n- Calls `GET /companies/:companyId/goals?level=:level&status=:status`\n- Returns list of goals\n- Agent IDs: DonDog (agent-2402fdcd), Chef (agent-e09ccc12), Alfie (agent-f9288018)\n\n### create_goal(title, description, level, parentId?)\n- Calls `POST /companies/:companyId/goals`\n- Returns created goal\n\n### update_goal_status(goalId, status)\n- Calls `PATCH /goals/:goalId` with `{ status }`\n- Returns updated goal\n\n## Implementation Notes\n- Tools live in the letta-cloud adapter: `packages/adapters/letta-cloud/`\n- Same pattern as existing paperclip tools (read_paperclip_issues, etc.)\n- Use PAPERCLIP_BASE_URL and PAPERCLIP_API_KEY env vars for auth\n\n## Success Criteria\n- All 3 tools registered for DonDog, Chef, Alfie in Letta Cloud\n- DonDog can call `read_goals(level='team', status='active')` and get results\n- Chef can call `create_goal(...)` and new goal appears in Doer\n- Alfie can call `update_goal_status(id, 'achieved')` and status updates\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 2,
+    "title": "Update Chef queue fill prompt to require goalId context from DonDog",
+    "priority": "high",
+    "assignee": "Gizmo",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — Chef must create issues tied to goals, not just fill a generic queue.\n\n## Task\nUpdate Chef's system prompt / work instructions to:\n1. When receiving a [QUEUE FILL REQUEST] from DonDog, expect it to include active goal IDs\n2. Before creating issues, call `read_goals(level='team', status='active')` to find the current sprint goals\n3. Every `create_paperclip_issue` call must include `goalId` referencing the relevant team goal\n4. If no active team goal exists for a project, create one before creating issues\n\n## Chef agent ID\nagent-e09ccc12-42ef-40c0-85c6-c8744844ef2e\n\n## Success Criteria\n- Chef's next queue fill batch has 100% of issues with goalId set\n- Chef creates a team goal if none exists before creating issues\n- DonDog's [QUEUE FILL REQUEST] format updated to include `goal_context` field\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 2,
+    "title": "Update Alfie dispatch to create agent goals and pass goalId to sub-issues",
+    "priority": "high",
+    "assignee": "Gizmo",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — Alfie must create agent-level goals when dispatching gremlins.\n\n## Task\nUpdate Alfie's system prompt / work instructions:\n1. When decomposing a team goal into gremlin sub-issues:\n   - Create an agent-level goal for each gremlin: `create_goal(title, desc, 'agent', teamGoalId)`\n   - Set `ownerAgentId` to the gremlin's agent ID\n   - Set the agent goal status to 'active' when dispatching\n2. Pass `goalId` (the agent goal ID) to all sub-issues created for that gremlin\n3. On each heartbeat, call `read_goals(level='agent', status='active')` to check gremlin goal health\n4. If agent goal active >48h with no issue progress, escalate to DonDog\n\n## Alfie agent ID\nagent-f9288018-50b9-4f61-89b7-235ada1f8a50\n\n## Success Criteria\n- Every gremlin dispatch creates a corresponding agent goal\n- Sub-issues have goalId set to the agent goal\n- Alfie's heartbeat checks agent goal health\n- Stale agent goals (>48h, no progress) trigger escalation comment\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 3,
+    "title": "Build Goals Dashboard UI — hierarchy view with progress bars",
+    "priority": "high",
+    "assignee": "Blueprint",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — Goals need to be visible and navigable in Doer.\n\n## Task\nCreate a new Goals page in the Doer UI:\n\n### Layout\n```\nCompany Goals\n  └── Team Goals (% complete bar, linked project name)\n        └── Agent Goals (gremlin name, status badge)\n              └── Issues count (X done / Y total)\n```\n\n### Data sources\n- `GET /companies/:id/goals` (all goals)\n- `GET /goals/:id/progress` (progress for each)\n\n### Components needed\n- `GoalHierarchyTree` — recursive tree component\n- `GoalProgressBar` — inline progress bar (percentComplete)\n- `GoalStatusBadge` — planned/active/achieved/cancelled\n- `GoalCard` — individual goal with title, owner, progress\n\n### Navigation\n- New sidebar item: Goals (between Projects and HQ or similar)\n- Clicking a goal opens goal detail page\n\n## Success Criteria\n- Goals page renders full hierarchy: company → team → agent\n- Progress bars show correct % from /goals/:id/progress\n- Status badges color-coded correctly\n- Empty state handled (no goals yet)\n- Responsive layout\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 3,
+    "title": "Add goal selector to issue create and edit forms",
+    "priority": "medium",
+    "assignee": "Blueprint",
+    "description": "## Context\nPRD v0.1.0 section 4.3 — every issue should be linkable to a goal from the UI.\n\n## Task\nAdd a goal selector field to:\n1. Issue creation form\n2. Issue edit form / detail panel\n\n### Behavior\n- Dropdown showing active goals (filtered by current project's team goals first, then all)\n- Pre-populates with the project's active team goal if one exists\n- Optional — can be left blank (shows server warning but doesn't block)\n- Search/filter within dropdown\n\n### Data\n- `GET /companies/:id/goals?status=active` for dropdown options\n- PATCH issue with `goalId` on select\n\n## Success Criteria\n- Goal selector visible on issue create form\n- Goal selector visible on issue detail/edit\n- Pre-populates correctly from project's active team goal\n- Clearing the field sets goalId to null\n- Selected goal name shown on issue card/list view\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.3"
+  },
+  {
+    "phase": 4,
+    "title": "HQ Redesign — Agent state indicator + goal hierarchy tree panel",
+    "priority": "high",
+    "assignee": "Blueprint",
+    "description": "## Context\nPRD v0.1.0 section 4.2 — first two panels of the HQ redesign.\n\n## Task\n\n### Panel 1: Agent State Indicator\nColor-coded badge on each agent card in HQ:\n- IDLE = gray\n- THINKING = blue (pulsing)\n- ACTING = green\n- WAITING = yellow\n- ERROR = red\nData source: existing `agent.status` live event (already in LIVE_EVENT_TYPES)\nTooltip: current issue title or active goal title\n\n### Panel 2: Goal Hierarchy Tree\nWhen clicking into an agent's detail view, show collapsible tree:\n```\n[Company Goal title]\n  └── [Team Goal title] — X% complete\n        └── [Agent Goal title] — active since [date]\n              └── [Issue title] — in_progress\n```\nData source: Goals API\n- Find agent goal where `ownerAgentId = agentId AND status = active`\n- Walk up parentId chain to build full hierarchy\n- Show progress at each level\n\n## Success Criteria\n- State badge updates within 2s of agent status change\n- Goal hierarchy shows correctly for agents with active goals\n- Empty state handled (no goal assigned to this agent)\n- Tree is collapsible\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.2"
+  },
+  {
+    "phase": 4,
+    "title": "HQ Redesign — Tool call log + memory inspector + performance sidebar",
+    "priority": "high",
+    "assignee": "Blueprint",
+    "description": "## Context\nPRD v0.1.0 section 4.2 — panels 3, 4, 5 of HQ redesign.\n\n## Task\n\n### Panel 3: Tool Call Log\n- Paginated list, most recent first (last 10 tool calls)\n- Each entry: tool name + icon, input (truncatable), output/error, start→end time, duration ms\n- Click to expand full details\n- Data: Letta API polling `GET /v1/agents/:id/messages` filtered for tool_call type, 2s interval\n- Cached — don't hammer the API\n\n### Panel 4: Memory Inspector\nTabs:\n- Persona — content of persona memory block\n- Human Context — content of human memory block  \n- Active Goal — content of active goal (from Goals API)\nData: `GET /v1/agents/:id/core-memory/blocks` cached 30s\nFor Letta-native agents in v0.2.0+: read from memfs directly\n\n### Panel 5: Performance Sidebar\nSmall sidebar metrics:\n- Total tool calls this session\n- Average tool call latency (ms)\n- Error count\n- Active since timestamp\n\n### Control Bar (v0.1.0 scope)\n- View Full Logs button → opens raw Letta run log\n- Open Chat button → switches to Chat tab\n- Nudge button → inline message input, sends via chat proxy\n\n## Success Criteria\n- Tool call log shows last 10 calls with correct data\n- Memory inspector shows current persona and human context\n- Performance metrics calculated correctly from tool call history\n- Nudge sends message and response appears in tool call log\n- Graceful fallback to existing log view if Letta API unreachable\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.2"
+  },
+  {
+    "phase": 5,
+    "title": "Build in-app Letta agent chat proxy endpoint",
+    "priority": "high",
+    "assignee": "Technomancer",
+    "description": "## Context\nPRD v0.1.0 section 4.1 — backend for in-app chat.\n\n## Task\nCreate chat proxy in Doer's Express server:\n\n### Endpoint\n`POST /api/agents/:agentId/chat`\nBody: `{ message: string }`\nResponse: streaming (SSE or chunked) of agent response tokens\n\n### API Key Storage\n- New field on agent record: `lettaApiKeyEncrypted` (AES-256-GCM)\n- Encryption key from `DOER_ENCRYPTION_KEY` env var (32 bytes, base64)\n- NEVER expose to browser client\n- New endpoint: `POST /api/agents/:agentId/letta-key` to set/update the key\n- Key rotation UX: if Letta API returns 401, return `{ error: 'KEY_INVALID', message: 'API key invalid — update in agent settings' }` to UI\n\n### Proxy Logic\n- Decrypt stored key\n- Forward to Letta API: `POST /v1/agents/:agentId/messages`\n- Stream response back\n- Concurrency lock: reject second chat if one is active (return 409)\n\n### DB changes\n- Add `lettaApiKeyEncrypted: text` column to agents table\n- Migration required\n\n## Success Criteria\n- Chat proxy works end-to-end with a Letta Cloud agent\n- API key never appears in browser network traffic\n- 401 from Letta triggers KEY_INVALID error response\n- Concurrent session rejected with 409\n- DOER_ENCRYPTION_KEY missing = server startup error with clear message\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.1"
+  },
+  {
+    "phase": 5,
+    "title": "Build in-app chat UI panel on agent detail view",
+    "priority": "high",
+    "assignee": "Blueprint",
+    "description": "## Context\nPRD v0.1.0 section 4.1 — frontend for in-app chat.\n\n## Task\nAdd Chat tab to agent detail view in HQ:\n\n### UI\n- Tab label: Chat\n- Chat pane: message list (user messages right-aligned, agent messages left-aligned)\n- Input bar at bottom with send button\n- Streaming response shown token-by-token as it arrives\n- Auto-scroll to bottom on new message\n- Timestamps on each message\n\n### Error states\n- Agent offline: 'This agent is currently unavailable'\n- KEY_INVALID: 'API key invalid — update in agent settings' with link to settings\n- Concurrent session: 'Another chat session is active. Please wait.'\n- Non-Letta adapter: 'Chat is available for Letta agents only.'\n\n### Agent key setup\n- If no Letta API key stored: show prompt 'Enter Letta API key to enable chat'\n- Inline key entry form on agent settings/detail page\n- Re-entry allowed at any time for key rotation\n\n## Success Criteria\n- User can send a message and receive streaming response\n- All error states handled with clear messaging\n- Key entry form works and encrypts key via backend\n- Chat history persists across page navigation (Letta stores it natively)\n- Looks consistent with existing Doer UI design language\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.1"
+  },
+  {
+    "phase": 6,
+    "title": "Integrate @letta-ai/letta-client SDK into Doer server for Letta-native agent lifecycle",
+    "priority": "high",
+    "assignee": "Technomancer",
+    "description": "## Context\nPRD v0.1.0 section 4.4 — Letta Agent Workspace Migration. Flagship feature of v0.1.0.\n\n## Task\nAdd `@letta-ai/letta-client` as a dependency to `server/` and build the Letta-native agent lifecycle layer:\n\n### Agent creation (Letta-native type)\nWhen user creates an agent in Doer with type = 'letta-native':\n```\nclient.agents.create({ model, memory_blocks, tools }) \n→ store returned letta_agent_id on Doer agent record\n→ configure memfs binding\n→ agent.type = 'letta_native'\n```\n\n### Letta client config\n- LETTA_BASE_URL env var (default: Letta Cloud)\n- LETTA_API_KEY env var\n- Client initialized once in server startup\n\n### Agent deletion\n- On Doer agent delete: `client.agents.delete(letta_agent_id)` + clean up memfs\n\n### New DB fields on agents table\n- `lettaAgentId: text | null` — Letta's UUID for this agent\n- `agentType: 'adapter' | 'letta_native'` — default 'adapter'\n\n### New service: `lettaAgentService`\n- `provision(doerAgentId, config)` — create in Letta, store ID\n- `deprovision(doerAgentId)` — delete from Letta, clear ID\n- `getClient()` — returns configured Letta client instance\n\n## Success Criteria\n- `@letta-ai/letta-client` installed and importable in server\n- Letta-native agent creation flow works end-to-end\n- `lettaAgentId` stored correctly on agent record\n- Agent deletion cleans up Letta agent\n- Works in packaged Electron app (no native binary deps)\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.4"
+  },
+  {
+    "phase": 6,
+    "title": "Log Letta-native agent runs, tool calls, and memory ops to Doer DB",
+    "priority": "high",
+    "assignee": "Artificer",
+    "description": "## Context\nPRD v0.1.0 section 4.4 — full observability is the core value of Letta-native agents.\n\n## Task\nIntercept and log all Letta-native agent activity to Doer's database:\n\n### What to log\n1. **Runs** — start/end time, trigger (heartbeat/chat/manual), status\n2. **Tool calls** — tool name, input JSON, output JSON, duration ms, error if any\n3. **Memory reads/writes** — block name, operation type, snippet (first 200 chars)\n\n### New DB tables\n- `agent_runs` — id, agentId, startedAt, completedAt, triggerType, status\n- `agent_tool_calls` — id, runId, agentId, toolName, input, output, durationMs, error, calledAt  \n- `agent_memory_ops` — id, runId, agentId, blockName, operation, snippet, occurredAt\n\n### Implementation approach\n- After each Letta SDK message call, parse the response messages for tool_call and tool_return types\n- Insert to DB in background (don't block response)\n- Prune old records: keep 30 days or 1000 records per agent, whichever is less\n\n## Success Criteria\n- After a Letta-native agent handles a message, tool calls appear in `agent_tool_calls`\n- HQ Tool Call Log panel (section 4.2) reads from Doer DB for letta-native agents (not Letta API)\n- Memory operations captured\n- Pruning job runs on a schedule\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md section 4.4"
+  },
+  {
+    "phase": 7,
+    "title": "End-to-end tests for v0.1.0: chat, goals, and Letta-native agent lifecycle",
+    "priority": "medium",
+    "assignee": "Mechanic",
+    "description": "## Context\nPRD v0.1.0 section Phase 7 — QA before release.\n\n## Task\nWrite end-to-end tests covering the three major new systems:\n\n### Chat (section 4.1)\n- User can send message and receive response\n- KEY_INVALID error handled correctly\n- Concurrent session rejected\n\n### Goals (section 4.3)\n- Create goal hierarchy (company → team → agent)\n- Link issue to goal\n- Progress endpoint returns correct counts\n- Goal selector pre-populates on issue create\n\n### Letta-native agent lifecycle (section 4.4)\n- Create letta-native agent → lettaAgentId stored\n- Send message → tool calls logged to DB\n- Delete agent → Letta agent cleaned up\n\n### Tools\n- Playwright for UI flows\n- Vitest for service-level tests\n- Existing test patterns: see `server/src/__tests__/`\n\n## Success Criteria\n- All 3 areas have passing E2E tests\n- Tests run in CI (existing vitest config)\n- Performance: chat latency <2s, HQ refresh ≤2s, goal load <500ms\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md"
+  },
+  {
+    "phase": 7,
+    "title": "Write v0.1.0 release notes and update CHANGELOG",
+    "priority": "low",
+    "assignee": "Scribe",
+    "description": "## Context\nPRD v0.1.0 — final step before release.\n\n## Task\n1. Write user-facing release notes for v0.1.0 covering:\n   - In-App Agent Chat\n   - HQ Observability Redesign\n   - Goals Everywhere\n   - Letta Agent Workspace Migration\n2. Update CHANGELOG.md in the repo root\n3. Draft a short announcement (2-3 paragraphs) suitable for posting to users/customers\n\n## Tone\nPractical and direct. What changed, why it matters, what users can do now that they couldn't before.\n\n## Reference\nPRD: /donjonOrg/donjon-paperclip/docs/PRD-v0.1.0.md\n\n## Output\n- `CHANGELOG.md` updated\n- `docs/release-notes-v0.1.0.md` created\n- Announcement draft in `docs/announcement-v0.1.0.md`"
+  }
+]

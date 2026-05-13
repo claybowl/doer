@@ -59,6 +59,14 @@ export function resolveDefaultAgentWorkspaceDir(agentId: string): string {
   if (!PATH_SEGMENT_RE.test(trimmed)) {
     throw new Error(`Invalid agent id for workspace path '${agentId}'.`);
   }
+  return path.resolve(resolvePaperclipInstanceRoot(), "workspaces", "agents", trimmed);
+}
+
+export function resolveLegacyAgentWorkspaceDir(agentId: string): string {
+  const trimmed = agentId.trim();
+  if (!PATH_SEGMENT_RE.test(trimmed)) {
+    throw new Error(`Invalid agent id for workspace path '${agentId}'.`);
+  }
   return path.resolve(resolvePaperclipInstanceRoot(), "workspaces", trimmed);
 }
 

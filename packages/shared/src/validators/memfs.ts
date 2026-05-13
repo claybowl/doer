@@ -3,7 +3,7 @@ import { MEMFS_STRATEGIES, MEMFS_PERMISSIONS, MEMFS_ROOT_KINDS } from "../consta
 
 export const createMemfsRootSchema = z.object({
   kind: z.enum(MEMFS_ROOT_KINDS).optional().default("local-fs"),
-  rootPath: z.string().min(1),
+  rootPath: z.string().trim().min(1).optional().default("~/.letta"),
   label: z.string().min(1).optional().default("letta"),
 });
 export type CreateMemfsRoot = z.infer<typeof createMemfsRootSchema>;
@@ -19,7 +19,8 @@ export const createMemfsBindingSchema = z.object({
     .min(1)
     .refine((p) => !p.split("/").some((seg) => seg === "" || seg === "." || seg === ".."), {
       message: "pathPrefix must be a relative, normalized path (no empty segments, '.', or '..')",
-    }),
+    })
+    .optional(),
   strategy: z.enum(MEMFS_STRATEGIES).optional().default("fs-mount"),
   // V1 accepts only "read"; kept as enum so the shape is future-proof.
   permission: z.enum(MEMFS_PERMISSIONS).optional().default("read"),
