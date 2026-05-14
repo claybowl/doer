@@ -47,6 +47,9 @@ const deliverableToolVerifiedAgents = new Set<string>();
 // Process-local cache: agents we've verified have new tools attached.
 const newToolsVerifiedAgents = new Set<string>();
 
+// Process-local cache: agents we've verified have goal tools attached.
+const goalToolsVerifiedAgents = new Set<string>();
+
 /** Tool suites per agent role/name — maps to {toolName: toolId} */
 const AGENT_TOOL_SUITES: Record<string, Record<string, string>> = {
   dondog: {
