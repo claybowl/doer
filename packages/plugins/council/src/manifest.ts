@@ -26,6 +26,8 @@ const manifest: PaperclipPluginManifestV1 = {
     "plugin.state.write",
     "jobs.schedule",
     "ui.page.register",
+    "ui.sidebar.register",
+    "instance.settings.register",
   ],
   entrypoints: {
     worker: "./dist/worker.js",
@@ -52,7 +54,13 @@ const manifest: PaperclipPluginManifestV1 = {
         id: SLOT_IDS.page,
         displayName: "Council",
         exportName: EXPORT_NAMES.page,
-        routePath: "/council",
+        routePath: "council",
+      },
+      {
+        type: "sidebar",
+        id: SLOT_IDS.sidebarLink,
+        displayName: "Council",
+        exportName: EXPORT_NAMES.sidebarLink,
       },
       {
         type: "settingsPage",

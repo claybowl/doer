@@ -26,11 +26,13 @@ export const ACTION_KEYS = {
 
 export const SLOT_IDS = {
   page: "council-page",
+  sidebarLink: "council-sidebar-link",
   settingsPage: "council-settings",
 } as const;
 
 export const EXPORT_NAMES = {
   page: "CouncilPage",
+  sidebarLink: "CouncilSidebarLink",
   settingsPage: "CouncilSettingsPage",
 } as const;
 

@@ -8,13 +8,13 @@
     ".": "./src/index.ts"
   },
   "paperclipPlugin": {
-    "manifest": "./dist/manifest.js",
+    "manifest": "./dist/manifest.cjs",
     "worker": "./dist/worker.js",
     "ui": "./dist/ui/"
   },
   "scripts": {
-    "prebuild": "node ../../../../scripts/ensure-plugin-build-deps.mjs",
-    "build": "tsc && node ./scripts/build-ui.mjs",
+    "prebuild": "node ../../../scripts/ensure-plugin-build-deps.mjs",
+    "build": "node ./scripts/build-ui.mjs",
     "clean": "rm -rf dist",
     "typecheck": "pnpm --filter @doerai/plugin-sdk build && tsc --noEmit",
     "test": "vitest run",
