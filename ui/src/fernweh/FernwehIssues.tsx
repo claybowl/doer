@@ -89,43 +89,12 @@ export function FernwehIssues() {
     );
   }
 
-  // Count issues by status for the summary bar
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    for (const issue of issues ?? []) {
-      counts[issue.status] = (counts[issue.status] ?? 0) + 1;
-    }
-    return counts;
-  }, [issues]);
-
-  const doneCount = (statusCounts["done"] ?? 0) + (statusCounts["cancelled"] ?? 0);
-  const totalCount = issues?.length ?? 0;
-
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-      {/* Fernweh-style header bar */}
-      <div style={{
-        padding: "20px 32px", borderBottom: "1px solid var(--line)",
-        display: "flex", alignItems: "center", justifyContent: "space-between", gap: 16,
-        flexShrink: 0,
-      }}>
-        <div>
-          <h1 className="fw-display" style={{ fontSize: 20, fontWeight: 700, margin: 0 }}>
-            Issues
-          </h1>
-          {totalCount > 0 && (
-            <div style={{ display: "flex", gap: 12, marginTop: 4, fontSize: 12, color: "var(--ink-dim)" }}>
-              <span style={{ color: "var(--pulse)" }}>{doneCount} done</span>
-              <span>{totalCount} total</span>
-              {statusCounts["in_progress"] && <span style={{ color: "var(--accent)" }}>{statusCounts["in_progress"]} in progress</span>}
-              {statusCounts["blocked"] && <span style={{ color: "var(--danger)" }}>{statusCounts["blocked"]} blocked</span>}
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* IssuesList — uses the same component as classic UI */}
-      <div style={{ flex: 1, overflow: "auto" }}>
+      {/* IssuesList provides its own header, count, and "New Issue" CTA — don't double-render.
+          Padding wrapper keeps the toolbar's right-aligned controls (New Issue / Filter / Sort / Group)
+          off the column edge so they don't clip inside Fernweh's grid. */}
+      <div style={{ flex: 1, overflow: "auto", padding: "20px 32px" }}>
         <IssuesList
           issues={issues ?? []}
           isLoading={isLoading}
