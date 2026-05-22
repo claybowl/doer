@@ -208,6 +208,18 @@ function GoalDetailDrawer({
     },
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: () => goalsApi.remove(goalId!),
+    onSuccess: () => {
+      if (goal?.companyId) {
+        qc.invalidateQueries({ queryKey: queryKeys.goals.list(goal.companyId) });
+      }
+      onClose();
+    },
+  });
+
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
+
   // ---- local edit state (lazy; mirror goal on open) ----
   const [titleDraft, setTitleDraft] = React.useState("");
   const [descDraft, setDescDraft] = React.useState("");
@@ -482,13 +494,14 @@ function GoalDetailDrawer({
             )}
           </div>
 
-          {/* Metadata */}
+          {/* Metadata + delete */}
           <div
             style={{
               marginTop: 8,
               paddingTop: 12,
               borderTop: "1px solid var(--line-soft)",
               display: "flex",
+              alignItems: "center",
               gap: 12,
               flexWrap: "wrap",
               fontSize: 11,
@@ -498,6 +511,28 @@ function GoalDetailDrawer({
             <span>Created {formatRelative(goal.createdAt)}</span>
             <span>·</span>
             <span className="fw-mono">{goal.id.slice(0, 8)}</span>
+            <div style={{ flex: 1 }} />
+            <button
+              onClick={() => {
+                if (confirmDelete) deleteMutation.mutate();
+                else setConfirmDelete(true);
+              }}
+              onMouseLeave={() => setConfirmDelete(false)}
+              disabled={deleteMutation.isPending}
+              style={{
+                fontSize: 11,
+                color: confirmDelete ? "var(--bg)" : "var(--danger)",
+                background: confirmDelete ? "var(--danger)" : "transparent",
+                border: `1px solid var(--danger)`,
+                borderRadius: 6,
+                padding: "3px 10px",
+                cursor: deleteMutation.isPending ? "not-allowed" : "pointer",
+                opacity: deleteMutation.isPending ? 0.5 : 1,
+                transition: "all .15s var(--fw-ease)",
+              }}
+            >
+              {deleteMutation.isPending ? "Deleting…" : confirmDelete ? "Confirm delete?" : "Delete"}
+            </button>
           </div>
         </>
       ) : null}

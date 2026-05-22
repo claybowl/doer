@@ -116,6 +116,14 @@ const REPO_ROOT = path.resolve(__dirname, "../../..");
 
 const BUNDLED_PLUGIN_EXAMPLES: AvailablePluginExample[] = [
   {
+    packageName: "@doerai/plugin-council",
+    pluginKey: "doer.council",
+    displayName: "Council",
+    description: "Multi-agent deliberation sessions. Full Council, 1:1 Interview, and Bidding session types. Logs every session, creates Doer issues as output, supports scheduled and manual triggers.",
+    localPath: "packages/plugins/council",
+    tag: "example",
+  },
+  {
     packageName: "@doerai/plugin-hello-world-example",
     pluginKey: "doer.hello-world-example",
     displayName: "Hello World Widget (Example)",
@@ -137,6 +145,14 @@ const BUNDLED_PLUGIN_EXAMPLES: AvailablePluginExample[] = [
     displayName: "Kitchen Sink (Example)",
     description: "Reference plugin that demonstrates the current Doer plugin API surface, bridge flows, UI extension surfaces, jobs, webhooks, tools, streams, and trusted local workspace/process demos.",
     localPath: "packages/plugins/examples/plugin-kitchen-sink-example",
+    tag: "example",
+  },
+  {
+    packageName: "@doerai/plugin-delivered",
+    pluginKey: "doer-delivered",
+    displayName: "Delivered",
+    description: "Magazine-style showcase of shipped agent work. A per-company feed of completed issues grouped by agent, with window and agent filters.",
+    localPath: "packages/plugins/examples/plugin-delivered",
     tag: "example",
   },
   {

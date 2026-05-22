@@ -82,7 +82,30 @@ if (isCrossPlatform) {
 	console.log(`[prebuild] copied ${epPkg}@${epVersion} → ${epDest}`);
 }
 
-// 5. Apply publishConfig to all workspace @doerai/* packages so they resolve
+// 5. Build and copy bundled plugins into <server>/bundled-plugins/
+const bundledPlugins = [
+	{ slug: "council",                  src: "packages/plugins/council" },
+	{ slug: "plugin-delivered",         src: "packages/plugins/examples/plugin-delivered" },
+	{ slug: "plugin-wiki-graph",        src: "packages/plugins/examples/plugin-wiki-graph" },
+	{ slug: "plugin-schrute-benchmark", src: "packages/plugins/examples/plugin-schrute-benchmark" },
+];
+const bundledPluginsOut = path.join(serverOut, "bundled-plugins");
+mkdirSync(bundledPluginsOut, { recursive: true });
+for (const { slug, src } of bundledPlugins) {
+	const pluginSrc = path.join(repoRoot, src);
+	if (!existsSync(pluginSrc)) {
+		console.log(`[prebuild] plugin not found, skipping: ${slug} (${pluginSrc})`);
+		continue;
+	}
+	console.log(`[prebuild] bundling plugin: ${slug}`);
+	run("pnpm build", pluginSrc);
+	const pluginDest = path.join(bundledPluginsOut, slug);
+	mkdirSync(pluginDest, { recursive: true });
+	cpSync(path.join(pluginSrc, "package.json"), path.join(pluginDest, "package.json"));
+	cpSync(path.join(pluginSrc, "dist"), path.join(pluginDest, "dist"), { recursive: true });
+}
+
+// 6. Apply publishConfig to all workspace @doerai/* packages so they resolve
 //    to compiled dist/*.js instead of source dist/*.ts (the dev convention).
 //    Also follow pnpm's symlink to .pnpm/ to patch the real file.
 function realPath(p) {

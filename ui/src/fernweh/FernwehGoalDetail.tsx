@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { NavLink, useParams } from "@/lib/router";
+import { NavLink, useNavigate, useParams } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { goalsApi } from "@/api/goals";
 import { agentsApi } from "@/api/agents";
@@ -67,6 +67,7 @@ export function FernwehGoalDetail() {
   const { selectedCompany } = useCompany();
   const companyId = selectedCompany?.id ?? "";
   const qc = useQueryClient();
+  const navigate = useNavigate();
 
   // Local edit state
   const [editTitle, setEditTitle] = React.useState<string | null>(null);
@@ -111,6 +112,16 @@ export function FernwehGoalDetail() {
       qc.invalidateQueries({ queryKey: queryKeys.goals.list(companyId) });
     },
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: () => goalsApi.remove(goalId!),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: queryKeys.goals.list(companyId) });
+      navigate(`/${companyPrefix}/goals`);
+    },
+  });
+
+  const [confirmDelete, setConfirmDelete] = React.useState(false);
 
   // Guards
   if (goalQuery.isLoading) return <LoadingState />;
@@ -426,18 +437,40 @@ export function FernwehGoalDetail() {
           paddingTop: 16,
           display: "flex",
           alignItems: "center",
-          justifyContent: "space-between",
+          gap: 12,
         }}
       >
         <span className="fw-mono" style={{ fontSize: 12, color: "var(--ink-faint)" }}>
           {goal.id}
         </span>
+        <div style={{ flex: 1 }} />
         <NavLink
           to={`/${companyPrefix}/goals/${goalId}`}
           style={{ fontSize: 13, color: "var(--ink-dim)", textDecoration: "none" }}
         >
           Classic view ↗
         </NavLink>
+        <button
+          onClick={() => {
+            if (confirmDelete) deleteMutation.mutate();
+            else setConfirmDelete(true);
+          }}
+          onMouseLeave={() => setConfirmDelete(false)}
+          disabled={deleteMutation.isPending}
+          style={{
+            fontSize: 12,
+            color: confirmDelete ? "var(--bg)" : "var(--danger)",
+            background: confirmDelete ? "var(--danger)" : "transparent",
+            border: "1px solid var(--danger)",
+            borderRadius: 6,
+            padding: "5px 12px",
+            cursor: deleteMutation.isPending ? "not-allowed" : "pointer",
+            opacity: deleteMutation.isPending ? 0.5 : 1,
+            transition: "all .15s var(--fw-ease)",
+          }}
+        >
+          {deleteMutation.isPending ? "Deleting…" : confirmDelete ? "Confirm delete?" : "Delete goal"}
+        </button>
       </div>
     </div>
   );

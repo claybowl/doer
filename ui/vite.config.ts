@@ -1,6 +1,6 @@
 import path from "path";
 import fs from "fs";
-import { defineConfig } from "vite";
+import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -30,6 +30,7 @@ export default defineConfig({
   },
   server: {
     port: 5173,
+    allowedHosts: ['hopeful-sawfish-gently.ngrok-free.app'],
     proxy: {
       "/api": {
         target: "http://localhost:3100",

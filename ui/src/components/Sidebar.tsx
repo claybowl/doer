@@ -14,6 +14,7 @@ import {
   Building2,
   Home,
   Trophy,
+  Users,
 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { SidebarSection } from "./SidebarSection";
@@ -83,6 +84,7 @@ export function Sidebar() {
             <span className="truncate">New Issue</span>
           </button>
           <SidebarNavItem to="/" label="Home" icon={Home} />
+          <SidebarNavItem to="/council" label="Council" icon={Users} />
           <SidebarNavItem to="/schrute-benchmark" label="Schrute Benchmark" icon={Trophy} />
           <SidebarNavItem to="/hq" label="HQ" icon={Building2} />
           <SidebarNavItem to="/dashboard" label="Dashboard" icon={LayoutDashboard} liveCount={liveRunCount} />

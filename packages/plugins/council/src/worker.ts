@@ -34,7 +34,20 @@ const plugin = definePlugin({
     ctx.data.register(DATA_KEYS.agents, async (params) => {
       const companyId = String(params.companyId ?? "");
       if (!companyId) return [];
-      return ctx.agents.list({ companyId, limit: 50, offset: 0 });
+      const agents = await ctx.agents.list({ companyId, limit: 50, offset: 0 });
+      // Map to the shape the UI expects: agentId, agentName, role as council role
+      const config = await store.getOrDefaultConfig(companyId);
+      const orchestratorIds = new Set(
+        Object.values(config.participants)
+          .flat()
+          .filter((p) => p.role === "orchestrator")
+          .map((p) => p.agentId),
+      );
+      return agents.map((a) => ({
+        agentId: a.id,
+        agentName: a.name,
+        role: orchestratorIds.has(a.id) ? "orchestrator" : "member",
+      }));
     });
 
     // ── ACTION HANDLERS ────────────────────────────────────────────────────
