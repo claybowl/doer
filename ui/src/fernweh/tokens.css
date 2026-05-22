@@ -158,6 +158,34 @@
   --font-body-active: var(--fw-font-sans);
 }
 
+/* ---------------- shadcn token bridge (scoped to fernweh root) ---------------- */
+/*
+  Tailwind utility classes like bg-muted, text-foreground, border-border resolve
+  through shadcn's CSS variables. Under [data-fernweh] we remap those vars to
+  Fernweh tokens so every shadcn component looks at home in any Fernweh look/theme.
+*/
+[data-fernweh] {
+  --background:           var(--bg);
+  --foreground:           var(--ink);
+  --card:                 var(--bg-raised);
+  --card-foreground:      var(--ink);
+  --popover:              var(--bg-raised);
+  --popover-foreground:   var(--ink);
+  --primary:              var(--accent);
+  --primary-foreground:   var(--bg);
+  --secondary:            var(--bg-sunken);
+  --secondary-foreground: var(--ink-dim);
+  --muted:                var(--bg-sunken);
+  --muted-foreground:     var(--ink-faint);
+  --accent:               var(--accent-soft);
+  --accent-foreground:    var(--ink);
+  --destructive:          var(--danger);
+  --destructive-foreground: var(--bg);
+  --border:               var(--line);
+  --input:                var(--line);
+  --ring:                 var(--accent);
+}
+
 /* ---------------- Base (scoped to fernweh root) ---------------- */
 [data-fernweh] {
   background: var(--bg);
