@@ -585,6 +585,44 @@ export function agentRoutes(db: Db) {
       };
     }
 
+    // Auto-import user-installed skills that are requested but not yet in the company library.
+    // The UI sends raw directory-name keys (e.g., "client-intake") for user-installed skills;
+    // we find each one's targetPath via the adapter snapshot and import it so the slug-based
+    // resolver can assign it a canonical library key on the next step.
+    const librarySkills = await companySkills.listFull(companyId);
+    const libraryKeys = new Set(librarySkills.map((s) => s.key));
+    const unknownKeys = requestedDesiredSkills.filter((key) => !libraryKeys.has(key));
+    if (unknownKeys.length > 0) {
+      const adapter = findServerAdapter(adapterType);
+      if (adapter?.listSkills) {
+        try {
+          const { config: runtimeConfig } = await secretsSvc.resolveAdapterConfigForRuntime(
+            companyId,
+            adapterConfig,
+          );
+          const snapshot = await adapter.listSkills({
+            agentId: "",
+            companyId,
+            adapterType,
+            config: runtimeConfig,
+          });
+          const userInstalledByKey = new Map(
+            snapshot.entries
+              .filter((e) => e.origin === "user_installed" && e.targetPath)
+              .map((e) => [e.key, e.targetPath as string]),
+          );
+          for (const key of unknownKeys) {
+            const targetPath = userInstalledByKey.get(key);
+            if (targetPath) {
+              await companySkills.importFromSource(companyId, targetPath).catch(() => {});
+            }
+          }
+        } catch {
+          // Fall through — resolveRequestedSkillKeys will surface any still-missing keys.
+        }
+      }
+    }
+
     const resolvedRequestedSkills = await companySkills.resolveRequestedSkillKeys(
       companyId,
       requestedDesiredSkills,

@@ -750,6 +750,15 @@ export async function runChildProcess(
       delete rawMerged[key];
     }
 
+    // Strip empty-string ANTHROPIC_API_KEY — an empty value here means the
+    // shell environment leaked a placeholder (e.g. Claude for Desktop injects
+    // ANTHROPIC_API_KEY="" into every subprocess). An empty key causes the
+    // Claude CLI to attempt failed API-key auth instead of falling back to
+    // subscription/login auth.
+    if (typeof rawMerged.ANTHROPIC_API_KEY === "string" && rawMerged.ANTHROPIC_API_KEY.trim().length === 0) {
+      delete rawMerged.ANTHROPIC_API_KEY;
+    }
+
     const mergedEnv = ensurePathInEnv(rawMerged);
     void resolveSpawnTarget(command, args, opts.cwd, mergedEnv)
       .then((target) => {
