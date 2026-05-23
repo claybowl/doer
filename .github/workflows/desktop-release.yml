@@ -42,6 +42,8 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
+    permissions:
+      contents: write
 
     steps:
       - name: Checkout
@@ -114,3 +116,28 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
           overwrite: true
+
+      # Mirror real-release installers to a GitHub Release so there's a
+      # human-friendly download page. R2 stays the source of truth for
+      # auto-update; this is purely for discoverability.
+      - name: Read desktop version
+        if: ${{ !inputs.dry_run }}
+        id: ver
+        shell: bash
+        run: echo "value=$(node -p "require('./desktop/package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Publish GitHub Release
+        if: ${{ !inputs.dry_run }}
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ steps.ver.outputs.value }}
+          name: Doer v${{ steps.ver.outputs.value }}
+          draft: false
+          prerelease: true
+          generate_release_notes: true
+          fail_on_unmatched_files: false
+          files: |
+            desktop/out/make/**/*.exe
+            desktop/out/make/zip/darwin/**/*.zip
+            desktop/out/make/squirrel.windows/**/*.nupkg
+            desktop/out/make/squirrel.windows/**/RELEASES
