@@ -21,10 +21,8 @@ import {
   type HeartbeatAmp,
 } from "./utils";
 import type { Agent } from "@doerai/shared";
-import type { LiveRunForIssue } from "@/api/heartbeats";
 import { OutputsSection } from "./OutputsSection";
-import { useLiveRunTranscripts } from "@/components/transcript/useLiveRunTranscripts";
-import type { TranscriptEntry } from "@/adapters";
+import { ActiveAgentsPanel } from "@/components/ActiveAgentsPanel";
 
 function Section({
   title,
@@ -147,118 +145,11 @@ function QuickAction({
   );
 }
 
-function formatDurationShort(start: Date | string | null): string {
-  if (!start) return "";
-  const ms = Date.now() - new Date(start).getTime();
-  if (ms < 0) return "";
-  const secs = Math.floor(ms / 1000);
-  if (secs < 60) return `${secs}s`;
-  const mins = Math.floor(secs / 60);
-  const rem = secs % 60;
-  return `${mins}m ${rem}s`;
-}
-
-// Extract a human task name from run trigger detail or fallback to source
-function workingOnLabel(run: LiveRunForIssue): string {
-  if (run.triggerDetail) {
-    // Clean up common trigger detail patterns
-    const cleaned = run.triggerDetail
-      .replace(/^issue-[a-f0-9-]+$/i, "Working on task")
-      .replace(/^heartbeat-\S+/, "Scheduled heartbeat")
-      .replace(/^routine-\S+/, "Routine run")
-      .replace(/_/g, " ");
-    if (cleaned.length > 3) return cleaned;
-  }
-  const source = run.invocationSource?.replace(/_/g, " ");
-  if (source === "timer") return "Scheduled heartbeat";
-  if (source === "assignment") return "Assigned task";
-  if (source === "on demand") return "Manual run";
-  if (source === "webhook") return "Webhook triggered";
-  if (source === "routine") return "Routine";
-  return source ?? "Working";
-}
 function pulseStatus(agent: Agent): FwStatus {
   if (agent.status === "running" || agent.status === "active") return "running";
   if (agent.status === "paused" || agent.status === "terminated" || agent.status === "pending_approval") return "paused";
   if (agent.status === "error") return "error";
   return "idle";
-}
-
-// Simple, client-friendly status line for a running agent card.
-// Shows exactly one thing: what the agent is doing right now, and for how long.
-function AgentStatusFeed({
-  run,
-  entries,
-}: {
-  run: LiveRunForIssue;
-  entries: TranscriptEntry[];
-}) {
-  // Find the most recent assistant or thinking message
-  const latest = React.useMemo(() => {
-    for (let i = entries.length - 1; i >= 0; i--) {
-      const e = entries[i];
-      if (e.kind === "assistant" || e.kind === "thinking") {
-        const text = e.text.trim();
-        if (text.length > 3) return text;
-      }
-    }
-    return null;
-  }, [entries]);
-
-  const workingOn = workingOnLabel(run);
-  const runningFor = formatDurationShort(run.startedAt);
-
-  return (
-    <div style={{ flex: 1, minHeight: 0, display: "flex", flexDirection: "column", gap: 10, overflow: "hidden" }}>
-      {/* What the agent is working on */}
-      <div style={{ display: "flex", flexDirection: "column", gap: 3 }}>
-        <span style={{ fontSize: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--ink-faint)" }}>
-          Working on
-        </span>
-        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)", lineHeight: 1.5 }}>
-          {workingOn}
-        </span>
-      </div>
-
-      {/* How long it's been running */}
-      {runningFor && (
-        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-          <span style={{
-            width: 6, height: 6, borderRadius: "50%",
-            background: "var(--pulse)",
-            animation: "fw-pulse 1.6s ease-in-out infinite",
-          }} />
-          <span style={{ fontSize: 12, color: "var(--ink-dim)" }}>
-            Running for {runningFor}
-          </span>
-        </div>
-      )}
-
-      {/* Latest thought / message — just one line, client-readable */}
-      {latest && (
-        <div style={{
-          marginTop: "auto",
-          padding: "10px 12px",
-          borderRadius: 8,
-          background: "color-mix(in oklab, var(--accent) 6%, var(--bg-raised))",
-          border: "1px solid color-mix(in oklab, var(--accent) 15%, var(--line))",
-        }}>
-          <p style={{
-            margin: 0,
-            fontSize: 12,
-            lineHeight: 1.55,
-            color: "var(--ink)",
-            display: "-webkit-box",
-            WebkitLineClamp: 3,
-            WebkitBoxOrient: "vertical",
-            overflow: "hidden",
-          }}>
-            {latest.length > 200 ? latest.slice(0, 197) + "…" : latest}
-          </p>
-        </div>
-      )}
-    </div>
-  );
 }
 
 export function FernwehDashboard() {
@@ -310,11 +201,6 @@ export function FernwehDashboard() {
   const liveRuns = liveRunsQuery.data ?? [];
   const recentRuns = recentRunsQuery.data ?? [];
   const recentIssues = recentIssuesQuery.data ?? [];
-
-  const { transcriptByRun, hasOutputForRun } = useLiveRunTranscripts({
-    runs: liveRuns,
-    companyId: companyId ?? null,
-  });
 
   const agentNameById = React.useMemo(() => {
     const m = new Map<string, string>();
@@ -405,132 +291,8 @@ export function FernwehDashboard() {
         </div>
       </header>
 
-      {/* Live session viewports — main event, top of page */}
-      <section style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-        <header style={{ display: "flex", alignItems: "baseline", gap: 12 }}>
-          <h2 className="fw-display" style={{ fontSize: 18, fontWeight: 600, margin: 0 }}>
-            Live
-          </h2>
-          {liveRuns.length > 0 ? (
-            <span className="fw-chip pulse" style={{ fontSize: 10 }}>
-              <span className="fw-dot pulsing" /> {liveRuns.length} session{liveRuns.length !== 1 ? "s" : ""}
-            </span>
-          ) : (
-            <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>idle</span>
-          )}
-        </header>
-        {liveRuns.length === 0 ? (
-          <div
-            className="fw-card"
-            style={{
-              padding: "40px 28px",
-              display: "flex",
-              flexDirection: "column",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 12,
-              minHeight: 180,
-              borderStyle: "dashed",
-              color: "var(--ink-faint)",
-            }}
-          >
-            <StatusDot status="idle" />
-            <span style={{ fontSize: 13 }}>No agents running right now.</span>
-            <NavLink
-              to={`/${prefix}/agents`}
-              style={{ fontSize: 12, color: "var(--accent)", textDecoration: "none" }}
-            >
-              Wake an agent →
-            </NavLink>
-          </div>
-        ) : (
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: `repeat(auto-fill, minmax(${liveRuns.length === 1 ? "100%" : liveRuns.length <= 2 ? "360px" : "300px"}, 1fr))`,
-              gap: 14,
-            }}
-          >
-            {liveRuns.map((run) => {
-              const transcript = transcriptByRun.get(run.id) ?? [];
-              const hasOutput = hasOutputForRun(run.id);
-              const cardHeight = liveRuns.length <= 2 ? 320 : liveRuns.length <= 4 ? 260 : 220;
-              return (
-                <NavLink
-                  key={run.id}
-                  to={`/${prefix}/agents/${run.agentId}`}
-                  style={{ textDecoration: "none", color: "inherit" }}
-                >
-                  <div
-                    className="fw-card"
-                    style={{
-                      padding: "20px 22px",
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: 12,
-                      height: cardHeight,
-                      transition: "height .4s var(--fw-ease)",
-                      cursor: "pointer",
-                      overflow: "hidden",
-                      borderColor: "color-mix(in oklab, var(--accent) 30%, var(--line))",
-                      background: "color-mix(in oklab, var(--accent) 3%, var(--bg-raised))",
-                    }}
-                  >
-                    {/* Agent identity */}
-                    <div style={{ display: "flex", alignItems: "center", gap: 12, flexShrink: 0 }}>
-                      <div style={{ position: "relative" }}>
-                        <Avatar name={run.agentName} size={42} />
-                        <span
-                          style={{
-                            position: "absolute",
-                            bottom: -2,
-                            right: -2,
-                            width: 10,
-                            height: 10,
-                            borderRadius: 999,
-                            background: "var(--pulse)",
-                            border: "2px solid var(--bg-raised)",
-                            animation: "fw-pulse 1.6s var(--fw-ease) infinite",
-                          }}
-                        />
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <div style={{ fontSize: 15, fontWeight: 600, color: "var(--ink)" }}>
-                          {run.agentName}
-                        </div>
-                        <div style={{ fontSize: 11, color: "var(--ink-dim)", marginTop: 2 }}>
-                          {workingOnLabel(run)}
-                        </div>
-                      </div>
-                      <span className="fw-chip pulse" style={{ fontSize: 10, flexShrink: 0 }}>
-                        <span className="fw-dot pulsing" /> {run.status}
-                      </span>
-                    </div>
-
-                    {/* Status feed */}
-                    <AgentStatusFeed run={run} entries={transcript} />
-
-                    {/* Meta */}
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "space-between",
-                        fontSize: 11,
-                        color: "var(--ink-faint)",
-                        flexShrink: 0,
-                      }}
-                    >
-                      <span>{run.adapterType.replace(/_/g, " ")}</span>
-                      <span>{run.startedAt ? formatRelative(run.startedAt) : "just started"}</span>
-                    </div>
-                  </div>
-                </NavLink>
-              );
-            })}
-          </div>
-        )}
-      </section>
+      {/* Agent grid — new card design with filter pills and transcript modal */}
+      <ActiveAgentsPanel companyId={companyId!} />
 
       {/* Stat grid */}
       <div

@@ -2497,10 +2497,32 @@ function AgentSkillsTab({
       queryClient.setQueryData(queryKeys.agents.skills(agent.id), snapshot);
       lastSavedSkillsRef.current = snapshot.desiredSkills;
       setLastSavedSkills(snapshot.desiredSkills);
+      // Reset draft to canonical keys returned by the server. This matters when user-installed
+      // skills (keyed by directory name) get auto-imported and assigned a canonical library key —
+      // without this, the draft keeps the raw directory key and triggers an infinite sync loop.
+      setSkillDraft(snapshot.desiredSkills);
+      skipNextSkillAutosaveRef.current = true;
       await Promise.all([
         queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(agent.id) }),
         queryClient.invalidateQueries({ queryKey: queryKeys.agents.detail(agent.urlKey) }),
+        queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(companyId ?? "") }),
       ]);
+    },
+  });
+
+  const enableSkill = useMutation({
+    mutationFn: async (sourcePath: string) => {
+      const result = await companySkillsApi.importFromSource(companyId!, sourcePath);
+      const importedKey = result.imported[0]?.key;
+      if (!importedKey) throw new Error("No skill was imported.");
+      const next = Array.from(new Set([...skillDraft, importedKey]));
+      return agentsApi.syncSkills(agent.id, next, companyId);
+    },
+    onSuccess: async (snapshot) => {
+      queryClient.setQueryData(queryKeys.agents.skills(agent.id), snapshot);
+      lastSavedSkillsRef.current = snapshot.desiredSkills;
+      setLastSavedSkills(snapshot.desiredSkills);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.companySkills.list(companyId ?? "") });
     },
   });
 
@@ -2555,6 +2577,12 @@ function AgentSkillsTab({
     () => new Set((companySkills ?? []).map((skill) => skill.key)),
     [companySkills],
   );
+  // Used to dedup user-installed skill dots that have already been imported to the company library.
+  // importFromSource stores the local path as sourceLocator; entry.targetPath is the same resolved path.
+  const companySkillSourceLocators = useMemo(
+    () => new Set((companySkills ?? []).filter((s) => s.sourceLocator).map((s) => s.sourceLocator!)),
+    [companySkills],
+  );
   const adapterEntryByKey = useMemo(
     () => new Map((skillSnapshot?.entries ?? []).map((entry) => [entry.key, entry])),
     [skillSnapshot],
@@ -2601,7 +2629,12 @@ function AgentSkillsTab({
   const unmanagedSkillRows = useMemo<SkillRow[]>(
     () =>
       (skillSnapshot?.entries ?? [])
-        .filter((entry) => isReadOnlyUnmanagedSkillEntry(entry, companySkillKeys))
+        .filter((entry) => {
+          if (!isReadOnlyUnmanagedSkillEntry(entry, companySkillKeys)) return false;
+          // Skip entries already imported to the company library (matched by local path).
+          if (entry.targetPath && companySkillSourceLocators.has(entry.targetPath)) return false;
+          return true;
+        })
         .map((entry) => ({
           id: `external:${entry.key}`,
           key: entry.key,
@@ -2611,10 +2644,10 @@ function AgentSkillsTab({
           locationLabel: entry.locationLabel ?? null,
           originLabel: entry.originLabel ?? null,
           linkTo: null,
-          readOnly: true,
+          readOnly: false,
           adapterEntry: entry,
         })),
-    [companySkillKeys, skillSnapshot],
+    [companySkillKeys, companySkillSourceLocators, skillSnapshot],
   );
   const desiredOnlyMissingSkills = useMemo(
     () => skillDraft.filter((key) => !companySkillByKey.has(key)),
@@ -2722,10 +2755,21 @@ function AgentSkillsTab({
               );
 
               if (skill.readOnly) {
+                const sourcePath = skill.adapterEntry?.targetPath;
                 return (
                   <div key={skill.id} className={rowClassName}>
-                    <span className="mt-1 h-2 w-2 rounded-full bg-muted-foreground/40" />
+                    <span className="mt-1 h-2 w-2 shrink-0 rounded-full bg-muted-foreground/40" />
                     {body}
+                    {sourcePath && companyId ? (
+                      <button
+                        type="button"
+                        onClick={() => enableSkill.mutate(sourcePath)}
+                        disabled={enableSkill.isPending}
+                        className="shrink-0 rounded px-2 py-0.5 text-xs text-muted-foreground ring-1 ring-border hover:bg-accent/50 hover:text-foreground disabled:opacity-50"
+                      >
+                        {enableSkill.isPending ? "Enabling…" : "Enable"}
+                      </button>
+                    ) : null}
                   </div>
                 );
               }
@@ -2785,6 +2829,23 @@ function AgentSkillsTab({
 
             return (
               <>
+                {optionalSkillRows.length === 0 && unmanagedSkillRows.length === 0 && (
+                  <section className="border-y border-border">
+                    <div className="px-3 py-4 text-sm text-muted-foreground">
+                      No optional skills yet.{" "}
+                      <Link
+                        to="/skills"
+                        className="underline underline-offset-2 hover:text-foreground"
+                      >
+                        Import skills into the company library
+                      </Link>{" "}
+                      to make them available here, or visit a{" "}
+                      <span className="font-medium">Claude Local</span> agent to enable
+                      skills from your <code className="text-xs">~/.claude/skills/</code> directory.
+                    </div>
+                  </section>
+                )}
+
                 {optionalSkillRows.length > 0 && (
                   <section className="border-y border-border">
                     {optionalSkillRows.map(renderSkillRow)}
@@ -2844,6 +2905,11 @@ function AgentSkillsTab({
             {syncSkills.isError && (
               <p className="mt-3 text-xs text-destructive">
                 {syncSkills.error instanceof Error ? syncSkills.error.message : "Failed to update skills"}
+              </p>
+            )}
+            {enableSkill.isError && (
+              <p className="mt-3 text-xs text-destructive">
+                {enableSkill.error instanceof Error ? enableSkill.error.message : "Failed to enable skill"}
               </p>
             )}
           </section>
@@ -3098,6 +3164,17 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
       queryClient.invalidateQueries({ queryKey: queryKeys.runIssues(run.id) });
     },
   });
+
+  // Parse stdoutExcerpt through the adapter when no structured log is available.
+  const stdoutExcerptTranscript = useMemo(() => {
+    if (!run.stdoutExcerpt || run.logRef) return null;
+    const adapter = getUIAdapter(adapterType);
+    const chunks: RunLogChunk[] = run.stdoutExcerpt
+      .split("\n")
+      .filter(Boolean)
+      .map((line) => ({ ts: new Date(run.createdAt).toISOString(), stream: "stdout" as const, chunk: line }));
+    return buildTranscript(chunks, adapter.parseStdoutLine);
+  }, [run.stdoutExcerpt, run.logRef, run.createdAt, adapterType]);
 
   const runClaudeLogin = useMutation({
     mutationFn: () => agentsApi.loginWithClaude(run.agentId, run.companyId),
@@ -3381,11 +3458,11 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
         </div>
       )}
 
-      {/* stdout excerpt when no log is available */}
-      {run.stdoutExcerpt && !run.logRef && (
-        <div className="space-y-1">
+      {/* stdout excerpt when no log is available — rendered through transcript view */}
+      {stdoutExcerptTranscript && stdoutExcerptTranscript.length > 0 && (
+        <div className="space-y-2">
           <span className="text-xs font-medium text-muted-foreground">stdout</span>
-          <pre className="bg-neutral-100 dark:bg-neutral-950 rounded-md p-3 text-xs font-mono text-foreground overflow-x-auto whitespace-pre-wrap">{run.stdoutExcerpt}</pre>
+          <RunTranscriptView entries={stdoutExcerptTranscript} />
         </div>
       )}
 

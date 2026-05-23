@@ -104,11 +104,16 @@ export function goalService(db: Db) {
         .returning()
         .then((rows) => rows[0] ?? null),
 
-    remove: (id: string) =>
-      db
-        .delete(goals)
-        .where(eq(goals.id, id))
-        .returning()
-        .then((rows) => rows[0] ?? null),
+    remove: async (id: string) => {
+      return db.transaction(async (tx) => {
+        // Nullify child goals so they become root goals rather than orphaning with a broken FK
+        await tx.update(goals).set({ parentId: null }).where(eq(goals.parentId, id));
+        // Nullify issues that reference this goal
+        await tx.update(issues).set({ goalId: null }).where(eq(issues.goalId, id));
+        // Now safe to delete
+        const rows = await tx.delete(goals).where(eq(goals.id, id)).returning();
+        return rows[0] ?? null;
+      });
+    },
   };
 }

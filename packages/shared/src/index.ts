@@ -653,3 +653,19 @@ export {
   listWebhookDeliveriesSchema,
   type ListWebhookDeliveries,
 } from "./validators/webhook.js";
+
+export type {
+  SessionTypeId,
+  SessionStatus,
+  InvocationMode,
+  ResolutionMode,
+  CouncilAgentRole,
+  IssueProposal,
+  AgentAddress,
+  SessionDecision,
+  CouncilParticipant,
+  CouncilAgendaConfig,
+  CouncilConfig,
+  CouncilSession,
+  CouncilSessionContext,
+} from "./council.js";

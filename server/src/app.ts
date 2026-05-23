@@ -45,6 +45,7 @@ import { runRoutes } from "./routes/runs.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
+import { installBundledPlugins } from "./services/bundled-plugin-installer.js";
 import { createPluginWorkerManager } from "./services/plugin-worker-manager.js";
 import { createPluginJobScheduler } from "./services/plugin-job-scheduler.js";
 import { pluginJobStore } from "./services/plugin-job-store.js";
@@ -319,6 +320,12 @@ export async function createApp(
       async (pluginId) => (await pluginRegistry.getById(pluginId))?.packagePath ?? null,
     )
     : null;
+  // Auto-install plugins that were bundled into the Electron app binary.
+  // No-op in dev (bundled-plugins dir doesn't exist there).
+  void installBundledPlugins(loader).catch((err) => {
+    logger.error({ err }, "Failed to install bundled plugins");
+  });
+
   void loader.loadAll().then((result) => {
     if (!result) return;
     for (const loaded of result.results) {

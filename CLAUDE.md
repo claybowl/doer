@@ -36,7 +36,7 @@ All commands run from repo root:
 
 ```sh
 pnpm install
-pnpm dev              # API + UI at http://localhost:3101 (watch mode) — Clay's port
+pnpm dev              # API + UI at http://localhost:3101 (watch mode). Port 3100 is the Electron desktop app.
 pnpm dev:once         # single boot, no file watching
 pnpm dev:server       # server only
 pnpm dev:ui           # UI only

@@ -3,6 +3,11 @@ import { NavLink, Outlet, useLocation, useNavigate, useParams } from "@/lib/rout
 import { useCompany } from "@/context/CompanyContext";
 import { useDialog } from "@/context/DialogContext";
 import { ToastViewport } from "@/components/ToastViewport";
+import { NewIssueDialog } from "@/components/NewIssueDialog";
+import { NewProjectDialog } from "@/components/NewProjectDialog";
+import { NewGoalDialog } from "@/components/NewGoalDialog";
+import { NewRoutineDialog } from "@/components/NewRoutineDialog";
+import { NewAgentDialog } from "@/components/NewAgentDialog";
 import { Icon, I } from "./utils";
 import "./tokens.css";
 
@@ -94,8 +99,9 @@ function buildNav(prefix: string): NavSection[] {
     {
       id: "tools",
       label: "Tools",
-      defaultOpen: false,
+      defaultOpen: true,
       items: [
+        { to: `/${prefix}/council`, label: "Council", icon: I.agents },
         { to: `/${prefix}/wiki`, label: "Wiki & Graph", icon: I.brain },
         { to: `/${prefix}/benchmark`, label: "Schrute Bench", icon: I.shield },
         { to: `/${prefix}/design-guide`, label: "Design Guide", icon: I.sliders },
@@ -175,7 +181,17 @@ export function FernwehShell() {
   const prefix = companyPrefix ?? selectedCompany?.issuePrefix ?? companies[0]?.issuePrefix ?? "";
   const navSections = buildNav(prefix);
 
-  const company = selectedCompany ?? companies.find((c) => c.issuePrefix === prefix) ?? companies[0] ?? null;
+  // URL prefix is canonical — `selectedCompany` is only a fallback for routes without a prefix.
+  // Without this precedence, navigating to /LAW/... while CompanyContext holds DEM silently
+  // routes all API calls (skill create, etc.) to the wrong company. See FernwehShell bug fix.
+  const company = companies.find((c) => c.issuePrefix === prefix) ?? selectedCompany ?? companies[0] ?? null;
+
+  // Keep CompanyContext in sync with the URL so downstream useCompany() consumers stay consistent.
+  React.useEffect(() => {
+    if (company && company.id !== selectedCompany?.id) {
+      setSelectedCompanyId(company.id);
+    }
+  }, [company, selectedCompany?.id, setSelectedCompanyId]);
 
   const fallbackBg = theme === "dark" ? "#121418" : "#fafafa";
   const fallbackInk = theme === "dark" ? "#e8e8ec" : "#1b1c20";
@@ -183,6 +199,7 @@ export function FernwehShell() {
   const fallbackLine = theme === "dark" ? "#2a2d33" : "#e4e4e7";
 
   return (
+    <>
     <div
       data-fernweh
       data-look={look}
@@ -620,5 +637,11 @@ export function FernwehShell() {
         </div>
       </div>
     </div>
+    <NewIssueDialog />
+    <NewProjectDialog />
+    <NewGoalDialog />
+    <NewRoutineDialog />
+    <NewAgentDialog />
+    </>
   );
 }

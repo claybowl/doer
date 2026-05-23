@@ -57,7 +57,8 @@ curl -sS "$DOER_API_URL/llms/agent-icons.txt" \
 ```
 
 6. Draft the new hire config:
-- role/title/name
+- role (hard-validated enum: `ceo, cto, cmo, cfo, engineer, designer, pm, qa, devops, researcher, general` — no `operations`/`sales`/`marketing`/`legal`, use `general` as the escape hatch)
+- title/name
 - icon (required in practice; use one from `/llms/agent-icons.txt`)
 - reporting line (`reportsTo`)
 - adapter type

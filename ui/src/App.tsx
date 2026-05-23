@@ -71,6 +71,7 @@ import { FernwehGoalDetail } from "./fernweh/FernwehGoalDetail";
 import { FernwehRoutineDetail } from "./fernweh/FernwehRoutineDetail";
 import { FernwehSchruteBenchmark } from "./fernweh/FernwehSchruteBenchmark";
 import { FernwehWikiGraph } from "./fernweh/FernwehWikiGraph";
+import { FernwehCouncil } from "./fernweh/FernwehCouncil";
 import { FernwehProjects } from "./fernweh/FernwehProjects";
 import { FernwehAgentDetail } from "./fernweh/FernwehAgentDetail";
 import { FernwehNewAgent } from "./fernweh/FernwehNewAgent";
@@ -450,6 +451,7 @@ export function App() {
             <Route path="preferences" element={<FernwehPreferences />} />
             <Route path="instance" element={<FernwehInstanceSettings />} />
             <Route path="workspaces/:workspaceId" element={<FernwehExecutionWorkspaceDetail />} />
+            <Route path="council" element={<FernwehCouncil />} />
             <Route path="benchmark" element={<FernwehSchruteBenchmark />} />
             <Route path="wiki" element={<FernwehWikiGraph />} />
             <Route path="design-guide" element={<FernwehDesignGuide />} />
