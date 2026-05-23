@@ -32,10 +32,12 @@ const mockSecretService = vi.hoisted(() => ({
 }));
 
 const mockLogActivity = vi.hoisted(() => vi.fn());
+const mockAgentWorkspaceService = vi.hoisted(() => ({ ensure: vi.fn(), inspect: vi.fn() }));
 
 vi.mock("../services/index.js", () => ({
   agentService: () => mockAgentService,
   agentInstructionsService: () => mockAgentInstructionsService,
+  agentWorkspaceService: () => mockAgentWorkspaceService,
   accessService: () => mockAccessService,
   approvalService: () => ({}),
   companySkillService: () => ({ listRuntimeSkillEntries: vi.fn() }),

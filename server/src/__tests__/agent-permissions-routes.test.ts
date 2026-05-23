@@ -84,11 +84,13 @@ const mockCompanySkillService = vi.hoisted(() => ({
   resolveRequestedSkillKeys: vi.fn(),
 }));
 const mockWorkspaceOperationService = vi.hoisted(() => ({}));
+const mockAgentWorkspaceService = vi.hoisted(() => ({ ensure: vi.fn(), inspect: vi.fn() }));
 const mockLogActivity = vi.hoisted(() => vi.fn());
 
 vi.mock("../services/index.js", () => ({
   agentService: () => mockAgentService,
   agentInstructionsService: () => mockAgentInstructionsService,
+  agentWorkspaceService: () => mockAgentWorkspaceService,
   accessService: () => mockAccessService,
   approvalService: () => mockApprovalService,
   companySkillService: () => mockCompanySkillService,
