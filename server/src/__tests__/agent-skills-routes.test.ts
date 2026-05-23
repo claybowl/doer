@@ -29,6 +29,9 @@ const mockIssueApprovalService = vi.hoisted(() => ({
   linkManyForApproval: vi.fn(),
 }));
 const mockWorkspaceOperationService = vi.hoisted(() => ({}));
+const mockAgentWorkspaceService = vi.hoisted(() => ({ ensure: vi.fn(), inspect: vi.fn() }));
+const mockInstanceSettingsService = vi.hoisted(() => ({}));
+const mockPlanEnforcementService = vi.hoisted(() => ({ assertCanCreateAgent: vi.fn() }));
 const mockAgentInstructionsService = vi.hoisted(() => ({
   getBundle: vi.fn(),
   readFile: vi.fn(),
@@ -43,6 +46,7 @@ const mockAgentInstructionsService = vi.hoisted(() => ({
 const mockCompanySkillService = vi.hoisted(() => ({
   listRuntimeSkillEntries: vi.fn(),
   resolveRequestedSkillKeys: vi.fn(),
+  listFull: vi.fn().mockResolvedValue([]),
 }));
 
 const mockSecretService = vi.hoisted(() => ({
@@ -71,6 +75,9 @@ vi.mock("../services/index.js", () => ({
   secretService: () => mockSecretService,
   syncInstructionsBundleConfigFromFilePath: vi.fn((_agent, config) => config),
   workspaceOperationService: () => mockWorkspaceOperationService,
+  agentWorkspaceService: () => mockAgentWorkspaceService,
+  instanceSettingsService: () => mockInstanceSettingsService,
+  planEnforcementService: () => mockPlanEnforcementService,
 }));
 
 vi.mock("../adapters/index.js", () => ({

@@ -36,7 +36,7 @@ All commands run from repo root:
 
 ```sh
 pnpm install
-pnpm dev              # API + UI at http://localhost:3100 (watch mode). Port 3101 is the Electron desktop app.
+pnpm dev              # API + UI at http://localhost:3101 (watch mode). Port 3100 is the Electron desktop app.
 pnpm dev:once         # single boot, no file watching
 pnpm dev:server       # server only
 pnpm dev:ui           # UI only
@@ -62,8 +62,8 @@ pnpm vitest run path/to/test.ts
 
 Health check after start:
 ```sh
-curl http://localhost:3100/api/health
-curl http://localhost:3100/api/companies
+curl http://localhost:3101/api/health
+curl http://localhost:3101/api/companies
 ```
 
 ---

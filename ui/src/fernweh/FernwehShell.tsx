@@ -3,6 +3,11 @@ import { NavLink, Outlet, useLocation, useNavigate, useParams } from "@/lib/rout
 import { useCompany } from "@/context/CompanyContext";
 import { useDialog } from "@/context/DialogContext";
 import { ToastViewport } from "@/components/ToastViewport";
+import { NewIssueDialog } from "@/components/NewIssueDialog";
+import { NewProjectDialog } from "@/components/NewProjectDialog";
+import { NewGoalDialog } from "@/components/NewGoalDialog";
+import { NewRoutineDialog } from "@/components/NewRoutineDialog";
+import { NewAgentDialog } from "@/components/NewAgentDialog";
 import { Icon, I } from "./utils";
 import "./tokens.css";
 
@@ -194,6 +199,7 @@ export function FernwehShell() {
   const fallbackLine = theme === "dark" ? "#2a2d33" : "#e4e4e7";
 
   return (
+    <>
     <div
       data-fernweh
       data-look={look}
@@ -631,5 +637,11 @@ export function FernwehShell() {
         </div>
       </div>
     </div>
+    <NewIssueDialog />
+    <NewProjectDialog />
+    <NewGoalDialog />
+    <NewRoutineDialog />
+    <NewAgentDialog />
+    </>
   );
 }
