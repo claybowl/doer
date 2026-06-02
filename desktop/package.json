@@ -28,6 +28,7 @@
 		"@electron-forge/publisher-s3": "^7.11.1",
 		"@electron-forge/shared-types": "^7.11.1",
 		"@electron/fuses": "^2.1.1",
+		"@reforged/maker-appimage": "^5.2.0",
 		"@types/react": "^19.0.0",
 		"@types/react-dom": "^19.0.0",
 		"@vitejs/plugin-react": "^6.0.1",

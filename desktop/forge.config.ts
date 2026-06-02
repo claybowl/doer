@@ -5,6 +5,7 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherS3 } from "@electron-forge/publisher-s3";
 import type { ForgeConfig } from "@electron-forge/shared-types";
+import MakerAppImage from "@reforged/maker-appimage";
 
 const config: ForgeConfig = {
 	packagerConfig: {
@@ -34,6 +35,13 @@ const config: ForgeConfig = {
 			description: "Doer — control plane for AI-agent companies",
 		}),
 		new MakerZIP({}, ["darwin"]),
+		// AppImage = a single self-contained ELF binary that runs across distros
+		// (chmod +x && run, no install). Only buildable on Linux (uses system
+		// mksquashfs), so this maker is a no-op on Mac/Windows hosts.
+		// bin must match the packaged executable name (packagerConfig.name="Doer").
+		new MakerAppImage({ options: { bin: "Doer", categories: ["Development", "Utility"] } }, [
+			"linux",
+		]),
 	],
 	publishers: [
 		// Publishes to Cloudflare R2 (S3-compatible API). Requires:

@@ -39,6 +39,9 @@ jobs:
           - os: windows-latest
             platform: win32
             arch: x64
+          - os: ubuntu-latest
+            platform: linux
+            arch: x64
 
     runs-on: ${{ matrix.os }}
     timeout-minutes: 90
@@ -50,6 +53,12 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+
+      # AppImage maker (@reforged/maker-appimage) shells out to the system
+      # mksquashfs binary to build the SquashFS payload.
+      - name: Install AppImage build deps (Linux only)
+        if: ${{ matrix.platform == 'linux' }}
+        run: sudo apt-get update && sudo apt-get install -y squashfs-tools
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
@@ -113,6 +122,7 @@ jobs:
             desktop/out/make/**/*.exe
             desktop/out/make/**/*.zip
             desktop/out/make/**/*.nupkg
+            desktop/out/make/**/*.AppImage
           if-no-files-found: warn
           retention-days: 3
           overwrite: true
@@ -141,3 +151,4 @@ jobs:
             desktop/out/make/zip/darwin/**/*.zip
             desktop/out/make/squirrel.windows/**/*.nupkg
             desktop/out/make/squirrel.windows/**/RELEASES
+            desktop/out/make/AppImage/**/*.AppImage

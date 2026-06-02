@@ -1,0 +1,32 @@
+schema: doer/v1
+agents:
+  content-director:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  legal-writer:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  outreach-writer:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  case-study-agent:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  seo-specialist:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6
+  qa-editor:
+    adapter:
+      type: claude_local
+      config:
+        model: claude-sonnet-4-6

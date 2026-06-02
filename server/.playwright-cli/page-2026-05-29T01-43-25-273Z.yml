@@ -1,0 +1,38 @@
+- generic [ref=e41]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e711]:
+    - generic [ref=e712]:
+      - img [ref=e714]
+      - heading "Welcome to K8" [level=1] [ref=e716]
+      - paragraph [ref=e717]: Your AI-powered communication companion
+    - generic [ref=e719]:
+      - button "Continue with Google" [ref=e720] [cursor=pointer]:
+        - img
+        - text: Continue with Google
+      - generic [ref=e725]: Or with email
+      - generic [ref=e726]:
+        - tablist [ref=e727]:
+          - tab "Sign In" [ref=e728] [cursor=pointer]
+          - tab "Sign Up" [active] [selected] [ref=e729] [cursor=pointer]
+        - tabpanel "Sign Up" [ref=e741]:
+          - generic [ref=e742]:
+            - generic [ref=e743]:
+              - text: K8 Name
+              - textbox "K8 Name" [ref=e744]:
+                - /placeholder: e.g. Clay
+              - paragraph [ref=e745]: Your handle in K8 will be yournamek8. The k8 suffix is added automatically.
+            - generic [ref=e746]:
+              - text: Email
+              - textbox "Email" [ref=e747]:
+                - /placeholder: you@example.com
+            - generic [ref=e748]:
+              - text: Password
+              - textbox "Password" [ref=e749]:
+                - /placeholder: ••••••••
+            - button "Create Account" [ref=e750] [cursor=pointer]
+    - paragraph [ref=e740]: By continuing, you agree to our Terms of Service and Privacy Policy.
+  - button "Share feedback" [ref=e705] [cursor=pointer]:
+    - img [ref=e706]
+    - generic [ref=e708]: Feedback
