@@ -285,6 +285,11 @@ PATCH /api/agents/{agentId}/instructions-path
 | Build company export                     | `POST /api/companies/:companyId/exports`                                                   |
 | Dashboard                                 | `GET /api/companies/:companyId/dashboard`                                                  |
 | Search issues                             | `GET /api/companies/:companyId/issues?q=search+term`                                       |
+| Stale issues (inactive for N hours)       | `GET /api/companies/:companyId/issues?staleAfterHours=72`                                  |
+| Assigned but untouched for N hours        | `GET /api/companies/:companyId/issues?assignedUntouchedForHours=4`                         |
+| Bulk reassign from one agent to another   | `POST /api/companies/:companyId/issues/bulk-reassign` `{fromAgentId, toAgentId, reason}`   |
+| List issue work products (artifacts)      | `GET /api/issues/:issueId/work-products`                                                   |
+| Create issue work product (artifact)      | `POST /api/issues/:issueId/work-products` `{type, provider, title, url, status}`           |
 | Upload attachment (multipart, field=file) | `POST /api/companies/:companyId/issues/:issueId/attachments`                               |
 | List issue attachments                    | `GET /api/issues/:issueId/attachments`                                                     |
 | Get attachment content                    | `GET /api/attachments/:attachmentId/content`                                               |

@@ -1864,6 +1864,21 @@ export function heartbeatService(db: Db) {
     const biller = resolveLedgerBiller(result);
     const ledgerScope = await resolveLedgerScopeForRun(db, agent.companyId, run);
 
+    // NOOP circuit breaker: track consecutive timer runs that signal no work was done.
+    // Agents signal NOOP by including { noop: true } in their resultJson.
+    // Non-timer wakes (assignment, comment) always reset the counter.
+    const currentState = await db
+      .select({ stateJson: agentRuntimeState.stateJson })
+      .from(agentRuntimeState)
+      .where(eq(agentRuntimeState.agentId, agent.id))
+      .then((rows) => rows[0]?.stateJson ?? {});
+
+    const runContext = parseObject(run.contextSnapshot);
+    const isTimerRun = runContext.wakeSource === "timer" || runContext.source === "scheduler";
+    const isNoop = result.resultJson != null && (result.resultJson as Record<string, unknown>)["noop"] === true;
+    const prevConsecutiveNoops = asNumber(parseObject(currentState).consecutiveNoops, 0);
+    const nextConsecutiveNoops = isTimerRun && isNoop ? prevConsecutiveNoops + 1 : 0;
+
     await db
       .update(agentRuntimeState)
       .set({
@@ -1876,6 +1891,7 @@ export function heartbeatService(db: Db) {
         totalOutputTokens: sql`${agentRuntimeState.totalOutputTokens} + ${outputTokens}`,
         totalCachedInputTokens: sql`${agentRuntimeState.totalCachedInputTokens} + ${cachedInputTokens}`,
         totalCostCents: sql`${agentRuntimeState.totalCostCents} + ${additionalCostCents}`,
+        stateJson: sql`${agentRuntimeState.stateJson} || ${JSON.stringify({ consecutiveNoops: nextConsecutiveNoops })}::jsonb`,
         updatedAt: new Date(),
       })
       .where(eq(agentRuntimeState.agentId, agent.id));
@@ -3909,15 +3925,36 @@ export function heartbeatService(db: Db) {
       let enqueued = 0;
       let skipped = 0;
 
+      // Fetch runtime state for all agents in one query to avoid N+1.
+      const agentIds = allAgents.map((a) => a.id);
+      const runtimeStates = agentIds.length > 0
+        ? await db.select({ agentId: agentRuntimeState.agentId, stateJson: agentRuntimeState.stateJson })
+            .from(agentRuntimeState)
+            .where(inArray(agentRuntimeState.agentId, agentIds))
+        : [];
+      const stateByAgentId = new Map(runtimeStates.map((s) => [s.agentId, s.stateJson]));
+
+      // Backoff: after NOOP_BACKOFF_THRESHOLD consecutive NOOPs, double the effective
+      // interval per additional NOOP, capped at NOOP_MAX_BACKOFF_MULTIPLIER×.
+      const NOOP_BACKOFF_THRESHOLD = 5;
+      const NOOP_MAX_BACKOFF_MULTIPLIER = 8;
+
       for (const agent of allAgents) {
         if (agent.status === "paused" || agent.status === "terminated" || agent.status === "pending_approval") continue;
         const policy = parseHeartbeatPolicy(agent);
         if (!policy.enabled || policy.intervalSec <= 0) continue;
 
         checked += 1;
+
+        const stateJson = parseObject(stateByAgentId.get(agent.id));
+        const consecutiveNoops = asNumber(stateJson.consecutiveNoops, 0);
+        const backoffSteps = Math.max(0, consecutiveNoops - NOOP_BACKOFF_THRESHOLD);
+        const backoffMultiplier = Math.min(Math.pow(2, backoffSteps), NOOP_MAX_BACKOFF_MULTIPLIER);
+        const effectiveIntervalSec = policy.intervalSec * backoffMultiplier;
+
         const baseline = new Date(agent.lastHeartbeatAt ?? agent.createdAt).getTime();
         const elapsedMs = now.getTime() - baseline;
-        if (elapsedMs < policy.intervalSec * 1000) continue;
+        if (elapsedMs < effectiveIntervalSec * 1000) continue;
 
         const run = await enqueueWakeup(agent.id, {
           source: "timer",
@@ -3929,6 +3966,8 @@ export function heartbeatService(db: Db) {
             source: "scheduler",
             reason: "interval_elapsed",
             now: now.toISOString(),
+            consecutiveNoops,
+            backoffMultiplier: backoffMultiplier > 1 ? backoffMultiplier : undefined,
           },
         });
         if (run) enqueued += 1;

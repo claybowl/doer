@@ -404,7 +404,16 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   };
 
   const buildClaudeArgs = (resumeSessionId: string | null) => {
-    const args = ["--print", "-", "--output-format", "stream-json", "--verbose"];
+    const args = [
+      "--print",
+      "-",
+      "--output-format",
+      "stream-json",
+      "--verbose",
+      // Emit incremental message deltas so the UI can render the agent's dialogue
+      // live during a turn, instead of only after each turn completes.
+      "--include-partial-messages",
+    ];
     if (resumeSessionId) args.push("--resume", resumeSessionId);
     if (dangerouslySkipPermissions) args.push("--dangerously-skip-permissions");
     if (chrome) args.push("--chrome");
