@@ -5,7 +5,14 @@ import { FusesPlugin } from "@electron-forge/plugin-fuses";
 import { VitePlugin } from "@electron-forge/plugin-vite";
 import { PublisherS3 } from "@electron-forge/publisher-s3";
 import type { ForgeConfig } from "@electron-forge/shared-types";
-import MakerAppImage from "@reforged/maker-appimage";
+import { createRequire } from "node:module";
+// @reforged/maker-appimage ships as ESM-in-CJS (no exports map, main→ESM dist).
+// A bare `import` resolves ambiguously depending on how forge loads this config,
+// causing the maker to be undefined on Linux CI. createRequire forces CJS interop
+// and reliably returns the default export as a class.
+const _require = createRequire(import.meta.url);
+const MakerAppImage: typeof import("@reforged/maker-appimage").default =
+	_require("@reforged/maker-appimage").default ?? _require("@reforged/maker-appimage");
 
 const config: ForgeConfig = {
 	packagerConfig: {
