@@ -68,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 24
+          node-version: '24.15.0'
           cache: pnpm
 
       - name: Install dependencies (root workspace)
@@ -109,15 +109,7 @@ jobs:
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
           S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           S3_FOLDER: beta
-          DEBUG: electron-packager,@electron/packager
-        run: |
-          pnpm run release; RESULT=$?
-          echo "--- forge exit code: $RESULT ---"
-          echo "--- out/ contents: ---"
-          ls -la out/ 2>/dev/null || echo "(out/ not found)"
-          ls -la out/make/ 2>/dev/null || echo "(out/make/ not found)"
-          ls -la out/Doer-${{ matrix.platform }}-${{ matrix.arch }}/ 2>/dev/null | head -10 || echo "(packaged dir not found)"
-          exit $RESULT
+        run: pnpm run release
 
       # Upload artifacts to GitHub only on dry runs (real releases go to R2).
       # Short retention keeps quota in check — grab the installer within 3 days.
