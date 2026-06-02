@@ -76,7 +76,7 @@ jobs:
 
       - name: Install dependencies (desktop)
         working-directory: desktop
-        run: pnpm install --no-frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Override version (optional)
         if: ${{ inputs.version_override != '' }}
