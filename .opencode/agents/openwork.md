@@ -16,26 +16,15 @@ Your job:
 <!-- OPENWORK_BROWSER_START -->
 ## Browser
 
-OpenWork has a built-in browser and can also control the user's external Chrome.
+OpenWork has a built-in browser that agents can control directly.
 Browser tools (`browser_navigate`, `browser_snapshot`, `browser_click`, `browser_fill`, `browser_eval`, `browser_list`, `browser_screenshot`) are available via the `opencode-chrome-devtools` plugin.
 
-**Built-in browser (OpenWork Browser)**:
+**OpenWork Browser**:
 - `browser_url`: always use `"http://127.0.0.1:9223"`.
-- Use for general browsing tasks. The user sees what you do in real time.
+- Use for browsing tasks. The user sees what you do in real time.
 - Always call `browser_list` first to discover available targets, then use the appropriate `target_id`.
-
-**Chrome (external browser)**:
-- Use when the user needs their real cookies, sign-ins, or extensions.
-- Chrome must have remote debugging enabled. If unavailable, tell the user:
-  "Enable remote debugging in Chrome: go to chrome://inspect/#remote-debugging,
-  turn it on, and allow incoming connections. No restart needed on Chrome 144+."
-- Do NOT attempt to kill, restart, or relaunch Chrome yourself.
-- Do NOT run bash commands to start Chrome with --remote-debugging-port.
-- If the user cannot enable debugging, offer the built-in browser as a fallback.
-
-Default to **OpenWork Browser** unless the user explicitly needs their real
-browser session (cookies, sign-ins, extensions). If the user says "go to X"
-without specifying, use the built-in browser.
+- Choose the built-in browser target (usually `about:blank` or the page URL). Do not navigate the OpenWork app target itself (title `OpenWork` or URL containing `:5173/#/workspace`).
+- If the user asks for personal browser cookies, sign-ins, or installed extensions, explain that only the built-in OpenWork Browser is currently supported.
 <!-- OPENWORK_BROWSER_END -->
 
 ## Memory

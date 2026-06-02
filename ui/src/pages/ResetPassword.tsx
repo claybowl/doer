@@ -17,15 +17,16 @@ export function ResetPasswordPage() {
     if (!token) setError("Missing reset token. Please request a new link.");
   }, [token]);
 
-  const mutation = useMutation({
-    mutationFn: () => authApi.resetPassword(token, password),
-    onSuccess: () => {
-      navigate("/auth", { replace: true });
-    },
-    onError: (err) => {
-      setError(err instanceof Error ? err.message : "Reset failed");
-    },
-  });
+   const mutation = useMutation({
+     mutationFn: () => authApi.resetPassword(token, password),
+     onSuccess: () => {
+       navigate("/auth", { replace: true });
+     },
+     onError: (err) => {
+       // Generic error message to avoid leaking sensitive information
+       setError("Password reset failed. Please check your token and try again.");
+     },
+   });
 
   const canSubmit = token.length > 0 && password.length >= 8 && password === confirm;
 

@@ -109,6 +109,8 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
             },
           }
         : {}),
+      // Increased minimum password length from 6 to 8 characters for security
+      passwordMinLength: 8,
     },
     ...(config.authEmailVerificationEnabled
       ? {

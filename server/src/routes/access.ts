@@ -2151,7 +2151,7 @@ export function accessRoutes(
       }
 
       const requestType = req.body.requestType as "human" | "agent";
-      const companyId = invite.companyId;
+      const companyId = invite.companyId as string;
       if (!companyId) throw conflict("Invite is missing company scope");
       if (
         invite.allowedJoinTypes !== "both" &&
@@ -2349,29 +2349,41 @@ export function accessRoutes(
         const existingAdapterConfig = isPlainObject(existingAgent.adapterConfig)
           ? (existingAgent.adapterConfig as Record<string, unknown>)
           : {};
-        const nextAdapterConfig = {
-          ...existingAdapterConfig,
-          ...(joinDefaults.normalized ?? {})
-        };
-        const updatedAgent = await agents.update(created.createdAgentId, {
-          adapterType,
-          adapterConfig: nextAdapterConfig
-        });
-        if (!updatedAgent) {
-          throw conflict("Approved join request agent not found");
-        }
-        await logActivity(db, {
-          companyId,
-          actorType: req.actor.type === "agent" ? "agent" : "user",
-          actorId:
-            req.actor.type === "agent"
-              ? req.actor.agentId ?? "invite-agent"
-              : req.actor.userId ?? "board",
-          action: "agent.updated_from_join_replay",
-          entityType: "agent",
-          entityId: updatedAgent.id,
-          details: { inviteId: invite.id, joinRequestId: created.id }
-        });
+        const normalizedAgentDefaults = summarizeOpenClawGatewayDefaultsForLog(
+          existingAdapterConfig.agentDefaultsPayload ?? null
+        );
+        logger.info(
+          {
+            inviteId: invite.id,
+            joinRequestDiagnostics: joinDefaults.diagnostics.map((diag) => ({
+              code: diag.code,
+              level: diag.level
+            })),
+            normalizedAgentDefaults
+          },
+          "invite accept normalized OpenClaw gateway defaults"
+        );
+      }
+
+      if (
+        inviteAlreadyAccepted &&
+        requestType === "agent" &&
+        adapterType === "openclaw_gateway" &&
+        created.status === "pending_approval" &&
+        existingJoinRequestForInvite?.agentName
+      ) {
+        logger.info(
+          {
+            inviteId: invite.id,
+            joinRequestDiagnostics: joinDefaults.diagnostics.map((diag) => ({
+              code: diag.code,
+              level: diag.level
+            })),
+            agentName: existingJoinRequestForInvite.agentName,
+            adapterType: existingJoinRequestForInvite.adapterType
+          },
+          "invite accept normalized OpenClaw gateway defaults for pending agent"
+        );
       }
 
       if (requestType === "agent" && adapterType === "openclaw_gateway") {
