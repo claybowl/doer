@@ -695,7 +695,7 @@ export async function startServer(): Promise<StartedServer> {
             logger.warn({ err, url }, "Failed to open browser on startup");
           });
       }
-      printStartupBanner({
+      void printStartupBanner({
         host: config.host,
         deploymentMode: config.deploymentMode,
         deploymentExposure: config.deploymentExposure,
@@ -711,23 +711,24 @@ export async function startServer(): Promise<StartedServer> {
         databaseBackupIntervalMinutes: config.databaseBackupIntervalMinutes,
         databaseBackupRetentionDays: config.databaseBackupRetentionDays,
         databaseBackupDir: config.databaseBackupDir,
+      }).then(() => {
+        // Printed after the banner animation settles so the frames don't interleave.
+        const boardClaimUrl = getBoardClaimWarningUrl(config.host, listenPort);
+        if (boardClaimUrl) {
+          const red = "\x1b[41m\x1b[30m";
+          const yellow = "\x1b[33m";
+          const reset = "\x1b[0m";
+          console.log(
+            [
+              `${red}  BOARD CLAIM REQUIRED  ${reset}`,
+              `${yellow}This instance was previously local_trusted and still has local-board as the only admin.${reset}`,
+              `${yellow}Sign in with a real user and open this one-time URL to claim ownership:${reset}`,
+              `${yellow}${boardClaimUrl}${reset}`,
+              `${yellow}If you are connecting over Tailscale, replace the host in this URL with your Tailscale IP/MagicDNS name.${reset}`,
+            ].join("\n"),
+          );
+        }
       });
-
-      const boardClaimUrl = getBoardClaimWarningUrl(config.host, listenPort);
-      if (boardClaimUrl) {
-        const red = "\x1b[41m\x1b[30m";
-        const yellow = "\x1b[33m";
-        const reset = "\x1b[0m";
-        console.log(
-          [
-            `${red}  BOARD CLAIM REQUIRED  ${reset}`,
-            `${yellow}This instance was previously local_trusted and still has local-board as the only admin.${reset}`,
-            `${yellow}Sign in with a real user and open this one-time URL to claim ownership:${reset}`,
-            `${yellow}${boardClaimUrl}${reset}`,
-            `${yellow}If you are connecting over Tailscale, replace the host in this URL with your Tailscale IP/MagicDNS name.${reset}`,
-          ].join("\n"),
-        );
-      }
 
       resolveListen();
     });

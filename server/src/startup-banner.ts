@@ -44,10 +44,89 @@ const ansi = {
   yellow: "\x1b[33m",
   magenta: "\x1b[35m",
   blue: "\x1b[34m",
+  brightGreen: "\x1b[92m",
+  brightCyan: "\x1b[96m",
+  brightBlue: "\x1b[94m",
 };
 
 function color(text: string, c: keyof typeof ansi): string {
   return `${ansi[c]}${text}${ansi.reset}`;
+}
+
+// ── DOER art: green D, cyan gear-O, blue "er" (brand gradient) ──────────────
+
+const ART_D = [
+  "██████╗ ",
+  "██╔══██╗",
+  "██║  ██║",
+  "██║  ██║",
+  "██████╔╝",
+  "╚═════╝ ",
+] as const;
+
+const ART_ER = [
+  "███████╗██████╗ ",
+  "██╔════╝██╔══██╗",
+  "█████╗  ██████╔╝",
+  "██╔══╝  ██╔══██╗",
+  "███████╗██║  ██║",
+  "╚══════╝╚═╝  ╚═╝",
+] as const;
+
+function artO(hub: string): string[] {
+  return [
+    " ██████╗ ",
+    "██╔═══██╗",
+    `██║ ${hub} ██║`,
+    "██║   ██║",
+    "╚██████╔╝",
+    " ╚═════╝ ",
+  ];
+}
+
+// The gear hub spins through these as the banner boots up.
+const GEAR_SPIN = ["─", "\\", "│", "/"] as const;
+const GEAR_HUB_RESTING = "¤";
+
+/**
+ * Build the 6-line DOER art. `pulse` lights one letter group bright
+ * (0 = D, 1 = O, 2 = ER) for the Daft Punk chase; -1 = steady state.
+ */
+function buildArt(hub: string, pulse: number): string[] {
+  const dColor = pulse === 0 ? "brightGreen" : "green";
+  const oColor = pulse === 1 ? "brightCyan" : "cyan";
+  const erColor = pulse === 2 ? "brightBlue" : "blue";
+  const o = artO(hub);
+  return ART_D.map(
+    (d, i) => color(d, dColor) + color(o[i] ?? "", oColor) + color(ART_ER[i] ?? "", erColor),
+  );
+}
+
+function sleep(ms: number): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+/**
+ * Spin the gear: redraw the art in place while the hub rotates and a
+ * bright pulse chases across the letters. Leaves the cursor back at the
+ * top of the art block so the final static art prints over the last frame.
+ */
+async function animateBanner(): Promise<void> {
+  const out = process.stdout;
+  const totalFrames = 16;
+  const frameMs = 70;
+  out.write("\x1b[?25l"); // hide cursor
+  try {
+    for (let frame = 0; frame < totalFrames; frame++) {
+      const hub = GEAR_SPIN[frame % GEAR_SPIN.length] ?? GEAR_HUB_RESTING;
+      const art = buildArt(hub, frame % 4);
+      out.write(`${art.join("\n")}\n`);
+      await sleep(frameMs);
+      out.write(`\x1b[${art.length}A`); // cursor back to top of art
+    }
+  } finally {
+    out.write("\x1b[?25h"); // show cursor
+  }
 }
 
 function row(label: string, value: string): string {
@@ -96,7 +175,7 @@ function resolveAgentJwtSecretStatus(
   };
 }
 
-export function printStartupBanner(opts: StartupBannerOptions): void {
+export async function printStartupBanner(opts: StartupBannerOptions): Promise<void> {
   const baseHost = opts.host === "0.0.0.0" ? "localhost" : opts.host;
   const baseUrl = `http://${baseHost}:${opts.listenPort}`;
   const apiUrl = `${baseUrl}/api`;
@@ -133,18 +212,27 @@ export function printStartupBanner(opts: StartupBannerOptions): void {
     ? `enabled ${color(`(every ${opts.databaseBackupIntervalMinutes}m, keep ${opts.databaseBackupRetentionDays}d)`, "dim")}`
     : color("disabled", "yellow");
 
-  const art = [
-    color("██████╗  █████╗ ██████╗ ███████╗██████╗  ██████╗██╗     ██╗██████╗ ", "cyan"),
-    color("██╔══██╗██╔══██╗██╔══██╗██╔════╝██╔══██╗██╔════╝██║     ██║██╔══██╗", "cyan"),
-    color("██████╔╝███████║██████╔╝█████╗  ██████╔╝██║     ██║     ██║██████╔╝", "cyan"),
-    color("██╔═══╝ ██╔══██║██╔═══╝ ██╔══╝  ██╔══██╗██║     ██║     ██║██╔═══╝ ", "cyan"),
-    color("██║     ██║  ██║██║     ███████╗██║  ██║╚██████╗███████╗██║██║     ", "cyan"),
-    color("╚═╝     ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝ ╚═════╝╚══════╝╚═╝╚═╝     ", "cyan"),
-  ];
+  // Spin the gear on real terminals; CI/pipes/opt-out get the static banner.
+  const animate = process.stdout.isTTY === true && process.env.DOER_BANNER !== "static";
+  console.log("");
+  if (animate) {
+    await animateBanner();
+  }
+
+  const art = buildArt(GEAR_HUB_RESTING, -1);
+
+  const tagline =
+    "  " +
+    [
+      color("Harder", "brightGreen"),
+      color("Better", "brightCyan"),
+      color("Faster", "brightBlue"),
+      color("Stronger", "magenta"),
+    ].join(color(" · ", "dim"));
 
   const lines = [
-    "",
     ...art,
+    tagline,
     color("  ───────────────────────────────────────────────────────", "blue"),
     row("Mode", `${dbMode}  |  ${uiMode}`),
     row("Deploy", `${opts.deploymentMode} (${opts.deploymentExposure})`),
