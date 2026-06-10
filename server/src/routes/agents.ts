@@ -808,6 +808,52 @@ export function agentRoutes(db: Db) {
     res.json(models);
   });
 
+  router.get("/companies/:companyId/adapters/:type/memfs-capability", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    const type = req.params.type as string;
+    const capability = findServerAdapter(type)?.memfsCapability ?? null;
+    res.json(capability ?? { supported: ["none"], default: "none" });
+  });
+
+  router.post(
+    "/companies/:companyId/agents/:id/memfs/default-binding",
+    async (req, res) => {
+      const companyId = req.params.companyId as string;
+      assertCompanyAccess(req, companyId);
+      const agentId = await normalizeAgentReference(req, req.params.id as string);
+      const agent = await svc.getById(agentId);
+      if (!agent || agent.companyId !== companyId) {
+        res.status(404).json({ error: "Agent not found" });
+        return;
+      }
+      await assertCanUpdateAgent(req, agent);
+      const binding = await memfs.ensureDefaultAgentMemoryBinding(companyId, agentId);
+      if (!binding) {
+        res.status(409).json({ error: "Could not create default memory binding" });
+        return;
+      }
+      const actor = getActorInfo(req);
+      await logActivity(db, {
+        companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        action: "memfs.binding.created",
+        entityType: "memfs_binding",
+        entityId: binding.id,
+        details: {
+          agentId,
+          rootId: binding.rootId,
+          rootPath: binding.rootPath,
+          pathPrefix: binding.pathPrefix,
+          source: "default-agent-memory",
+        },
+      });
+      res.status(201).json(binding);
+    },
+  );
+
   router.post(
     "/companies/:companyId/adapters/:type/test-environment",
     validate(testAdapterEnvironmentSchema),

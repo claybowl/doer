@@ -9,7 +9,25 @@ import type {
 } from "@doerai/shared";
 import { api } from "./client";
 
+export type AdapterMemfsCapabilityDTO = {
+  supported: readonly string[];
+  default: string;
+};
+
 export const memfsApi = {
+  // ---- Adapter capability ----
+  getAdapterCapability: (companyId: string, adapterType: string) =>
+    api.get<AdapterMemfsCapabilityDTO>(
+      `/companies/${companyId}/adapters/${encodeURIComponent(adapterType)}/memfs-capability`,
+    ),
+
+  // ---- Default agent memory (visible root + namespaced binding) ----
+  ensureDefaultAgentBinding: (companyId: string, agentId: string) =>
+    api.post<MemfsBindingDTO & { rootPath?: string }>(
+      `/companies/${companyId}/agents/${agentId}/memfs/default-binding`,
+      {},
+    ),
+
   // ---- Roots ----
   listRoots: (companyId: string) =>
     api.get<MemfsRootDTO[]>(`/companies/${companyId}/memfs/roots`),
@@ -61,6 +79,52 @@ export const memfsApi = {
       `/companies/${companyId}/memfs/roots/${rootId}/files${qs ? `?${qs}` : ""}`,
     );
   },
+  writeFile: (
+    companyId: string,
+    rootId: string,
+    data: { path: string; content: string; commitMessage?: string },
+  ) =>
+    api.put<{ entry: MemfsFileEntry | null; commitSha: string | null }>(
+      `/companies/${companyId}/memfs/roots/${rootId}/file`,
+      data,
+    ),
+
+  listHistory: (
+    companyId: string,
+    rootId: string,
+    opts?: { path?: string; limit?: number },
+  ) => {
+    const params = new URLSearchParams();
+    if (opts?.path) params.set("path", opts.path);
+    if (opts?.limit) params.set("limit", String(opts.limit));
+    const qs = params.toString();
+    return api.get<
+      { sha: string; message: string; authorName: string; committedAt: string; filesChanged: number }[]
+    >(`/companies/${companyId}/memfs/roots/${rootId}/history${qs ? `?${qs}` : ""}`);
+  },
+
+  getCommitDiff: async (
+    companyId: string,
+    rootId: string,
+    sha: string,
+    opts?: { path?: string },
+  ): Promise<string> => {
+    const params = new URLSearchParams();
+    if (opts?.path) params.set("path", opts.path);
+    const qs = params.toString();
+    const res = await fetch(
+      `/api/companies/${companyId}/memfs/roots/${rootId}/history/${sha}/diff${qs ? `?${qs}` : ""}`,
+      { credentials: "include" },
+    );
+    if (!res.ok) {
+      const body = await res.json().catch(() => null);
+      throw new Error(
+        (body as { error?: string } | null)?.error ?? `Request failed: ${res.status}`,
+      );
+    }
+    return res.text();
+  },
+
   getFileText: async (
     companyId: string,
     rootId: string,

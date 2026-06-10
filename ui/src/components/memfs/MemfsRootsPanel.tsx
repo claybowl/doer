@@ -8,7 +8,7 @@ import {
 import { memfsApi } from "../../api/memfs";
 import { queryKeys } from "../../lib/queryKeys";
 import { Button } from "@/components/ui/button";
-import { HardDrive, Trash2 } from "lucide-react";
+import { Check, HardDrive, Pencil, Trash2, X } from "lucide-react";
 import { Field, HintIcon } from "../agent-config-primitives";
 
 interface MemfsRootsPanelProps {
@@ -60,6 +60,23 @@ export function MemfsRootsPanel({ companyId }: MemfsRootsPanelProps) {
     },
   });
 
+  // Inline rootPath editing — this is how an org picks where its memory lives.
+  const [editingRootId, setEditingRootId] = useState<string | null>(null);
+  const [editingPath, setEditingPath] = useState("");
+  const updateMutation = useMutation({
+    mutationFn: ({ rootId, newPath }: { rootId: string; newPath: string }) =>
+      memfsApi.updateRoot(companyId, rootId, { rootPath: newPath }),
+    onSuccess: () => {
+      setEditingRootId(null);
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.memfs.roots(companyId),
+      });
+      void queryClient.invalidateQueries({
+        queryKey: queryKeys.memfs.bindingsForCompany(companyId),
+      });
+    },
+  });
+
   const canSubmit =
     rootPath.trim().length > 0 && !createMutation.isPending;
 
@@ -97,20 +114,63 @@ export function MemfsRootsPanel({ companyId }: MemfsRootsPanelProps) {
                 key={root.id}
                 className="flex items-center justify-between gap-3 py-2"
               >
-                <div className="flex min-w-0 items-center gap-2">
+                <div className="flex min-w-0 flex-1 items-center gap-2">
                   <HardDrive className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 text-sm font-medium">
                       <span>{root.label}</span>
                       <span className="rounded border border-border bg-muted/40 px-1.5 py-0.5 font-mono text-[10px] uppercase text-muted-foreground">
                         {root.kind}
                       </span>
                     </div>
-                    <div className="truncate font-mono text-xs text-muted-foreground">
-                      {root.rootPath}
-                    </div>
+                    {editingRootId === root.id ? (
+                      <div className="mt-1 flex items-center gap-1">
+                        <input
+                          className="w-full rounded-md border border-border bg-transparent px-2 py-1 font-mono text-xs outline-none"
+                          type="text"
+                          value={editingPath}
+                          autoFocus
+                          onChange={(e) => setEditingPath(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" && editingPath.trim()) {
+                              updateMutation.mutate({ rootId: root.id, newPath: editingPath.trim() });
+                            }
+                            if (e.key === "Escape") setEditingRootId(null);
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          disabled={updateMutation.isPending || !editingPath.trim()}
+                          onClick={() =>
+                            updateMutation.mutate({ rootId: root.id, newPath: editingPath.trim() })
+                          }
+                        >
+                          <Check className="h-3.5 w-3.5" />
+                        </Button>
+                        <Button size="sm" variant="ghost" onClick={() => setEditingRootId(null)}>
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="truncate font-mono text-xs text-muted-foreground">
+                        {root.rootPath}
+                      </div>
+                    )}
                   </div>
                 </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  title="Change where this root lives on disk"
+                  onClick={() => {
+                    setEditingRootId(root.id);
+                    setEditingPath(root.rootPath);
+                  }}
+                  disabled={updateMutation.isPending}
+                >
+                  <Pencil className="h-3.5 w-3.5" />
+                </Button>
                 <Button
                   size="sm"
                   variant="ghost"

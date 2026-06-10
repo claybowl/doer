@@ -45,6 +45,7 @@ import { MarkdownEditor } from "./MarkdownEditor";
 import { ChoosePathButton } from "./PathInstructionsModal";
 import { OpenCodeLogoIcon } from "./OpenCodeLogoIcon";
 import { ReportsToPicker } from "./ReportsToPicker";
+import { AgentMemorySection } from "./AgentMemorySection";
 import { shouldShowLegacyWorkingDirectoryField } from "../lib/legacy-agent-config";
 
 /* ---- Create mode values ---- */
@@ -937,6 +938,16 @@ export function AgentConfigForm(props: AgentConfigFormProps) {
         </div>
       ) : null}
 
+      {/* ---- Memory (edit mode) ---- */}
+      {!isCreate && selectedCompanyId && (
+        <AgentMemorySection
+          companyId={selectedCompanyId}
+          agentId={props.agent.id}
+          adapterType={props.agent.adapterType}
+          cards={cards}
+        />
+      )}
+
     </div>
   );
 }
@@ -1411,8 +1422,20 @@ function ModelDropdown({
                 ))}
               </div>
             ))}
-            {filteredModels.length === 0 && (
+            {filteredModels.length === 0 && !modelSearch.trim() && (
               <p className="px-2 py-1.5 text-xs text-muted-foreground">No models found.</p>
+            )}
+            {filteredModels.length === 0 && modelSearch.trim() && (
+              <button
+                className="flex items-center w-full px-2 py-1.5 text-sm rounded hover:bg-accent/50 text-left gap-2"
+                onClick={() => {
+                  onChange(modelSearch.trim());
+                  onOpenChange(false);
+                }}
+              >
+                <span className="text-muted-foreground shrink-0">Use:</span>
+                <span className="truncate font-mono text-xs">{modelSearch.trim()}</span>
+              </button>
             )}
           </div>
         </PopoverContent>
