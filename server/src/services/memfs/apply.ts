@@ -3,6 +3,7 @@ import path from "node:path";
 import type { Db } from "@doerai/db";
 import type { MemfsRootKind, ResolvedMemfsBinding } from "@doerai/shared";
 import { logger } from "../../middleware/logger.js";
+import { commitMemoryChanges } from "./git-history.js";
 import { memfsService } from "./memfs-service.js";
 import { resolveMemfsStrategies } from "./strategies/index.js";
 import type { MemfsMountResult } from "./strategies/types.js";
@@ -52,6 +53,38 @@ export interface ApplyMemfsBindingsResult {
  *      - `LETTA_MEMFS_DIR` (first success; backward-compat for gremlin code)
  *      - `DOER_MEMFS_MOUNTS` (JSON array of all mounts; forward-compat)
  */
+/**
+ * Commit any memory changes the agent made during a run, scoped to each
+ * read-write fs-mount binding's pathPrefix. This is what makes the Memory
+ * History view show "what the agent learned this session" without any manual
+ * step. Best-effort and non-fatal: a missing git or failed commit must never
+ * affect run completion. (capture-the-magic Phase 1.4)
+ */
+export async function commitAgentMemoryAfterRun(input: {
+  db: ApplyMemfsBindingsInput["db"];
+  agent: { id: string; companyId: string; name?: string | null };
+  runId: string;
+}): Promise<void> {
+  const { db, agent, runId } = input;
+  try {
+    const svc = memfsService(db);
+    const bindings = await svc.listBindingsForAgent(agent.companyId, agent.id);
+    for (const binding of bindings) {
+      if (binding.strategy !== "fs-mount") continue;
+      if (binding.permission !== "read-write") continue;
+      if (binding.rootKind !== "local-fs") continue;
+      const who = agent.name?.trim() || agent.id.slice(0, 8);
+      await commitMemoryChanges(
+        binding.rootPath,
+        `memory: ${who} — run ${runId.slice(0, 8)}`,
+        binding.pathPrefix,
+      );
+    }
+  } catch (err) {
+    logger.warn({ err, agentId: agent.id, runId }, "post-run memory commit failed (non-fatal)");
+  }
+}
+
 export async function applyMemfsBindingsToWorkspace(
   input: ApplyMemfsBindingsInput,
 ): Promise<ApplyMemfsBindingsResult> {

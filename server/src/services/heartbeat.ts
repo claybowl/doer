@@ -44,7 +44,7 @@ import { issueService } from "./issues.js";
 import { executionWorkspaceService } from "./execution-workspaces.js";
 import { workspaceOperationService } from "./workspace-operations.js";
 import { agentWorkspaceService } from "./agent-workspaces.js";
-import { applyMemfsBindingsToWorkspace } from "./memfs/apply.js";
+import { applyMemfsBindingsToWorkspace, commitAgentMemoryAfterRun } from "./memfs/apply.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
   gateProjectExecutionWorkspacePolicy,
@@ -2667,6 +2667,14 @@ export function heartbeatService(db: Db) {
       if (handle) {
         logSummary = await runLogStore.finalize(handle);
       }
+
+      // Snapshot whatever the agent wrote to its memory this run so the
+      // Memory History view can show the session diff. Non-fatal by design.
+      await commitAgentMemoryAfterRun({
+        db,
+        agent: { id: agent.id, companyId: agent.companyId, name: agent.name },
+        runId: run.id,
+      });
 
       const status =
         outcome === "succeeded"
