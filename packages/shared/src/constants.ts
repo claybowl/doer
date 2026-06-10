@@ -721,6 +721,21 @@ export const MEMFS_ROOT_KINDS = ["local-fs", "mcp", "git-hosted"] as const;
 export type MemfsRootKind = (typeof MEMFS_ROOT_KINDS)[number];
 
 /**
+ * Memory-protocol teaching skill per memfs strategy. Substrate and protocol
+ * always ship paired: when an agent has a binding using a strategy, the mapped
+ * skill is auto-attached so the agent knows when to read, what to save, and
+ * what format to use. Strategies absent from this map need no skill (or are
+ * not yet implemented).
+ *
+ * See doc/plans/2026-06-03-agent-memory-substrate-and-skill-autoattach.md
+ * and doc/plans/2026-06-09-capture-the-magic.md (Phase 1.1).
+ */
+export const MEMFS_STRATEGY_SKILL: Partial<Record<MemfsStrategy, string>> = {
+  "fs-mount": "agents-md-memory",
+  "native-letta": "letta-memory",
+};
+
+/**
  * Deliverable kinds — what formats Doer agents can promote as client-visible
  * files. v1 ships docx + xlsx for claude_local; other formats slot in as
  * additional skill recipes land. Intentionally text-typed in the DB so

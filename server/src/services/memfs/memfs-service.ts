@@ -392,7 +392,12 @@ export function memfsService(db: Db) {
           rootId: data.rootId,
           pathPrefix: computedPathPrefix,
           strategy: data.strategy ?? "fs-mount",
-          permission: data.permission ?? "read",
+          // A binding only grants access under its own pathPrefix — the
+          // agent's namespace by construction — so writes default on. This is
+          // what lets memory actually change after a run ("capture the magic"
+          // Phase 1.2). The automatic Letta binding stays read-only above:
+          // Letta's runtime owns those writes.
+          permission: data.permission ?? "read-write",
           mountAs: data.mountAs ?? null,
           label: data.label ?? null,
         })

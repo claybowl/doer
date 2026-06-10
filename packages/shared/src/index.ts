@@ -135,6 +135,7 @@ export {
   MEMFS_STRATEGIES,
   MEMFS_PERMISSIONS,
   MEMFS_ROOT_KINDS,
+  MEMFS_STRATEGY_SKILL,
   type MemfsStrategy,
   type MemfsPermission,
   type MemfsRootKind,

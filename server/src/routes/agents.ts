@@ -11,6 +11,7 @@ import {
   createAgentSchema,
   deriveAgentUrlKey,
   isUuidLike,
+  MEMFS_STRATEGY_SKILL,
   resetAgentSessionSchema,
   testAdapterEnvironmentSchema,
   type AgentSkillSnapshot,
@@ -44,6 +45,7 @@ import {
   workspaceOperationService,
 } from "../services/index.js";
 import { conflict, forbidden, notFound, unprocessable } from "../errors.js";
+import { memfsService } from "../services/memfs/memfs-service.js";
 import { planEnforcementService } from "../services/plan-enforcement.js";
 import { assertBoard, assertCompanyAccess, assertInstanceAdmin, getActorInfo } from "./authz.js";
 import { findServerAdapter, listAdapterModels } from "../adapters/index.js";
@@ -98,6 +100,7 @@ export function agentRoutes(db: Db) {
   const workspaceOperations = workspaceOperationService(db);
   const instanceSettings = instanceSettingsService(db);
   const planEnforcement = planEnforcementService(db);
+  const memfs = memfsService(db);
   const strictSecretsMode = process.env.DOER_SECRETS_STRICT_MODE === "true";
 
   async function ensureNativeWorkspaceForAgent(agent: NonNullable<Awaited<ReturnType<typeof svc.getById>>>) {
@@ -571,11 +574,44 @@ export function agentRoutes(db: Db) {
     };
   }
 
+  /**
+   * Memory-protocol skills derived from the agent's memfs bindings
+   * (substrate + protocol, always paired). Declarative and idempotent:
+   * recomputed from current bindings on every resolve, so removing a binding
+   * naturally drops its skill unless the user also requested it explicitly.
+   */
+  async function resolveMemoryProtocolSkills(
+    companyId: string,
+    agentId: string | null,
+  ): Promise<string[]> {
+    if (!agentId) return [];
+    try {
+      const bindings = await memfs.listBindingsForAgent(companyId, agentId);
+      const slugs = Array.from(
+        new Set(
+          bindings
+            .map((binding) => MEMFS_STRATEGY_SKILL[binding.strategy])
+            .filter((key): key is string => Boolean(key)),
+        ),
+      );
+      if (slugs.length === 0) return [];
+      // Map slugs (e.g. "agents-md-memory") to canonical library keys
+      // (e.g. "doerai/doer/agents-md-memory"). Bundled Doer skills are
+      // ensured into every company library, so this normally resolves.
+      return await companySkills.resolveRequestedSkillKeys(companyId, slugs);
+    } catch {
+      // Memory skills are additive — a memfs lookup or skill-resolution
+      // failure must not block skill sync or agent updates.
+      return [];
+    }
+  }
+
   async function resolveDesiredSkillAssignment(
     companyId: string,
     adapterType: string,
     adapterConfig: Record<string, unknown>,
     requestedDesiredSkills: string[] | undefined,
+    agentId: string | null = null,
   ) {
     if (!requestedDesiredSkills) {
       return {
@@ -633,7 +669,10 @@ export function agentRoutes(db: Db) {
     const requiredSkills = runtimeSkillEntries
       .filter((entry) => entry.required)
       .map((entry) => entry.key);
-    const desiredSkills = Array.from(new Set([...requiredSkills, ...resolvedRequestedSkills]));
+    const memorySkills = await resolveMemoryProtocolSkills(companyId, agentId);
+    const desiredSkills = Array.from(
+      new Set([...requiredSkills, ...resolvedRequestedSkills, ...memorySkills]),
+    );
 
     return {
       adapterConfig: writePaperclipSkillSyncPreference(adapterConfig, desiredSkills),
@@ -835,6 +874,7 @@ export function agentRoutes(db: Db) {
         agent.adapterType,
         agent.adapterConfig as Record<string, unknown>,
         requestedSkills,
+        agent.id,
       );
       if (!desiredSkills || !runtimeSkillEntries) {
         throw unprocessable("Skill sync requires desiredSkills.");
