@@ -148,6 +148,11 @@ export {
 
 export type {
   Company,
+  TeamManifest,
+  TeamManifestAgent,
+  TeamImportAgentResult,
+  TeamImportResult,
+  TeamSummary,
   CompanySkillSourceType,
   CompanySkillTrustLevel,
   CompanySkillCompatibility,

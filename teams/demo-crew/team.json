@@ -1,0 +1,34 @@
+{
+  "id": "demo-crew",
+  "name": "Demo Crew",
+  "description": "A ready-to-import three-agent demo chain built from test fixtures — for smoke-testing team import end to end.",
+  "defaultAdapterType": "letta_af_opencode",
+  "agents": [
+    {
+      "slug": "tony",
+      "name": "Tony",
+      "af": "tony.af",
+      "role": "ceo",
+      "title": "Demo Orchestrator",
+      "reportsTo": null
+    },
+    {
+      "slug": "solomons",
+      "name": "Mr. Solomons",
+      "af": "mr_solomons.af",
+      "role": "executor",
+      "title": "Demo Dispatcher",
+      "reportsTo": "tony"
+    },
+    {
+      "slug": "sleuth",
+      "name": "Sleuth",
+      "af": "sleuth.af",
+      "role": "researcher",
+      "title": "Demo Investigator",
+      "reportsTo": "solomons"
+    }
+  ],
+  "sharedBlocks": ["council_notes", "dispatch_state"],
+  "packs": []
+}

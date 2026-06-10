@@ -1,5 +1,12 @@
 export type { Company } from "./company.js";
 export type {
+  TeamManifest,
+  TeamManifestAgent,
+  TeamImportAgentResult,
+  TeamImportResult,
+  TeamSummary,
+} from "./teams.js";
+export type {
   AdapterMemfsCapability,
   MemfsFileEntry,
   MemfsRootDTO,

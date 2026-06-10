@@ -9,6 +9,7 @@ import { httpLogger, errorHandler } from "./middleware/index.js";
 import { actorMiddleware } from "./middleware/auth.js";
 import { boardMutationGuard } from "./middleware/board-mutation-guard.js";
 import { privateHostnameGuard, resolvePrivateHostnameAllowSet } from "./middleware/private-hostname-guard.js";
+import { securityHeaders } from "./middleware/security-headers/index.js";
 import { healthRoutes } from "./routes/health.js";
 import { companyRoutes } from "./routes/companies.js";
 import { companySkillRoutes } from "./routes/company-skills.js";
@@ -30,6 +31,7 @@ import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { lettaProxyRoutes } from "./routes/letta-proxy.js";
 import { memfsRoutes } from "./routes/memfs.js";
+import { teamRoutes } from "./routes/teams.js";
 import { agentMemoryRoutes } from "./routes/agent-memory.js";
 import { workspaceRoutes } from "./routes/workspaces.js";
 import {
@@ -91,14 +93,15 @@ export async function createApp(
 ) {
   const app = express();
 
-  app.use(express.json({
-    // Company import/export payloads can inline full portable packages.
-    limit: "10mb",
-    verify: (req, _res, buf) => {
-      (req as unknown as { rawBody: Buffer }).rawBody = buf;
-    },
-  }));
-  app.use(httpLogger);
+   app.use(express.json({
+     // Company import/export payloads can inline full portable packages.
+     limit: "10mb",
+     verify: (req, _res, buf) => {
+       (req as unknown as { rawBody: Buffer }).rawBody = buf;
+     },
+   }));
+   app.use(securityHeaders());
+   app.use(httpLogger);
   const privateHostnameGateEnabled =
     opts.deploymentMode === "authenticated" && opts.deploymentExposure === "private";
   const privateHostnameAllowSet = resolvePrivateHostnameAllowSet({
@@ -172,6 +175,7 @@ export async function createApp(
   api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
   api.use(memfsRoutes(db));
+  api.use(teamRoutes(db));
   api.use(deliverableRoutes(db, opts.storageService));
   api.use(shareTokenRoutes(db));
   api.use(portalRoutes(db, opts.storageService));
