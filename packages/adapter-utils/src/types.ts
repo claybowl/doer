@@ -274,6 +274,14 @@ export interface ServerAdapterModule {
   listModels?: () => Promise<AdapterModel[]>;
   agentConfigurationDoc?: string;
   /**
+   * Memfs strategies this adapter supports and its default. Used to decide
+   * whether a new agent gets a default fs-mount memory binding and to filter
+   * strategy choices in the UI. Absent = treated as "none". Structurally
+   * matches AdapterMemfsCapability in @doerai/shared (kept dependency-free
+   * here on purpose).
+   */
+  memfsCapability?: { supported: readonly string[]; default: string };
+  /**
    * Optional lifecycle hook when an agent is approved/hired (join-request or hire_agent approval).
    * adapterConfig is the agent's adapter config so the adapter can e.g. send a callback to a configured URL.
    */

@@ -1,8 +1,9 @@
 import os from "node:os";
 import path from "node:path";
+import { mkdir, writeFile } from "node:fs/promises";
 import { and, asc, eq } from "drizzle-orm";
 import type { Db } from "@doerai/db";
-import { agents, memfsBindings, memfsRoots } from "@doerai/db";
+import { agents, companies, memfsBindings, memfsRoots } from "@doerai/db";
 import type {
   MemfsBindingDTO,
   MemfsFileEntry,
@@ -20,6 +21,44 @@ type MemfsBindingRow = typeof memfsBindings.$inferSelect;
 type AgentRow = typeof agents.$inferSelect;
 
 const DEFAULT_LETTA_ROOT = path.join(os.homedir(), ".letta");
+
+/**
+ * Visible, predictable default memory location for an org:
+ * `~/Doer/<org-slug>/memory`. Replaces the hidden `.letta-memory` default for
+ * fs-mount agents. Letta-native agents keep DEFAULT_LETTA_ROOT (Letta owns
+ * those reads/writes). See doc/plans/2026-06-09-capture-the-magic.md §1.1.
+ */
+function defaultVisibleRootPath(companyName: string): string {
+  const slug =
+    companyName
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 64) || "company";
+  return path.join(os.homedir(), "Doer", slug, "memory");
+}
+
+const SEED_AGENTS_MD = `# Working Memory
+
+> This is your memory index. Keep it short and current — one line per pointer.
+> Protocol: read this file first every run; update it before finishing.
+
+## Me
+
+(who you are — see persona.md once it exists)
+
+## Projects
+
+(nothing yet)
+
+## People
+
+(nothing yet)
+
+## Terms
+
+(nothing yet)
+`;
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
@@ -158,6 +197,109 @@ export function memfsService(db: Db) {
     return fallback;
   }
 
+  async function ensureDefaultVisibleRoot(companyId: string): Promise<MemfsRootRow> {
+    const company = await db
+      .select()
+      .from(companies)
+      .where(eq(companies.id, companyId))
+      .then((rows) => rows[0] ?? null);
+    if (!company) throw notFound(`company ${companyId} not found`);
+
+    const rootPath = defaultVisibleRootPath(company.name);
+    const existing = await db
+      .select()
+      .from(memfsRoots)
+      .where(and(eq(memfsRoots.companyId, companyId), eq(memfsRoots.rootPath, rootPath)))
+      .orderBy(asc(memfsRoots.createdAt))
+      .then((rows) => rows[0] ?? null);
+    if (existing) return existing;
+
+    await mkdir(rootPath, { recursive: true });
+    const inserted = await db
+      .insert(memfsRoots)
+      .values({
+        companyId,
+        kind: "local-fs",
+        rootPath,
+        label: "memory",
+      })
+      .returning()
+      .then((rows) => rows[0] ?? null);
+    if (inserted) return inserted;
+
+    const fallback = await db
+      .select()
+      .from(memfsRoots)
+      .where(and(eq(memfsRoots.companyId, companyId), eq(memfsRoots.rootPath, rootPath)))
+      .orderBy(asc(memfsRoots.createdAt))
+      .then((rows) => rows[0] ?? null);
+    if (!fallback) throw conflict(`failed to ensure default visible memfs root for company ${companyId}`);
+    return fallback;
+  }
+
+  /**
+   * Give a newly created fs-mount agent its memory home: a namespaced folder
+   * under the org's visible memory root, seeded with an AGENTS.md stub, bound
+   * read-write and mounted as `memory`. Idempotent; returns the existing
+   * binding when one is already present for this agent on the visible root.
+   */
+  async function ensureDefaultAgentMemoryBinding(
+    companyId: string,
+    agentId: string,
+    options: { agentSlug?: string } = {},
+  ): Promise<ResolvedMemfsBinding | null> {
+    const agent = await requireAgentForCompany(companyId, agentId);
+    const root = await ensureDefaultVisibleRoot(companyId);
+
+    const existingForRoot = await db
+      .select()
+      .from(memfsBindings)
+      .where(and(eq(memfsBindings.agentId, agent.id), eq(memfsBindings.rootId, root.id)))
+      .then((rows) => rows[0] ?? null);
+    if (existingForRoot) return toResolvedBinding(existingForRoot, root);
+
+    const slugBase =
+      options.agentSlug?.trim() ||
+      agent.name
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .slice(0, 48) ||
+      "agent";
+
+    // Human-readable namespace; suffix with a short id only on collision.
+    let pathPrefix = path.posix.join("agents", slugBase);
+    const collision = await db
+      .select()
+      .from(memfsBindings)
+      .where(and(eq(memfsBindings.rootId, root.id), eq(memfsBindings.pathPrefix, pathPrefix)))
+      .then((rows) => rows[0] ?? null);
+    if (collision && collision.agentId !== agent.id) {
+      pathPrefix = path.posix.join("agents", `${slugBase}-${agent.id.slice(0, 8)}`);
+    }
+
+    const memoryDir = path.join(root.rootPath, ...pathPrefix.split("/"));
+    await mkdir(memoryDir, { recursive: true });
+    await writeFile(path.join(memoryDir, "AGENTS.md"), SEED_AGENTS_MD, { flag: "wx" }).catch(() => {
+      // Already seeded — leave existing memory untouched.
+    });
+
+    const inserted = await db
+      .insert(memfsBindings)
+      .values({
+        agentId: agent.id,
+        rootId: root.id,
+        pathPrefix,
+        strategy: "fs-mount",
+        permission: "read-write",
+        mountAs: "memory",
+        label: "memory",
+      })
+      .returning()
+      .then((rows) => rows[0] ?? null);
+    return inserted ? toResolvedBinding(inserted, root) : null;
+  }
+
   async function ensureAutomaticLettaBinding(companyId: string, agentId: string): Promise<ResolvedMemfsBinding | null> {
     const agent = await requireAgentForCompany(companyId, agentId);
     const lettaAgentId = extractLettaAgentId(agent);
@@ -227,6 +369,9 @@ export function memfsService(db: Db) {
 
   return {
     ensureAutomaticLettaBinding,
+    ensureDefaultVisibleRoot: async (companyId: string): Promise<MemfsRootDTO> =>
+      toMemfsRoot(await ensureDefaultVisibleRoot(companyId)),
+    ensureDefaultAgentMemoryBinding,
 
     // ---- Roots ----
 

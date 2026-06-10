@@ -8,7 +8,7 @@ import {
   sessionCodec as claudeSessionCodec,
   getQuotaWindows as claudeGetQuotaWindows,
 } from "@doerai/adapter-claude-local/server";
-import { agentConfigurationDoc as claudeAgentConfigurationDoc, models as claudeModels } from "@doerai/adapter-claude-local";
+import { agentConfigurationDoc as claudeAgentConfigurationDoc, models as claudeModels, memfsCapability as claudeMemfsCapability } from "@doerai/adapter-claude-local";
 import {
   execute as codexExecute,
   listCodexSkills,
@@ -17,7 +17,7 @@ import {
   sessionCodec as codexSessionCodec,
   getQuotaWindows as codexGetQuotaWindows,
 } from "@doerai/adapter-codex-local/server";
-import { agentConfigurationDoc as codexAgentConfigurationDoc, models as codexModels } from "@doerai/adapter-codex-local";
+import { agentConfigurationDoc as codexAgentConfigurationDoc, models as codexModels, memfsCapability as codexMemfsCapability } from "@doerai/adapter-codex-local";
 import {
   execute as cursorExecute,
   listCursorSkills,
@@ -25,7 +25,7 @@ import {
   testEnvironment as cursorTestEnvironment,
   sessionCodec as cursorSessionCodec,
 } from "@doerai/adapter-cursor-local/server";
-import { agentConfigurationDoc as cursorAgentConfigurationDoc, models as cursorModels } from "@doerai/adapter-cursor-local";
+import { agentConfigurationDoc as cursorAgentConfigurationDoc, models as cursorModels, memfsCapability as cursorMemfsCapability } from "@doerai/adapter-cursor-local";
 import {
   execute as geminiExecute,
   listGeminiSkills,
@@ -33,7 +33,7 @@ import {
   testEnvironment as geminiTestEnvironment,
   sessionCodec as geminiSessionCodec,
 } from "@doerai/adapter-gemini-local/server";
-import { agentConfigurationDoc as geminiAgentConfigurationDoc, models as geminiModels } from "@doerai/adapter-gemini-local";
+import { agentConfigurationDoc as geminiAgentConfigurationDoc, models as geminiModels, memfsCapability as geminiMemfsCapability } from "@doerai/adapter-gemini-local";
 import {
   execute as openCodeExecute,
   listOpenCodeSkills,
@@ -44,6 +44,7 @@ import {
 } from "@doerai/adapter-opencode-local/server";
 import {
   agentConfigurationDoc as openCodeAgentConfigurationDoc,
+  memfsCapability as openCodeMemfsCapability,
 } from "@doerai/adapter-opencode-local";
 import {
   execute as openclawGatewayExecute,
@@ -52,6 +53,7 @@ import {
 import {
   agentConfigurationDoc as openclawGatewayAgentConfigurationDoc,
   models as openclawGatewayModels,
+  memfsCapability as openclawGatewayMemfsCapability,
 } from "@doerai/adapter-openclaw-gateway";
 import { listCodexModels } from "./codex-models.js";
 import { listCursorModels } from "./cursor-models.js";
@@ -65,6 +67,7 @@ import {
 } from "@doerai/adapter-pi-local/server";
 import {
   agentConfigurationDoc as piAgentConfigurationDoc,
+  memfsCapability as piMemfsCapability,
 } from "@doerai/adapter-pi-local";
 import {
   execute as hermesExecute,
@@ -85,6 +88,7 @@ import {
 import {
   agentConfigurationDoc as lettaAgentConfigurationDoc,
   models as lettaModels,
+  memfsCapability as lettaMemfsCapability,
 } from "@doerai/adapter-letta-cloud";
 import {
   execute as lettaAfExecute,
@@ -110,6 +114,7 @@ const claudeLocalAdapter: ServerAdapterModule = {
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: claudeAgentConfigurationDoc,
   getQuotaWindows: claudeGetQuotaWindows,
+  memfsCapability: claudeMemfsCapability,
 };
 
 const codexLocalAdapter: ServerAdapterModule = {
@@ -125,6 +130,7 @@ const codexLocalAdapter: ServerAdapterModule = {
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: codexAgentConfigurationDoc,
   getQuotaWindows: codexGetQuotaWindows,
+  memfsCapability: codexMemfsCapability,
 };
 
 const cursorLocalAdapter: ServerAdapterModule = {
@@ -139,6 +145,7 @@ const cursorLocalAdapter: ServerAdapterModule = {
   listModels: listCursorModels,
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: cursorAgentConfigurationDoc,
+  memfsCapability: cursorMemfsCapability,
 };
 
 const geminiLocalAdapter: ServerAdapterModule = {
@@ -152,6 +159,7 @@ const geminiLocalAdapter: ServerAdapterModule = {
   models: geminiModels,
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: geminiAgentConfigurationDoc,
+  memfsCapability: geminiMemfsCapability,
 };
 
 const openclawGatewayAdapter: ServerAdapterModule = {
@@ -161,6 +169,7 @@ const openclawGatewayAdapter: ServerAdapterModule = {
   models: openclawGatewayModels,
   supportsLocalAgentJwt: false,
   agentConfigurationDoc: openclawGatewayAgentConfigurationDoc,
+  memfsCapability: openclawGatewayMemfsCapability,
 };
 
 const openCodeLocalAdapter: ServerAdapterModule = {
@@ -175,6 +184,7 @@ const openCodeLocalAdapter: ServerAdapterModule = {
   listModels: listOpenCodeModels,
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: openCodeAgentConfigurationDoc,
+  memfsCapability: openCodeMemfsCapability,
 };
 
 const piLocalAdapter: ServerAdapterModule = {
@@ -189,6 +199,7 @@ const piLocalAdapter: ServerAdapterModule = {
   listModels: listPiModels,
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: piAgentConfigurationDoc,
+  memfsCapability: piMemfsCapability,
 };
 
 const hermesLocalAdapter: ServerAdapterModule = {
@@ -211,6 +222,7 @@ const lettaCloudAdapter: ServerAdapterModule = {
   models: lettaModels,
   supportsLocalAgentJwt: false,
   agentConfigurationDoc: lettaAgentConfigurationDoc,
+  memfsCapability: lettaMemfsCapability,
 };
 
 const lettaAfOpenCodeAdapter: ServerAdapterModule = {

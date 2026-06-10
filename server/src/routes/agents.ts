@@ -120,6 +120,44 @@ export function agentRoutes(db: Db) {
     }
   }
 
+  /**
+   * Provision the default visible memory home for a newly created agent
+   * whose adapter defaults to fs-mount: namespaced folder under the org's
+   * `~/Doer/<org>/memory` root, AGENTS.md seed, read-write binding mounted
+   * as `memory`. Non-fatal by design — agent creation must never fail on
+   * memory provisioning. (capture-the-magic Phase 1: visible default root.)
+   */
+  async function provisionDefaultAgentMemory(
+    req: Request,
+    agent: { id: string; companyId: string; adapterType: string; name: string },
+  ): Promise<void> {
+    const capability = findServerAdapter(agent.adapterType)?.memfsCapability;
+    if (capability?.default !== "fs-mount") return;
+    try {
+      const binding = await memfs.ensureDefaultAgentMemoryBinding(agent.companyId, agent.id);
+      if (!binding) return;
+      const actor = getActorInfo(req);
+      await logActivity(db, {
+        companyId: agent.companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        action: "memfs.binding.created",
+        entityType: "memfs_binding",
+        entityId: binding.id,
+        details: {
+          agentId: agent.id,
+          rootId: binding.rootId,
+          rootPath: binding.rootPath,
+          pathPrefix: binding.pathPrefix,
+          source: "default-agent-memory",
+        },
+      });
+    } catch (err) {
+      logger.warn({ err, agentId: agent.id }, "default agent memory provisioning failed (non-fatal)");
+    }
+  }
+
   async function getCurrentUserRedactionOptions() {
     return {
       enabled: (await instanceSettings.getGeneral()).censorUsernameInLogs,
@@ -1362,6 +1400,7 @@ export function agentRoutes(db: Db) {
     });
     const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
     await ensureNativeWorkspaceForAgent(agent);
+    await provisionDefaultAgentMemory(req, agent);
 
     let approval: Awaited<ReturnType<typeof approvalsSvc.getById>> | null = null;
     const actor = getActorInfo(req);
@@ -1508,6 +1547,7 @@ export function agentRoutes(db: Db) {
     });
     const agent = await materializeDefaultInstructionsBundleForNewAgent(createdAgent);
     await ensureNativeWorkspaceForAgent(agent);
+    await provisionDefaultAgentMemory(req, agent);
 
     const actor = getActorInfo(req);
     await logActivity(db, {
