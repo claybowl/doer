@@ -25,6 +25,7 @@ import { queryKeys } from "../lib/queryKeys";
 import { AgentConfigForm } from "../components/AgentConfigForm";
 import { PageTabBar } from "../components/PageTabBar";
 import { MemfsBindingsPanel } from "../components/memfs/MemfsBindingsPanel";
+import { MemoryFilesPanel } from "../components/memfs/MemoryFilesPanel";
 import { adapterLabels, roleLabels, help } from "../components/agent-config-primitives";
 import { MarkdownEditor } from "../components/MarkdownEditor";
 import { assetsApi } from "../api/assets";
@@ -1038,11 +1039,17 @@ export function AgentDetail() {
       )}
 
       {activeView === "memory" && resolvedCompanyId && (
-        <div className="max-w-3xl">
-          <MemfsBindingsPanel
+        <div className="max-w-5xl space-y-8">
+          <MemoryFilesPanel
             companyId={resolvedCompanyId}
             agentId={agent.id}
           />
+          <div className="max-w-3xl">
+            <MemfsBindingsPanel
+              companyId={resolvedCompanyId}
+              agentId={agent.id}
+            />
+          </div>
         </div>
       )}
 

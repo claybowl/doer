@@ -8,8 +8,9 @@ import type { MemfsFileEntry } from "@doerai/shared";
  * V1 implementation: {@link LocalFsStore} against a filesystem directory.
  * V2+ may add GitHostedStore, McpProxyStore, etc. (see plan doc).
  *
- * Writes are intentionally not in the V1 surface — Letta remains the writer
- * while we ship read-only Doer visibility.
+ * Writes shipped with capture-the-magic Phase 1.3 (editable memory files).
+ * `write` is optional so read-only backends (mcp proxies, etc.) can omit it;
+ * the service surfaces a clear error when a store can't write.
  */
 export interface MemfsStore {
   /**
@@ -21,6 +22,8 @@ export interface MemfsStore {
   read(relPath: string): Promise<Buffer>;
   exists(relPath: string): Promise<boolean>;
   stat(relPath: string): Promise<MemfsFileEntry | null>;
+  /** Write UTF-8 text content, creating parent directories as needed. */
+  write?(relPath: string, content: string): Promise<void>;
 }
 
 /**
@@ -202,6 +205,12 @@ export class LocalFsStore implements MemfsStore {
   async read(relPath: string): Promise<Buffer> {
     const abs = this.resolveSafe(relPath);
     return fs.readFile(abs);
+  }
+
+  async write(relPath: string, content: string): Promise<void> {
+    const abs = this.resolveSafe(relPath);
+    await fs.mkdir(path.dirname(abs), { recursive: true });
+    await fs.writeFile(abs, content, "utf8");
   }
 
   async exists(relPath: string): Promise<boolean> {

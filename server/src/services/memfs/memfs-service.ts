@@ -15,6 +15,14 @@ import type {
 } from "@doerai/shared";
 import { badRequest, conflict, notFound } from "../../errors.js";
 import { LocalFsStore, type MemfsStore } from "./store.js";
+import {
+  commitMemoryChanges,
+  getMemoryCommitDiff,
+  listMemoryHistory,
+  type MemoryCommit,
+} from "./git-history.js";
+
+const MAX_MEMORY_FILE_WRITE_BYTES = 512 * 1024;
 
 type MemfsRootRow = typeof memfsRoots.$inferSelect;
 type MemfsBindingRow = typeof memfsBindings.$inferSelect;
@@ -609,6 +617,55 @@ export function memfsService(db: Db) {
       const root = await requireRootForCompany(companyId, rootId);
       const store = buildStoreForRoot(root);
       return store.stat(relPath);
+    },
+
+    // ---- Writes + history (capture-the-magic Phase 1.3 / 1.4) ----
+
+    writeFile: async (
+      companyId: string,
+      rootId: string,
+      relPath: string,
+      content: string,
+      options: { commitMessage?: string } = {},
+    ): Promise<{ entry: MemfsFileEntry | null; commitSha: string | null }> => {
+      const root = await requireRootForCompany(companyId, rootId);
+      const store = buildStoreForRoot(root);
+      if (!store.write) {
+        throw badRequest(`memfs root kind ${root.kind} does not support writes`);
+      }
+      if (Buffer.byteLength(content, "utf8") > MAX_MEMORY_FILE_WRITE_BYTES) {
+        throw badRequest(
+          `memory file exceeds the ${MAX_MEMORY_FILE_WRITE_BYTES / 1024}KB write limit`,
+        );
+      }
+      await store.write(relPath, content);
+      const commitSha = await commitMemoryChanges(
+        root.rootPath,
+        options.commitMessage?.trim() || `memory: update ${relPath}`,
+        relPath,
+      );
+      return { entry: await store.stat(relPath), commitSha };
+    },
+
+    listHistory: async (
+      companyId: string,
+      rootId: string,
+      options: { pathScope?: string; limit?: number } = {},
+    ): Promise<MemoryCommit[]> => {
+      const root = await requireRootForCompany(companyId, rootId);
+      if (root.kind !== "local-fs") return [];
+      return listMemoryHistory(root.rootPath, options);
+    },
+
+    getCommitDiff: async (
+      companyId: string,
+      rootId: string,
+      sha: string,
+      options: { pathScope?: string } = {},
+    ): Promise<string | null> => {
+      const root = await requireRootForCompany(companyId, rootId);
+      if (root.kind !== "local-fs") return null;
+      return getMemoryCommitDiff(root.rootPath, sha, options);
     },
   };
 }

@@ -223,5 +223,71 @@ export function memfsRoutes(db: Db) {
     res.send(buf);
   });
 
+  // ---- Writes + history (capture-the-magic Phase 1.3 / 1.4) ----
+
+  router.put("/companies/:companyId/memfs/roots/:rootId/file", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    const rootId = req.params.rootId as string;
+    assertCompanyAccess(req, companyId);
+
+    const relPath = typeof req.body?.path === "string" ? req.body.path : "";
+    const content = typeof req.body?.content === "string" ? req.body.content : null;
+    if (relPath.length === 0) throw badRequest("body field 'path' is required");
+    if (content === null) throw badRequest("body field 'content' (string) is required");
+    const commitMessage =
+      typeof req.body?.commitMessage === "string" ? req.body.commitMessage : undefined;
+
+    const result = await svc.writeFile(companyId, rootId, relPath, content, { commitMessage });
+    const actor = getActorInfo(req);
+    await logActivity(db, {
+      companyId,
+      actorType: actor.actorType,
+      actorId: actor.actorId,
+      agentId: actor.agentId,
+      action: "memfs.file.written",
+      entityType: "memfs_root",
+      entityId: rootId,
+      details: {
+        path: relPath,
+        byteLength: Buffer.byteLength(content, "utf8"),
+        commitSha: result.commitSha,
+      },
+    });
+    res.json(result);
+  });
+
+  router.get("/companies/:companyId/memfs/roots/:rootId/history", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    const rootId = req.params.rootId as string;
+    assertCompanyAccess(req, companyId);
+
+    const pathScope = typeof req.query.path === "string" ? req.query.path : undefined;
+    const limit = typeof req.query.limit === "string" ? Number(req.query.limit) : undefined;
+    const commits = await svc.listHistory(companyId, rootId, {
+      pathScope,
+      limit: Number.isFinite(limit) ? limit : undefined,
+    });
+    res.json(commits);
+  });
+
+  router.get(
+    "/companies/:companyId/memfs/roots/:rootId/history/:sha/diff",
+    async (req, res) => {
+      const companyId = req.params.companyId as string;
+      const rootId = req.params.rootId as string;
+      const sha = req.params.sha as string;
+      assertCompanyAccess(req, companyId);
+
+      const pathScope = typeof req.query.path === "string" ? req.query.path : undefined;
+      const diff = await svc.getCommitDiff(companyId, rootId, sha, { pathScope });
+      if (diff === null) {
+        res.status(404).json({ error: "Commit not found or root has no history" });
+        return;
+      }
+      res.setHeader("Content-Type", "text/plain; charset=utf-8");
+      res.send(diff);
+    },
+  );
+
   return router;
 }

@@ -341,7 +341,7 @@ export function MemfsBindingsPanel({ companyId, agentId }: MemfsBindingsPanelPro
               disabled={!hasRoots}
             />
           </Field>
-          <Field label="Permission" hint="V1 enforces read-only. read-write is reserved.">
+          <Field label="Permission" hint="read-write lets the agent (and the Memory Files editor) save into this path. New default bindings are read-write on the agent's own namespace.">
             <select
               className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm outline-none"
               value={permission}
