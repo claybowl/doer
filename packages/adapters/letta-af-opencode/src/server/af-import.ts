@@ -92,6 +92,27 @@ function parseAgentState(raw: string): AfAgentSnapshot {
     throw new Error("agent_state.json is not valid JSON");
   }
 
+  // Schema D (new multi-entity export): root = { agents: [...], blocks: [...] }
+  // with agents[N].block_ids referencing root-level blocks. Use the first
+  // agent's fields and resolve its blocks from the root pool (falling back to
+  // all root blocks when ids aren't matchable).
+  if (Array.isArray(state.agents) && state.agents.length > 0 && isRecord(state.agents[0])) {
+    const first = state.agents[0] as Record<string, unknown>;
+    const rootBlocks = Array.isArray(state.blocks) ? state.blocks : [];
+    const blockIds = new Set(
+      Array.isArray(first.block_ids)
+        ? (first.block_ids as unknown[]).filter((v): v is string => typeof v === "string")
+        : [],
+    );
+    const resolved = rootBlocks.filter(
+      (b) => isRecord(b) && (blockIds.size === 0 || blockIds.has(String(b.id ?? ""))),
+    );
+    state = {
+      ...first,
+      blocks: resolved.length > 0 ? resolved : rootBlocks,
+    };
+  }
+
   const name = typeof state.name === "string" ? state.name : "imported-agent";
   const agentType = typeof state.agent_type === "string" ? state.agent_type : "unknown";
   const system = typeof state.system === "string" ? state.system : undefined;
@@ -136,9 +157,22 @@ async function readAgentStateFromDir(dir: string): Promise<string> {
 
 // ── AGENTS.md builder ────────────────────────────────────────────────────────
 
+/**
+ * Map a memory-block label to a safe flat filename. Labels may contain
+ * slashes (e.g. "system/persona") — flatten to "system__persona.txt" so
+ * writes never depend on (or escape into) subdirectories.
+ */
+export function blockFilename(label: string): string {
+  const flat = label
+    .replace(/\//g, "__")
+    .replace(/[^\w.-]+/g, "_")
+    .replace(/^\.+/, "_");
+  return `${flat || "block"}.txt`;
+}
+
 function buildAgentsMd(snapshot: AfAgentSnapshot, memoryDir: string): string {
   const blockLines = snapshot.blocks.map(
-    (b) => `- \`${b.label}.txt\` — ${b.description ?? b.label}`,
+    (b) => `- \`${blockFilename(b.label)}\` — ${b.description ?? b.label}`,
   );
   const blockSection =
     snapshot.blocks.length > 0
@@ -197,10 +231,9 @@ export async function unpackAgentFile(
 
   const snapshot = parseAgentState(rawState);
 
-  // Write one .txt file per memory block
+  // Write one .txt file per memory block (labels flattened — may contain slashes)
   for (const block of snapshot.blocks) {
-    const filename = `${block.label}.txt`;
-    await fs.writeFile(path.join(destDir, filename), block.value, "utf8");
+    await fs.writeFile(path.join(destDir, blockFilename(block.label)), block.value, "utf8");
   }
 
   // Write AGENTS.md

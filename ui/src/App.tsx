@@ -420,6 +420,7 @@ export function App() {
             <Route path="org" element={<FernwehOrgChart />} />
             <Route path="agents" element={<FernwehAgents />} />
             <Route path="agents/new" element={<FernwehNewAgent />} />
+            <Route path="agents/hire-team" element={<HireTeam />} />
             <Route path="agents/:agentId" element={<FernwehAgentDetail />} />
             <Route path="agents/:agentId/:tab" element={<FernwehAgentDetail />} />
             <Route path="agents/:agentId/runs/:runId" element={<FernwehRunDetail />} />

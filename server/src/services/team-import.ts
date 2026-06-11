@@ -9,7 +9,7 @@ import type {
   TeamManifestAgent,
   TeamSummary,
 } from "@doerai/shared";
-import { unpackAgentFile } from "@doerai/adapter-letta-af-opencode/server";
+import { blockFilename, unpackAgentFile } from "@doerai/adapter-letta-af-opencode/server";
 import { badRequest, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
 import { agentService } from "./agents.js";
@@ -208,7 +208,7 @@ export function teamImportService(db: Db) {
 
     // Never let imported memory carry credentials.
     for (const block of snapshot.blocks) {
-      const filePath = path.join(memoryDir, `${block.label}.txt`);
+      const filePath = path.join(memoryDir, blockFilename(block.label));
       try {
         const content = await fs.readFile(filePath, "utf8");
         const scrubbed = scrubSecrets(content);
@@ -325,7 +325,22 @@ export function teamImportService(db: Db) {
 
     for (const entry of manifest.agents) {
       const reportsToId = entry.reportsTo ? (idBySlug.get(entry.reportsTo) ?? null) : null;
-      const result = await importAgent(companyId, teamDir, manifest, entry, reportsToId);
+      let result: TeamImportAgentResult;
+      try {
+        result = await importAgent(companyId, teamDir, manifest, entry, reportsToId);
+      } catch (err) {
+        // No partial teams: terminate anything we already hired, then rethrow.
+        for (const hired of results) {
+          await agents
+            .update(hired.agentId, { status: "terminated" })
+            .catch(() => undefined);
+        }
+        logger.warn(
+          { companyId, teamId: manifest.id, failedSlug: entry.slug, rolledBack: results.length },
+          "team import failed; hired agents terminated",
+        );
+        throw err;
+      }
       idBySlug.set(entry.slug, result.agentId);
       results.push(result);
 

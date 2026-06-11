@@ -1,0 +1,34 @@
+{
+  "id": "ship-crew",
+  "name": "The Ship Crew",
+  "description": "Strategy, creation, documentation — a chain that decides, builds, and writes it down. Done is better than perfect.",
+  "defaultAdapterType": "letta_af_opencode",
+  "agents": [
+    {
+      "slug": "godnode",
+      "name": "Godnode",
+      "af": "godnode.af",
+      "role": "ceo",
+      "title": "Strategist & Watchdog",
+      "reportsTo": null
+    },
+    {
+      "slug": "maker",
+      "name": "Maker",
+      "af": "maker.af",
+      "role": "executor",
+      "title": "The Creator",
+      "reportsTo": "godnode"
+    },
+    {
+      "slug": "scribe",
+      "name": "Scribe",
+      "af": "scribe.af",
+      "role": "executor",
+      "title": "The Writer",
+      "reportsTo": "godnode"
+    }
+  ],
+  "sharedBlocks": ["council_notes", "work_log"],
+  "packs": []
+}

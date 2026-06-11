@@ -1,0 +1,26 @@
+{
+  "id": "recon-crew",
+  "name": "The Recon Crew",
+  "description": "Coordination and investigation — one sees the whole board, one digs until the truth surfaces.",
+  "defaultAdapterType": "letta_af_opencode",
+  "agents": [
+    {
+      "slug": "marshal",
+      "name": "Marshal",
+      "af": "marshal.af",
+      "role": "ceo",
+      "title": "The Coordinator",
+      "reportsTo": null
+    },
+    {
+      "slug": "sleuth",
+      "name": "Sleuth",
+      "af": "sleuth.af",
+      "role": "researcher",
+      "title": "The Investigator",
+      "reportsTo": "marshal"
+    }
+  ],
+  "sharedBlocks": ["dispatch_state", "findings"],
+  "packs": []
+}

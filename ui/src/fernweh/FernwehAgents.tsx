@@ -402,6 +402,25 @@ export function FernwehAgents() {
             <Icon d={I.bolt} size={12} />
             <span>New agent</span>
           </Link>
+          <Link
+            to={`/${selectedCompany.issuePrefix}/agents/hire-team`}
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "6px 12px",
+              borderRadius: 8,
+              background: "transparent",
+              color: "var(--accent)",
+              fontSize: 12,
+              fontWeight: 600,
+              textDecoration: "none",
+              border: "1px solid var(--accent)",
+              transition: "transform .15s var(--fw-ease)",
+            }}
+          >
+            <span>Hire a Team</span>
+          </Link>
         </div>
       </header>
 
