@@ -1,13 +1,13 @@
 ---
 name: deliverable
 description: >
-  Produce real files (.docx, .xlsx, .pdf, .pptx, .png, .csv) as your
+  Produce real files (.pdf, .xlsx, .docx, .pptx, .png, .csv) as your
   published output, not markdown. Use this skill ANY time your work
   output will be seen by a human user — the Doer user who assigned
   you the task, anyone they share it with, or anyone downloading it
-  later from the Outputs page. Covers the scratch-vs-output
-  distinction, inline Python recipes for the two most common formats
-  (Word + Excel), and how to promote a produced file to the Doer
+  later from the Outputs page. PDF is the default for prose. Covers the
+  scratch-vs-output distinction, inline Python recipes for the common
+  formats (PDF + Excel), and how to promote a produced file to the Doer
   Outputs list so it shows up in Fernweh and is downloadable.
 ---
 
@@ -20,13 +20,13 @@ Human users expect **files** — the kind they open in Word, Excel, Preview, or 
 | Audience | Output |
 |---|---|
 | Other agents, internal notes, planning | `.md` is fine — keep it in your workspace |
-| The Doer user, or anyone they share the file with | Produce a real file: `.docx` / `.xlsx` / `.pdf` / `.pptx` / `.csv` / `.png` |
+| The Doer user, or anyone they share the file with | Produce a real file: `.pdf` / `.xlsx` / `.docx` / `.pptx` / `.csv` / `.png` |
 
 If you're unsure, default to a file. Producing a user-facing output as markdown is treated as a correctness bug.
 
 ## When this skill activates
 
-- You've been asked to write a report, brief, proposal, summary, analysis, executive memo, or any other prose the user will read outside a chat transcript → **produce a `.docx`**.
+- You've been asked to write a report, brief, proposal, summary, analysis, executive memo, or any other prose the user will read outside a chat transcript → **produce a `.pdf`** (the default for prose). Only produce a `.docx` when the user explicitly needs an *editable* Word document.
 - You've been asked to build a tracker, roster, ledger, spreadsheet, budget, forecast, metrics snapshot, or table → **produce an `.xlsx`**.
 - You've been asked to produce a presentation or deck → **produce a `.pptx`**.
 - You've been asked to extract data for download → **produce a `.csv`**.
@@ -37,8 +37,63 @@ If you're unsure, default to a file. Producing a user-facing output as markdown 
 Your workspace has Python. Install format-specific libraries if missing:
 
 ```bash
-pip install --break-system-packages python-docx openpyxl
+pip install --break-system-packages python-docx openpyxl reportlab
 ```
+
+### PDF (`.pdf`) — the default for prose
+
+There are two ways to make a PDF. **Prefer the LibreOffice convert path** — it reuses the
+`python-docx` recipe below and gives the best-looking output. Fall back to `reportlab`
+(pure Python, no external dependency) when LibreOffice isn't installed.
+
+**Primary — write a `.docx`, then convert with LibreOffice:**
+
+```bash
+# 1. Build the .docx with the python-docx recipe below, saving to /tmp/brief.docx
+# 2. Convert to PDF (works if libreoffice / soffice is on PATH):
+libreoffice --headless --convert-to pdf --outdir /tmp /tmp/brief.docx
+# → produces /tmp/brief.pdf   (try `soffice` if `libreoffice` isn't found)
+```
+
+Check it worked: `test -f /tmp/brief.pdf`. If LibreOffice isn't available (the command
+errors or the PDF isn't created), use the fallback.
+
+**Fallback — generate the PDF directly with `reportlab`:**
+
+```python
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.units import inch
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable, ListItem
+
+styles = getSampleStyleSheet()
+doc = SimpleDocTemplate("/tmp/q4-strategy-brief.pdf", pagesize=letter,
+                        topMargin=0.9 * inch, bottomMargin=0.9 * inch)
+
+story = [
+    Paragraph("Q4 Strategy Brief — Acme Corp", styles["Title"]),
+    Spacer(1, 12),
+    Paragraph("Executive summary. One to three sentences setting context and "
+              "what's being asked of the reader.", styles["BodyText"]),
+    Spacer(1, 12),
+    Paragraph("Three Strategic Initiatives", styles["Heading2"]),
+    ListFlowable(
+        [ListItem(Paragraph(t, styles["BodyText"])) for t in [
+            "Initiative one — the what, the why, and the owner.",
+            "Initiative two — the what, the why, and the owner.",
+            "Initiative three — the what, the why, and the owner.",
+        ]],
+        bulletType="bullet",
+    ),
+    Spacer(1, 12),
+    Paragraph("Next Steps", styles["Heading2"]),
+    Paragraph("Owner. Action. When. Success criteria.", styles["BodyText"]),
+]
+doc.build(story)
+```
+
+Notes: `styles["Title"]` / `"Heading2"` / `"BodyText"` cover most prose. For tables use
+`reportlab.platypus.Table` + `TableStyle`. Keep filenames human: `Q4-Strategy-Brief.pdf`.
 
 ### Word (`.docx`) — the `python-docx` recipe
 
@@ -122,7 +177,6 @@ Notes: `ws.column_dimensions["A"].width = 20` for manual widths. Use multiple sh
 
 ### Other formats (brief)
 
-- **`.pdf`** — use `reportlab` (`pip install reportlab`). Simpler path: produce `.docx` then use `libreoffice --headless --convert-to pdf` if available. Produce `.pdf` directly only when layout fidelity matters.
 - **`.pptx`** — use `python-pptx` (`pip install python-pptx`). Create slides with `prs.slides.add_slide(layout)`; add text via `slide.shapes.title.text = "..."` and `slide.placeholders[1].text = "..."`.
 - **`.csv`** — standard library `csv.writer` is fine. Add UTF-8 BOM if Excel will read it: `open("file.csv", "w", encoding="utf-8-sig")`.
 - **`.png`** charts — use `matplotlib` (`plt.savefig("/tmp/chart.png", dpi=144, bbox_inches="tight")`).
@@ -136,9 +190,9 @@ Once the file exists on disk (or in memory, for cloud agents), publish it so the
 POST the file via multipart to the Outputs endpoint:
 
 ```bash
-FILE_PATH="/tmp/q4-strategy-brief.docx"
-KIND="docx"
-FILENAME="Q4-Strategy-Brief.docx"
+FILE_PATH="/tmp/q4-strategy-brief.pdf"
+KIND="pdf"
+FILENAME="Q4-Strategy-Brief.pdf"
 TITLE="Q4 Strategy Brief — Acme Corp"
 DESCRIPTION="Executive summary plus three strategic initiatives."
 
@@ -168,10 +222,10 @@ Letta Cloud agents run in Letta's sandbox — you can't `curl` the user's localh
 
 ```
 produce_deliverable(
-  kind="docx",
-  filename="Q4-Brief.docx",
+  kind="pdf",
+  filename="Q4-Brief.pdf",
   title="Q4 Strategy Brief — Acme Corp",
-  file_content_base64="<base64 of the docx bytes>",
+  file_content_base64="<base64 of the pdf bytes>",
   description="Executive summary plus three strategic initiatives.",
   issue_id="<uuid-or-None>",
   project_id="<uuid-or-None>"
