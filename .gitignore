@@ -71,3 +71,11 @@ tests/release-smoke/playwright-report/
 .env.*
 !.env.example
 !scripts/.env.example
+
+# Runtime / session artifacts
+memory/log.md
+server/log.md
+server/memory/
+.opencode/
+opencode.jsonc
+Doer_Documentation/graphify-out/
