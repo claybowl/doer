@@ -25,14 +25,18 @@ const config: ForgeConfig = {
 	},
 	rebuildConfig: {},
 	makers: [
-		// Explicit name strips the @doer/ scope from package.json that Squirrel
-		// can't handle (interprets the / as a path separator → ENOENT on .nuspec).
-		// authors is required by Squirrel's nuspec generator and isn't in package.json.
-		new MakerSquirrel({
-			name: "doer-desktop",
-			authors: "Donjon Intelligence Systems",
-			description: "Doer — control plane for AI-agent companies",
-		}),
+		// MakerSquirrel requires Windows-native modules that throw on macOS/Linux
+		// during construction — guard instantiation so the makers array stays intact
+		// on non-Windows runners.
+		...(process.platform === "win32"
+			? [
+					new MakerSquirrel({
+						name: "doer-desktop",
+						authors: "Donjon Intelligence Systems",
+						description: "Doer — control plane for AI-agent companies",
+					}),
+				]
+			: []),
 		new MakerZIP({}, ["darwin"]),
 	],
 	publishers: [
