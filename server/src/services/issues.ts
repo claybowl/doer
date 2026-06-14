@@ -74,6 +74,10 @@ export interface IssueFilters {
   originId?: string;
   includeRoutineExecutions?: boolean;
   q?: string;
+  /** Only return issues inactive (no status change or comment) for at least this many hours. */
+  staleAfterHours?: number;
+  /** Only return issues that have an assigned agent but have never been picked up (startedAt IS NULL) for at least N hours. */
+  assignedUntouchedForHours?: number;
 }
 
 type IssueRow = typeof issues.$inferSelect;
@@ -622,6 +626,22 @@ export function issueService(db: Db) {
         conditions.push(ne(issues.originKind, "routine_execution"));
       }
       conditions.push(isNull(issues.hiddenAt));
+
+      if (filters?.staleAfterHours != null && filters.staleAfterHours > 0) {
+        conditions.push(
+          sql<boolean>`${issues.updatedAt} < now() - (${filters.staleAfterHours} * interval '1 hour')`,
+        );
+        // Only flag active (non-terminal) issues as stale.
+        conditions.push(inArray(issues.status, ["backlog", "todo", "in_progress", "in_review", "blocked"]));
+      }
+
+      if (filters?.assignedUntouchedForHours != null && filters.assignedUntouchedForHours > 0) {
+        conditions.push(sql<boolean>`${issues.assigneeAgentId} IS NOT NULL`);
+        conditions.push(isNull(issues.startedAt));
+        conditions.push(
+          sql<boolean>`${issues.updatedAt} < now() - (${filters.assignedUntouchedForHours} * interval '1 hour')`,
+        );
+      }
 
       const priorityOrder = sql`CASE ${issues.priority} WHEN 'critical' THEN 0 WHEN 'high' THEN 1 WHEN 'medium' THEN 2 WHEN 'low' THEN 3 ELSE 4 END`;
       const searchOrder = sql<number>`
@@ -1265,6 +1285,33 @@ export function issueService(db: Db) {
         .where(eq(labels.id, id))
         .returning()
         .then((rows) => rows[0] ?? null),
+
+    findSimilarByTitle: async (
+      companyId: string,
+      title: string,
+      opts?: { limit?: number; excludeId?: string },
+    ) => {
+      const normalized = title.trim().toLowerCase().replace(/[^\w\s]/g, "").replace(/\s+/g, " ");
+      const words = normalized.split(" ").filter((w) => w.length > 3);
+      if (words.length === 0) return [];
+      // Match issues whose title contains the majority of the significant words.
+      const wordConditions = words.map(
+        (w) => sql<boolean>`lower(${issues.title}) LIKE ${"%" + w + "%"}`,
+      );
+      const matchThreshold = Math.ceil(words.length * 0.6);
+      const conds = [
+        eq(issues.companyId, companyId),
+        inArray(issues.status, ["todo", "backlog", "in_progress", "blocked"]),
+        sql<boolean>`(${wordConditions.map((c) => sql`CASE WHEN ${c} THEN 1 ELSE 0 END`).reduce((a, b) => sql`${a} + ${b}`)}) >= ${matchThreshold}`,
+      ];
+      if (opts?.excludeId) conds.push(ne(issues.id, opts.excludeId));
+      return db
+        .select({ id: issues.id, identifier: issues.identifier, title: issues.title, status: issues.status })
+        .from(issues)
+        .where(and(...conds))
+        .orderBy(desc(issues.createdAt))
+        .limit(opts?.limit ?? 5);
+    },
 
     listComments: async (
       issueId: string,

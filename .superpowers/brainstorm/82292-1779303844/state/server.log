@@ -1,0 +1,7 @@
+{"type":"server-started","port":50264,"host":"127.0.0.1","url_host":"localhost","url":"http://localhost:50264","screen_dir":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content","state_dir":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/state"}
+{"type":"screen-added","file":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content/council-page.html"}
+{"type":"screen-updated","file":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content/council-page.html"}
+{"type":"screen-added","file":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content/council-v2.html"}
+{"type":"screen-updated","file":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content/council-v2.html"}
+{"type":"screen-updated","file":"/Users/clay/Desktop/donjon.agency/doer_dev/donjon-paperclip/.superpowers/brainstorm/82292-1779303844/content/council-v2.html"}
+{"type":"server-stopped","reason":"idle timeout"}

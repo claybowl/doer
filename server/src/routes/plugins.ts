@@ -112,7 +112,19 @@ const UUID_REGEX =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const REPO_ROOT = path.resolve(__dirname, "../../..");
+// In dev, __dirname is server/src/routes/ → repo root is ../../..
+// In packaged Electron, __dirname is inside app.asar so that path is wrong.
+// process.cwd() is set to the server/ directory by the spawn target in both cases,
+// so walk up one level to reach the repo root (or the equivalent resources root).
+const REPO_ROOT = (() => {
+  const cwdBased = path.resolve(process.cwd(), "..");
+  const dirnameBasedFallback = path.resolve(__dirname, "../../..");
+  // Prefer cwd-based root if it contains a packages/ directory (i.e. looks like repo root).
+  // Fall back to __dirname-relative for local dev where pnpm dev sets cwd to server/.
+  if (existsSync(path.join(cwdBased, "packages"))) return cwdBased;
+  if (existsSync(path.join(dirnameBasedFallback, "packages"))) return dirnameBasedFallback;
+  return cwdBased;
+})();
 
 const BUNDLED_PLUGIN_EXAMPLES: AvailablePluginExample[] = [
   {

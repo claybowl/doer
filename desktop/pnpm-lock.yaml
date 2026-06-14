@@ -54,6 +54,9 @@ importers:
       '@electron/fuses':
         specifier: ^2.1.1
         version: 2.1.1
+      '@reforged/maker-appimage':
+        specifier: ^5.2.0
+        version: 5.2.0
       '@types/react':
         specifier: ^19.0.0
         version: 19.2.14
@@ -526,6 +529,13 @@ packages:
   '@oxc-project/types@0.127.0':
     resolution: {integrity: sha512-aIYXQBo4lCbO4z0R3FHeucQHpF46l2LbMdxRvqvuRuW2OxdnSkcng5B8+K12spgLDj93rtN3+J2Vac/TIO+ciQ==}
 
+  '@reforged/maker-appimage@5.2.0':
+    resolution: {integrity: sha512-5u7spsDMyMfwqAnTRsSipVgTIy+DW+wlfhceaRghCuTvyY8Sti8/tFhVKj4vb+dYTqPvS7m30Gl0InGv22J8RQ==}
+    engines: {node: '>=19.0.0 || ^18.11.0'}
+
+  '@reforged/maker-types@2.1.0':
+    resolution: {integrity: sha512-gNMAFO6mxqGwuUov0CzXGTHUMfAawlM6v/uYrqVnKeMwmceaLBt3HtfPcuNapDSH4br6D4EZ14WuWbgefmDfOQ==}
+
   '@rolldown/binding-android-arm64@1.0.0-rc.17':
     resolution: {integrity: sha512-s70pVGhw4zqGeFnXWvAzJDlvxhlRollagdCCKRgOsgUOH3N1l0LIxf83AtGzmb5SiVM4Hjl5HyarMRfdfj3DaQ==}
     engines: {node: ^20.19.0 || >=22.12.0}
@@ -850,6 +860,9 @@ packages:
   '@smithy/uuid@1.1.2':
     resolution: {integrity: sha512-O/IEdcCUKkubz60tFbGA7ceITTAJsty+lBjNoorP4Z6XRqaFb/OjQjZODophEcuq68nKm6/0r+6/lLQ+XVpk8g==}
     engines: {node: '>=18.0.0'}
+
+  '@spacingbat3/lss@1.2.0':
+    resolution: {integrity: sha512-aywhxHNb6l7COooF3m439eT/6QN8E/RSl5IVboSKthMHcp0GlZYMSoS7546rqDLmFRxTD8f1tu/NIS9vtDwYAg==}
 
   '@szmarczak/http-timer@4.0.6':
     resolution: {integrity: sha512-4BAffykYOgO+5nzBWYwE3W90sBgLJoUPRWWcL8wlyiM8IB8ipJz3UMJ9KXQd1RKQXpKp8Tutn80HZtWsu2u76w==}
@@ -3714,6 +3727,18 @@ snapshots:
 
   '@oxc-project/types@0.127.0': {}
 
+  '@reforged/maker-appimage@5.2.0':
+    dependencies:
+      '@electron-forge/maker-base': 7.11.1
+      '@reforged/maker-types': 2.1.0
+      '@spacingbat3/lss': 1.2.0
+      semver: 7.7.4
+    transitivePeerDependencies:
+      - bluebird
+      - supports-color
+
+  '@reforged/maker-types@2.1.0': {}
+
   '@rolldown/binding-android-arm64@1.0.0-rc.17':
     optional: true
 
@@ -4111,6 +4136,8 @@ snapshots:
   '@smithy/uuid@1.1.2':
     dependencies:
       tslib: 2.8.1
+
+  '@spacingbat3/lss@1.2.0': {}
 
   '@szmarczak/http-timer@4.0.6':
     dependencies:

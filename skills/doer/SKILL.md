@@ -87,6 +87,37 @@ Status values: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`,
 
 **Step 9 — Delegate if needed.** Create subtasks with `POST /api/companies/{companyId}/issues`. Always set `parentId` and `goalId`. Set `billingCode` for cross-team work.
 
+## NOOP Circuit Breaker
+
+When you wake up on a timer run and genuinely have nothing to do (queue is stable, no assignments, no blocked tasks you can unblock), signal it explicitly so Doer can apply backoff:
+
+```json
+{ "noop": true }
+```
+
+Include this in your run's result JSON output. After **5 consecutive timer NOOPs**, Doer doubles the effective heartbeat interval per additional NOOP (capped at 8×). A non-timer wake (issue assigned, comment mention) resets the counter to 0.
+
+The current `consecutiveNoops` count and `backoffMultiplier` are injected into your context snapshot so you can see how backed-off you are. If the count is high (≥10), consider escalating via `chainOfCommand` rather than waiting — something structural may need human attention.
+
+**Do NOT signal NOOP if:**
+- You have a `DOER_TASK_ID` assigned to you
+- You posted a comment or updated an issue this run
+- You did any real work, even if the result was "nothing changed"
+
+Only signal NOOP when you truly did nothing and have nothing queued.
+
+## Duplicate Issue Detection
+
+When creating issues, the API now returns `_similarIssues` and `_warning` in the response if open issues with similar titles exist. Check this before creating subtasks:
+
+```bash
+POST /api/companies/{companyId}/issues
+# Response may include:
+# { ..., "_warning": "Possible duplicate: similar open issues exist (DON-123, DON-456).", "_similarIssues": [...] }
+```
+
+If `_similarIssues` is non-empty, review them before proceeding. Link to the existing issue instead of creating a duplicate if they cover the same work.
+
 ## Project Setup Workflow (CEO/Manager Common Path)
 
 When asked to set up a new project with workspace config (local folder and/or GitHub repo), use:
@@ -285,6 +316,11 @@ PATCH /api/agents/{agentId}/instructions-path
 | Build company export                     | `POST /api/companies/:companyId/exports`                                                   |
 | Dashboard                                 | `GET /api/companies/:companyId/dashboard`                                                  |
 | Search issues                             | `GET /api/companies/:companyId/issues?q=search+term`                                       |
+| Stale issues (inactive for N hours)       | `GET /api/companies/:companyId/issues?staleAfterHours=72`                                  |
+| Assigned but untouched for N hours        | `GET /api/companies/:companyId/issues?assignedUntouchedForHours=4`                         |
+| Bulk reassign from one agent to another   | `POST /api/companies/:companyId/issues/bulk-reassign` `{fromAgentId, toAgentId, reason}`   |
+| List issue work products (artifacts)      | `GET /api/issues/:issueId/work-products`                                                   |
+| Create issue work product (artifact)      | `POST /api/issues/:issueId/work-products` `{type, provider, title, url, status}`           |
 | Upload attachment (multipart, field=file) | `POST /api/companies/:companyId/issues/:issueId/attachments`                               |
 | List issue attachments                    | `GET /api/issues/:issueId/attachments`                                                     |
 | Get attachment content                    | `GET /api/attachments/:attachmentId/content`                                               |

@@ -62,6 +62,13 @@ const artifacts = [
 		s3Key: `${S3_FOLDER}/win32/x64/Doer-${version} Setup.exe`,
 		contentType: "application/octet-stream",
 	},
+	// Linux AppImage (single ELF binary). No auto-update on Linux, so no
+	// RELEASES.json is published for this target — it's download-only.
+	{
+		localPath: path.join(outDir, "AppImage", "x64", `Doer-${version}-x64.AppImage`),
+		s3Key: `${S3_FOLDER}/linux/x64/Doer-${version}-x64.AppImage`,
+		contentType: "application/octet-stream",
+	},
 ];
 
 let uploaded = 0;

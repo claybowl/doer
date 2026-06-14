@@ -1,0 +1,1027 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Doer · Council</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <script src="https://unpkg.com/react@18.3.1/umd/react.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" crossorigin="anonymous"></script>
+  <script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" crossorigin="anonymous"></script>
+
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0; padding: 0;
+      background: #0a0a12;
+      color: #e8e8f0;
+      font-family: 'Inter', -apple-system, system-ui, sans-serif;
+      font-size: 14px;
+      -webkit-font-smoothing: antialiased;
+    }
+    button { font-family: inherit; cursor: pointer; }
+
+    @keyframes pulseDot {
+      0%   { box-shadow: 0 0 0 0 rgba(34,211,238,0.6); }
+      70%  { box-shadow: 0 0 0 7px rgba(34,211,238,0); }
+      100% { box-shadow: 0 0 0 0 rgba(34,211,238,0); }
+    }
+    @keyframes slideUp {
+      from { opacity:0; transform:translateY(16px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    ::-webkit-scrollbar { width: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: #2a2a3e; border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useEffect, useRef } = React;
+
+// ── Data ─────────────────────────────────────────────────────────────────────
+
+const AGENTS = [
+  { id: 'dondog',  name: 'DonDog', role: 'orchestrator', color: '#7c8df0' },
+  { id: 'chef',    name: 'Chef',   role: 'member',        color: '#22d3ee' },
+  { id: 'alfie',   name: 'Alfie',  role: 'member',        color: '#a78bfa' },
+];
+
+const SESSION_TYPES = [
+  {
+    id: 'full_council',
+    label: 'Full Council',
+    icon: '🏛️',
+    description: 'All participants address a shared brief. Orchestrator synthesizes and creates issues.',
+    invocationModes: ['parallel', 'sequential'],
+  },
+  {
+    id: 'interview',
+    label: '1:1 Interview',
+    icon: '🎙️',
+    description: 'Orchestrator interviews you with structured questions and produces issues from your answers.',
+    invocationModes: ['sequential'],
+  },
+  {
+    id: 'bidding',
+    label: 'Bidding Session',
+    icon: '🎯',
+    description: 'Blank issues are created first; agents claim them by submitting bids. Orchestrator resolves conflicts.',
+    invocationModes: ['parallel'],
+  },
+];
+
+const SESSIONS = [
+  {
+    id: 'ses_4f2ac91e',
+    typeId: 'full_council',
+    status: 'running',
+    invocationMode: 'parallel',
+    resolutionMode: 'orchestrator',
+    triggeredBy: 'schedule',
+    participants: [
+      { agentId: 'dondog', role: 'orchestrator' },
+      { agentId: 'chef',   role: 'member' },
+      { agentId: 'alfie',  role: 'member' },
+    ],
+    startedAt: 'May 20, 1:09 AM',
+    agenda: ['Review open issues', 'Identify blockers', 'Propose next sprint issues'],
+    transcript: [
+      { agentId: 'chef',  role: 'member', status: 'completed', content: 'Analyzing current task queue. Plugin deployment blocking 3 sprint goals. Recommending council focus on unblocking infrastructure.' },
+      { agentId: 'alfie', role: 'member', status: 'pending',   content: null },
+    ],
+    decision: null,
+    issuesCreated: [],
+  },
+  {
+    id: 'ses_9b3ca7f1',
+    typeId: 'full_council',
+    status: 'completed',
+    invocationMode: 'parallel',
+    resolutionMode: 'orchestrator',
+    triggeredBy: 'schedule',
+    participants: [
+      { agentId: 'dondog', role: 'orchestrator' },
+      { agentId: 'chef',   role: 'member' },
+      { agentId: 'alfie',  role: 'member' },
+    ],
+    startedAt: 'May 19, 9:00 PM',
+    agenda: ['Goal alignment check', 'Documentation gaps', 'Budget status'],
+    transcript: [
+      { agentId: 'chef',  role: 'member',       status: 'completed', content: 'Completed sprint-3 goals at 87%. Two documentation issues remain open. Requesting 1 more cycle before marking done.' },
+      { agentId: 'alfie', role: 'member',       status: 'completed', content: 'Business layer concerns: budget tracking page is stale. Council should prioritize the ROI dashboard refresh.' },
+      { agentId: 'dondog',role: 'orchestrator', status: 'completed', content: 'Synthesized transcript. Three actionable proposals accepted. Assigning ROI dashboard to Alfie, doc issues to Chef.' },
+    ],
+    decision: { summary: 'ROI dashboard refresh (Alfie), 2 doc issues (Chef), 1 API stability issue (Chef). Sprint-4 kickoff approved.' },
+    issuesCreated: ['DON-112', 'DON-113', 'DON-114'],
+  },
+  {
+    id: 'ses_a17d3f00',
+    typeId: 'interview',
+    status: 'completed',
+    invocationMode: 'sequential',
+    resolutionMode: 'user_approval',
+    triggeredBy: 'manual',
+    participants: [
+      { agentId: 'dondog', role: 'orchestrator' },
+    ],
+    startedAt: 'May 18, 3:00 PM',
+    agenda: ['Identify current blockers', 'Clarify sprint priorities', 'Validate resource allocation'],
+    transcript: [
+      { agentId: 'dondog', role: 'orchestrator', status: 'completed', content: 'Q1: What is the single biggest blocker to shipping Council this week?' },
+      { agentId: 'clay',   role: 'guest',        status: 'completed', content: 'Plugin sidebar integration — not showing up in the nav at all on the packaged build.' },
+      { agentId: 'dondog', role: 'orchestrator', status: 'completed', content: 'Q2: Is the issue in the plugin manifest or the sidebar slot renderer?' },
+      { agentId: 'clay',   role: 'guest',        status: 'completed', content: 'Both. Manifest has the sidebar slot but the Electron binary predates the slot renderer.' },
+    ],
+    decision: { summary: 'Two issues: (1) Sidebar slot renderer needs inclusion in 0.0.9 binary, (2) Council manifest sidebar entry needs testing on fresh install.' },
+    issuesCreated: ['DON-108', 'DON-109'],
+  },
+  {
+    id: 'ses_7d1fd4b2',
+    typeId: 'bidding',
+    status: 'completed_with_errors',
+    invocationMode: 'parallel',
+    resolutionMode: 'orchestrator',
+    triggeredBy: 'manual',
+    participants: [
+      { agentId: 'dondog', role: 'orchestrator' },
+      { agentId: 'chef',   role: 'member' },
+      { agentId: 'alfie',  role: 'member' },
+    ],
+    startedAt: 'May 13, 6:00 PM',
+    agenda: ['Backlog gap analysis', 'Assign unowned issues'],
+    transcript: [
+      { agentId: 'chef',  role: 'member',       status: 'completed', content: 'Bidding on DON-089 (API stability), DON-091 (log viewer). Reasoning: within current sprint domain.' },
+      { agentId: 'alfie', role: 'member',       status: 'failed',    content: null, error: 'Response timeout after 45s.' },
+      { agentId: 'dondog',role: 'orchestrator', status: 'completed', content: 'Chef wins DON-089 and DON-091 by default (Alfie timed out). DON-093 left unassigned — escalate to Clay.' },
+    ],
+    decision: { summary: 'Chef assigned DON-089, DON-091. DON-093 unresolved — Alfie timeout caused partial session.' },
+    issuesCreated: ['DON-089', 'DON-091'],
+  },
+  {
+    id: 'ses_c509e2a8',
+    typeId: 'full_council',
+    status: 'failed',
+    invocationMode: 'parallel',
+    resolutionMode: 'orchestrator',
+    triggeredBy: 'schedule',
+    participants: [
+      { agentId: 'dondog', role: 'orchestrator' },
+      { agentId: 'chef',   role: 'member' },
+      { agentId: 'alfie',  role: 'member' },
+    ],
+    startedAt: 'May 10, 6:00 PM',
+    transcript: [],
+    decision: null,
+    issuesCreated: [],
+    error: 'Budget exhausted before session could start. $0.00 remaining.',
+  },
+];
+
+const CONFIG = {
+  enabledSessionTypes: ['full_council', 'interview', 'bidding'],
+  schedule: '0 18 * * 1,3,5',
+  defaultSessionTypeId: 'full_council',
+  agenda: {
+    prompts: [
+      'Review all open issues older than 5 days.',
+      'Identify any current blockers preventing goal progress.',
+      'Propose 2–4 concrete new issues for the next work cycle.',
+    ],
+    perAgent: {
+      dondog: 'As orchestrator: synthesize all proposals and create a unified decision. Reject or merge overlapping issues.',
+      chef:   'As executor: focus on technical blockers and implementation-ready issues. Flag anything requiring Clay approval.',
+      alfie:  'As business lead: focus on user-facing impact, resource costs, and cross-agent dependencies.',
+    },
+    outputConstraints: { minIssues: 2, maxIssues: 6, format: 'structured' },
+  },
+};
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+const statusMeta = {
+  running:                { label: 'Running',          dot: '#22d3ee', pulse: true,  bg: '#0f2a2e', text: '#22d3ee' },
+  pending:                { label: 'Pending',           dot: '#f59e0b', pulse: false, bg: '#2a1f0a', text: '#f59e0b' },
+  completed:              { label: 'Done',              dot: '#22c55e', pulse: false, bg: '#0a2010', text: '#22c55e' },
+  completed_with_errors:  { label: 'Partial',          dot: '#f97316', pulse: false, bg: '#2a1508', text: '#f97316' },
+  failed:                 { label: 'Failed',            dot: '#f87171', pulse: false, bg: '#2a0a0a', text: '#f87171' },
+};
+
+const agentById = (id) => AGENTS.find(a => a.id === id) ?? { name: id, color: '#888' };
+const typeById  = (id) => SESSION_TYPES.find(t => t.id === id);
+
+// ── Sub-components ────────────────────────────────────────────────────────────
+
+function StatusDot({ status, size = 8 }) {
+  const m = statusMeta[status] ?? statusMeta.pending;
+  return (
+    <span style={{
+      display: 'inline-block',
+      width: size, height: size,
+      borderRadius: '50%',
+      background: m.dot,
+      flexShrink: 0,
+      animation: m.pulse ? 'pulseDot 1.8s ease-out infinite' : 'none',
+    }} />
+  );
+}
+
+function ParticipantChip({ agentId, role }) {
+  const agent = agentById(agentId);
+  return (
+    <span style={{
+      display: 'inline-flex', alignItems: 'center', gap: 4,
+      padding: '2px 8px',
+      borderRadius: 20,
+      border: `1px solid ${agent.color}44`,
+      background: `${agent.color}11`,
+      color: agent.color,
+      fontSize: 11,
+      fontWeight: 500,
+    }}>
+      {role === 'orchestrator' && <span style={{ opacity: 0.7 }}>⬡ </span>}
+      {agent.name}
+    </span>
+  );
+}
+
+function TypeTag({ typeId }) {
+  const t = typeById(typeId);
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4, fontSize: 11, color: '#a0a0b8', fontWeight: 500 }}>
+      {t?.icon} {t?.label ?? typeId}
+    </span>
+  );
+}
+
+// ── Session Card ──────────────────────────────────────────────────────────────
+
+function SessionCard({ session, onClick }) {
+  const m = statusMeta[session.status];
+  const type = typeById(session.typeId);
+  const issueCount = session.issuesCreated?.length ?? 0;
+  const lastEntry = session.transcript?.filter(e => e.status === 'completed' && e.content).slice(-1)[0];
+
+  return (
+    <div onClick={onClick} style={{
+      background: '#1c1c2e',
+      border: '1px solid #2a2a3e',
+      borderRadius: 10,
+      padding: '16px',
+      cursor: 'pointer',
+      transition: 'border-color 0.15s, transform 0.12s',
+      animation: 'slideUp 0.25s ease-out both',
+    }}
+    onMouseEnter={e => { e.currentTarget.style.borderColor = '#4a4a6a'; e.currentTarget.style.transform = 'translateY(-2px)'; }}
+    onMouseLeave={e => { e.currentTarget.style.borderColor = '#2a2a3e'; e.currentTarget.style.transform = 'translateY(0)'; }}
+    >
+      {/* Header row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+        <TypeTag typeId={session.typeId} />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+          <StatusDot status={session.status} />
+          <span style={{ fontSize: 11, fontWeight: 600, color: m.text, textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+            {m.label}
+          </span>
+        </div>
+      </div>
+
+      {/* Session ID */}
+      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#5a5a7a', marginBottom: 8 }}>
+        {session.id}
+      </div>
+
+      {/* Participants */}
+      <div style={{ marginBottom: 10 }}>
+        <div style={{ fontSize: 10, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>Participants</div>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 4 }}>
+          {session.participants.map(p => (
+            <ParticipantChip key={p.agentId} agentId={p.agentId} role={p.role} />
+          ))}
+        </div>
+      </div>
+
+      {/* Meta row */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 }}>
+        <span style={{ fontSize: 11, color: '#5a5a7a' }}>
+          {session.startedAt} · {session.invocationMode} · via {session.triggeredBy}
+        </span>
+        {session.status === 'failed' ? (
+          <span style={{ fontSize: 11, color: '#f87171' }}>no issues</span>
+        ) : (
+          <span style={{ fontSize: 11, color: issueCount > 0 ? '#22c55e' : '#5a5a7a' }}>
+            {issueCount > 0 ? `${issueCount} issues` : '—'}
+          </span>
+        )}
+      </div>
+
+      {/* Error or transcript tail */}
+      {session.error ? (
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#f87171', background: '#2a0a0a', borderRadius: 6, padding: '8px 10px' }}>
+          ✕ {session.error}
+        </div>
+      ) : lastEntry ? (
+        <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#6a6a8a', background: '#12121f', borderRadius: 6, padding: '8px 10px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+          › {agentById(lastEntry.agentId).name}: {lastEntry.content}
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+// ── Session Detail Modal ──────────────────────────────────────────────────────
+
+function SessionDetail({ session, onClose }) {
+  const m = statusMeta[session.status];
+  const type = typeById(session.typeId);
+
+  useEffect(() => {
+    const handler = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, []);
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 24,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: '#1c1c2e', border: '1px solid #2a2a3e', borderRadius: 14,
+        width: '100%', maxWidth: 700, maxHeight: '85vh', overflowY: 'auto',
+        animation: 'slideUp 0.2s ease-out',
+      }}>
+        {/* Modal header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2a2a3e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+              <span style={{ fontSize: 18 }}>{type?.icon}</span>
+              <span style={{ fontSize: 16, fontWeight: 600 }}>{type?.label}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 5, padding: '2px 8px', borderRadius: 20, background: m.bg }}>
+                <StatusDot status={session.status} size={7} />
+                <span style={{ fontSize: 11, color: m.text, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.04em' }}>{m.label}</span>
+              </div>
+            </div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#5a5a7a' }}>
+              {session.id} · {session.startedAt} · {session.invocationMode} invocation · {session.resolutionMode} resolution · via {session.triggeredBy}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#5a5a7a', fontSize: 18, padding: 4, lineHeight: 1, cursor: 'pointer' }}>✕</button>
+        </div>
+
+        <div style={{ padding: '20px 24px', display: 'flex', flexDirection: 'column', gap: 20 }}>
+
+          {/* Participants */}
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Participants</div>
+            <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+              {session.participants.map(p => <ParticipantChip key={p.agentId} agentId={p.agentId} role={p.role} />)}
+            </div>
+          </div>
+
+          {/* Agenda */}
+          {session.agenda && (
+            <div>
+              <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Agenda</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                {session.agenda.map((item, i) => (
+                  <div key={i} style={{ fontSize: 12, color: '#a0a0c0', display: 'flex', gap: 8 }}>
+                    <span style={{ color: '#4a4a6a', flexShrink: 0, fontFamily: "'JetBrains Mono', monospace" }}>{i+1}.</span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Transcript */}
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>Transcript</div>
+            {session.transcript.length === 0 && (
+              <div style={{ color: '#5a5a7a', fontSize: 12 }}>No transcript entries yet.</div>
+            )}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {session.transcript.map((entry, i) => {
+                const agent = agentById(entry.agentId);
+                return (
+                  <div key={i} style={{
+                    background: '#12121f', borderRadius: 8,
+                    border: `1px solid ${entry.status === 'failed' ? '#f8717140' : entry.status === 'pending' ? '#f59e0b30' : '#2a2a3e'}`,
+                    padding: '10px 12px',
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: entry.content ? 6 : 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: agent.color, display: 'inline-block', flexShrink: 0 }} />
+                        <span style={{ fontSize: 12, fontWeight: 600, color: agent.color }}>{agent.name}</span>
+                        <span style={{ fontSize: 10, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.05em' }}>{entry.role}</span>
+                      </div>
+                      {entry.status === 'pending' && (
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 5, color: '#f59e0b', fontSize: 11 }}>
+                          <span style={{ width: 10, height: 10, border: '2px solid #f59e0b', borderTopColor: 'transparent', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.8s linear infinite' }} />
+                          responding…
+                        </div>
+                      )}
+                      {entry.status === 'failed' && (
+                        <span style={{ fontSize: 11, color: '#f87171' }}>✕ {entry.error}</span>
+                      )}
+                    </div>
+                    {entry.content && (
+                      <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#c0c0d8', lineHeight: 1.6 }}>
+                        {entry.content}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Decision */}
+          {session.decision && (
+            <div>
+              <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Decision</div>
+              <div style={{ background: '#0f1a0a', border: '1px solid #22c55e30', borderRadius: 8, padding: '12px 14px' }}>
+                <div style={{ fontSize: 12, color: '#c0d8c0', lineHeight: 1.6 }}>{session.decision.summary}</div>
+              </div>
+            </div>
+          )}
+
+          {/* Issues Created */}
+          {session.issuesCreated?.length > 0 && (
+            <div>
+              <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Issues Created</div>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {session.issuesCreated.map(id => (
+                  <span key={id} style={{
+                    fontFamily: "'JetBrains Mono', monospace", fontSize: 11,
+                    padding: '3px 8px', borderRadius: 5,
+                    background: '#1a1a2e', border: '1px solid #3a3a5a', color: '#7c8df0',
+                    cursor: 'pointer',
+                  }}>{id}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Error */}
+          {session.error && (
+            <div style={{ background: '#2a0a0a', border: '1px solid #f8717130', borderRadius: 8, padding: '12px 14px' }}>
+              <div style={{ fontSize: 11, color: '#f87171', fontFamily: "'JetBrains Mono', monospace" }}>✕ {session.error}</div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Start Session Modal ───────────────────────────────────────────────────────
+
+function StartSessionModal({ onClose }) {
+  const [step, setStep] = useState('type'); // 'type' | 'config'
+  const [selectedType, setSelectedType] = useState(null);
+  const [invocationMode, setInvocationMode] = useState('parallel');
+  const [resolutionMode, setResolutionMode] = useState('orchestrator');
+  const [participants, setParticipants] = useState(
+    AGENTS.map(a => ({ ...a, included: true }))
+  );
+  const [guestPrompt, setGuestPrompt] = useState('');
+
+  useEffect(() => {
+    const h = (e) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', h);
+    return () => window.removeEventListener('keydown', h);
+  }, []);
+
+  useEffect(() => {
+    if (selectedType) {
+      setInvocationMode(selectedType.invocationModes[0]);
+    }
+  }, [selectedType]);
+
+  const toggleParticipant = (id) => {
+    setParticipants(prev => prev.map(p => p.id === id ? { ...p, included: !p.included } : p));
+  };
+
+  return (
+    <div onClick={onClose} style={{
+      position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', backdropFilter: 'blur(6px)',
+      display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 24,
+    }}>
+      <div onClick={e => e.stopPropagation()} style={{
+        background: '#1c1c2e', border: '1px solid #2a2a3e', borderRadius: 14,
+        width: '100%', maxWidth: 540,
+        animation: 'slideUp 0.2s ease-out',
+      }}>
+        {/* Header */}
+        <div style={{ padding: '20px 24px 16px', borderBottom: '1px solid #2a2a3e', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div>
+            <div style={{ fontWeight: 600, fontSize: 15, marginBottom: 2 }}>Start Council Session</div>
+            <div style={{ fontSize: 11, color: '#5a5a7a' }}>
+              {step === 'type' ? 'Step 1 of 2 — Choose session type' : 'Step 2 of 2 — Configure session'}
+            </div>
+          </div>
+          <button onClick={onClose} style={{ background: 'none', border: 'none', color: '#5a5a7a', fontSize: 18, padding: 4, lineHeight: 1 }}>✕</button>
+        </div>
+
+        <div style={{ padding: '20px 24px' }}>
+          {step === 'type' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+              {SESSION_TYPES.map(t => (
+                <div key={t.id} onClick={() => setSelectedType(t)} style={{
+                  padding: '14px 16px', borderRadius: 10, cursor: 'pointer',
+                  border: `1px solid ${selectedType?.id === t.id ? '#7c8df0' : '#2a2a3e'}`,
+                  background: selectedType?.id === t.id ? '#1a1a38' : '#12121f',
+                  transition: 'all 0.15s',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 4 }}>
+                    <span style={{ fontSize: 18 }}>{t.icon}</span>
+                    <span style={{ fontWeight: 600, fontSize: 13 }}>{t.label}</span>
+                    <span style={{ fontSize: 10, color: '#5a5a7a', marginLeft: 'auto', fontFamily: "'JetBrains Mono', monospace" }}>
+                      {t.invocationModes.join(' | ')}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: 12, color: '#8080a0', lineHeight: 1.5 }}>{t.description}</div>
+                </div>
+              ))}
+              <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 4 }}>
+                <button
+                  disabled={!selectedType}
+                  onClick={() => setStep('config')}
+                  style={{
+                    padding: '8px 20px', borderRadius: 8, border: 'none',
+                    background: selectedType ? '#7c8df0' : '#2a2a3e',
+                    color: selectedType ? '#fff' : '#5a5a7a',
+                    fontWeight: 600, fontSize: 13, cursor: selectedType ? 'pointer' : 'not-allowed',
+                    transition: 'background 0.15s',
+                  }}
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 'config' && selectedType && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+              {/* Invocation Mode */}
+              <div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Invocation Mode</div>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  {selectedType.invocationModes.map(mode => (
+                    <button key={mode} onClick={() => setInvocationMode(mode)} style={{
+                      padding: '6px 14px', borderRadius: 7, border: `1px solid ${invocationMode === mode ? '#7c8df0' : '#2a2a3e'}`,
+                      background: invocationMode === mode ? '#1a1a38' : '#12121f',
+                      color: invocationMode === mode ? '#7c8df0' : '#6a6a8a',
+                      fontWeight: 500, fontSize: 12, cursor: 'pointer',
+                    }}>
+                      {mode === 'parallel' ? '⚡ Parallel' : '→ Sequential'}
+                    </button>
+                  ))}
+                </div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', marginTop: 5 }}>
+                  {invocationMode === 'parallel' ? 'All agents are briefed simultaneously.' : 'Agents respond one at a time, each seeing previous responses.'}
+                </div>
+              </div>
+
+              {/* Resolution Mode */}
+              <div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Resolution Mode</div>
+                <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                  {[
+                    { id: 'orchestrator', label: '⬡ Orchestrator decides' },
+                    { id: 'user_approval', label: '👤 Requires your approval' },
+                    { id: 'auto', label: '⚙️ Auto (all proposals accepted)' },
+                  ].map(r => (
+                    <button key={r.id} onClick={() => setResolutionMode(r.id)} style={{
+                      padding: '6px 12px', borderRadius: 7, border: `1px solid ${resolutionMode === r.id ? '#7c8df0' : '#2a2a3e'}`,
+                      background: resolutionMode === r.id ? '#1a1a38' : '#12121f',
+                      color: resolutionMode === r.id ? '#7c8df0' : '#6a6a8a',
+                      fontWeight: 500, fontSize: 12, cursor: 'pointer',
+                    }}>
+                      {r.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Participants */}
+              <div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 8 }}>Participants</div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+                  {participants.map(p => (
+                    <div key={p.id} onClick={() => toggleParticipant(p.id)} style={{
+                      display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      padding: '8px 12px', borderRadius: 8,
+                      border: `1px solid ${p.included ? p.color + '44' : '#2a2a3e'}`,
+                      background: p.included ? p.color + '11' : '#12121f',
+                      cursor: 'pointer', transition: 'all 0.15s',
+                    }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: p.included ? p.color : '#3a3a5a', flexShrink: 0 }} />
+                        <span style={{ fontWeight: 500, color: p.included ? p.color : '#5a5a7a', fontSize: 13 }}>{p.name}</span>
+                        <span style={{ fontSize: 10, color: '#5a5a7a' }}>
+                          {p.role === 'orchestrator' ? '⬡ orchestrator' : 'member'}
+                        </span>
+                      </div>
+                      <span style={{ fontSize: 11, color: p.included ? '#22c55e' : '#5a5a7a' }}>
+                        {p.included ? '✓ included' : '— excluded'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Guest Seat */}
+              <div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 5 }}>Guest Specialist (optional)</div>
+                <div style={{ fontSize: 11, color: '#5a5a7a', marginBottom: 8 }}>
+                  Spin up an ephemeral one-shot agent for this session only.
+                </div>
+                <textarea
+                  value={guestPrompt}
+                  onChange={e => setGuestPrompt(e.target.value)}
+                  placeholder="e.g. You are a security auditor reviewing the Doer API surface…"
+                  rows={3}
+                  style={{
+                    width: '100%', background: '#12121f', border: '1px solid #2a2a3e',
+                    borderRadius: 8, padding: '8px 10px', color: '#c0c0d8',
+                    fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
+                    resize: 'none', outline: 'none',
+                  }}
+                />
+              </div>
+
+              {/* Actions */}
+              <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingTop: 4 }}>
+                <button onClick={() => setStep('type')} style={{
+                  padding: '8px 16px', borderRadius: 8, border: '1px solid #2a2a3e',
+                  background: 'none', color: '#8080a0', fontWeight: 500, fontSize: 13, cursor: 'pointer',
+                }}>← Back</button>
+                <button onClick={onClose} style={{
+                  padding: '8px 20px', borderRadius: 8, border: 'none',
+                  background: '#7c8df0', color: '#fff',
+                  fontWeight: 600, fontSize: 13, cursor: 'pointer',
+                }}>
+                  🚀 Start Session
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Config Tab ────────────────────────────────────────────────────────────────
+
+function ConfigTab() {
+  const [config, setConfig] = useState(CONFIG);
+
+  const Section = ({ title, children }) => (
+    <div style={{ marginBottom: 24 }}>
+      <div style={{ fontSize: 11, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid #1e1e30' }}>
+        {title}
+      </div>
+      {children}
+    </div>
+  );
+
+  return (
+    <div style={{ maxWidth: 680 }}>
+
+      <Section title="Enabled Session Types">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+          {SESSION_TYPES.map(t => {
+            const enabled = config.enabledSessionTypes.includes(t.id);
+            const isDefault = config.defaultSessionTypeId === t.id;
+            return (
+              <div key={t.id} style={{
+                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                padding: '10px 14px', borderRadius: 8,
+                background: '#12121f', border: `1px solid ${enabled ? '#2a2a4a' : '#1e1e2e'}`,
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <span style={{ fontSize: 16 }}>{t.icon}</span>
+                  <div>
+                    <div style={{ fontSize: 13, fontWeight: 500, color: enabled ? '#e8e8f0' : '#4a4a6a' }}>{t.label}</div>
+                    <div style={{ fontSize: 11, color: '#5a5a7a' }}>{t.description}</div>
+                  </div>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {isDefault && (
+                    <span style={{ fontSize: 10, color: '#7c8df0', border: '1px solid #7c8df040', borderRadius: 10, padding: '2px 7px' }}>schedule default</span>
+                  )}
+                  <div
+                    onClick={() => {
+                      setConfig(c => ({
+                        ...c,
+                        enabledSessionTypes: enabled
+                          ? c.enabledSessionTypes.filter(x => x !== t.id)
+                          : [...c.enabledSessionTypes, t.id],
+                      }));
+                    }}
+                    style={{
+                      width: 36, height: 20, borderRadius: 10,
+                      background: enabled ? '#7c8df0' : '#2a2a3e',
+                      position: 'relative', cursor: 'pointer', transition: 'background 0.2s',
+                    }}
+                  >
+                    <div style={{
+                      position: 'absolute', top: 3, left: enabled ? 19 : 3,
+                      width: 14, height: 14, borderRadius: '50%', background: '#fff',
+                      transition: 'left 0.2s',
+                    }} />
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Section>
+
+      <Section title="Participants">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px', gap: 8, padding: '6px 12px', fontSize: 10, color: '#5a5a7a', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            <span>Agent</span><span>Role</span><span>Session Type</span><span></span>
+          </div>
+          {AGENTS.map((agent, i) => (
+            <div key={agent.id} style={{
+              display: 'grid', gridTemplateColumns: '1fr 100px 120px 80px',
+              gap: 8, alignItems: 'center',
+              padding: '10px 12px',
+              background: i % 2 === 0 ? '#12121f' : '#0f0f1a',
+              borderRadius: i === 0 ? '8px 8px 0 0' : i === AGENTS.length - 1 ? '0 0 8px 8px' : 0,
+              border: '1px solid #1e1e30',
+              marginTop: i === 0 ? 0 : -1,
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ width: 8, height: 8, borderRadius: '50%', background: agent.color }} />
+                <span style={{ fontSize: 13, fontWeight: 500, color: agent.color }}>{agent.name}</span>
+              </div>
+              <div>
+                <select style={{ background: '#1c1c2e', border: '1px solid #2a2a3e', color: '#c0c0d8', borderRadius: 6, padding: '3px 6px', fontSize: 11 }}>
+                  <option value="orchestrator" selected={agent.role === 'orchestrator'}>orchestrator</option>
+                  <option value="member" selected={agent.role === 'member'}>member</option>
+                </select>
+              </div>
+              <div>
+                <select style={{ background: '#1c1c2e', border: '1px solid #2a2a3e', color: '#c0c0d8', borderRadius: 6, padding: '3px 6px', fontSize: 11 }}>
+                  <option value="">all types</option>
+                  {SESSION_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                </select>
+              </div>
+              <div style={{ textAlign: 'right' }}>
+                <button style={{ background: 'none', border: '1px solid #2a2a3e', color: '#f87171', borderRadius: 6, padding: '3px 8px', fontSize: 11, cursor: 'pointer' }}>remove</button>
+              </div>
+            </div>
+          ))}
+          <button style={{ marginTop: 8, padding: '7px 14px', borderRadius: 8, border: '1px dashed #2a2a4a', background: 'none', color: '#7c8df0', fontSize: 12, cursor: 'pointer', width: '100%' }}>
+            + Add participant
+          </button>
+        </div>
+      </Section>
+
+      <Section title="Agenda Prompts">
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6, marginBottom: 10 }}>
+          {config.agenda.prompts.map((prompt, i) => (
+            <div key={i} style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#4a4a6a', paddingTop: 9, flexShrink: 0 }}>{i+1}.</span>
+              <input
+                value={prompt}
+                onChange={e => {
+                  const prompts = [...config.agenda.prompts];
+                  prompts[i] = e.target.value;
+                  setConfig(c => ({ ...c, agenda: { ...c.agenda, prompts } }));
+                }}
+                style={{ flex: 1, background: '#12121f', border: '1px solid #2a2a3e', borderRadius: 8, padding: '7px 10px', color: '#c0c0d8', fontSize: 12, outline: 'none' }}
+              />
+            </div>
+          ))}
+        </div>
+        <button style={{ padding: '6px 14px', borderRadius: 7, border: '1px dashed #2a2a4a', background: 'none', color: '#7c8df0', fontSize: 12, cursor: 'pointer' }}>
+          + Add prompt
+        </button>
+      </Section>
+
+      <Section title="Per-Agent Directives">
+        {AGENTS.map(agent => (
+          <div key={agent.id} style={{ marginBottom: 10 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 5 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: agent.color }} />
+              <span style={{ fontSize: 12, fontWeight: 500, color: agent.color }}>{agent.name}</span>
+            </div>
+            <textarea
+              defaultValue={config.agenda.perAgent[agent.id]}
+              rows={2}
+              style={{
+                width: '100%', background: '#12121f', border: '1px solid #2a2a3e',
+                borderRadius: 8, padding: '8px 10px', color: '#c0c0d8',
+                fontSize: 12, fontFamily: "'JetBrains Mono', monospace",
+                resize: 'none', outline: 'none',
+              }}
+            />
+          </div>
+        ))}
+      </Section>
+
+      <Section title="Output Constraints">
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', marginBottom: 4 }}>Min issues</div>
+            <input type="number" defaultValue={config.agenda.outputConstraints.minIssues} min={0} max={20} style={{ width: 70, background: '#12121f', border: '1px solid #2a2a3e', borderRadius: 7, padding: '6px 10px', color: '#c0c0d8', fontSize: 13, outline: 'none' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', marginBottom: 4 }}>Max issues</div>
+            <input type="number" defaultValue={config.agenda.outputConstraints.maxIssues} min={1} max={20} style={{ width: 70, background: '#12121f', border: '1px solid #2a2a3e', borderRadius: 7, padding: '6px 10px', color: '#c0c0d8', fontSize: 13, outline: 'none' }} />
+          </div>
+        </div>
+      </Section>
+
+      <Section title="Schedule">
+        <div style={{ display: 'flex', gap: 10, alignItems: 'center', flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', marginBottom: 4 }}>Cron expression</div>
+            <input defaultValue={config.schedule} placeholder="e.g. 0 18 * * 1,3,5" style={{ width: 200, background: '#12121f', border: '1px solid #2a2a3e', borderRadius: 7, padding: '6px 10px', color: '#c0c0d8', fontSize: 12, fontFamily: "'JetBrains Mono', monospace", outline: 'none' }} />
+          </div>
+          <div>
+            <div style={{ fontSize: 11, color: '#5a5a7a', marginBottom: 4 }}>Default session type</div>
+            <select defaultValue={config.defaultSessionTypeId} style={{ background: '#12121f', border: '1px solid #2a2a3e', color: '#c0c0d8', borderRadius: 7, padding: '6px 10px', fontSize: 12 }}>
+              {SESSION_TYPES.map(t => <option key={t.id} value={t.id}>{t.icon} {t.label}</option>)}
+            </select>
+          </div>
+        </div>
+        <div style={{ marginTop: 8, fontSize: 11, color: '#5a5a7a' }}>
+          Currently: Mon/Wed/Fri at 6:00 PM · Leave blank to disable scheduling.
+        </div>
+      </Section>
+
+      <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+        <button style={{
+          padding: '8px 20px', borderRadius: 8, border: 'none',
+          background: '#7c8df0', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+        }}>Save Configuration</button>
+      </div>
+    </div>
+  );
+}
+
+// ── Main App ──────────────────────────────────────────────────────────────────
+
+function App() {
+  const [tab, setTab] = useState('sessions'); // 'sessions' | 'config'
+  const [filter, setFilter] = useState('all');
+  const [selectedSession, setSelectedSession] = useState(null);
+  const [showStart, setShowStart] = useState(false);
+
+  const filters = [
+    { id: 'all',                   label: 'All',     count: SESSIONS.length },
+    { id: 'running',               label: 'Running', count: SESSIONS.filter(s => s.status === 'running').length },
+    { id: 'completed',             label: 'Done',    count: SESSIONS.filter(s => s.status === 'completed').length },
+    { id: 'completed_with_errors', label: 'Partial', count: SESSIONS.filter(s => s.status === 'completed_with_errors').length },
+    { id: 'failed',                label: 'Failed',  count: SESSIONS.filter(s => s.status === 'failed').length },
+  ].filter(f => f.id === 'all' || f.count > 0);
+
+  const visible = filter === 'all' ? SESSIONS : SESSIONS.filter(s => s.status === filter);
+
+  const runningSession = SESSIONS.find(s => s.status === 'running');
+  const totalIssues = SESSIONS.reduce((sum, s) => sum + (s.issuesCreated?.length ?? 0), 0);
+
+  return (
+    <div style={{ display: 'flex', height: '100vh', overflow: 'hidden' }}>
+      {/* Sidebar */}
+      <div style={{ width: 200, background: '#0d0d18', borderRight: '1px solid #1a1a2a', display: 'flex', flexDirection: 'column', flexShrink: 0 }}>
+        <div style={{ padding: '16px 14px 12px', borderBottom: '1px solid #1a1a2a' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: '#7c8df0', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff' }}>D</div>
+            <div>
+              <div style={{ fontSize: 13, fontWeight: 600 }}>Doer</div>
+              <div style={{ fontSize: 10, color: '#5a5a7a' }}>Donjon Intelligence</div>
+            </div>
+          </div>
+        </div>
+        <nav style={{ padding: '10px 8px', flex: 1 }}>
+          {['Home', 'Council', 'Dashboard', 'Issues', 'Goals', 'Activity'].map(item => (
+            <div key={item} style={{
+              padding: '7px 10px', borderRadius: 7, fontSize: 13,
+              color: item === 'Council' ? '#e8e8f0' : '#6a6a8a',
+              background: item === 'Council' ? '#1e1e30' : 'none',
+              fontWeight: item === 'Council' ? 500 : 400,
+              marginBottom: 1, cursor: 'pointer',
+            }}>
+              {item === 'Council' ? '🏛️ ' : ''}{item}
+            </div>
+          ))}
+          <div style={{ margin: '12px 0 6px', fontSize: 10, color: '#3a3a5a', textTransform: 'uppercase', letterSpacing: '0.07em', padding: '0 10px' }}>Agents</div>
+          {AGENTS.map(a => (
+            <div key={a.id} style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '6px 10px', borderRadius: 7, marginBottom: 1 }}>
+              <span style={{ width: 7, height: 7, borderRadius: '50%', background: a.color, animation: a.id === 'dondog' ? 'pulseDot 1.8s ease-out infinite' : 'none' }} />
+              <span style={{ fontSize: 12, color: '#8080a0' }}>{a.name}</span>
+            </div>
+          ))}
+        </nav>
+      </div>
+
+      {/* Main */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+        {/* Top bar */}
+        <div style={{ padding: '14px 24px', borderBottom: '1px solid #1a1a2a', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
+          <div>
+            <div style={{ fontSize: 10, color: '#4a4a6a', marginBottom: 2 }}>HQ · Donjon Intelligence Systems</div>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, letterSpacing: '-0.02em' }}>🏛️ Council</h1>
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            {runningSession && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6, padding: '5px 12px', borderRadius: 20, background: '#0f2a2e', border: '1px solid #22d3ee30' }}>
+                <StatusDot status="running" size={7} />
+                <span style={{ fontSize: 11, color: '#22d3ee', fontWeight: 500 }}>1 running</span>
+              </div>
+            )}
+            <div style={{ fontSize: 12, color: '#5a5a7a' }}>{totalIssues} issues created total</div>
+            <button onClick={() => setShowStart(true)} style={{
+              display: 'flex', alignItems: 'center', gap: 6,
+              padding: '7px 16px', borderRadius: 8, border: 'none',
+              background: '#7c8df0', color: '#fff', fontWeight: 600, fontSize: 13, cursor: 'pointer',
+            }}>
+              + Start Session
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div style={{ padding: '0 24px', borderBottom: '1px solid #1a1a2a', display: 'flex', gap: 0, flexShrink: 0 }}>
+          {[{ id: 'sessions', label: 'Sessions' }, { id: 'config', label: 'Configuration' }].map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)} style={{
+              padding: '10px 16px', border: 'none', background: 'none', cursor: 'pointer',
+              fontSize: 13, fontWeight: tab === t.id ? 600 : 400,
+              color: tab === t.id ? '#e8e8f0' : '#6a6a8a',
+              borderBottom: `2px solid ${tab === t.id ? '#7c8df0' : 'transparent'}`,
+              marginBottom: -1,
+            }}>
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {/* Body */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '20px 24px' }}>
+          {tab === 'sessions' && (
+            <>
+              {/* Filter pills + countdown */}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 18 }}>
+                <div style={{ display: 'flex', gap: 6 }}>
+                  {filters.map(f => {
+                    const m = f.id === 'all' ? null : statusMeta[f.id];
+                    return (
+                      <button key={f.id} onClick={() => setFilter(f.id)} style={{
+                        display: 'flex', alignItems: 'center', gap: 5,
+                        padding: '5px 12px', borderRadius: 20, border: 'none', cursor: 'pointer',
+                        background: filter === f.id ? '#2a2a3e' : 'none',
+                        color: filter === f.id ? '#e8e8f0' : '#6a6a8a',
+                        fontSize: 12, fontWeight: filter === f.id ? 600 : 400,
+                      }}>
+                        {m && <StatusDot status={f.id} size={6} />}
+                        {f.label}
+                        <span style={{ fontSize: 11, color: filter === f.id ? '#a0a0c0' : '#4a4a6a' }}>{f.count}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: 11, color: '#4a4a6a' }}>
+                  next session in 4h 22m
+                </div>
+              </div>
+
+              {/* Session grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 14 }}>
+                {visible.map(s => (
+                  <SessionCard key={s.id} session={s} onClick={() => setSelectedSession(s)} />
+                ))}
+              </div>
+            </>
+          )}
+
+          {tab === 'config' && <ConfigTab />}
+        </div>
+      </div>
+
+      {/* Modals */}
+      {selectedSession && <SessionDetail session={selectedSession} onClose={() => setSelectedSession(null)} />}
+      {showStart && <StartSessionModal onClose={() => setShowStart(false)} />}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+</script>
+</body>
+</html>

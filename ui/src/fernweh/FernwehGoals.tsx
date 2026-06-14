@@ -197,6 +197,14 @@ function GoalDetailDrawer({
 
   const goal = detailQuery.data ?? null;
 
+  const progressQuery = useQuery({
+    queryKey: goalId ? ["goals", "progress", goalId] : ["goals", "progress", "none"],
+    queryFn: () => goalsApi.getProgress(goalId!),
+    enabled: !!goalId,
+    staleTime: 60_000,
+  });
+  const progress = progressQuery.data ?? null;
+
   const updateMutation = useMutation({
     mutationFn: (data: Record<string, unknown>) => goalsApi.update(goalId!, data),
     onSuccess: (updated) => {
@@ -456,6 +464,37 @@ function GoalDetailDrawer({
             )}
           </div>
 
+          {/* Issue progress */}
+          {progress && progress.issueCount > 0 && (
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
+                  Progress · {progress.doneCount}/{progress.issueCount} issues done
+                </span>
+                <span style={{ fontSize: 12, fontWeight: 600, color: progress.percentComplete === 100 ? "#10b981" : "var(--ink-dim)" }}>
+                  {progress.percentComplete}%
+                </span>
+              </div>
+              <div style={{ height: 6, borderRadius: 999, background: "var(--bg-sunken)", overflow: "hidden" }}>
+                <div
+                  style={{
+                    height: "100%",
+                    borderRadius: 999,
+                    background: progress.percentComplete === 100 ? "#10b981" : "var(--accent)",
+                    width: `${progress.percentComplete}%`,
+                    transition: "width .4s ease",
+                  }}
+                />
+              </div>
+              <NavLink
+                to={`/${prefix}/work?goalId=${goal?.id}`}
+                style={{ fontSize: 11.5, color: "var(--accent)", textDecoration: "none" }}
+              >
+                View {progress.issueCount} linked issue{progress.issueCount !== 1 ? "s" : ""} →
+              </NavLink>
+            </div>
+          )}
+
           {/* Linked projects */}
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
@@ -543,8 +582,17 @@ function GoalDetailDrawer({
 // ---------- main ----------
 
 type LevelFilter = GoalLevel | "all";
+type StatusFilter = GoalStatus | "all";
 
 const LEVEL_FILTERS: LevelFilter[] = ["all", ...GOAL_LEVELS];
+const STATUS_FILTERS: StatusFilter[] = ["all", ...GOAL_STATUSES];
+
+const STATUS_LABEL: Record<GoalStatus, string> = {
+  planned: "Planned",
+  active: "Active",
+  achieved: "Achieved",
+  cancelled: "Cancelled",
+};
 
 export function FernwehGoals() {
   const { companyPrefix } = useParams<{ companyPrefix: string }>();
@@ -557,6 +605,7 @@ export function FernwehGoals() {
   const selectedId = searchParams.get("goal");
 
   const [levelFilter, setLevelFilter] = React.useState<LevelFilter>("all");
+  const [statusFilter, setStatusFilter] = React.useState<StatusFilter>("all");
   const [showCreate, setShowCreate] = React.useState(false);
   const [newTitle, setNewTitle] = React.useState("");
 
@@ -599,13 +648,15 @@ export function FernwehGoals() {
   const allProjects = projectsQuery.data ?? [];
 
   const roots = React.useMemo(() => {
-    const all = allGoals;
+    let filtered = allGoals;
+    if (statusFilter !== "all") filtered = filtered.filter((g) => g.status === statusFilter);
     if (levelFilter === "all") {
-      return goalChildren(all, null);
+      // When status-filtered, show flat list since parents may be hidden.
+      if (statusFilter !== "all") return filtered;
+      return goalChildren(filtered, null);
     }
-    // Filtered: show only goals at that level (flat, since filtering hides tree)
-    return all.filter((g) => g.level === levelFilter);
-  }, [allGoals, levelFilter]);
+    return filtered.filter((g) => g.level === levelFilter);
+  }, [allGoals, levelFilter, statusFilter]);
 
   const countsByLevel: Record<LevelFilter, number> = React.useMemo(() => {
     const counts: Record<string, number> = { all: allGoals.length };
@@ -718,6 +769,50 @@ export function FernwehGoals() {
                 }}
               >
                 {countsByLevel[level] ?? 0}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Status filter pills */}
+      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+        <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Status</span>
+        {STATUS_FILTERS.map((s) => {
+          const active = statusFilter === s;
+          const color = s === "all" ? "var(--accent)" : STATUS_COLOR[s as GoalStatus];
+          const label = s === "all" ? "All" : STATUS_LABEL[s as GoalStatus];
+          const count = s === "all" ? allGoals.length : allGoals.filter((g) => g.status === s).length;
+          return (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                padding: "5px 10px",
+                borderRadius: 999,
+                border: `1px solid ${active ? color : "var(--line)"}`,
+                background: active ? `color-mix(in oklab, ${color} 12%, transparent)` : "transparent",
+                color: active ? color : "var(--ink-dim)",
+                fontSize: 11.5,
+                cursor: "pointer",
+                transition: "all .12s var(--fw-ease)",
+              }}
+            >
+              <span>{label}</span>
+              <span
+                style={{
+                  padding: "0 5px",
+                  borderRadius: 4,
+                  background: active ? color : "var(--bg-sunken)",
+                  color: active ? "var(--bg)" : "var(--ink-faint)",
+                  fontSize: 10,
+                  fontWeight: 500,
+                }}
+              >
+                {count}
               </span>
             </button>
           );
