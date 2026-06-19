@@ -2003,6 +2003,7 @@ export function heartbeatService(db: Db) {
             assigneeAgentId: issues.assigneeAgentId,
             assigneeAdapterOverrides: issues.assigneeAdapterOverrides,
             executionWorkspaceSettings: issues.executionWorkspaceSettings,
+            description: issues.description,
           })
           .from(issues)
           .where(and(eq(issues.id, issueId), eq(issues.companyId, agent.companyId)))
@@ -2590,6 +2591,17 @@ export function heartbeatService(db: Db) {
           "local agent jwt secret missing or invalid; running without injected DOER_API_KEY",
         );
       }
+      // Inject issue title + description so letta-cloud can include them
+      // in the wake message without needing a read_paperclip_issue call.
+      if (issueContext) {
+        if (issueContext.title && !context.issueTitle) {
+          context.issueTitle = issueContext.title;
+        }
+        if (issueContext.description && !context.issueDescription) {
+          context.issueDescription = issueContext.description;
+        }
+      }
+
       const adapterResult = await adapter.execute({
         runId: run.id,
         agent,

@@ -639,7 +639,147 @@ export async function interceptGenerateWeeklyBrief(
   }
 }
 
+// ── Paperclip issue tool intercepts ─────────────────────────────────────
+// These replace the Python tools that run inside E2B sandboxes and call
+// localhost:3100 (unreachable from E2B without ngrok). The adapter
+// intercepts the tool call in the stream and makes the HTTP call locally.
+
+/** create_paperclip_issue — create a new issue in the Paperclip system */
+export async function interceptCreatePaperclipIssue(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const body: Record<string, unknown> = {
+      title: String(args.title ?? "Untitled"),
+      status: String(args.status ?? "todo"),
+    };
+    if (args.description !== undefined) body.description = String(args.description);
+    if (args.priority !== undefined) body.priority = String(args.priority);
+    if (args.assigneeAgentId !== undefined) body.assigneeAgentId = String(args.assigneeAgentId);
+    if (args.projectId !== undefined) body.projectId = String(args.projectId);
+    if (args.labelIds !== undefined) body.labelIds = args.labelIds;
+
+    const issue = (await doerPost(ctx, `/api/companies/${companyId}/issues`, body)) as Record<string, unknown>;
+    await ctx.onLog("stdout", `[create_paperclip_issue] Created ${issue.identifier ?? issue.id}: ${issue.title}\n`);
+    return JSON.stringify({ success: true, id: issue.id, identifier: issue.identifier, title: issue.title });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[create_paperclip_issue] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
+/** read_paperclip_issues — list issues for this company */
+export async function interceptReadPaperclipIssues(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const params = new URLSearchParams();
+    if (args.status) params.set("status", String(args.status));
+    if (args.assigneeAgentId) params.set("assigneeAgentId", String(args.assigneeAgentId));
+    if (args.projectId) params.set("projectId", String(args.projectId));
+    if (args.limit) params.set("limit", String(args.limit));
+
+    const qs = params.toString();
+    const path = `/api/companies/${companyId}/issues${qs ? `?${qs}` : ""}`;
+    const issues = (await doerGet(ctx, path)) as Array<Record<string, unknown>>;
+
+    const summary = issues.slice(0, 50).map((i) => ({
+      id: i.id,
+      identifier: i.identifier,
+      title: i.title,
+      status: i.status,
+      priority: i.priority,
+      assigneeAgentId: i.assigneeAgentId,
+    }));
+
+    await ctx.onLog("stdout", `[read_paperclip_issues] Fetched ${issues.length} issues\n`);
+    return JSON.stringify({ success: true, total: issues.length, issues: summary });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[read_paperclip_issues] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
+/** read_paperclip_issue — get single issue by id or identifier */
+export async function interceptReadPaperclipIssue(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const issueId = String(args.issue_id ?? args.id ?? "");
+    if (!issueId) return JSON.stringify({ success: false, error: "issue_id is required" });
+
+    const issue = (await doerGet(ctx, `/api/issues/${encodeURIComponent(issueId)}`)) as Record<string, unknown>;
+    await ctx.onLog("stdout", `[read_paperclip_issue] Fetched ${issue.identifier ?? issue.id}\n`);
+    return JSON.stringify({ success: true, issue });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[read_paperclip_issue] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
+/** update_paperclip_issue — update fields on an existing issue */
+export async function interceptUpdatePaperclipIssue(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const issueId = String(args.issue_id ?? args.id ?? "");
+    if (!issueId) return JSON.stringify({ success: false, error: "issue_id is required" });
+
+    const patch: Record<string, unknown> = {};
+    if (args.title !== undefined) patch.title = String(args.title);
+    if (args.description !== undefined) patch.description = String(args.description);
+    if (args.status !== undefined) patch.status = String(args.status);
+    if (args.priority !== undefined) patch.priority = String(args.priority);
+    if (args.assigneeAgentId !== undefined) patch.assigneeAgentId = String(args.assigneeAgentId);
+    if (args.labelIds !== undefined) patch.labelIds = args.labelIds;
+
+    const updated = (await doerPatch(ctx, `/api/issues/${encodeURIComponent(issueId)}`, patch)) as Record<string, unknown>;
+    await ctx.onLog("stdout", `[update_paperclip_issue] Updated ${updated.identifier ?? updated.id}\n`);
+    return JSON.stringify({ success: true, id: updated.id, identifier: updated.identifier, status: updated.status });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[update_paperclip_issue] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
+/** post_issue_comment — add a comment to an issue */
+export async function interceptPostIssueComment(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const issueId = String(args.issue_id ?? args.id ?? "");
+    const body = String(args.body ?? args.content ?? args.comment ?? "");
+    if (!issueId) return JSON.stringify({ success: false, error: "issue_id is required" });
+    if (!body) return JSON.stringify({ success: false, error: "body is required" });
+
+    const comment = (await doerPost(ctx, `/api/issues/${encodeURIComponent(issueId)}/comments`, { body })) as Record<string, unknown>;
+    await ctx.onLog("stdout", `[post_issue_comment] Comment posted to ${issueId}: ${comment.id}\n`);
+    return JSON.stringify({ success: true, commentId: comment.id });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[post_issue_comment] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
 // ── Tool name constants for execute.ts wiring ────────────────────────────
+
+export const CREATE_PAPERCLIP_ISSUE_TOOL_NAME = "create_paperclip_issue";
+export const READ_PAPERCLIP_ISSUES_TOOL_NAME = "read_paperclip_issues";
+export const READ_PAPERCLIP_ISSUE_TOOL_NAME = "read_paperclip_issue";
+export const UPDATE_PAPERCLIP_ISSUE_TOOL_NAME = "update_paperclip_issue";
+export const POST_ISSUE_COMMENT_TOOL_NAME = "post_issue_comment";
 
 export const GET_FLEET_STATUS_TOOL_NAME = "get_fleet_status";
 export const SCHEDULE_COUNCIL_TOOL_NAME = "schedule_council";

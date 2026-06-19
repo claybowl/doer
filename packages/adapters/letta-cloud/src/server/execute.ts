@@ -5,7 +5,9 @@ import {
   DELIVERABLE_TOOL_NAME,
   ensureDeliverableTool,
   ensureGoalTools,
+  ensurePaperclipIssueTools,
   fetchAgentSnapshot,
+  findToolIdByName,
   getLettaClient,
   READ_GOALS_TOOL_NAME,
   CREATE_GOAL_TOOL_NAME,
@@ -24,6 +26,11 @@ import {
   SCAN_FLEET_ANOMALIES_TOOL_NAME,
   AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
   GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+  CREATE_PAPERCLIP_ISSUE_TOOL_NAME,
+  READ_PAPERCLIP_ISSUES_TOOL_NAME,
+  READ_PAPERCLIP_ISSUE_TOOL_NAME,
+  UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
+  POST_ISSUE_COMMENT_TOOL_NAME,
   interceptGetFleetStatus,
   interceptScheduleCouncil,
   interceptEmergencyPauseAgent,
@@ -36,6 +43,11 @@ import {
   interceptScanFleetAnomalies,
   interceptAuditAgentCompliance,
   interceptGenerateWeeklyBrief,
+  interceptCreatePaperclipIssue,
+  interceptReadPaperclipIssues,
+  interceptReadPaperclipIssue,
+  interceptUpdatePaperclipIssue,
+  interceptPostIssueComment,
 } from "./tool-intercepts.js";
 import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
 
@@ -50,64 +62,64 @@ const newToolsVerifiedAgents = new Set<string>();
 // Process-local cache: agents we've verified have goal tools attached.
 const goalToolsVerifiedAgents = new Set<string>();
 
-/** Tool suites per agent role/name — maps to {toolName: toolId} */
-const AGENT_TOOL_SUITES: Record<string, Record<string, string>> = {
-  dondog: {
-    get_fleet_status: "tool-de2e637c-6a63-42ca-b5a9-1526898fe95a",
-    schedule_council: "tool-61a62f60-bf24-4a63-8da3-4476463f6d2d",
-    emergency_pause_agent: "tool-e0b561ef-200f-49c9-a344-87675c13043f",
-    clone_from_template: "tool-bf99b29d-4b40-4751-a6f6-f0e53f4ff471",
-  },
-  alfie: {
-    check_gremlin_ready: "tool-4fb6c6e6-5a0f-421e-8ea2-de1c4ba9d220",
-    bulk_dispatch: "tool-ced0e140-08b5-4d32-b69d-a3ce3192644e",
-    reassign_task: "tool-d18286a4-60ee-46e9-8ff4-354f69a0f48f",
-    estimate_gremlin_capacity: "tool-62823eef-ccd8-45a9-9916-65bf3e848a28",
-  },
-  chef: {
-    build_dependency_graph: "tool-d8cc8a69-c239-4db3-8149-98775bb00ca7",
-    forecast_capacity: "tool-276e7177-919e-4e95-8a1a-919ee296ebf8",
-    create_milestone: "tool-748cf557-7281-4610-af43-e05ccc8e82c7",
-    analyze_issue_patterns: "tool-b85bef4d-fa65-4511-b5d1-c19ff7e40c62",
-  },
-  "tower keeper": {
-    scan_fleet_anomalies: "tool-df4d46d8-a0c9-469a-af16-59b52740db2e",
-    audit_agent_compliance: "tool-9931bd80-8407-4624-8ab3-a2647b462e1d",
-    detect_memory_bloat: "tool-18173fe0-e512-4fc0-8946-378d2ba2a7d9",
-    generate_weekly_brief: "tool-9b497c06-4e9f-4200-8673-4c50943f3cae",
-  },
+// Process-local cache: agents we've verified have paperclip issue stubs attached.
+const paperclipIssueToolsVerifiedAgents = new Set<string>();
+
+/** Tool names that should be attached per agent role */
+const AGENT_TOOL_SUITE_NAMES: Record<string, string[]> = {
+  dondog: [
+    GET_FLEET_STATUS_TOOL_NAME,
+    SCHEDULE_COUNCIL_TOOL_NAME,
+    EMERGENCY_PAUSE_AGENT_TOOL_NAME,
+    CLONE_FROM_TEMPLATE_TOOL_NAME,
+  ],
+  alfie: [
+    BULK_DISPATCH_TOOL_NAME,
+    REASSIGN_TASK_TOOL_NAME,
+  ],
+  chef: [
+    BUILD_DEPENDENCY_GRAPH_TOOL_NAME,
+    FORECAST_CAPACITY_TOOL_NAME,
+    ANALYZE_ISSUE_PATTERNS_TOOL_NAME,
+  ],
+  "tower keeper": [
+    SCAN_FLEET_ANOMALIES_TOOL_NAME,
+    AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
+    GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+  ],
 };
 
 /**
  * Self-heal hook: ensure new tool suites are attached per agent role.
- * Uses agent name (lowercased) to look up the correct suite.
+ * Looks up tools by name in the Letta registry — works on both cloud and local instances.
  * Non-blocking — logs but doesn't abort the run.
  */
 async function ensureNewToolsAttached(
   ctx: AdapterExecutionContext,
   config: LettaCloudAdapterConfig,
-  snapshot: Awaited<ReturnType<typeof import("./letta-client.js").fetchAgentSnapshot>>,
+  snapshot: Awaited<ReturnType<typeof fetchAgentSnapshot>>,
 ): Promise<void> {
   const agentId = config.agentId;
   if (newToolsVerifiedAgents.has(agentId)) return;
 
   const agentName = (ctx.agent?.name ?? "").toLowerCase().trim();
-  const suite = AGENT_TOOL_SUITES[agentName];
-  if (!suite) {
-    // Agent has no special suite — skip
+  const toolNames = AGENT_TOOL_SUITE_NAMES[agentName];
+  if (!toolNames || toolNames.length === 0) {
     newToolsVerifiedAgents.add(agentId);
     return;
   }
 
   try {
     const attachedNames = new Set(snapshot.tools.map((t) => t.name));
-    const missing: string[] = [];
+    const missing = toolNames.filter((n) => !attachedNames.has(n));
 
-    for (const [toolName, toolId] of Object.entries(suite)) {
-      if (!attachedNames.has(toolName)) {
-        missing.push(toolName);
-        await attachTool(config, toolId);
+    for (const toolName of missing) {
+      const toolId = await findToolIdByName(config, toolName);
+      if (!toolId) {
+        await ctx.onLog("stdout", `[letta-cloud] self-heal: tool '${toolName}' not found in registry — skipping\n`);
+        continue;
       }
+      await attachTool(config, toolId);
     }
 
     if (missing.length > 0) {
@@ -402,19 +414,36 @@ export function buildWakeMessage(
     // Explicit assignment. Wake context wins; ignore the queue-review
     // heartbeatPrompt entirely so it can't compete with the issue
     // body for salience.
+    const issueTitle = readNonEmptyString(context.issueTitle);
+    const issueDescription = readNonEmptyString(context.issueDescription);
     const lines = [
       "[DOER HEARTBEAT — TASK MODE]",
       "You have been assigned a specific task. Focus on it.",
       "",
       `YOUR TASK: ${taskKey}`,
-      `WAKE REASON: ${wakeReason}`,
     ];
+    if (issueTitle) {
+      lines.push(`TITLE: ${issueTitle}`);
+    }
+    lines.push(`WAKE REASON: ${wakeReason}`);
     if (wakeCommentId) {
       lines.push(`TRIGGERING COMMENT: ${wakeCommentId}`);
     }
+    if (issueDescription) {
+      lines.push(
+        "",
+        "── ISSUE BODY ──────────────────────────────────────────",
+        issueDescription.trim(),
+        "────────────────────────────────────────────────────────",
+      );
+    } else {
+      lines.push(
+        "",
+        `Read the issue body for ${taskKey} and execute its instructions.`,
+      );
+    }
     lines.push(
       "",
-      `Read the issue body for ${taskKey} and execute its instructions.`,
       "Do NOT run queue-review, Chef-signaling, or council protocols",
       "unless the issue body itself asks for them.",
       "",
@@ -537,6 +566,28 @@ async function ensureGoalToolsAttached(
   }
 }
 
+async function ensurePaperclipIssueToolsAttached(
+  config: LettaCloudAdapterConfig,
+  agentId: string,
+  snapshot: Awaited<ReturnType<typeof fetchAgentSnapshot>>,
+): Promise<void> {
+  if (paperclipIssueToolsVerifiedAgents.has(agentId)) return;
+  try {
+    const { createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId } = await ensurePaperclipIssueTools(config);
+    const attachedIds = new Set(snapshot.tools.map((t) => t.id));
+    await Promise.all([
+      !attachedIds.has(createIssueId) ? attachTool(config, createIssueId) : Promise.resolve(),
+      !attachedIds.has(readIssuesId) ? attachTool(config, readIssuesId) : Promise.resolve(),
+      !attachedIds.has(readIssueId) ? attachTool(config, readIssueId) : Promise.resolve(),
+      !attachedIds.has(updateIssueId) ? attachTool(config, updateIssueId) : Promise.resolve(),
+      !attachedIds.has(postCommentId) ? attachTool(config, postCommentId) : Promise.resolve(),
+    ]);
+    paperclipIssueToolsVerifiedAgents.add(agentId);
+  } catch (err) {
+    console.warn(`[letta-cloud] Could not ensure paperclip issue tools for agent ${agentId}:`, err instanceof Error ? err.message : err);
+  }
+}
+
 // ── Emit helpers — one JSON line per stdout write ──────────────────────────
 // The UI parser (`parseLettaCloudStdoutLine`) will parse these back into
 // TranscriptEntry objects for the real-time dashboard transcript.
@@ -566,6 +617,7 @@ async function executeStreaming(
   if (snapshot) {
     void ensureGoalToolsAttached(config, config.agentId, snapshot);
     void ensureNewToolsAttached(ctx, config, snapshot);
+    void ensurePaperclipIssueToolsAttached(config, config.agentId, snapshot);
   }
 
   // Emit the user message so the transcript shows the full conversation
@@ -750,6 +802,13 @@ async function executeStreaming(
               SCAN_FLEET_ANOMALIES_TOOL_NAME,
               AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
               GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+              // Paperclip issue tools — adapter makes the real API call from
+              // localhost; E2B Python stubs can't reach localhost without ngrok.
+              CREATE_PAPERCLIP_ISSUE_TOOL_NAME,
+              READ_PAPERCLIP_ISSUES_TOOL_NAME,
+              READ_PAPERCLIP_ISSUE_TOOL_NAME,
+              UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
+              POST_ISSUE_COMMENT_TOOL_NAME,
             ]);
             if (
               NEW_TOOL_NAMES.has(name) &&
@@ -757,7 +816,7 @@ async function executeStreaming(
               typeof input === "object" &&
               !Array.isArray(input)
             ) {
-              const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<void>> = {
+              const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<string | void>> = {
                 [GET_FLEET_STATUS_TOOL_NAME]: interceptGetFleetStatus,
                 [SCHEDULE_COUNCIL_TOOL_NAME]: interceptScheduleCouncil,
                 [EMERGENCY_PAUSE_AGENT_TOOL_NAME]: interceptEmergencyPauseAgent,
@@ -770,10 +829,15 @@ async function executeStreaming(
                 [SCAN_FLEET_ANOMALIES_TOOL_NAME]: interceptScanFleetAnomalies,
                 [AUDIT_AGENT_COMPLIANCE_TOOL_NAME]: interceptAuditAgentCompliance,
                 [GENERATE_WEEKLY_BRIEF_TOOL_NAME]: interceptGenerateWeeklyBrief,
+                [CREATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptCreatePaperclipIssue,
+                [READ_PAPERCLIP_ISSUES_TOOL_NAME]: interceptReadPaperclipIssues,
+                [READ_PAPERCLIP_ISSUE_TOOL_NAME]: interceptReadPaperclipIssue,
+                [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptUpdatePaperclipIssue,
+                [POST_ISSUE_COMMENT_TOOL_NAME]: interceptPostIssueComment,
               };
               const fn = interceptors[name];
               if (fn) {
-                pendingSideEffects.push(fn(ctx, input as Record<string, unknown>));
+                pendingSideEffects.push(fn(ctx, input as Record<string, unknown>).then(() => undefined));
               }
             }
           }
