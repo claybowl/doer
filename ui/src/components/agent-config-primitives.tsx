@@ -64,6 +64,8 @@ export const adapterLabels: Record<string, string> = {
   opencode_local: "OpenCode (local)",
   openclaw_gateway: "OpenClaw Gateway",
   cursor: "Cursor (local)",
+  letta_cloud: "Letta Cloud",
+  letta_code: "Letta Code",
   process: "Process",
   http: "HTTP",
 };

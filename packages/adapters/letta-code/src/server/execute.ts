@@ -222,11 +222,155 @@ async function executeOnline(
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// OFFLINE MODE — pure in-process, local .md files + Anthropic/OpenAI
+// OFFLINE MODE — pure in-process, local .md files + any LLM backend
 // ─────────────────────────────────────────────────────────────────────────────
 
 const DEFAULT_MODEL = "claude-sonnet-4-6";
 const DEFAULT_MAX_TOKENS = 8192;
+
+// ── Provider presets ────────────────────────────────────────────────────────
+// Groq, NVIDIA NIM, Ollama (local + cloud), OpenCode Zen and OpenAI all speak
+// the same /v1/chat/completions contract. One fetch path + this table covers
+// every one of them. Anthropic is the only backend with its own SDK shape.
+interface ProviderPreset {
+  baseUrl: string;
+  /** Env var holding the key. null = no key required (local Ollama). */
+  envKey: string | null;
+  label: string;
+}
+
+const OPENAI_COMPAT_PRESETS: Record<string, ProviderPreset> = {
+  openai:       { baseUrl: "https://api.openai.com/v1",           envKey: "OPENAI_API_KEY",   label: "OpenAI" },
+  groq:         { baseUrl: "https://api.groq.com/openai/v1",      envKey: "GROQ_API_KEY",     label: "Groq" },
+  nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY",   label: "NVIDIA NIM" },
+  opencode_zen: { baseUrl: "https://opencode.ai/zen/v1",          envKey: "OPENCODE_API_KEY", label: "OpenCode Zen" },
+  ollama_cloud: { baseUrl: "https://ollama.com/v1",               envKey: "OLLAMA_API_KEY",   label: "Ollama Cloud" },
+  ollama:       { baseUrl: "http://localhost:11434/v1",           envKey: null,               label: "Ollama (local)" },
+};
+
+export interface ResolvedProvider {
+  kind: "anthropic" | "openai_compat";
+  baseUrl: string;
+  /** null when a key is required but unset — caller surfaces the error. */
+  apiKey: string | null;
+  envKey: string | null;
+  label: string;
+}
+
+/**
+ * Resolve a provider config → concrete base URL + key. Key precedence:
+ *   adapterConfig.apiKey → Doer env binding → process env → (ollama: placeholder)
+ */
+export function resolveProvider(
+  config: { provider?: string; baseUrl?: string; apiKey?: string },
+  env: Record<string, string>,
+): ResolvedProvider {
+  const provider = config.provider || "anthropic";
+  if (provider === "anthropic") {
+    return {
+      kind: "anthropic",
+      baseUrl: "https://api.anthropic.com",
+      apiKey: config.apiKey || env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || null,
+      envKey: "ANTHROPIC_API_KEY",
+      label: "Anthropic",
+    };
+  }
+  const preset = OPENAI_COMPAT_PRESETS[provider] ?? OPENAI_COMPAT_PRESETS.openai;
+  const fromEnv = preset.envKey ? env[preset.envKey] || process.env[preset.envKey] || "" : "";
+  // Local Ollama needs no key; send a harmless placeholder so the header exists.
+  const apiKey = config.apiKey || fromEnv || (preset.envKey === null ? "ollama" : "");
+  return {
+    kind: "openai_compat",
+    baseUrl: config.baseUrl?.trim() || preset.baseUrl,
+    apiKey: apiKey || null,
+    envKey: preset.envKey,
+    label: preset.label,
+  };
+}
+
+/** Stream an OpenAI-compatible /chat/completions response. */
+async function streamOpenAICompat(
+  ctx: AdapterExecutionContext,
+  resolved: ResolvedProvider,
+  args: { model: string; maxTokens: number; temperature?: number; systemPrompt: string; userMessage: string },
+): Promise<{ fullResponse: string; inputTokens: number; outputTokens: number }> {
+  const url = `${resolved.baseUrl.replace(/\/$/, "")}/chat/completions`;
+  const res = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...(resolved.apiKey ? { Authorization: `Bearer ${resolved.apiKey}` } : {}),
+    },
+    body: JSON.stringify({
+      model: args.model,
+      max_tokens: args.maxTokens,
+      temperature: args.temperature,
+      stream: true,
+      stream_options: { include_usage: true },
+      messages: [
+        { role: "system", content: args.systemPrompt },
+        { role: "user", content: args.userMessage },
+      ],
+    }),
+  });
+
+  if (!res.ok || !res.body) {
+    const body = await res.text().catch(() => "");
+    throw new Error(`${resolved.label} HTTP ${res.status}: ${body.slice(0, 300)}`);
+  }
+
+  let fullResponse = "";
+  let inputTokens = 0;
+  let outputTokens = 0;
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buffer = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buffer += decoder.decode(value, { stream: true });
+    const lines = buffer.split("\n");
+    buffer = lines.pop() ?? "";
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (!trimmed.startsWith("data:")) continue;
+      const data = trimmed.slice(5).trim();
+      if (!data || data === "[DONE]") continue;
+      let json: Record<string, unknown>;
+      try { json = JSON.parse(data); } catch { continue; }
+      const choices = json.choices as Array<{ delta?: { content?: string } }> | undefined;
+      const delta = choices?.[0]?.delta?.content;
+      if (typeof delta === "string" && delta) {
+        fullResponse += delta;
+        await emit(ctx, { type: "assistant_message", content: delta });
+      }
+      const usage = json.usage as { prompt_tokens?: number; completion_tokens?: number } | undefined;
+      if (usage) {
+        inputTokens = usage.prompt_tokens ?? inputTokens;
+        outputTokens = usage.completion_tokens ?? outputTokens;
+      }
+    }
+  }
+  return { fullResponse, inputTokens, outputTokens };
+}
+
+/**
+ * Resolve the offline memory directory. Precedence:
+ *   1. explicit adapterConfig.memoryDir
+ *   2. LETTA_MEMFS_DIR  — symlink in the workspace from a memory binding
+ *   3. DOER_AGENT_MEMORY_DIR — native agent workspace memory folder
+ * Doer injects (2) and (3) onto ctx.config.env at run time.
+ */
+export function resolveOfflineMemoryDir(
+  ctx: AdapterExecutionContext,
+  config: LettaCodeOfflineConfig,
+): string | undefined {
+  const explicit = config.memoryDir?.trim();
+  if (explicit) return explicit;
+  const env = ((ctx.config as Record<string, unknown>).env ?? {}) as Record<string, string>;
+  const bound = env.LETTA_MEMFS_DIR?.trim() || env.DOER_AGENT_MEMORY_DIR?.trim();
+  return bound || undefined;
+}
 
 async function loadMemoryBlocks(memoryDir: string): Promise<LettaCodeMemoryBlock[]> {
   if (!existsSync(memoryDir)) {
@@ -287,24 +431,38 @@ async function executeOffline(
   ctx: AdapterExecutionContext,
   config: LettaCodeOfflineConfig,
 ): Promise<AdapterExecutionResult> {
-  if (!config.memoryDir) {
-    await ctx.onLog("stderr", "[letta-code/offline] memoryDir is required\n");
+  // memoryDir may be set explicitly in adapterConfig, OR provided implicitly by
+  // a Doer memory binding. The memfs layer mounts the bound folder and exposes
+  // it via LETTA_MEMFS_DIR (symlink in the workspace → live source dir, so
+  // writes persist) or DOER_AGENT_MEMORY_DIR (native workspace fallback).
+  const memoryDir = resolveOfflineMemoryDir(ctx, config);
+  if (!memoryDir) {
+    await ctx.onLog(
+      "stderr",
+      "[letta-code/offline] No memory directory — set adapterConfig.memoryDir or attach a memory binding (provides LETTA_MEMFS_DIR)\n",
+    );
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "memoryDir not configured" };
   }
 
   const model = config.model || DEFAULT_MODEL;
   const maxTokens = config.maxTokens ?? DEFAULT_MAX_TOKENS;
-  const apiKey = config.apiKey || process.env.ANTHROPIC_API_KEY;
+  // Resolve the LLM backend: anthropic (native SDK) or any OpenAI-compatible
+  // provider (Groq, Ollama, NVIDIA, OpenCode Zen, …) via preset base URL.
+  const offlineEnv = ((ctx.config as Record<string, unknown>).env ?? {}) as Record<string, string>;
+  const resolved = resolveProvider(config, offlineEnv);
 
-  if (!apiKey) {
-    await ctx.onLog("stderr", "[letta-code/offline] No API key — set ANTHROPIC_API_KEY or adapterConfig.apiKey\n");
-    return { exitCode: 1, signal: null, timedOut: false, errorMessage: "Missing API key" };
+  if (!resolved.apiKey) {
+    await ctx.onLog(
+      "stderr",
+      `[letta-code/offline] No API key for ${resolved.label} — set ${resolved.envKey} or adapterConfig.apiKey\n`,
+    );
+    return { exitCode: 1, signal: null, timedOut: false, errorMessage: `Missing API key (${resolved.label})` };
   }
 
   let blocks: LettaCodeMemoryBlock[] = [];
   try {
-    blocks = await loadMemoryBlocks(config.memoryDir);
-    await ctx.onLog("stdout", `[letta-code/offline] ${blocks.length} block(s) from ${config.memoryDir}\n`);
+    blocks = await loadMemoryBlocks(memoryDir);
+    await ctx.onLog("stdout", `[letta-code/offline] ${blocks.length} block(s) from ${memoryDir}\n`);
   } catch (err) {
     await ctx.onLog("stderr", `[letta-code/offline] Failed to load blocks: ${err instanceof Error ? err.message : String(err)}\n`);
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "Memory block load failed" };
@@ -317,40 +475,53 @@ async function executeOffline(
     adapterType: "letta_code",
     command: "letta-code/offline",
     prompt: userMessage,
-    context: { mode: "offline", model, memoryDir: config.memoryDir, blocks: blocks.length },
+    context: { mode: "offline", provider: resolved.label, model, memoryDir, blocks: blocks.length },
   });
 
   await emit(ctx, { type: "user_message", content: userMessage });
 
-  const client = new Anthropic({ apiKey });
   let fullResponse = "";
   let inputTokens = 0;
   let outputTokens = 0;
 
   try {
-    const stream = client.messages.stream({
-      model,
-      max_tokens: maxTokens,
-      temperature: config.temperature,
-      system: systemPrompt,
-      messages: [{ role: "user", content: userMessage }],
-    });
+    if (resolved.kind === "anthropic") {
+      const client = new Anthropic({ apiKey: resolved.apiKey });
+      const stream = client.messages.stream({
+        model,
+        max_tokens: maxTokens,
+        temperature: config.temperature,
+        system: systemPrompt,
+        messages: [{ role: "user", content: userMessage }],
+      });
 
-    for await (const event of stream) {
-      if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-        fullResponse += event.delta.text;
-        await emit(ctx, { type: "assistant_message", content: event.delta.text });
+      for await (const event of stream) {
+        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
+          fullResponse += event.delta.text;
+          await emit(ctx, { type: "assistant_message", content: event.delta.text });
+        }
+        if (event.type === "message_start" && event.message.usage) {
+          inputTokens = event.message.usage.input_tokens ?? 0;
+        }
+        if (event.type === "message_delta" && event.usage) {
+          outputTokens = event.usage.output_tokens ?? 0;
+        }
       }
-      if (event.type === "message_start" && event.message.usage) {
-        inputTokens = event.message.usage.input_tokens ?? 0;
-      }
-      if (event.type === "message_delta" && event.usage) {
-        outputTokens = event.usage.output_tokens ?? 0;
-      }
+    } else {
+      const out = await streamOpenAICompat(ctx, resolved, {
+        model,
+        maxTokens,
+        temperature: config.temperature,
+        systemPrompt,
+        userMessage,
+      });
+      fullResponse = out.fullResponse;
+      inputTokens = out.inputTokens;
+      outputTokens = out.outputTokens;
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
-    await ctx.onLog("stderr", `[letta-code/offline] LLM error: ${message}\n`);
+    await ctx.onLog("stderr", `[letta-code/offline] ${resolved.label} error: ${message}\n`);
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: message };
   }
 
@@ -366,7 +537,7 @@ async function executeOffline(
   const updates = parseMemoryUpdates(fullResponse);
   for (const update of updates) {
     const existing = blocks.find((b) => b.label === update.label);
-    const filePath = existing?.filePath ?? path.join(config.memoryDir, `${update.label}.md`);
+    const filePath = existing?.filePath ?? path.join(memoryDir, `${update.label}.md`);
     try {
       await writeMemoryBlock({ label: update.label, content: update.content, filePath }, update.content);
       await emit(ctx, { type: "tool_call_message", name: "memory_update", input: { label: update.label } });
@@ -383,7 +554,7 @@ async function executeOffline(
     signal: null,
     timedOut: false,
     model,
-    provider: "anthropic",
+    provider: config.provider || "anthropic",
     usage: { inputTokens, outputTokens },
   };
 }

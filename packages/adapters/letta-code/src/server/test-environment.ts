@@ -1,6 +1,7 @@
 import { existsSync } from "node:fs";
 import type { AdapterEnvironmentTestContext, AdapterEnvironmentTestResult, AdapterEnvironmentCheck } from "@doerai/adapter-utils";
 import type { LettaCodeAdapterConfig } from "../shared/types.js";
+import { resolveProvider } from "./execute.js";
 
 export async function testEnvironment(
   ctx: AdapterEnvironmentTestContext,
@@ -35,10 +36,15 @@ export async function testEnvironment(
 
   } else {
     // ── Offline mode checks ───────────────────────────────────────────────
-    const c = config as { memoryDir?: string; provider?: string; apiKey?: string; model?: string };
+    const c = config as { memoryDir?: string; provider?: string; apiKey?: string; model?: string; baseUrl?: string };
 
     if (!c.memoryDir) {
-      checks.push({ code: "memory_dir_missing", level: "error", message: "memoryDir is required for offline mode" });
+      checks.push({
+        code: "memory_dir_unset",
+        level: "info",
+        message: "No explicit memoryDir — will use the attached memory binding (LETTA_MEMFS_DIR) at run time",
+        hint: "Set adapterConfig.memoryDir to override, or attach a memory binding under the Memory tab.",
+      });
     } else if (!existsSync(c.memoryDir)) {
       checks.push({
         code: "memory_dir_not_found",
@@ -50,18 +56,22 @@ export async function testEnvironment(
       checks.push({ code: "memory_dir_ok", level: "info", message: `memoryDir: ${c.memoryDir}` });
     }
 
-    const provider = c.provider ?? "anthropic";
-    const envKey = provider === "openai" ? "OPENAI_API_KEY" : "ANTHROPIC_API_KEY";
-    if (!c.apiKey && !process.env[envKey]) {
+    const env = ((ctx.config as Record<string, unknown>).env ?? {}) as Record<string, string>;
+    const resolved = resolveProvider(c, env);
+    if (resolved.envKey === null) {
+      // Local Ollama — no key required.
+      checks.push({ code: "api_key_ok", level: "info", message: `${resolved.label} — no API key required` });
+    } else if (!resolved.apiKey) {
       checks.push({
         code: "api_key_missing",
         level: "error",
-        message: `No API key for provider "${provider}"`,
-        detail: `Set ${envKey} in your environment or adapterConfig.apiKey`,
+        message: `No API key for ${resolved.label}`,
+        detail: `Set ${resolved.envKey} in your environment or adapterConfig.apiKey`,
       });
     } else {
-      checks.push({ code: "api_key_ok", level: "info", message: `API key found (${provider})` });
+      checks.push({ code: "api_key_ok", level: "info", message: `API key found (${resolved.label})` });
     }
+    checks.push({ code: "base_url", level: "info", message: `Endpoint: ${resolved.baseUrl}` });
 
     if (!c.model) {
       checks.push({ code: "model_default", level: "info", message: 'No model set — defaulting to "claude-sonnet-4-6"' });

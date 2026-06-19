@@ -41,13 +41,23 @@ export interface LettaCodeOfflineConfig {
    */
   memoryDir: string;
 
-  /** LLM model string — e.g. "claude-sonnet-4-6" or "gpt-4o" */
+  /** LLM model string — e.g. "claude-sonnet-4-6", "llama-3.3-70b-versatile", "gpt-oss:20b" */
   model?: string;
 
-  /** LLM provider. Defaults to "anthropic". */
-  provider?: "anthropic" | "openai";
+  /**
+   * LLM provider. "anthropic" uses the Anthropic SDK; every other value is an
+   * OpenAI-compatible backend reached over /v1/chat/completions with a preset
+   * base URL (override with `baseUrl`). Defaults to "anthropic".
+   */
+  provider?: "anthropic" | "openai" | "groq" | "nvidia" | "opencode_zen" | "ollama" | "ollama_cloud";
 
-  /** API key override. Falls back to ANTHROPIC_API_KEY / OPENAI_API_KEY. */
+  /**
+   * Base URL override for OpenAI-compatible providers. Blank uses the provider's
+   * preset (e.g. Groq → https://api.groq.com/openai/v1). Ignored for "anthropic".
+   */
+  baseUrl?: string;
+
+  /** API key override. Falls back to the provider's env var (e.g. GROQ_API_KEY). */
   apiKey?: string;
 
   /** Base system prompt / persona. Memory block content appended below. */

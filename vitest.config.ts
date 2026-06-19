@@ -6,6 +6,7 @@ export default defineConfig({
       "packages/db",
       "packages/adapters/claude-local",
       "packages/adapters/opencode-local",
+      "packages/adapters/letta-code",
       "server",
       "ui",
       "cli",

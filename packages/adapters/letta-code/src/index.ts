@@ -54,13 +54,27 @@ no Docker. Memory is stored as plain \`.md\` files the LLM reads and updates.
 | Field | Description |
 |-------|-------------|
 | \`memoryDir\` | Absolute path to directory of \`.md\` memory block files |
-| \`model\` | LLM model string — e.g. \`claude-sonnet-4-6\` or \`gpt-4o\` |
-| \`provider\` | \`anthropic\` (default) or \`openai\` |
+| \`model\` | LLM model string — e.g. \`claude-sonnet-4-6\`, \`llama-3.3-70b-versatile\`, \`gpt-oss:120b\` |
+| \`provider\` | LLM backend (see table below) |
+
+**Providers** — \`anthropic\` uses its native SDK; every other option is an
+OpenAI-compatible endpoint reached over \`/v1/chat/completions\`. Override any with \`baseUrl\`.
+
+| \`provider\` | Endpoint | Key (env var) | Cost |
+|------------|----------|---------------|------|
+| \`anthropic\` | api.anthropic.com | \`ANTHROPIC_API_KEY\` | paid |
+| \`groq\` | api.groq.com/openai/v1 | \`GROQ_API_KEY\` | free tier |
+| \`ollama\` | localhost:11434/v1 | — none — | free (local) |
+| \`ollama_cloud\` | ollama.com/v1 | \`OLLAMA_API_KEY\` | free daily |
+| \`nvidia\` | integrate.api.nvidia.com/v1 | \`NVIDIA_API_KEY\` | free tier |
+| \`opencode_zen\` | opencode.ai/zen/v1 | \`OPENCODE_API_KEY\` | free models |
+| \`openai\` | api.openai.com/v1 | \`OPENAI_API_KEY\` | paid |
 
 **Optional:**
 | Field | Description |
 |-------|-------------|
-| \`apiKey\` | API key override (falls back to \`ANTHROPIC_API_KEY\` / \`OPENAI_API_KEY\`) |
+| \`baseUrl\` | Override the provider's preset endpoint (OpenAI-compatible only) |
+| \`apiKey\` | API key override (falls back to the provider's env var) |
 | \`systemPrompt\` | Base persona — memory block content is injected below this |
 | \`heartbeatPrompt\` | Default user message for timer-triggered wakes |
 | \`temperature\` | Sampling temperature |
