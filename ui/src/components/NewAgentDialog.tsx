@@ -30,7 +30,8 @@ type AdvancedAdapterType =
   | "pi_local"
   | "cursor"
   | "openclaw_gateway"
-  | "letta_cloud";
+  | "letta_cloud"
+  | "letta_code";
 
 const ADVANCED_ADAPTER_OPTIONS: Array<{
   value: AdvancedAdapterType;
@@ -88,6 +89,12 @@ const ADVANCED_ADAPTER_OPTIONS: Array<{
     label: "Letta Cloud",
     icon: Bot,
     desc: "Cloud-hosted Letta agent",
+  },
+  {
+    value: "letta_code",
+    label: "letta_code",
+    icon: Bot,
+    desc: "Letta agent (online or offline)",
   },
 ];
 

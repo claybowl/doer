@@ -32,6 +32,7 @@ export const AGENT_ADAPTER_TYPES = [
   "openclaw_gateway",
   "hermes_local",
   "letta_cloud",
+  "letta_code",
 ] as const;
 export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number];
 
