@@ -1,5 +1,7 @@
 export interface InstanceGeneralSettings {
   censorUsernameInLogs: boolean;
+  homeNotionToken: string;
+  homeNotionDatabaseId: string;
 }
 
 export interface InstanceExperimentalSettings {

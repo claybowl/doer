@@ -2,6 +2,10 @@ import { z } from "zod";
 
 export const instanceGeneralSettingsSchema = z.object({
   censorUsernameInLogs: z.boolean().default(false),
+  // Home page blog feed — pulled live from a Notion database so content can be
+  // edited without shipping a new app build. Both blank = use built-in defaults.
+  homeNotionToken: z.string().default(""),
+  homeNotionDatabaseId: z.string().default(""),
 }).strict();
 
 export const patchInstanceGeneralSettingsSchema = instanceGeneralSettingsSchema.partial();

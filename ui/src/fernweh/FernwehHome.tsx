@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { NavLink, useParams } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { dashboardApi } from "@/api/dashboard";
+import { homeContentApi } from "@/api/homeContent";
 import { queryKeys } from "@/lib/queryKeys";
 import { Icon, I, formatCents } from "./utils";
 
@@ -210,8 +211,18 @@ export function FernwehHome() {
   const prefix = companyPrefix ?? selectedCompany?.issuePrefix ?? "";
   const hqHref = `/${prefix}/fernweh`;
   const newAgentHref = `/${prefix}/agents/new`;
-  const featured = BLOG_POSTS.find((p) => p.featured);
-  const rest = BLOG_POSTS.filter((p) => !p.featured);
+
+  // Blog feed: live from Notion when configured (Instance Settings → Home blog),
+  // otherwise the built-in starter content. Notion edits appear without a release.
+  const homeContentQuery = useQuery({
+    queryKey: ["home-content"],
+    queryFn: () => homeContentApi.get(),
+    refetchInterval: 5 * 60_000,
+  });
+  const notionPosts = homeContentQuery.data?.posts ?? [];
+  const posts = notionPosts.length > 0 ? notionPosts : BLOG_POSTS;
+  const featured = posts.find((p) => p.featured) ?? posts[0];
+  const rest = posts.filter((p) => p !== featured);
 
   return (
     <div

@@ -107,7 +107,10 @@ export function LettaCodeConfigFields({
   const getField = (field: string, fallback: string) =>
     isCreate
       ? (((values as unknown as Record<string, unknown>)?.[field] as string) ?? fallback)
-      : (eff("adapterConfig", field, fallback) as string);
+      // Read the agent's SAVED value as the baseline, not a static fallback —
+      // otherwise eff() returns the constant after the overlay clears on save,
+      // making every field appear to "reset" to its default.
+      : (eff("adapterConfig", field, (config[field] as string) ?? fallback) as string);
 
   // Default to offline — it's the zero-dependency mode.
   const mode = (getField("mode", "offline") || "offline") as "online" | "offline";

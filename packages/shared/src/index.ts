@@ -181,6 +181,8 @@ export type {
   InstanceExperimentalSettings,
   InstanceGeneralSettings,
   InstanceSettings,
+  HomeBlogPost,
+  HomeContentResponse,
   Agent,
   AgentAccessState,
   AgentChainOfCommandEntry,

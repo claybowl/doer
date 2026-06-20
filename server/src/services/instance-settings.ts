@@ -18,10 +18,14 @@ function normalizeGeneralSettings(raw: unknown): InstanceGeneralSettings {
   if (parsed.success) {
     return {
       censorUsernameInLogs: parsed.data.censorUsernameInLogs ?? false,
+      homeNotionToken: parsed.data.homeNotionToken ?? "",
+      homeNotionDatabaseId: parsed.data.homeNotionDatabaseId ?? "",
     };
   }
   return {
     censorUsernameInLogs: false,
+    homeNotionToken: "",
+    homeNotionDatabaseId: "",
   };
 }
 
