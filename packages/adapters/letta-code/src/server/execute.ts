@@ -237,15 +237,21 @@ interface ProviderPreset {
   /** Env var holding the key. null = no key required (local Ollama). */
   envKey: string | null;
   label: string;
+  /**
+   * Whether this provider/backend reliably supports tool-calling.
+   * false = degrade to full-body skill injection.
+   * Anthropic is always true (handled separately in resolveSkillDelivery).
+   */
+  supportsTools: boolean;
 }
 
 const OPENAI_COMPAT_PRESETS: Record<string, ProviderPreset> = {
-  openai:       { baseUrl: "https://api.openai.com/v1",           envKey: "OPENAI_API_KEY",   label: "OpenAI" },
-  groq:         { baseUrl: "https://api.groq.com/openai/v1",      envKey: "GROQ_API_KEY",     label: "Groq" },
-  nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY",   label: "NVIDIA NIM" },
-  opencode_zen: { baseUrl: "https://opencode.ai/zen/v1",          envKey: "OPENCODE_API_KEY", label: "OpenCode Zen" },
-  ollama_cloud: { baseUrl: "https://ollama.com/v1",               envKey: "OLLAMA_API_KEY",   label: "Ollama Cloud" },
-  ollama:       { baseUrl: "http://localhost:11434/v1",           envKey: null,               label: "Ollama (local)" },
+  openai:       { baseUrl: "https://api.openai.com/v1",           envKey: "OPENAI_API_KEY",   label: "OpenAI",         supportsTools: true  },
+  groq:         { baseUrl: "https://api.groq.com/openai/v1",      envKey: "GROQ_API_KEY",     label: "Groq",           supportsTools: true  },
+  nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY",   label: "NVIDIA NIM",     supportsTools: true  },
+  opencode_zen: { baseUrl: "https://opencode.ai/zen/v1",          envKey: "OPENCODE_API_KEY", label: "OpenCode Zen",   supportsTools: false },
+  ollama_cloud: { baseUrl: "https://ollama.com/v1",               envKey: "OLLAMA_API_KEY",   label: "Ollama Cloud",   supportsTools: false },
+  ollama:       { baseUrl: "http://localhost:11434/v1",           envKey: null,               label: "Ollama (local)", supportsTools: false },
 };
 
 export interface ResolvedProvider {
@@ -255,6 +261,8 @@ export interface ResolvedProvider {
   apiKey: string | null;
   envKey: string | null;
   label: string;
+  /** The raw provider key (e.g. "groq", "ollama"). null for anthropic. */
+  providerKey: string | null;
 }
 
 /**
@@ -273,6 +281,7 @@ export function resolveProvider(
       apiKey: config.apiKey || env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_API_KEY || null,
       envKey: "ANTHROPIC_API_KEY",
       label: "Anthropic",
+      providerKey: null,
     };
   }
   const preset = OPENAI_COMPAT_PRESETS[provider] ?? OPENAI_COMPAT_PRESETS.openai;
@@ -285,7 +294,29 @@ export function resolveProvider(
     apiKey: apiKey || null,
     envKey: preset.envKey,
     label: preset.label,
+    providerKey: provider,
   };
+}
+
+/**
+ * Decide how to deliver checked skills to this offline agent.
+ * "loop"   → inject a skills manifest + expose read_skill tool; model pulls
+ *             bodies on demand (progressive disclosure).
+ * "inject" → inject all desired skill bodies into the system prompt at once,
+ *             capped by SKILL_INJECT_CHAR_BUDGET.
+ *
+ * Precedence: explicit adapterConfig.skillToolCalls > provider default.
+ * Anthropic always supports tools; local Ollama never does.
+ */
+export function resolveSkillDelivery(
+  resolved: ResolvedProvider,
+  config: { skillToolCalls?: "loop" | "inject" },
+): "loop" | "inject" {
+  if (config.skillToolCalls === "loop") return "loop";
+  if (config.skillToolCalls === "inject") return "inject";
+  if (resolved.kind === "anthropic") return "loop";
+  const preset = resolved.providerKey ? OPENAI_COMPAT_PRESETS[resolved.providerKey] : null;
+  return preset?.supportsTools ? "loop" : "inject";
 }
 
 /** Stream an OpenAI-compatible /chat/completions response. */

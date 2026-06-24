@@ -68,6 +68,14 @@ export interface LettaCodeOfflineConfig {
 
   temperature?: number;
   maxTokens?: number;
+
+  /**
+   * Override tool-calling capability for skill delivery.
+   * "loop" = manifest + read_skill tool loop.
+   * "inject" = full-body injection into system prompt.
+   * When unset, the default is derived from the provider.
+   */
+  skillToolCalls?: "loop" | "inject";
 }
 
 /**

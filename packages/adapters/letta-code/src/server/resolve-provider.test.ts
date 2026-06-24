@@ -10,6 +10,7 @@ describe("resolveProvider", () => {
     expect(r.kind).toBe("anthropic");
     expect(r.label).toBe("Anthropic");
     expect(r.apiKey).toBe("sk-ant-x");
+    expect(r.providerKey).toBeNull();
   });
 
   it("maps groq to its OpenAI-compatible preset base URL", () => {
@@ -18,6 +19,7 @@ describe("resolveProvider", () => {
     expect(r.baseUrl).toBe("https://api.groq.com/openai/v1");
     expect(r.apiKey).toBe("gsk_test");
     expect(r.envKey).toBe("GROQ_API_KEY");
+    expect(r.providerKey).toBe("groq");
   });
 
   it("uses each provider's preset endpoint", () => {
