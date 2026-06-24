@@ -209,13 +209,13 @@ importers:
       '@doerai/adapter-utils':
         specifier: workspace:*
         version: link:../../adapter-utils
-      '@doerai/shared':
-        specifier: workspace:*
-        version: link:../../shared
       '@letta-ai/letta-client':
         specifier: ^1.10.1
         version: 1.10.3
     devDependencies:
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../shared
       '@types/node':
         specifier: ^24.6.0
         version: 24.12.2

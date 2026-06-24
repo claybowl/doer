@@ -640,8 +640,13 @@ export function agentRoutes(db: Db) {
         ),
       );
       if (slugs.length === 0) return [];
+      // Map slugs (e.g. "agents-md-memory") to canonical library keys
+      // (e.g. "doerai/doer/agents-md-memory"). Bundled Doer skills are
+      // ensured into every company library, so this normally resolves.
       return await companySkills.resolveRequestedSkillKeys(companyId, slugs);
     } catch {
+      // Memory skills are additive — a memfs lookup or skill-resolution
+      // failure must not block skill sync or agent updates.
       return [];
     }
   }

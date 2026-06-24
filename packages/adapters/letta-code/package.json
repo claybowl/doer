@@ -29,10 +29,10 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.55.0",
     "@letta-ai/letta-client": "^1.10.1",
-    "@doerai/adapter-utils": "workspace:*",
-    "@doerai/shared": "workspace:*"
+    "@doerai/adapter-utils": "workspace:*"
   },
   "devDependencies": {
+    "@doerai/shared": "workspace:*",
     "@types/node": "^24.6.0",
     "typescript": "^5.7.3"
   },
