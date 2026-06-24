@@ -319,6 +319,96 @@ export function resolveSkillDelivery(
   return preset?.supportsTools ? "loop" : "inject";
 }
 
+export const SKILL_INJECT_CHAR_BUDGET = 12_000;
+
+/**
+ * Parse the name and description fields from YAML frontmatter at the top of a
+ * SKILL.md. Only handles simple single-line values and ">" block scalars.
+ * Returns empty strings for missing or absent frontmatter.
+ */
+export function parseFrontmatter(content: string): { name: string; description: string } {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return { name: "", description: "" };
+  const block = match[1];
+
+  function extractScalar(key: string): string {
+    // "key: >\n  line one\n  line two" — check block scalar BEFORE simple
+    const blockScalar = block.match(new RegExp(`^${key}:\\s*>\\n([\\s\\S]*?)(?=^\\S|$)`, "m"));
+    if (blockScalar) {
+      return blockScalar[1]
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean)
+        .join(" ")
+        .trim();
+    }
+    // "key: simple value"
+    const simple = block.match(new RegExp(`^${key}:\\s+(.+)$`, "m"));
+    if (simple) return simple[1].trim();
+    return "";
+  }
+
+  return {
+    name: extractScalar("name"),
+    description: extractScalar("description"),
+  };
+}
+
+/**
+ * Build a manifest string listing available skills. Injected into the system
+ * prompt for loop-mode delivery so the agent knows which skills exist and that
+ * it should call read_skill to load a body before acting in that domain.
+ */
+export function buildSkillsManifest(
+  skills: Array<{ name: string; description: string }>,
+): string {
+  if (skills.length === 0) return "";
+  const lines = skills.map((s) => `- **${s.name || "(unnamed)"}** — ${s.description || "No description."}`);
+  return [
+    "## Available Skills",
+    "",
+    "The following skills are available to you. Call the `read_skill` tool with a",
+    "skill name to load its full instructions before acting in its domain.",
+    "",
+    ...lines,
+  ].join("\n");
+}
+
+/**
+ * Build a full-body inject section for inject-mode delivery. Includes complete
+ * SKILL.md content for each skill up to SKILL_INJECT_CHAR_BUDGET total chars.
+ * Skills are included in order (required/priority first — caller is responsible
+ * for ordering). Whole skills are dropped, never partially truncated.
+ * Returns the section string and a list of dropped skill names.
+ */
+export function buildSkillsInjectSection(
+  skills: Array<{ name: string; body: string }>,
+  budgetChars = SKILL_INJECT_CHAR_BUDGET,
+): { section: string; dropped: string[] } {
+  if (skills.length === 0) return { section: "", dropped: [] };
+  const included: Array<{ name: string; body: string }> = [];
+  const dropped: string[] = [];
+  let used = 0;
+
+  for (const skill of skills) {
+    if (used + skill.body.length <= budgetChars) {
+      included.push(skill);
+      used += skill.body.length;
+    } else {
+      dropped.push(skill.name || "(unnamed)");
+    }
+  }
+
+  if (included.length === 0) return { section: "", dropped };
+
+  const parts = ["## Skills", ""];
+  for (const skill of included) {
+    parts.push(`### ${skill.name || "(unnamed)"}`, "", skill.body.trim(), "");
+  }
+
+  return { section: parts.join("\n"), dropped };
+}
+
 /** Stream an OpenAI-compatible /chat/completions response. */
 async function streamOpenAICompat(
   ctx: AdapterExecutionContext,
