@@ -527,7 +527,11 @@ function parseMemoryUpdates(text: string): LettaCodeMemoryUpdate[] {
   return updates;
 }
 
-function buildOfflineSystemPrompt(basePrompt: string, blocks: LettaCodeMemoryBlock[]): string {
+export function buildOfflineSystemPrompt(
+  basePrompt: string,
+  blocks: LettaCodeMemoryBlock[],
+  skillSection = "",
+): string {
   const parts: string[] = [basePrompt.trim() || "You are a helpful AI agent."];
 
   if (blocks.length > 0) {
@@ -543,6 +547,10 @@ function buildOfflineSystemPrompt(basePrompt: string, blocks: LettaCodeMemoryBlo
       "Available blocks: " + blocks.map((b) => b.label).join(", ") + "\n" +
       "You may create new blocks by using a new label.",
     );
+  }
+
+  if (skillSection.trim()) {
+    parts.push("\n\n" + skillSection.trim());
   }
 
   return parts.join("\n");

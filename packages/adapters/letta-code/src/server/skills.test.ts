@@ -162,3 +162,25 @@ describe("buildSkillsInjectSection", () => {
     expect(dropped).toHaveLength(0);
   });
 });
+
+// Re-import buildOfflineSystemPrompt — it's not yet exported; will export in 4.2
+import { buildOfflineSystemPrompt } from "./execute.js";
+
+describe("buildOfflineSystemPrompt with skills", () => {
+  const block = { label: "persona", content: "I am an agent.", filePath: "/mem/persona.md" };
+
+  it("appends skill section after memory blocks when provided", () => {
+    const prompt = buildOfflineSystemPrompt("You are helpful.", [block], "## Available Skills\n- foo — bar");
+    expect(prompt).toContain("## Available Skills");
+    expect(prompt).toContain("foo — bar");
+    expect(prompt).toContain("## Memory");
+  });
+
+  it("produces same output as before when no skillSection provided", () => {
+    const withoutSkills = buildOfflineSystemPrompt("You are helpful.", [block]);
+    const withEmpty = buildOfflineSystemPrompt("You are helpful.", [block], "");
+    expect(withoutSkills).toBe(withEmpty);
+    expect(withoutSkills).not.toContain("## Available Skills");
+    expect(withoutSkills).not.toContain("## Skills");
+  });
+});
