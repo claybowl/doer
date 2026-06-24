@@ -737,6 +737,22 @@ export const MEMFS_STRATEGY_SKILL: Partial<Record<MemfsStrategy, string>> = {
 };
 
 /**
+ * Per-adapter overrides for the memory-protocol skill mapping. When an entry
+ * exists for (adapterType, strategy), it wins over MEMFS_STRATEGY_SKILL.
+ *
+ * Motivation: letta_code offline agents use <memory_update> tag protocol, not
+ * file I/O — agents-md-memory (the default for fs-mount) would deliver wrong
+ * instructions. The offline-specific skill letta-code-memory is correct.
+ */
+export const MEMFS_STRATEGY_SKILL_BY_ADAPTER: Partial<
+  Record<string, Partial<Record<MemfsStrategy, string>>>
+> = {
+  letta_code: {
+    "fs-mount": "letta-code-memory",
+  },
+};
+
+/**
  * Deliverable kinds — what formats Doer agents can promote as client-visible
  * files. v1 ships docx + xlsx for claude_local; other formats slot in as
  * additional skill recipes land. Intentionally text-typed in the DB so
