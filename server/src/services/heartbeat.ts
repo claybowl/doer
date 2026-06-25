@@ -45,6 +45,7 @@ import { executionWorkspaceService } from "./execution-workspaces.js";
 import { workspaceOperationService } from "./workspace-operations.js";
 import { agentWorkspaceService } from "./agent-workspaces.js";
 import { applyMemfsBindingsToWorkspace, commitAgentMemoryAfterRun } from "./memfs/apply.js";
+import { memfsService } from "./memfs/memfs-service.js";
 import {
   buildExecutionWorkspaceAdapterConfig,
   gateProjectExecutionWorkspacePolicy,
@@ -2280,13 +2281,25 @@ export function heartbeatService(db: Db) {
           ]
         : []),
     ];
+    // Determine which workspace subdirs are managed by memfs bindings
+    // so ensure() skips creating them as plain directories (fs-mount will symlink them).
+    let memfsManagedSubdirs: string[] = [];
+    try {
+      const memfsBindingsForAgent = await memfsService(db).listBindingsForAgent(agent.companyId, agent.id);
+      memfsManagedSubdirs = memfsBindingsForAgent
+        .filter((b) => b.strategy === "fs-mount")
+        .map((b) => b.mountAs)
+        .filter((m): m is string => typeof m === "string" && m.length > 0);
+    } catch {
+      // Non-fatal: if memfs lookup fails, just don't skip any subdirs.
+    }
     const nativeAgentWorkspace = await agentWorkspaces.ensure({
       id: agent.id,
       companyId: agent.companyId,
       name: agent.name,
       adapterConfig: agent.adapterConfig,
       metadata: agent.metadata,
-    }).catch((err) => {
+    }, memfsManagedSubdirs as ("memory" | "instructions" | "skills" | "tools" | "runs" | "outputs" | "state")[]).catch((err) => {
       runtimeWorkspaceWarnings.push(
         `Native agent workspace could not be prepared: ${err instanceof Error ? err.message : String(err)}.`,
       );

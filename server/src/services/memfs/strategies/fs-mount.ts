@@ -67,6 +67,8 @@ export const fsMountStrategy: MemfsMountStrategy = {
     // Check for existing entry; if already a symlink to the same target, no-op.
     try {
       const existing = await fs.lstat(mountAbs);
+
+      // Case 1: Already a symlink pointing to the correct target — no-op.
       if (existing.isSymbolicLink()) {
         const linkTarget = await fs.readlink(mountAbs);
         const resolvedExisting = path.resolve(path.dirname(mountAbs), linkTarget);
@@ -79,14 +81,42 @@ export const fsMountStrategy: MemfsMountStrategy = {
             note: "fs-mount symlink already present.",
           };
         }
+        // Symlink exists but points elsewhere — give actionable error.
+        return {
+          ok: false,
+          strategy: "fs-mount",
+          bindingId: binding.id,
+          mountedPath: null,
+          note: `fs-mount target is a symlink pointing to ${resolvedExisting} instead of ${sourceAbs}. Remove the existing symlink at ${mountAbs} and retry the heartbeat, or change the binding's mountAs to use a different path.`,
+        };
       }
-      return {
-        ok: false,
-        strategy: "fs-mount",
-        bindingId: binding.id,
-        mountedPath: null,
-        note: `fs-mount target already exists and is not our symlink: ${mountAbs}`,
-      };
+
+      // Case 2: Existing directory — check if empty (safe to replace) or non-empty (user data).
+      if (existing.isDirectory()) {
+        const entries = await fs.readdir(mountAbs);
+        if (entries.length === 0) {
+          // Empty directory — safe to replace with symlink.
+          await fs.rmdir(mountAbs);
+        } else {
+          // Non-empty directory — refuse to clobber user data.
+          return {
+            ok: false,
+            strategy: "fs-mount",
+            bindingId: binding.id,
+            mountedPath: null,
+            note: `fs-mount cannot create symlink at ${mountAbs}: directory exists with ${entries.length} file(s) inside. Move files to ${sourceAbs}, remove the directory (rmdir "${mountAbs}"), then retry the heartbeat. Or change the binding's mountAs to use a different path.`,
+          };
+        }
+      } else {
+        // Regular file or other — refuse to overwrite.
+        return {
+          ok: false,
+          strategy: "fs-mount",
+          bindingId: binding.id,
+          mountedPath: null,
+          note: `fs-mount target already exists as a file (not a directory or symlink): ${mountAbs}. Remove it and retry the heartbeat, or change the binding's mountAs to use a different path.`,
+        };
+      }
     } catch (err) {
       const e = err as NodeJS.ErrnoException;
       if (e.code !== "ENOENT") throw err;

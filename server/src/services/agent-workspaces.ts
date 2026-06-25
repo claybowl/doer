@@ -48,6 +48,7 @@ export interface AgentWorkspaceSummary {
   legacyExists: boolean;
   directories: Record<WorkspaceSubdir, { path: string; exists: boolean }>;
   warnings: string[];
+  skippedSubdirs: WorkspaceSubdir[];
 }
 
 function readString(value: unknown): string | null {
@@ -110,7 +111,8 @@ function buildPaths(agentId: string) {
 }
 
 export function agentWorkspaceService() {
-  async function inspect(agent: AgentWorkspaceAgentRef): Promise<AgentWorkspaceSummary> {
+  async function inspect(agent: AgentWorkspaceAgentRef, skipSubdirs?: WorkspaceSubdir[]): Promise<AgentWorkspaceSummary> {
+    const skipSet = new Set(skipSubdirs ?? []);
     const paths = buildPaths(agent.id);
     const [exists, legacyExists, manifest] = await Promise.all([
       pathIsDirectory(paths.rootPath),
@@ -120,7 +122,7 @@ export function agentWorkspaceService() {
     const directoryEntries = await Promise.all(
       WORKSPACE_SUBDIRS.map(async (key) => [key, {
         path: paths.directories[key].path,
-        exists: await pathIsDirectory(paths.directories[key].path),
+        exists: skipSet.has(key) ? false : await pathIsDirectory(paths.directories[key].path),
       }] as const),
     );
     const warnings: string[] = [];
@@ -128,6 +130,10 @@ export function agentWorkspaceService() {
       warnings.push(`Legacy workspace path exists: ${paths.legacyRootPath}`);
     }
     if (!exists) warnings.push("Native agent workspace has not been created yet.");
+    const skipped = WORKSPACE_SUBDIRS.filter((key) => skipSet.has(key));
+    if (skipped.length > 0) {
+      warnings.push(`Subdirectory ${skipped.join(", ")} skipped (managed by memfs binding).`);
+    }
     return {
       agentId: agent.id,
       companyId: agent.companyId,
@@ -141,13 +147,17 @@ export function agentWorkspaceService() {
       legacyExists,
       directories: Object.fromEntries(directoryEntries) as AgentWorkspaceSummary["directories"],
       warnings,
+      skippedSubdirs: skipped,
     };
   }
 
-  async function ensure(agent: AgentWorkspaceAgentRef): Promise<AgentWorkspaceSummary> {
+  async function ensure(agent: AgentWorkspaceAgentRef, skipSubdirs?: WorkspaceSubdir[]): Promise<AgentWorkspaceSummary> {
+    const skipSet = new Set(skipSubdirs ?? []);
     const paths = buildPaths(agent.id);
     await fs.mkdir(paths.rootPath, { recursive: true });
-    await Promise.all(WORKSPACE_SUBDIRS.map((key) => fs.mkdir(paths.directories[key].path, { recursive: true })));
+    await Promise.all(
+      WORKSPACE_SUBDIRS.filter((key) => !skipSet.has(key)).map((key) => fs.mkdir(paths.directories[key].path, { recursive: true })),
+    );
 
     const existingManifest = await readManifest(paths.manifestPath);
     const now = new Date().toISOString();
@@ -162,7 +172,7 @@ export function agentWorkspaceService() {
       updatedAt: now,
     };
     await fs.writeFile(paths.manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, "utf8");
-    return inspect(agent);
+    return inspect(agent, skipSubdirs);
   }
 
   return {
