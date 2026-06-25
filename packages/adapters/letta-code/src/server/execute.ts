@@ -1,9 +1,15 @@
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
+import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
 import Letta from "@letta-ai/letta-client";
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
+import {
+  readPaperclipRuntimeSkillEntries,
+  resolvePaperclipDesiredSkillNames,
+  readPaperclipSkillMarkdown,
+} from "@doerai/adapter-utils/server-utils";
 import type {
   LettaCodeAdapterConfig,
   LettaCodeOfflineConfig,
@@ -11,6 +17,8 @@ import type {
   LettaCodeMemoryBlock,
   LettaCodeMemoryUpdate,
 } from "../shared/types.js";
+
+const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
 // ── Emit helpers ──────────────────────────────────────────────────────────
 // Emits JSON lines in the same format as letta-cloud so the existing
@@ -597,7 +605,53 @@ async function executeOffline(
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "Memory block load failed" };
   }
 
-  const systemPrompt = buildOfflineSystemPrompt(config.systemPrompt ?? "", blocks);
+  // ── Skill loading ─────────────────────────────────────────────────────────
+  const allSkillEntries = await readPaperclipRuntimeSkillEntries(
+    config as unknown as Record<string, unknown>,
+    __moduleDir,
+  );
+  const desiredSkillNames = resolvePaperclipDesiredSkillNames(
+    config as unknown as Record<string, unknown>,
+    allSkillEntries,
+  );
+  const delivery = resolveSkillDelivery(resolved, config);
+
+  let skillSection = "";
+
+  if (desiredSkillNames.length > 0) {
+    if (delivery === "loop") {
+      // Manifest only — bodies pulled via read_skill tool during the turn.
+      const manifests: Array<{ name: string; description: string }> = [];
+      for (const skillName of desiredSkillNames) {
+        const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
+        if (body) {
+          const meta = parseFrontmatter(body);
+          manifests.push({ name: meta.name || skillName, description: meta.description });
+        }
+      }
+      skillSection = buildSkillsManifest(manifests);
+    } else {
+      // Inject mode — full bodies, budget-capped.
+      const skillBodies: Array<{ name: string; body: string; required: boolean }> = [];
+      for (const entry of allSkillEntries) {
+        if (!desiredSkillNames.includes(entry.key)) continue;
+        const body = await readPaperclipSkillMarkdown(__moduleDir, entry.key);
+        if (body) skillBodies.push({ name: entry.key, body, required: Boolean(entry.required) });
+      }
+      // Required skills first, then config order
+      skillBodies.sort((a, b) => (b.required ? 1 : 0) - (a.required ? 1 : 0));
+      const { section, dropped } = buildSkillsInjectSection(skillBodies);
+      skillSection = section;
+      if (dropped.length > 0) {
+        await ctx.onLog(
+          "stderr",
+          `[letta-code/offline] Skill inject budget exceeded — dropped: ${dropped.join(", ")}\n`,
+        );
+      }
+    }
+  }
+
+  const systemPrompt = buildOfflineSystemPrompt(config.systemPrompt ?? "", blocks, skillSection);
   const userMessage = buildUserMessage(ctx, config.heartbeatPrompt);
 
   await ctx.onMeta?.({
@@ -616,37 +670,277 @@ async function executeOffline(
   try {
     if (resolved.kind === "anthropic") {
       const client = new Anthropic({ apiKey: resolved.apiKey });
-      const stream = client.messages.stream({
-        model,
-        max_tokens: maxTokens,
-        temperature: config.temperature,
-        system: systemPrompt,
-        messages: [{ role: "user", content: userMessage }],
-      });
+      const tools: Anthropic.Tool[] = delivery === "loop"
+        ? [{
+            name: "read_skill",
+            description: "Load the full instructions for a skill by name. Call this before acting in a skill's domain.",
+            input_schema: {
+              type: "object" as const,
+              properties: {
+                name: { type: "string", description: "The skill name (as shown in ## Available Skills)" },
+              },
+              required: ["name"],
+            },
+          }]
+        : [];
 
-      for await (const event of stream) {
-        if (event.type === "content_block_delta" && event.delta.type === "text_delta") {
-          fullResponse += event.delta.text;
-          await emit(ctx, { type: "assistant_message", content: event.delta.text });
+      const messages: Anthropic.MessageParam[] = [{ role: "user", content: userMessage }];
+      const MAX_TOOL_ITERATIONS = 8;
+      let iterations = 0;
+
+      while (iterations < MAX_TOOL_ITERATIONS) {
+        iterations++;
+        const streamParams: Anthropic.MessageStreamParams = {
+          model,
+          max_tokens: maxTokens,
+          temperature: config.temperature,
+          system: systemPrompt,
+          messages,
+          ...(tools.length > 0 ? { tools } : {}),
+        };
+
+        let stopReason: string | null = null;
+        let turnText = "";
+
+        const stream = client.messages.stream(streamParams);
+
+        for await (const event of stream) {
+          if (event.type === "content_block_delta") {
+            if (event.delta.type === "text_delta") {
+              turnText += event.delta.text;
+              await emit(ctx, { type: "assistant_message", content: event.delta.text });
+            }
+            // input_json_delta: accumulate tool input — parsed from finalMessage below
+          }
+          if (event.type === "message_start" && event.message.usage) {
+            inputTokens = event.message.usage.input_tokens ?? 0;
+          }
+          if (event.type === "message_delta") {
+            if (event.usage) outputTokens = event.usage.output_tokens ?? 0;
+            stopReason = event.delta.stop_reason ?? null;
+          }
         }
-        if (event.type === "message_start" && event.message.usage) {
-          inputTokens = event.message.usage.input_tokens ?? 0;
+
+        fullResponse += turnText;
+
+        // Re-read the final message for complete tool_use blocks
+        const finalMessage = await stream.finalMessage();
+        const finalToolUses = finalMessage.content.filter(
+          (b): b is Anthropic.ToolUseBlock => b.type === "tool_use",
+        );
+
+        if (finalToolUses.length === 0 || stopReason === "end_turn") {
+          break;
         }
-        if (event.type === "message_delta" && event.usage) {
-          outputTokens = event.usage.output_tokens ?? 0;
+
+        // Process tool calls
+        const assistantMsg: Anthropic.MessageParam = {
+          role: "assistant",
+          content: finalMessage.content,
+        };
+        const toolResults: Anthropic.ToolResultBlockParam[] = [];
+
+        for (const tu of finalToolUses) {
+          await emit(ctx, {
+            type: "tool_call_message",
+            name: tu.name,
+            input: tu.input,
+            toolCallId: tu.id,
+          });
+          let toolOutput: string;
+          if (tu.name === "read_skill") {
+            const skillName = (tu.input as Record<string, unknown>).name;
+            if (typeof skillName !== "string" || !desiredSkillNames.includes(skillName)) {
+              toolOutput = `Skill "${String(skillName)}" is not available to this agent. Available skills: ${desiredSkillNames.join(", ")}.`;
+            } else {
+              const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
+              toolOutput = body ?? `Skill "${skillName}" not found.`;
+            }
+          } else {
+            toolOutput = `Unknown tool: ${tu.name}`;
+          }
+          await emit(ctx, {
+            type: "tool_return_message",
+            content: toolOutput,
+            toolCallId: tu.id,
+            isError: false,
+          });
+          toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: toolOutput });
         }
+
+        messages.push(assistantMsg, { role: "user", content: toolResults });
+      }
+
+      if (iterations >= MAX_TOOL_ITERATIONS) {
+        await ctx.onLog("stderr", "[letta-code/offline] Max tool iterations reached\n");
       }
     } else {
-      const out = await streamOpenAICompat(ctx, resolved, {
-        model,
-        maxTokens,
-        temperature: config.temperature,
-        systemPrompt,
-        userMessage,
-      });
-      fullResponse = out.fullResponse;
-      inputTokens = out.inputTokens;
-      outputTokens = out.outputTokens;
+      if (delivery === "loop") {
+        // OpenAI-compat tool-call loop
+        const toolSchema = [{
+          type: "function" as const,
+          function: {
+            name: "read_skill",
+            description: "Load the full instructions for a skill by name.",
+            parameters: {
+              type: "object",
+              properties: {
+                name: { type: "string", description: "Skill name as listed in ## Available Skills" },
+              },
+              required: ["name"],
+            },
+          },
+        }];
+
+        type OAIMessage = {
+          role: string;
+          content: string | null;
+          tool_calls?: unknown[];
+          tool_call_id?: string;
+          name?: string;
+        };
+        const messages: OAIMessage[] = [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userMessage },
+        ];
+        const MAX_TOOL_ITERATIONS = 8;
+        let iterations = 0;
+
+        while (iterations < MAX_TOOL_ITERATIONS) {
+          iterations++;
+          const url = `${resolved.baseUrl.replace(/\/$/, "")}/chat/completions`;
+          const res = await fetch(url, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              ...(resolved.apiKey ? { Authorization: `Bearer ${resolved.apiKey}` } : {}),
+            },
+            body: JSON.stringify({
+              model,
+              max_tokens: maxTokens,
+              temperature: config.temperature,
+              messages,
+              tools: toolSchema,
+              tool_choice: "auto",
+              stream: true,
+              stream_options: { include_usage: true },
+            }),
+          });
+
+          if (!res.ok || !res.body) {
+            const body = await res.text().catch(() => "");
+            throw new Error(`${resolved.label} HTTP ${res.status}: ${body.slice(0, 300)}`);
+          }
+
+          let turnText = "";
+          const toolCalls: Array<{ id: string; name: string; argsRaw: string }> = [];
+          let finishReason: string | null = null;
+
+          const reader = res.body.getReader();
+          const decoder = new TextDecoder();
+          let buffer = "";
+          for (;;) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buffer += decoder.decode(value, { stream: true });
+            const lines = buffer.split("\n");
+            buffer = lines.pop() ?? "";
+            for (const line of lines) {
+              const trimmed = line.trim();
+              if (!trimmed.startsWith("data:")) continue;
+              const data = trimmed.slice(5).trim();
+              if (!data || data === "[DONE]") continue;
+              let json: Record<string, unknown>;
+              try { json = JSON.parse(data); } catch { continue; }
+              const choices = json.choices as Array<{
+                delta?: {
+                  content?: string;
+                  tool_calls?: Array<{
+                    index: number;
+                    id?: string;
+                    function?: { name?: string; arguments?: string };
+                  }>;
+                };
+                finish_reason?: string;
+              }> | undefined;
+              const delta = choices?.[0]?.delta;
+              if (delta?.content) {
+                turnText += delta.content;
+                await emit(ctx, { type: "assistant_message", content: delta.content });
+              }
+              if (delta?.tool_calls) {
+                for (const tc of delta.tool_calls) {
+                  if (!toolCalls[tc.index]) {
+                    toolCalls[tc.index] = { id: tc.id ?? "", name: tc.function?.name ?? "", argsRaw: "" };
+                  }
+                  if (tc.id) toolCalls[tc.index]!.id = tc.id;
+                  if (tc.function?.name) toolCalls[tc.index]!.name = tc.function.name;
+                  if (tc.function?.arguments) toolCalls[tc.index]!.argsRaw += tc.function.arguments;
+                }
+              }
+              if (choices?.[0]?.finish_reason) finishReason = choices[0].finish_reason;
+              const usage = json.usage as { prompt_tokens?: number; completion_tokens?: number } | undefined;
+              if (usage) {
+                inputTokens = usage.prompt_tokens ?? inputTokens;
+                outputTokens = usage.completion_tokens ?? outputTokens;
+              }
+            }
+          }
+
+          fullResponse += turnText;
+
+          const validToolCalls = toolCalls.filter((tc) => tc.name && tc.id);
+          if (validToolCalls.length === 0 || finishReason === "stop") break;
+
+          messages.push({
+            role: "assistant",
+            content: turnText || null,
+            tool_calls: validToolCalls.map((tc) => ({
+              id: tc.id,
+              type: "function",
+              function: { name: tc.name, arguments: tc.argsRaw },
+            })),
+          });
+
+          for (const tc of validToolCalls) {
+            let parsedArgs: Record<string, unknown> = {};
+            try { parsedArgs = JSON.parse(tc.argsRaw); } catch { /* ok */ }
+            await emit(ctx, { type: "tool_call_message", name: tc.name, input: parsedArgs, toolCallId: tc.id });
+
+            let toolOutput: string;
+            if (tc.name === "read_skill") {
+              const skillName = parsedArgs.name;
+              if (typeof skillName !== "string" || !desiredSkillNames.includes(skillName)) {
+                toolOutput = `Skill "${String(skillName)}" is not available. Available: ${desiredSkillNames.join(", ")}.`;
+              } else {
+                const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
+                toolOutput = body ?? `Skill "${skillName}" not found.`;
+              }
+            } else {
+              toolOutput = `Unknown tool: ${tc.name}`;
+            }
+
+            await emit(ctx, { type: "tool_return_message", content: toolOutput, toolCallId: tc.id, isError: false });
+            messages.push({ role: "tool", content: toolOutput, tool_call_id: tc.id });
+          }
+        }
+
+        if (iterations >= MAX_TOOL_ITERATIONS) {
+          await ctx.onLog("stderr", "[letta-code/offline] Max tool iterations reached\n");
+        }
+      } else {
+        // Inject mode — single call, bodies already in systemPrompt
+        const out = await streamOpenAICompat(ctx, resolved, {
+          model,
+          maxTokens,
+          temperature: config.temperature,
+          systemPrompt,
+          userMessage,
+        });
+        fullResponse = out.fullResponse;
+        inputTokens = out.inputTokens;
+        outputTokens = out.outputTokens;
+      }
     }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
