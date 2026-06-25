@@ -259,6 +259,8 @@ export function issueRoutes(db: Db, storage: StorageService) {
       return;
     }
 
+    const staleAfterHoursRaw = req.query.staleAfterHours as string | undefined;
+    const assignedUntouchedForHoursRaw = req.query.assignedUntouchedForHours as string | undefined;
     const result = await svc.list(companyId, {
       status: req.query.status as string | undefined,
       assigneeAgentId: req.query.assigneeAgentId as string | undefined,
@@ -274,6 +276,8 @@ export function issueRoutes(db: Db, storage: StorageService) {
       includeRoutineExecutions:
         req.query.includeRoutineExecutions === "true" || req.query.includeRoutineExecutions === "1",
       q: req.query.q as string | undefined,
+      staleAfterHours: staleAfterHoursRaw != null ? Number(staleAfterHoursRaw) : undefined,
+      assignedUntouchedForHours: assignedUntouchedForHoursRaw != null ? Number(assignedUntouchedForHoursRaw) : undefined,
     });
     res.json(result);
   });
@@ -832,7 +836,82 @@ export function issueRoutes(db: Db, storage: StorageService) {
       }
     }
 
-    res.status(201).json(goalWarning ? { ...issue, _warning: goalWarning } : issue);
+    // Soft duplicate warning: check for open issues with similar titles.
+    const similarIssues = await svc.findSimilarByTitle(companyId, issue.title, { excludeId: issue.id });
+
+    const warnings: string[] = [];
+    if (goalWarning) warnings.push(goalWarning);
+    if (similarIssues.length > 0) {
+      const refs = similarIssues
+        .map((s) => s.identifier ?? s.id)
+        .join(", ");
+      warnings.push(`Possible duplicate: similar open issues exist (${refs}). Review before proceeding.`);
+    }
+
+    const responseBody =
+      warnings.length > 0
+        ? { ...issue, _warning: warnings.join(" "), _similarIssues: similarIssues }
+        : issue;
+
+    res.status(201).json(responseBody);
+  });
+
+  router.post("/companies/:companyId/issues/bulk-reassign", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    await assertCanAssignTasks(req, companyId);
+
+    const { fromAgentId, toAgentId, reason, status } = req.body as {
+      fromAgentId?: string;
+      toAgentId?: string | null;
+      reason?: string;
+      status?: string;
+    };
+
+    if (!fromAgentId) {
+      res.status(400).json({ error: "fromAgentId is required" });
+      return;
+    }
+
+    const actor = getActorInfo(req);
+    const targetIssues = await svc.list(companyId, {
+      assigneeAgentId: fromAgentId,
+      status: status ?? "todo,in_progress,blocked",
+    });
+
+    const results: Array<{ id: string; identifier: string | null; ok: boolean; error?: string }> = [];
+    for (const issue of targetIssues) {
+      try {
+        await svc.update(issue.id, {
+          assigneeAgentId: toAgentId ?? null,
+          assigneeUserId: null,
+        });
+        if (reason) {
+          await svc.addComment(issue.id, `**Bulk reassign:** ${reason}`, { agentId: actor.agentId ?? undefined });
+        }
+        await logActivity(db, {
+          companyId,
+          actorType: actor.actorType,
+          actorId: actor.actorId,
+          agentId: actor.agentId,
+          runId: actor.runId,
+          action: "issue.updated",
+          entityType: "issue",
+          entityId: issue.id,
+          details: { fromAgentId, toAgentId: toAgentId ?? null, reason, bulkReassign: true },
+        });
+        results.push({ id: issue.id, identifier: issue.identifier ?? null, ok: true });
+      } catch (err) {
+        results.push({
+          id: issue.id,
+          identifier: issue.identifier ?? null,
+          ok: false,
+          error: err instanceof Error ? err.message : "Unknown error",
+        });
+      }
+    }
+
+    res.json({ reassigned: results.filter((r) => r.ok).length, total: results.length, results });
   });
 
   router.patch("/issues/:id", validate(updateIssueSchema), async (req, res) => {

@@ -35,6 +35,31 @@ export function InstanceGeneralSettings() {
     },
   });
 
+  // ── Home blog (Notion) ──────────────────────────────────────────────────
+  const [notionToken, setNotionToken] = useState("");
+  const [notionDbId, setNotionDbId] = useState("");
+  useEffect(() => {
+    if (generalQuery.data) {
+      setNotionToken(generalQuery.data.homeNotionToken ?? "");
+      setNotionDbId(generalQuery.data.homeNotionDatabaseId ?? "");
+    }
+  }, [generalQuery.data]);
+
+  const homeBlogMutation = useMutation({
+    mutationFn: async () =>
+      instanceSettingsApi.updateGeneral({
+        homeNotionToken: notionToken.trim(),
+        homeNotionDatabaseId: notionDbId.trim(),
+      }),
+    onSuccess: async () => {
+      setActionError(null);
+      await queryClient.invalidateQueries({ queryKey: queryKeys.instance.generalSettings });
+    },
+    onError: (error) => {
+      setActionError(error instanceof Error ? error.message : "Failed to save Home blog settings.");
+    },
+  });
+
   if (generalQuery.isLoading) {
     return <div className="text-sm text-muted-foreground">Loading general settings...</div>;
   }
@@ -97,6 +122,54 @@ export function InstanceGeneralSettings() {
               )}
             />
           </button>
+        </div>
+      </section>
+
+      <section className="rounded-xl border border-border bg-card p-5 space-y-4">
+        <div className="space-y-1.5">
+          <h2 className="text-sm font-semibold">Home blog (Notion)</h2>
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            Back the Home page&apos;s Blog &amp; Updates feed with a Notion database so you can publish without
+            shipping a new build. Create an internal integration, share your posts database with it, then paste
+            the token and database ID below. Columns read: <span className="font-mono text-xs">Title, Excerpt,
+            Author, Date, Tag, Featured, Read time</span>. Leave blank to use the built-in starter content.
+          </p>
+        </div>
+
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">Notion integration token</span>
+          <input
+            type="password"
+            value={notionToken}
+            onChange={(e) => setNotionToken(e.target.value)}
+            placeholder="ntn_… or secret_…"
+            className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm font-mono outline-none"
+          />
+        </label>
+
+        <label className="block space-y-1.5">
+          <span className="text-xs font-medium text-muted-foreground">Database ID</span>
+          <input
+            type="text"
+            value={notionDbId}
+            onChange={(e) => setNotionDbId(e.target.value)}
+            placeholder="32-char id from the database URL"
+            className="w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm font-mono outline-none"
+          />
+        </label>
+
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            disabled={homeBlogMutation.isPending}
+            onClick={() => homeBlogMutation.mutate()}
+            className="rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground disabled:opacity-60"
+          >
+            {homeBlogMutation.isPending ? "Saving…" : "Save"}
+          </button>
+          {homeBlogMutation.isSuccess && !homeBlogMutation.isPending && (
+            <span className="text-xs text-green-600">Saved — Home updates within ~5 min.</span>
+          )}
         </div>
       </section>
     </div>

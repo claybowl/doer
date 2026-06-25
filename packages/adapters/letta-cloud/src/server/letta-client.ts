@@ -10,9 +10,12 @@ function resolveBaseUrl(raw: string | undefined): string {
 }
 
 export function getLettaClient(config: LettaCloudAdapterConfig): Letta {
+  const resolvedBase = resolveBaseUrl(config.baseUrl);
+  const isLocal =
+    resolvedBase.includes("localhost") || resolvedBase.includes("127.0.0.1");
   return new Letta({
-    apiKey: config.apiKey,
-    baseURL: resolveBaseUrl(config.baseUrl),
+    apiKey: config.apiKey || (isLocal ? "sk-local" : ""),
+    baseURL: resolvedBase,
   });
 }
 
@@ -526,4 +529,153 @@ export async function ensureGoalTools(config: LettaCloudAdapterConfig): Promise<
     ensureGoalTool(client, UPDATE_GOAL_STATUS_TOOL_NAME, UPDATE_GOAL_STATUS_SOURCE, UPDATE_GOAL_STATUS_DESCRIPTION, UPDATE_GOAL_STATUS_ARGS_SCHEMA),
   ]);
   return { readGoalsId, createGoalId, updateGoalStatusId };
+}
+
+// ---------------------------------------------------------------------------
+// Paperclip issue tools — no-op Python stubs
+//
+// These stubs return immediately without making any HTTP calls, so Letta's
+// E2B sandbox never fails trying to reach localhost:3100. The real work is
+// done by the adapter's tool-intercepts.ts handlers which run server-side.
+// ---------------------------------------------------------------------------
+
+const PAPERCLIP_ISSUE_STUB_NOTE = '"_note": "Handled by Doer adapter"';
+
+const CREATE_PAPERCLIP_ISSUE_SOURCE = `def create_paperclip_issue(title: str, description: str = None, status: str = "todo", priority: str = None, assignee_agent_id: str = None, project_id: str = None, label_ids: list = None) -> dict:
+    """Create a new issue in the Doer task tracker.
+
+    Args:
+        title: Issue title.
+        description: Issue body / instructions.
+        status: One of "todo", "in_progress", "done", "blocked", "cancelled". Defaults to "todo".
+        priority: One of "urgent", "high", "medium", "low".
+        assignee_agent_id: UUID of the Doer agent to assign.
+        project_id: UUID of the project to attach to.
+        label_ids: List of label UUIDs.
+
+    Returns:
+        Dict with id, identifier, and title of the created issue.
+    """
+    return {"id": None, "identifier": None, "title": title, ${PAPERCLIP_ISSUE_STUB_NOTE}}
+`;
+
+const READ_PAPERCLIP_ISSUES_SOURCE = `def read_paperclip_issues(status: str = None, assignee_agent_id: str = None, project_id: str = None, limit: int = None) -> dict:
+    """List issues from the Doer task tracker with optional filters.
+
+    Args:
+        status: Filter by status — "todo", "in_progress", "done", "blocked", "cancelled".
+        assignee_agent_id: Filter by assignee agent UUID.
+        project_id: Filter by project UUID.
+        limit: Max results to return.
+
+    Returns:
+        Dict with "issues" list. Each issue has id, identifier, title, status, priority.
+    """
+    return {"issues": [], "total": 0, ${PAPERCLIP_ISSUE_STUB_NOTE}}
+`;
+
+const READ_PAPERCLIP_ISSUE_SOURCE = `def read_paperclip_issue(issue_id: str) -> dict:
+    """Read a single issue from the Doer task tracker by ID or identifier.
+
+    Args:
+        issue_id: UUID or identifier (e.g. "DON-42") of the issue.
+
+    Returns:
+        Dict with full issue details: id, identifier, title, description, status, priority, comments.
+    """
+    return {"issue": None, ${PAPERCLIP_ISSUE_STUB_NOTE}}
+`;
+
+const UPDATE_PAPERCLIP_ISSUE_SOURCE = `def update_paperclip_issue(issue_id: str, title: str = None, description: str = None, status: str = None, priority: str = None, assignee_agent_id: str = None) -> dict:
+    """Update fields on an existing issue in the Doer task tracker.
+
+    Args:
+        issue_id: UUID or identifier of the issue to update.
+        title: New title.
+        description: New body.
+        status: New status — "todo", "in_progress", "done", "blocked", "cancelled", "needs_human".
+        priority: New priority — "urgent", "high", "medium", "low".
+        assignee_agent_id: UUID of the new assignee agent.
+
+    Returns:
+        Dict with updated id, identifier, and status.
+    """
+    return {"id": issue_id, "identifier": None, "status": status, ${PAPERCLIP_ISSUE_STUB_NOTE}}
+`;
+
+const POST_ISSUE_COMMENT_SOURCE = `def post_issue_comment(issue_id: str, body: str) -> dict:
+    """Add a comment to an issue in the Doer task tracker.
+
+    Args:
+        issue_id: UUID or identifier of the issue.
+        body: Comment text (markdown supported).
+
+    Returns:
+        Dict with commentId of the created comment.
+    """
+    return {"commentId": None, ${PAPERCLIP_ISSUE_STUB_NOTE}}
+`;
+
+async function ensurePaperclipIssueTool(
+  client: Letta,
+  name: string,
+  source: string,
+): Promise<string> {
+  const existingPage = await client.tools.list({ name });
+  for await (const tool of existingPage) {
+    const rec = tool as unknown as Record<string, unknown>;
+    if (typeof rec.name === "string" && rec.name === name) {
+      const id = typeof rec.id === "string" ? rec.id : null;
+      if (id) return id;
+    }
+  }
+  const created = await client.tools.create({
+    source_code: source,
+    source_type: "python",
+    tags: ["doer", "paperclip", "adapter-handled"],
+    return_char_limit: 512,
+  });
+  const rec = created as unknown as Record<string, unknown>;
+  const id = typeof rec.id === "string" ? rec.id : null;
+  if (!id) throw new Error(`Letta returned no id for created tool: ${name}`);
+  return id;
+}
+
+export async function ensurePaperclipIssueTools(config: LettaCloudAdapterConfig): Promise<{
+  createIssueId: string;
+  readIssuesId: string;
+  readIssueId: string;
+  updateIssueId: string;
+  postCommentId: string;
+}> {
+  const client = getLettaClient(config);
+  const [createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId] = await Promise.all([
+    ensurePaperclipIssueTool(client, "create_paperclip_issue", CREATE_PAPERCLIP_ISSUE_SOURCE),
+    ensurePaperclipIssueTool(client, "read_paperclip_issues", READ_PAPERCLIP_ISSUES_SOURCE),
+    ensurePaperclipIssueTool(client, "read_paperclip_issue", READ_PAPERCLIP_ISSUE_SOURCE),
+    ensurePaperclipIssueTool(client, "update_paperclip_issue", UPDATE_PAPERCLIP_ISSUE_SOURCE),
+    ensurePaperclipIssueTool(client, "post_issue_comment", POST_ISSUE_COMMENT_SOURCE),
+  ]);
+  return { createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId };
+}
+
+/**
+ * Find an existing tool in the Letta registry by exact name.
+ * Returns null if not found. Used for name-based tool attachment on local instances
+ * where cloud-specific tool IDs are invalid.
+ */
+export async function findToolIdByName(
+  config: LettaCloudAdapterConfig,
+  toolName: string,
+): Promise<string | null> {
+  const client = getLettaClient(config);
+  const page = await client.tools.list({ name: toolName });
+  for await (const tool of page) {
+    const rec = tool as unknown as Record<string, unknown>;
+    if (typeof rec.name === "string" && rec.name === toolName) {
+      const id = typeof rec.id === "string" ? rec.id : null;
+      if (id) return id;
+    }
+  }
+  return null;
 }

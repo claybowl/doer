@@ -104,4 +104,28 @@ describe("letta-cloud buildWakeMessage", () => {
     expect(msg).toContain("QUEUE REVIEW MODE");
     expect(msg).not.toContain("TASK MODE");
   });
+
+  it("inlines issue title and description when injected by heartbeat", () => {
+    const ctx = makeCtx({
+      taskKey: "DON-500",
+      wakeReason: "issue_assigned",
+      issueTitle: "Fix the widget crash",
+      issueDescription: "The widget crashes on null input.\n\nSteps to reproduce:\n1. Open widget\n2. Submit empty form",
+    });
+    const msg = buildWakeMessage(ctx, "base");
+
+    expect(msg).toContain("TITLE: Fix the widget crash");
+    expect(msg).toContain("── ISSUE BODY ──");
+    expect(msg).toContain("The widget crashes on null input.");
+    // No fallback read instruction when description is present
+    expect(msg).not.toContain("Read the issue body for DON-500");
+  });
+
+  it("falls back to read instruction when no description is injected", () => {
+    const ctx = makeCtx({ taskKey: "DON-501", wakeReason: "issue_assigned" });
+    const msg = buildWakeMessage(ctx, "base");
+
+    expect(msg).not.toContain("── ISSUE BODY ──");
+    expect(msg).toContain("Read the issue body for DON-501");
+  });
 });

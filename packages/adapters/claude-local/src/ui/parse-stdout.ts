@@ -52,6 +52,36 @@ export function parseClaudeStdoutLine(line: string, ts: string): TranscriptEntry
     ];
   }
 
+  // Other system subtypes (hook_started, hook_response, status, post_turn_summary,
+  // ...) carry no user-facing dialogue. Drop them so they don't render as raw JSON
+  // noise in the transcript.
+  if (type === "system") {
+    return [];
+  }
+
+  // Partial-message streaming: when invoked with --include-partial-messages,
+  // Claude emits incremental Anthropic stream events. Render text/thinking deltas
+  // live (marked delta:true so the transcript builder coalesces them). The complete
+  // "assistant" message that follows omits text/thinking (handled below) to avoid
+  // double-rendering — deltas are the source of truth for readable text.
+  if (type === "stream_event") {
+    const event = asRecord(parsed.event);
+    if (!event) return [];
+    if (event.type === "content_block_delta") {
+      const delta = asRecord(event.delta);
+      if (!delta) return [];
+      if (delta.type === "text_delta") {
+        const text = typeof delta.text === "string" ? delta.text : "";
+        return text ? [{ kind: "assistant", ts, text, delta: true }] : [];
+      }
+      if (delta.type === "thinking_delta") {
+        const text = typeof delta.thinking === "string" ? delta.thinking : "";
+        return text ? [{ kind: "thinking", ts, text, delta: true }] : [];
+      }
+    }
+    return [];
+  }
+
   if (type === "assistant") {
     const message = asRecord(parsed.message) ?? {};
     const content = Array.isArray(message.content) ? message.content : [];
@@ -60,13 +90,12 @@ export function parseClaudeStdoutLine(line: string, ts: string): TranscriptEntry
       const block = asRecord(blockRaw);
       if (!block) continue;
       const blockType = typeof block.type === "string" ? block.type : "";
-      if (blockType === "text") {
-        const text = typeof block.text === "string" ? block.text : "";
-        if (text) entries.push({ kind: "assistant", ts, text });
-      } else if (blockType === "thinking") {
-        const text = typeof block.thinking === "string" ? block.thinking : "";
-        if (text) entries.push({ kind: "thinking", ts, text });
-      } else if (blockType === "tool_use") {
+      // text/thinking are streamed live via stream_event deltas (see above); the
+      // complete assistant message repeats them verbatim, so skip them here to avoid
+      // double-rendering. The final answer also survives in the `result` event.
+      // Only tool_use blocks are rendered from the complete message (tool input is
+      // not usefully streamable as partial JSON).
+      if (blockType === "tool_use") {
         entries.push({
           kind: "tool_call",
           ts,
@@ -81,7 +110,10 @@ export function parseClaudeStdoutLine(line: string, ts: string): TranscriptEntry
         });
       }
     }
-    return entries.length > 0 ? entries : [{ kind: "stdout", ts, text: line }];
+    // A text-only assistant message (the common case) yields no entries here
+    // because its text was already streamed via deltas. Return nothing rather than
+    // dumping the raw JSON line.
+    return entries;
   }
 
   if (type === "user") {

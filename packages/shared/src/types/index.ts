@@ -14,6 +14,7 @@ export type {
   ResolvedMemfsBinding,
 } from "./memfs.js";
 export type { InstanceExperimentalSettings, InstanceGeneralSettings, InstanceSettings } from "./instance.js";
+export type { HomeBlogPost, HomeContentResponse } from "./home.js";
 export type {
   CompanySkillSourceType,
   CompanySkillTrustLevel,

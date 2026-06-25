@@ -80,6 +80,42 @@ const DEFAULT_TASK_DESCRIPTION = `You are the CEO. You set the direction for the
 - write a hiring plan
 - break the roadmap into concrete tasks and start delegating work`;
 
+const STARTER_TEMPLATES = [
+  {
+    label: "SaaS startup",
+    title: "Set company direction and hire the first two engineers",
+    description: `You are the CEO of an early-stage SaaS startup.
+
+Your first task:
+- Write a 1-page company vision (what we build, who it's for, why now)
+- Draft job descriptions for a founding engineer and a founding designer
+- Create a 30/60/90-day roadmap and break it into actionable issues
+- Delegate the first sprint to whoever you hire`,
+  },
+  {
+    label: "Consulting firm",
+    title: "Scope the first client engagement and assign a delivery team",
+    description: `You are the Managing Director of a boutique consulting firm.
+
+Your first task:
+- Define the firm's core service offering (2–3 sentences)
+- Scope a sample client engagement: deliverables, timeline, pricing
+- Identify the roles needed to deliver it (analyst, project manager, domain expert)
+- Create hiring issues for each role and assign them to yourself to review`,
+  },
+  {
+    label: "Solo dev shop",
+    title: "Plan the next sprint and triage the backlog",
+    description: `You are the technical lead of a one-person dev shop.
+
+Your first task:
+- List the 3 most important things to ship this week
+- For each, create a concrete issue with acceptance criteria
+- Identify any blockers and flag them
+- Pick the single highest-priority item and start it`,
+  },
+] as const;
+
 export function OnboardingWizard() {
   const { onboardingOpen, onboardingOptions, closeOnboarding } = useDialog();
   const { companies, setSelectedCompanyId, loading: companiesLoading } = useCompany();
@@ -1190,9 +1226,26 @@ export function OnboardingWizard() {
                     <div>
                       <h3 className="font-medium">Give it something to do</h3>
                       <p className="text-xs text-muted-foreground">
-                        Give your agent a small task to start with — a bug fix,
-                        a research question, writing a script.
+                        Pick a template or write your own first task.
                       </p>
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs text-muted-foreground mb-2">Start from a template</p>
+                    <div className="flex flex-wrap gap-2">
+                      {STARTER_TEMPLATES.map((t) => (
+                        <button
+                          key={t.label}
+                          type="button"
+                          onClick={() => {
+                            setTaskTitle(t.title);
+                            setTaskDescription(t.description);
+                          }}
+                          className="text-xs px-3 py-1.5 rounded-full border border-border bg-muted/30 hover:bg-muted/60 transition-colors text-muted-foreground hover:text-foreground"
+                        >
+                          {t.label}
+                        </button>
+                      ))}
                     </div>
                   </div>
                   <div>

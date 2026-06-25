@@ -99,6 +99,15 @@ import {
   agentConfigurationDoc as lettaAfAgentConfigurationDoc,
   models as lettaAfModels,
 } from "@doerai/adapter-letta-af-opencode";
+import {
+  execute as lettaCodeExecute,
+  testEnvironment as lettaCodeTestEnvironment,
+} from "@doerai/adapter-letta-code/server";
+import {
+  agentConfigurationDoc as lettaCodeAgentConfigurationDoc,
+  models as lettaCodeModels,
+  memfsCapability as lettaCodeMemfsCapability,
+} from "@doerai/adapter-letta-code";
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
 
@@ -235,6 +244,16 @@ const lettaAfOpenCodeAdapter: ServerAdapterModule = {
   agentConfigurationDoc: lettaAfAgentConfigurationDoc,
 };
 
+const lettaCodeAdapter: ServerAdapterModule = {
+  type: "letta_code",
+  execute: lettaCodeExecute,
+  testEnvironment: lettaCodeTestEnvironment,
+  models: [...lettaCodeModels],
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: lettaCodeAgentConfigurationDoc,
+  memfsCapability: lettaCodeMemfsCapability,
+};
+
 const adaptersByType = new Map<string, ServerAdapterModule>(
   [
     claudeLocalAdapter,
@@ -247,6 +266,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     hermesLocalAdapter,
     lettaCloudAdapter,
     lettaAfOpenCodeAdapter,
+    lettaCodeAdapter,
     processAdapter,
     httpAdapter,
   ].map((a) => [a.type, a]),

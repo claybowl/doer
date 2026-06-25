@@ -94,6 +94,11 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     description: "Cloud-hosted Letta agent with persistent memory",
     icon: Bot,
   },
+  letta_code: {
+    label: "letta_code",
+    description: "Letta agent — online (Letta server) or offline (in-process memory files)",
+    icon: Bot,
+  },
   openclaw_gateway: {
     label: "OpenClaw Gateway",
     description: "Invoke OpenClaw via gateway protocol",

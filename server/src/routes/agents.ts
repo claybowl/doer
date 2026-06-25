@@ -12,6 +12,7 @@ import {
   deriveAgentUrlKey,
   isUuidLike,
   MEMFS_STRATEGY_SKILL,
+  MEMFS_STRATEGY_SKILL_BY_ADAPTER,
   resetAgentSessionSchema,
   testAdapterEnvironmentSchema,
   type AgentSkillSnapshot,
@@ -621,14 +622,20 @@ export function agentRoutes(db: Db) {
   async function resolveMemoryProtocolSkills(
     companyId: string,
     agentId: string | null,
+    adapterType?: string,
   ): Promise<string[]> {
     if (!agentId) return [];
     try {
       const bindings = await memfs.listBindingsForAgent(companyId, agentId);
+      const adapterOverrides = adapterType
+        ? (MEMFS_STRATEGY_SKILL_BY_ADAPTER[adapterType] ?? {})
+        : {};
       const slugs = Array.from(
         new Set(
           bindings
-            .map((binding) => MEMFS_STRATEGY_SKILL[binding.strategy])
+            .map((binding) =>
+              adapterOverrides[binding.strategy] ?? MEMFS_STRATEGY_SKILL[binding.strategy],
+            )
             .filter((key): key is string => Boolean(key)),
         ),
       );
@@ -707,7 +714,7 @@ export function agentRoutes(db: Db) {
     const requiredSkills = runtimeSkillEntries
       .filter((entry) => entry.required)
       .map((entry) => entry.key);
-    const memorySkills = await resolveMemoryProtocolSkills(companyId, agentId);
+    const memorySkills = await resolveMemoryProtocolSkills(companyId, agentId, adapterType);
     const desiredSkills = Array.from(
       new Set([...requiredSkills, ...resolvedRequestedSkills, ...memorySkills]),
     );

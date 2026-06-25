@@ -1,0 +1,35 @@
+- generic [ref=e41]:
+  - region "Notifications (F8)":
+    - list
+  - region "Notifications alt+T"
+  - generic [ref=e711]:
+    - generic [ref=e712]:
+      - img [ref=e714]
+      - heading "Welcome to K8" [level=1] [ref=e716]
+      - paragraph [ref=e717]: Your AI-powered communication companion
+    - generic [ref=e719]:
+      - button "Continue with Google" [ref=e720] [cursor=pointer]:
+        - img
+        - text: Continue with Google
+      - generic [ref=e725]: Or with email
+      - generic [ref=e726]:
+        - tablist [ref=e727]:
+          - tab "Sign In" [selected] [ref=e728] [cursor=pointer]
+          - tab "Sign Up" [ref=e729] [cursor=pointer]
+        - tabpanel "Sign In" [ref=e730]:
+          - generic [ref=e731]:
+            - generic [ref=e732]:
+              - text: Email
+              - textbox "Email" [ref=e733]:
+                - /placeholder: you@example.com
+            - generic [ref=e734]:
+              - generic [ref=e735]:
+                - generic [ref=e736]: Password
+                - button "Forgot password?" [ref=e737] [cursor=pointer]
+              - textbox "Password" [ref=e738]:
+                - /placeholder: ••••••••
+            - button "Sign In" [ref=e739] [cursor=pointer]
+    - paragraph [ref=e740]: By continuing, you agree to our Terms of Service and Privacy Policy.
+  - button "Share feedback" [ref=e705] [cursor=pointer]:
+    - img [ref=e706]
+    - generic [ref=e708]: Feedback

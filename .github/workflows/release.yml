@@ -54,7 +54,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build internal packages
-        run: pnpm --filter @doerai/adapter-utils build
+        run: pnpm --filter '!@doerai/server' --filter '!@doerai/ui' -r build
 
       - name: Typecheck
         run: pnpm -r typecheck
@@ -146,7 +146,7 @@ jobs:
         run: pnpm install --no-frozen-lockfile
 
       - name: Build internal packages
-        run: pnpm --filter @doerai/adapter-utils build
+        run: pnpm --filter '!@doerai/server' --filter '!@doerai/ui' -r build
 
       - name: Typecheck
         run: pnpm -r typecheck

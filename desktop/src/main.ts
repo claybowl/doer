@@ -1,8 +1,8 @@
 import path from "node:path";
 import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
 import { app, BrowserWindow } from "electron";
-import { UpdateSourceType, updateElectronApp } from "update-electron-app";
 import { type ServerHandle, startServer, stopServer } from "./server-process";
+import { startInAppUpdater } from "./updater";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 if (require("electron-squirrel-startup")) app.quit();
@@ -83,33 +83,12 @@ function createWindow(serverUrl: string | null) {
 	}
 }
 
-function maybeStartAutoUpdater() {
-	if (!app.isPackaged) return;
-	const baseUrl = __DOER_UPDATE_URL__;
-	if (!baseUrl) {
-		log("[main] auto-updater disabled — DOER_UPDATE_URL was not set at build time");
-		return;
-	}
-	try {
-		updateElectronApp({
-			updateSource: {
-				type: UpdateSourceType.StaticStorage,
-				baseUrl: `${baseUrl}/${process.platform}/${process.arch}`,
-			},
-			updateInterval: "1 hour",
-			logger: console,
-			notifyUser: true,
-		});
-		log(`[main] auto-updater enabled — checking ${baseUrl}/${process.platform}/${process.arch}`);
-	} catch (err) {
-		logError(`[main] auto-updater init failed: ${err}`);
-	}
-}
-
 async function bootstrap() {
 	initLogging();
 	log(`[main] Doer starting — packaged=${app.isPackaged} version=${app.getVersion()}`);
-	maybeStartAutoUpdater();
+	// Note: the old Squirrel-based maybeStartAutoUpdater() is intentionally not
+	// called — Squirrel.Mac can't update an unsigned app. The custom in-app
+	// updater (startInAppUpdater, below) replaces it on all platforms.
 
 	try {
 		log("[main] Spawning server...");
@@ -131,6 +110,10 @@ async function bootstrap() {
 	}
 
 	createWindow(serverHandle?.url ?? null);
+
+	// Custom in-app updater — polls the R2 RELEASES.json feed and shows a dialog
+	// when a newer version exists. Works for unsigned builds (unlike Squirrel.Mac).
+	startInAppUpdater(__DOER_UPDATE_URL__, log);
 }
 
 app.whenReady().then(bootstrap);

@@ -48,6 +48,7 @@ const ADAPTER_LABEL: Record<AgentAdapterType, string> = {
   openclaw_gateway: "OpenClaw Gateway",
   hermes_local: "Hermes (local CLI)",
   letta_cloud: "Letta Cloud",
+  letta_code: "letta_code",
 };
 
 export function FernwehNewAgent() {

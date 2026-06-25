@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "workspace": {
+    "name": "donjon-doer",
+    "createdAt": 1780012683951,
+    "preset": "starter"
+  },
+  "authorizedRoots": [
+    "/Users/clay/Desktop/donjon.agency/doer_dev/donjon-doer"
+  ],
+  "reload": null
+}

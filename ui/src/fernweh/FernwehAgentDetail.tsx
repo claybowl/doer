@@ -184,7 +184,7 @@ const LOCAL_ADAPTER_TYPES = new Set([
 function InstructionsTab({ agent, companyId }: { agent: AgentDetail; companyId: string }) {
   const qc = useQueryClient();
   const { pushToast } = useToast();
-  const isLetta = agent.adapterType === "letta_cloud";
+  const isLetta = agent.adapterType === "letta_cloud" || agent.adapterType === "letta_code";
   const isLocal = LOCAL_ADAPTER_TYPES.has(agent.adapterType);
 
   // ── letta: heartbeat prompt ──

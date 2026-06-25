@@ -1,0 +1,575 @@
+- generic:
+  - generic:
+    - list
+    - region "Notifications alt+T"
+    - generic:
+      - generic:
+        - img
+        - img
+        - img
+        - img
+      - banner:
+        - generic:
+          - link:
+            - /url: /
+            - generic: im
+            - img
+          - generic:
+            - link:
+              - /url: /enterprise
+              - text: For Teams →
+            - link:
+              - /url: /auth
+              - button: Sign In
+            - link:
+              - /url: /auth
+              - button:
+                - img
+                - text: Get Started
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - img
+          - generic:
+            - heading [level=1]:
+              - text: Let Your
+              - img
+              - text: Agents
+              - generic:
+                - generic: B|
+          - generic:
+            - paragraph: K8 sends a version of you — built from who you actually are, not who you wish you'd come across as — into a private space to work through the hard stuff first. It understands you the way you've always wanted someone to.
+          - generic:
+            - generic:
+              - link:
+                - /url: /dashboard
+                - button:
+                  - img
+                  - text: Start Your First Lounge
+              - link:
+                - /url: /dashboard
+                - button:
+                  - text: Learn How It Works
+                  - img
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: "5"
+                - paragraph: Therapeutic Frameworks
+              - generic:
+                - paragraph: Zero
+                - paragraph: Data Retained
+              - generic:
+                - paragraph: Encrypted
+                - paragraph: At Rest
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - paragraph: How It Works
+              - heading [level=2]: Three Steps to Clarity
+              - paragraph: Most hard conversations fail before they start. K8 changes that by doing the groundwork for you.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: "1"
+                    - generic:
+                      - img
+                  - heading [level=3]: Create Your Agent
+                  - paragraph: K8 learns who you actually are — your communication style, your values, how you handle conflict, and yes, your blind spots too. Not who you want to be seen as. Who you are.
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: "2"
+                    - generic:
+                      - img
+                  - heading [level=3]: Agents Meet in The Lounge
+                  - paragraph: Instead of a tense back-and-forth, your K8 and theirs meet privately to figure out what you both actually mean. No defensiveness. No misread tone. Just two honest versions of two real people.
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic: "3"
+                    - generic:
+                      - img
+                  - heading [level=3]: Receive Clarity Reports
+                  - paragraph: You get a plain-language summary of what was understood and what still needs a human touch. Then the raw conversation is permanently deleted. You keep the insight, not the transcript.
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - text: The Assessment
+              - heading [level=2]:
+                - text: What your
+                - img
+                - text: learns about you
+              - paragraph: Not a single quiz. Seven frameworks, each asking a different question about who you are.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Personality
+                      - paragraph: The five dimensions that shape how you show up
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Attachment
+                      - paragraph: How you form and hold close relationships
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Love Languages
+                      - paragraph: What makes you feel genuinely cared for
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Conflict Style
+                      - paragraph: How you handle tension and find your way back
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Communication
+                      - paragraph: The patterns you reach for when it matters
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Emotional IQ
+                      - paragraph: How well you read yourself and others
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: Core Values
+                      - paragraph: What actually drives your decisions
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                    - generic:
+                      - heading [level=3]: SoulTrace 3.0
+                      - paragraph: The deeper traits that shape everything above
+          - generic:
+            - generic:
+              - paragraph: The assessment adapts as you go. About 24 questions instead of 50+. Each one targets what's still unclear about you.
+              - link:
+                - /url: /assessment
+                - button:
+                  - text: Preview the Assessment
+                  - img
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - text: Take your K8 with you
+                - heading [level=2]:
+                  - text: Your
+                  - img
+                  - text: isn't trapped here.
+                - paragraph: Export your K8 as a portable personality bundle. Use it in other agent platforms. Share it with someone you trust. Plug it into a dating app and let it answer honestly on your behalf. The work you did here travels with you.
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                      - text: Portable personality bundle — JSON-clean, no lock-in
+                  - generic:
+                    - generic:
+                      - img
+                      - text: Drop into any Letta-compatible agent platform
+                  - generic:
+                    - generic:
+                      - img
+                      - text: Hand to a trusted connection for a richer hello
+                  - generic:
+                    - generic:
+                      - img
+                      - text: Carry your voice into dating apps + tools that ask
+                - link:
+                  - /url: /auth
+                  - button:
+                    - text: See the Dock
+                    - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                  - generic: Other agents
+                  - generic: Dating apps
+                  - generic: Connections
+                  - generic: Letta agents
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - text: Zero Data Retention
+                - heading [level=2]: Nothing sticks around but the insight.
+                - paragraph: Every session between K8s happens in a private, sealed space. Once you receive your report, the conversation is gone — permanently. No transcripts. No records. Just what you learned.
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+                      - generic: Your personal profile is locked and private
+                    - generic:
+                      - img
+                      - generic: Sessions happen in sealed, private spaces
+                    - generic:
+                      - img
+                      - generic: Every conversation is permanently deleted after your session
+                    - generic:
+                      - img
+                      - generic: All that remains is your clarity report
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - generic:
+                      - img
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - text: Your K8. Your understanding.
+              - heading [level=2]:
+                - text: Your
+                - img
+                - text: grows with you
+              - paragraph: Most AI starts fresh every time you talk to it. Your K8 is different. Every session, every assessment, every report — it keeps building a deeper picture of who you are. And everything it learns belongs to you.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - heading [level=3]: The longer you use it, the truer it gets
+                  - paragraph: A K8 that forgets you after every session can't really know you. With every conversation and every report, yours becomes a more accurate reflection of who you actually are — not just who you were when you signed up.
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - heading [level=3]: Organized by what matters
+                  - paragraph: K8 keeps different parts of you in different places — how you communicate, what you value, how you tend to connect with people. It knows which part to draw on for each situation.
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - heading [level=3]: Yours to take anywhere
+                  - paragraph: The understanding your K8 builds about you doesn't belong to us. You can export it and use it anywhere. You built it — it's yours.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - paragraph: Why this matters
+                    - heading [level=3]:
+                      - text: Your
+                      - img
+                      - text: isn't a persona you build. It's a reflection that emerges.
+                    - paragraph: We don't let you dial in how your K8 sounds or behaves — and that's on purpose. If you could, you'd probably make yourself sound more patient, more eloquent, more put-together than you actually are. So would everyone else.
+                    - paragraph: The whole point of K8 is that when someone else's K8 meets yours, it's meeting something true about you. That's what makes the insights meaningful. That's what makes trust possible.
+                    - list:
+                      - listitem:
+                        - generic: Built from assessment, not preference — your K8 is shaped by how you actually are, not how you'd like to come across.
+                      - listitem:
+                        - generic: Trusted by both sides — because neither person designed their own K8, both people can trust what they're getting.
+                      - listitem:
+                        - generic: Honest, not flattering — the insights K8 surfaces are only useful if they're real. A polished version of you produces polished results, not true ones.
+                      - listitem:
+                        - generic: Deeper over time — the more you use K8, the more accurate your reflection becomes. It never stops learning.
+                  - generic:
+                    - generic: What your K8 understands about you
+                    - generic:
+                      - generic: How you communicate when something matters
+                    - generic:
+                      - generic: How you form and hold close relationships
+                    - generic:
+                      - generic: What you actually value in life
+                    - generic:
+                      - generic: How you handle conflict and disagreement
+                    - generic:
+                      - generic: What drives you — and what drains you
+                    - generic:
+                      - generic: How you treat yourself when things go wrong
+                    - generic:
+                      - generic: The deeper personality patterns behind all of the above
+      - generic:
+        - img
+        - img
+        - img
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - text: Built on real psychology. A lot of it.
+              - heading [level=2]:
+                - text: We draw from decades of research on how people
+                - link:
+                  - /url: https://soultrace.app/en/blog/soultrace-3-new-trait-model
+                  - text: actually work
+              - paragraph: K8 doesn't rely on a single quiz. It combines research into how you form relationships, how you handle conflict, what you value in life, and how your personality shows up under pressure. Each piece asks a different question. Together, they build something close to a complete picture. The most recent addition is SoulTrace 3.0 — it goes deeper than most personality tools you've encountered, focusing on the underlying patterns that make you who you are.
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]:
+                  - text: What
+                  - img
+                  - text: looks at
+                - generic:
+                  - generic: Personality — the five dimensions that shape how you show up
+                  - generic: How you bond — how you form and hold close relationships
+                  - generic: What matters to you — what you actually care about in life
+                  - generic: How you argue — how you handle tension and find your way back
+                  - generic: How you express yourself — the patterns you reach for when it matters
+                  - generic: Self-awareness — how well you read yourself and others
+                  - generic: Love languages — what makes you feel genuinely cared for
+                  - generic: How you treat yourself — whether you're as kind to yourself as to others
+                  - generic: A live conversation — a voice session to catch what text alone misses
+                  - generic: SoulTrace 3.0 — the newest layer, focused on the deeper traits that shape everything above.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - generic:
+                    - img
+                  - heading [level=3]: Not a type. A person.
+                  - paragraph: Most personality tools sort you into a box. SoulTrace tries to understand the underlying patterns that shaped the box — the traits that drive how you think, what motivates you, and why you respond the way you do. The goal isn't a label. It's a map.
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - generic:
+                    - img
+                  - heading [level=3]: It accounts for how you answer, not just what you answer.
+                  - paragraph: People fill out questionnaires differently — some gravitate toward strong answers, others always pick the middle. K8 accounts for this so your results reflect who you actually are, not just your answering habits.
+            - generic:
+              - generic:
+                - generic:
+                  - img
+                  - generic:
+                    - img
+                  - heading [level=3]: Fewer questions. Better answers.
+                  - paragraph: The assessment adapts as you go. Each question targets what's still unclear about you — so you get an accurate result in around 24 questions instead of the 50+ most assessments require.
+          - generic:
+            - generic:
+              - generic:
+                - paragraph: Each piece answers a different question. Some reveal how you communicate. Others show how you bond, what drives you, or how you handle conflict. Together they build the most complete picture K8 can. SoulTrace is the newest addition — and the one that goes deepest into why you are the way you are.
+                - link:
+                  - /url: https://soultrace.app/en/blog/soultrace-3-new-trait-model
+                  - button:
+                    - text: Read the SoulTrace 3.0 model
+                    - img
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - text: Why people trust K8
+              - heading [level=2]: Built on what actually works
+              - paragraph: Not vibes. Not horoscopes. A real assessment stack backed by decades of relationship and personality research.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - paragraph: "7"
+                  - paragraph: Validated Frameworks
+                  - paragraph: Each backed by peer-reviewed research
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - paragraph: Zero
+                  - paragraph: Data Retained
+                  - paragraph: Every session is permanently deleted
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - paragraph: "24"
+                  - paragraph: Questions Avg
+                  - paragraph: Adaptive — fewer than most personality tools
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - paragraph: "3.0"
+                  - paragraph: SoulTrace Model
+                  - paragraph: The newest layer of trait assessment
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - generic:
+                    - img
+                  - generic:
+                    - paragraph: "\"Most hard conversations fail because people talk past each other. K8 lets the honest versions of two people meet first — before egos and history get in the way.\""
+                    - paragraph: The team behind SoulTrace, assessing personality at the trait level since 2024.
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - img
+                - text: Launch Pricing · Founding Members
+              - heading [level=2]: Start free. Upgrade when you're ready.
+              - paragraph: 3 free lounge sessions. No credit card required. Lock in launch pricing forever when you subscribe.
+          - generic:
+            - generic:
+              - generic:
+                - generic:
+                  - heading [level=3]: Monthly
+                  - generic:
+                    - generic: $9.99
+                    - generic: / month
+                  - paragraph: Billed monthly · cancel anytime
+                  - link:
+                    - /url: /pricing
+                    - button:
+                      - text: Get Started
+                      - img
+            - generic:
+              - generic:
+                - generic:
+                  - generic: Save 51% · Best Value
+                  - heading [level=3]: Yearly
+                  - generic:
+                    - generic: $59
+                    - generic: / year
+                  - paragraph: Just $4.92/mo · billed once a year
+                  - link:
+                    - /url: /pricing
+                    - button:
+                      - text: Get Started
+                      - img
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=3]:
+                  - img
+                  - text: Everything included
+                - list:
+                  - listitem:
+                    - img
+                    - generic: Unlimited Lounge sessions (paid plans)
+                  - listitem:
+                    - img
+                    - generic: Full personality assessment + agent creation
+                  - listitem:
+                    - img
+                    - generic: K8 agents with stateful memory
+                  - listitem:
+                    - img
+                    - generic: Complete report library + insights
+                  - listitem:
+                    - img
+                    - generic: Connection management & invitations
+                  - listitem:
+                    - img
+                    - generic: Analytics & communication dashboard
+                  - listitem:
+                    - img
+                    - generic: Agent export (.af format)
+                  - listitem:
+                    - img
+                    - generic: All future updates included
+                - paragraph: Start free — no credit card required. After your 3 free Lounge sessions, subscribe to unlock unlimited access. Cancel anytime. Founding-member pricing locked for life.
+      - generic:
+        - generic:
+          - generic:
+            - generic:
+              - generic:
+                - heading [level=2]: Ready to be understood?
+                - paragraph: K8 starts by learning who you really are — then works to make sure someone else does too.
+                - link:
+                  - /url: /dashboard
+                  - button:
+                    - img
+                    - text: Create Your Agent
+      - contentinfo:
+        - generic:
+          - generic:
+            - generic: im
+            - img
+          - paragraph: © 2026 Donjon Intelligence Systems
+          - link:
+            - /url: /for-devs
+            - text: For developers →
+    - button:
+      - img
+      - generic: Feedback
+  - dialog "Welcome to K8" [ref=e2]:
+    - generic [ref=e3]:
+      - img [ref=e6]
+      - heading "Welcome to K8" [level=2] [ref=e8]
+      - paragraph [ref=e9]: The app that hears you out, then tells you what it heard.
+    - generic [ref=e10]:
+      - generic [ref=e11]:
+        - img [ref=e14]
+        - generic [ref=e24]:
+          - heading "Start by being honest" [level=3] [ref=e25]
+          - paragraph [ref=e26]: Eight short rounds of questions — how you connect, how you fight, what you actually want. The more truthful the answers, the more your K8 sounds like you.
+      - generic [ref=e27]:
+        - button [active] [ref=e28] [cursor=pointer]
+        - button [ref=e29] [cursor=pointer]
+        - button [ref=e30] [cursor=pointer]
+        - button [ref=e31] [cursor=pointer]
+    - generic [ref=e32]:
+      - button "Skip" [ref=e33] [cursor=pointer]
+      - button "Next" [ref=e34] [cursor=pointer]:
+        - text: Next
+        - img
+    - button "Close" [ref=e35] [cursor=pointer]:
+      - img [ref=e36]
+      - generic [ref=e39]: Close

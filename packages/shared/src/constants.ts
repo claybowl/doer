@@ -32,6 +32,7 @@ export const AGENT_ADAPTER_TYPES = [
   "openclaw_gateway",
   "hermes_local",
   "letta_cloud",
+  "letta_code",
 ] as const;
 export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number];
 
@@ -733,6 +734,22 @@ export type MemfsRootKind = (typeof MEMFS_ROOT_KINDS)[number];
 export const MEMFS_STRATEGY_SKILL: Partial<Record<MemfsStrategy, string>> = {
   "fs-mount": "agents-md-memory",
   "native-letta": "letta-memory",
+};
+
+/**
+ * Per-adapter overrides for the memory-protocol skill mapping. When an entry
+ * exists for (adapterType, strategy), it wins over MEMFS_STRATEGY_SKILL.
+ *
+ * Motivation: letta_code offline agents use <memory_update> tag protocol, not
+ * file I/O — agents-md-memory (the default for fs-mount) would deliver wrong
+ * instructions. The offline-specific skill letta-code-memory is correct.
+ */
+export const MEMFS_STRATEGY_SKILL_BY_ADAPTER: Partial<
+  Record<string, Partial<Record<MemfsStrategy, string>>>
+> = {
+  letta_code: {
+    "fs-mount": "letta-code-memory",
+  },
 };
 
 /**
