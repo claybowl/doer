@@ -617,16 +617,22 @@ async function executeOffline(
   const delivery = resolveSkillDelivery(resolved, config);
 
   let skillSection = "";
+  // Maps display name (shown to the agent in the manifest) → full canonical key
+  // (used with readPaperclipSkillMarkdown). Built during loop-mode manifest
+  // construction so the read_skill handler can resolve agent-supplied names.
+  const skillKeyByName = new Map<string, string>();
 
   if (desiredSkillNames.length > 0) {
     if (delivery === "loop") {
       // Manifest only — bodies pulled via read_skill tool during the turn.
       const manifests: Array<{ name: string; description: string }> = [];
-      for (const skillName of desiredSkillNames) {
-        const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
+      for (const skillKey of desiredSkillNames) {
+        const body = await readPaperclipSkillMarkdown(__moduleDir, skillKey);
         if (body) {
           const meta = parseFrontmatter(body);
-          manifests.push({ name: meta.name || skillName, description: meta.description });
+          const displayName = meta.name || skillKey;
+          skillKeyByName.set(displayName, skillKey);
+          manifests.push({ name: displayName, description: meta.description });
         }
       }
       skillSection = buildSkillsManifest(manifests);
@@ -636,7 +642,10 @@ async function executeOffline(
       for (const entry of allSkillEntries) {
         if (!desiredSkillNames.includes(entry.key)) continue;
         const body = await readPaperclipSkillMarkdown(__moduleDir, entry.key);
-        if (body) skillBodies.push({ name: entry.key, body, required: Boolean(entry.required) });
+        if (body) {
+          const meta = parseFrontmatter(body);
+          skillBodies.push({ name: meta.name || entry.key, body, required: Boolean(entry.required) });
+        }
       }
       // Required skills first, then config order
       skillBodies.sort((a, b) => (b.required ? 1 : 0) - (a.required ? 1 : 0));
@@ -713,10 +722,10 @@ async function executeOffline(
             // input_json_delta: accumulate tool input — parsed from finalMessage below
           }
           if (event.type === "message_start" && event.message.usage) {
-            inputTokens = event.message.usage.input_tokens ?? 0;
+            inputTokens += event.message.usage.input_tokens ?? 0;
           }
           if (event.type === "message_delta") {
-            if (event.usage) outputTokens = event.usage.output_tokens ?? 0;
+            if (event.usage) outputTokens += event.usage.output_tokens ?? 0;
             stopReason = event.delta.stop_reason ?? null;
           }
         }
@@ -750,11 +759,14 @@ async function executeOffline(
           let toolOutput: string;
           if (tu.name === "read_skill") {
             const skillName = (tu.input as Record<string, unknown>).name;
-            if (typeof skillName !== "string" || !desiredSkillNames.includes(skillName)) {
-              toolOutput = `Skill "${String(skillName)}" is not available to this agent. Available skills: ${desiredSkillNames.join(", ")}.`;
+            const fullKey = typeof skillName === "string"
+              ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
+              : null;
+            if (!fullKey) {
+              toolOutput = `Skill "${String(skillName)}" is not available to this agent. Available skills: ${[...skillKeyByName.keys()].join(", ")}.`;
             } else {
-              const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
-              toolOutput = body ?? `Skill "${skillName}" not found.`;
+              const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
+              toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
             }
           } else {
             toolOutput = `Unknown tool: ${tu.name}`;
@@ -881,8 +893,8 @@ async function executeOffline(
               if (choices?.[0]?.finish_reason) finishReason = choices[0].finish_reason;
               const usage = json.usage as { prompt_tokens?: number; completion_tokens?: number } | undefined;
               if (usage) {
-                inputTokens = usage.prompt_tokens ?? inputTokens;
-                outputTokens = usage.completion_tokens ?? outputTokens;
+                inputTokens += usage.prompt_tokens ?? 0;
+                outputTokens += usage.completion_tokens ?? 0;
               }
             }
           }
@@ -910,11 +922,14 @@ async function executeOffline(
             let toolOutput: string;
             if (tc.name === "read_skill") {
               const skillName = parsedArgs.name;
-              if (typeof skillName !== "string" || !desiredSkillNames.includes(skillName)) {
-                toolOutput = `Skill "${String(skillName)}" is not available. Available: ${desiredSkillNames.join(", ")}.`;
+              const fullKey = typeof skillName === "string"
+                ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
+                : null;
+              if (!fullKey) {
+                toolOutput = `Skill "${String(skillName)}" is not available. Available: ${[...skillKeyByName.keys()].join(", ")}.`;
               } else {
-                const body = await readPaperclipSkillMarkdown(__moduleDir, skillName);
-                toolOutput = body ?? `Skill "${skillName}" not found.`;
+                const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
+                toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
               }
             } else {
               toolOutput = `Unknown tool: ${tc.name}`;
