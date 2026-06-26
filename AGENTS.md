@@ -192,3 +192,57 @@ A change is done when all are true:
 
 - Co-author line: `Co-Authored-By: Doer <noreply@doer.donjon.agency>`
 - Do not commit `pnpm-lock.yaml`
+
+## 16. Hard-Won Lessons
+
+Lessons that cost real debugging time. Keep this section updated when you learn something the hard way.
+
+### Packaged Electron app can't read Desktop paths
+
+The packaged Electron app runs with `com.apple.provenance` xattr on its binary. macOS denies `fs.readdir()` on paths under `~/Desktop/` for such processes (EPERM). This means:
+- Never hardcode `adapterConfig.memoryDir` to Desktop or Documents paths
+- The `resolveOfflineMemoryDir()` fallback chain (`memoryDir` → `LETTA_MEMFS_DIR` → `DOER_AGENT_MEMORY_DIR`) should prefer paths outside macOS sandboxed directories
+- If an agent needs filesystem access, use the memfs fs-mount system or paths under `~/.doer/`
+
+### Dev server vs packaged app: different instances
+
+| | Dev server | Packaged Electron app |
+|---|---|---|
+| Port | 3101 (default) | 3100 |
+| Instance path | `~/.doer/instances/default/` | `~/Library/Application Support/@doer/desktop/instances/default/` |
+| DB | Separate PGlite | Separate PGlite |
+
+When debugging production issues, check which instance you're hitting. They do not share data.
+
+### fs-mount symlink design
+
+The memfs fs-mount strategy (`server/src/services/memfs/strategies/fs-mount.ts`) uses three-case logic when the symlink target already exists:
+1. **Empty directory** → silently replace with symlink (safe, no data loss)
+2. **Non-empty directory** → error with actionable message listing files and suggesting `mountAs` change
+3. **Wrong symlink** → error with actionable message showing current vs expected target
+
+The `agentWorkspaceService.ensure()` function accepts `skipSubdirs: string[]` so the heartbeat can skip directories managed by fs-mount bindings. This keeps the workspace service DB-free — the heartbeat queries memfs bindings and passes the list.
+
+### Desktop release workflow
+
+```sh
+# 1. Bump version in desktop/package.json
+# 2. Commit and push to master
+git push origin main:master
+
+# 3. Trigger CI pipelines
+gh workflow run release.yml          # npm publish (needs NPM_TOKEN secret)
+gh workflow run desktop-release.yml  # builds mac/win/linux + GitHub Release
+
+# 4. Update release notes on GitHub
+gh release edit vX.Y.Z -R claybowl/doer --notes-file releases/vYYYY.MDD.P.md
+```
+
+**Known gap:** `NPM_TOKEN` is not configured in GitHub repo secrets. The `publish_stable` job will fail until that's added. Desktop releases are unaffected.
+
+### DonDog agent specifics
+
+- Agent ID: `fcb51593-643f-42d6-861f-60df74c2726d`
+- Company: "Donjon Sales Team" (`ba1dcf35-9204-4273-97ad-2791577351cb`)
+- Memfs root: `/Users/clay/Doer/donjon-sales-team/memory` with `pathPrefix: "agents/dondog"`
+- After the v0.1.9 fix, `adapterConfig.memoryDir` is `""` (falls through to env vars)

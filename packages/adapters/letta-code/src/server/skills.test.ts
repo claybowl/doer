@@ -54,9 +54,9 @@ describe("resolveSkillDelivery", () => {
     expect(resolveSkillDelivery(r, {})).toBe("inject");
   });
 
-  it("ollama_cloud returns inject (supportsTools: false)", () => {
+  it("ollama_cloud returns loop (supportsTools: true)", () => {
     const r = resolveProvider({ provider: "ollama_cloud" }, { OLLAMA_API_KEY: "k" });
-    expect(resolveSkillDelivery(r, {})).toBe("inject");
+    expect(resolveSkillDelivery(r, {})).toBe("loop");
   });
 
   it("opencode_zen returns inject (supportsTools: false)", () => {

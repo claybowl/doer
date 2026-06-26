@@ -76,6 +76,9 @@ export interface LettaCodeOfflineConfig {
    * When unset, the default is derived from the provider.
    */
   skillToolCalls?: "loop" | "inject";
+
+  /** Working directory for offline tools (bash, read, write, grep). Defaults to the process cwd. */
+  cwd?: string;
 }
 
 /**

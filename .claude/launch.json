@@ -2,6 +2,12 @@
   "version": "0.0.1",
   "configurations": [
     {
+      "name": "Doer dev 3199",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "PORT=3199 pnpm dev"],
+      "port": 3199
+    },
+    {
       "name": "Doer (API + UI)",
       "runtimeExecutable": "pnpm",
       "runtimeArgs": ["dev"],

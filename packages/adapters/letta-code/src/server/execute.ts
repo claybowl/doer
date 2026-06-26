@@ -1,5 +1,6 @@
 import { readdir, readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
+import { execFile } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import Anthropic from "@anthropic-ai/sdk";
@@ -32,9 +33,285 @@ function safeStringify(value: unknown): string {
   try { return JSON.stringify(value); } catch { return String(value); }
 }
 
-function parseToolArgs(args: unknown): unknown {
-  if (typeof args !== "string") return args ?? {};
-  try { return JSON.parse(args); } catch { return { raw: args }; }
+function parseToolArgs(args: unknown): Record<string, unknown> {
+  if (typeof args === "string") {
+    try { return JSON.parse(args) as Record<string, unknown>; } catch { return { raw: args }; }
+  }
+  return (args as Record<string, unknown> | null) ?? {};
+}
+
+// ── Offline tool registry ─────────────────────────────────────────────────
+// Small set of headless actions available to all offline letta_code agents.
+// These are wired into both Anthropic and OpenAI-compat loop paths below.
+
+type ToolHandler = (
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+) => Promise<string>;
+
+const OFFLINE_TOOLS: Record<string, { description: string; parameters: Record<string, unknown>; handler: ToolHandler }> = {
+  bash: {
+    description: "Run a shell command in the agent workspace. Use for git, curl, ls, cat, npm, pnpm, etc. Prefer doer_api for Doer API calls.",
+    parameters: {
+      type: "object",
+      properties: {
+        command: { type: "string", description: "Shell command to execute" },
+        timeout: { type: "number", description: "Timeout in milliseconds (default 30000)" },
+        cwd: { type: "string", description: "Working directory. Defaults to the agent workspace root." },
+      },
+      required: ["command"],
+    },
+    handler: runBash,
+  },
+  read: {
+    description: "Read a file from the agent workspace.",
+    parameters: {
+      type: "object",
+      properties: {
+        file_path: { type: "string", description: "Absolute or workspace-relative file path" },
+        offset: { type: "number", description: "1-based start line" },
+        limit: { type: "number", description: "Max lines to read" },
+      },
+      required: ["file_path"],
+    },
+    handler: readWorkspaceFile,
+  },
+  write: {
+    description: "Write (overwrite) a file in the agent workspace.",
+    parameters: {
+      type: "object",
+      properties: {
+        file_path: { type: "string", description: "Absolute or workspace-relative file path" },
+        content: { type: "string", description: "Full file content" },
+      },
+      required: ["file_path", "content"],
+    },
+    handler: writeWorkspaceFile,
+  },
+  edit: {
+    description: "Replace an exact string in a file. Use read first to verify the current text.",
+    parameters: {
+      type: "object",
+      properties: {
+        file_path: { type: "string", description: "Absolute or workspace-relative file path" },
+        old_string: { type: "string", description: "Exact text to replace" },
+        new_string: { type: "string", description: "Replacement text" },
+      },
+      required: ["file_path", "old_string", "new_string"],
+    },
+    handler: editWorkspaceFile,
+  },
+  grep: {
+    description: "Search file contents with a regex pattern.",
+    parameters: {
+      type: "object",
+      properties: {
+        pattern: { type: "string", description: "Regex pattern" },
+        path: { type: "string", description: "Directory or file to search (default agent workspace root)" },
+        include: { type: "string", description: "Glob filter, e.g. '*.ts'" },
+      },
+      required: ["pattern"],
+    },
+    handler: grepWorkspace,
+  },
+  doer_api: {
+    description: "Call the Doer API. Automatically uses the agent's DOER_API_KEY and DOER_RUN_ID from the execution environment.",
+    parameters: {
+      type: "object",
+      properties: {
+        method: { type: "string", description: "HTTP method (GET, POST, PATCH, DELETE)" },
+        endpoint: { type: "string", description: "API path, e.g. /api/companies/ba1d.../issues" },
+        body: { type: "object", description: "JSON request body" },
+      },
+      required: ["method", "endpoint"],
+    },
+    handler: doerApiCall,
+  },
+};
+
+function resolveWorkspacePath(ctx: AdapterExecutionContext, config: LettaCodeOfflineConfig, raw: unknown): string {
+  if (typeof raw !== "string" || !raw) throw new Error("file_path is required");
+  if (path.isAbsolute(raw)) return raw;
+  const cwd = typeof config.cwd === "string" ? config.cwd : (ctx.context.cwd as string | undefined);
+  return cwd ? path.resolve(cwd, raw) : path.resolve(raw);
+}
+
+async function runBash(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const command = String(args.command ?? "");
+  if (!command) throw new Error("command is required");
+  const timeout = typeof args.timeout === "number" ? args.timeout : 30000;
+  const cwdRaw = typeof args.cwd === "string" && args.cwd ? args.cwd : config.cwd;
+  const cwd = cwdRaw ? path.resolve(cwdRaw) : (ctx.context.cwd as string | undefined) ?? process.cwd();
+
+  await ctx.onLog("stdout", `[bash] $ ${command}\n`);
+  return new Promise((resolve) => {
+    const child = execFile("/bin/sh", ["-c", command], { cwd, timeout, env: { ...process.env, ...getDoerEnv(ctx) } }, (err, stdout, stderr) => {
+      const combined = stdout + (stderr ? `\n[stderr]\n${stderr}` : "");
+      if (err) {
+        resolve(`exit ${err.code ?? "unknown"}\n${combined}`);
+      } else {
+        resolve(combined || "(no output)");
+      }
+    });
+    void ctx.onSpawn?.({ pid: child.pid ?? 0, startedAt: new Date().toISOString() });
+  });
+}
+
+function getDoerEnv(ctx: AdapterExecutionContext): Record<string, string> {
+  const env = ((ctx.config as Record<string, unknown>).env ?? {}) as Record<string, string>;
+  const out: Record<string, string> = {};
+  for (const key of ["DOER_API_KEY", "DOER_RUN_ID", "DOER_BASE_URL", "LETTA_MEMFS_DIR", "DOER_AGENT_MEMORY_DIR"]) {
+    if (env[key]) out[key] = env[key];
+  }
+  return out;
+}
+
+async function readWorkspaceFile(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const filePath = resolveWorkspacePath(ctx, config, args.file_path);
+  const offset = typeof args.offset === "number" ? args.offset : 1;
+  const limit = typeof args.limit === "number" ? args.limit : 200;
+  const content = await readFile(filePath, "utf-8");
+  const lines = content.split("\n");
+  const start = Math.max(0, offset - 1);
+  const end = Math.min(lines.length, start + limit);
+  const header = offset > 1 || end < lines.length ? `[lines ${start + 1}-${end} of ${lines.length}]\n` : "";
+  return header + lines.slice(start, end).join("\n");
+}
+
+async function writeWorkspaceFile(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const filePath = resolveWorkspacePath(ctx, config, args.file_path);
+  const content = String(args.content ?? "");
+  await mkdir(path.dirname(filePath), { recursive: true });
+  await writeFile(filePath, content, "utf-8");
+  return `wrote ${filePath} (${content.length} chars)`;
+}
+
+async function editWorkspaceFile(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const filePath = resolveWorkspacePath(ctx, config, args.file_path);
+  const oldString = String(args.old_string ?? "");
+  const newString = String(args.new_string ?? "");
+  if (!oldString) throw new Error("old_string is required");
+  const content = await readFile(filePath, "utf-8");
+  if (!content.includes(oldString)) throw new Error(`old_string not found in ${filePath}`);
+  if (content.split(oldString).length > 2) throw new Error(`old_string appears multiple times in ${filePath}; use a more specific string`);
+  const updated = content.replace(oldString, newString);
+  await writeFile(filePath, updated, "utf-8");
+  return `edited ${filePath}`;
+}
+
+async function grepWorkspace(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const pattern = String(args.pattern ?? "");
+  if (!pattern) throw new Error("pattern is required");
+  const rootRaw = typeof args.path === "string" && args.path ? args.path : config.cwd;
+  const root = rootRaw ? path.resolve(rootRaw) : (ctx.context.cwd as string | undefined) ?? process.cwd();
+  const include = typeof args.include === "string" ? args.include : "*";
+  const regex = new RegExp(pattern, "gm");
+  const results: string[] = [];
+  async function walk(dir: string): Promise<void> {
+    const entries = await readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "node_modules" || entry.name === ".git" || entry.name === "dist") continue;
+        await walk(full);
+      } else if (entry.isFile()) {
+        if (include !== "*" && !entry.name.endsWith(include.replace(/^\*\./, "."))) continue;
+        try {
+          const content = await readFile(full, "utf-8");
+          const matches = content.match(regex);
+          if (matches && matches.length > 0) {
+            results.push(`${full}: ${matches.length} match(es)`);
+            const lines = content.split("\n");
+            for (let i = 0; i < lines.length; i++) {
+              if (regex.test(lines[i]!)) {
+                results.push(`  ${i + 1}: ${lines[i]!.slice(0, 120)}`);
+                regex.lastIndex = 0;
+              }
+            }
+          }
+        } catch { /* ignore unreadable files */ }
+      }
+    }
+  }
+  await walk(root);
+  return results.length > 0 ? results.slice(0, 200).join("\n") : "no matches";
+}
+
+async function doerApiCall(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+  _config: LettaCodeOfflineConfig,
+): Promise<string> {
+  const method = String(args.method ?? "GET").toUpperCase();
+  const endpoint = String(args.endpoint ?? "");
+  if (!endpoint) throw new Error("endpoint is required");
+  const env = getDoerEnv(ctx);
+  const baseUrl = env.DOER_BASE_URL?.replace(/\/$/, "") || "http://127.0.0.1:3100";
+  const url = `${baseUrl}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
+  const headers: Record<string, string> = {
+    "Content-Type": "application/json",
+  };
+  if (env.DOER_API_KEY) headers.Authorization = `Bearer ${env.DOER_API_KEY}`;
+  if (env.DOER_RUN_ID) headers["X-Doer-Run-Id"] = env.DOER_RUN_ID;
+
+  const init: RequestInit = {
+    method,
+    headers,
+    ...(method !== "GET" && method !== "DELETE" && args.body ? { body: JSON.stringify(args.body) } : {}),
+  };
+
+  const res = await fetch(url, init);
+  const text = await res.text();
+  return `${res.status} ${res.statusText}\n${text.slice(0, 4000)}`;
+}
+
+function buildOfflineToolInstructions(): string {
+  const lines = [
+    "## Available Tools",
+    "",
+    "You MUST use these tools to gather information and take action. Do not just describe plans — execute them by calling tools. You may chain multiple tool calls in a row until the task is complete.",
+    "",
+    "### Tools",
+  ];
+  for (const [name, tool] of Object.entries(OFFLINE_TOOLS)) {
+    lines.push(`- **${name}**: ${tool.description}`);
+  }
+  lines.push("");
+  lines.push("### Tool-use rules");
+  lines.push("1. When asked to create, read, update, or search anything in Doer, call `doer_api`.");
+  lines.push("2. When asked to read or edit files in the workspace, call `read`/`write`/`edit`/`grep`.");
+  lines.push("3. When asked to run a shell command (git, curl for non-Doer APIs, ls, npm), call `bash`.");
+  lines.push("4. Do not respond with 'I will do X'. Actually call the tool and do X.");
+  lines.push("5. After a tool returns, inspect the result. If the task is not complete, call the next tool immediately.");
+  lines.push("");
+  lines.push("### doer_api examples");
+  lines.push('```json');
+  lines.push('{ "name": "doer_api", "arguments": { "method": "GET", "endpoint": "/api/companies/ba1dcf35-9204-4273-97ad-2791577351cb/issues" } }');
+  lines.push('{ "name": "doer_api", "arguments": { "method": "POST", "endpoint": "/api/companies/ba1dcf35-9204-4273-97ad-2791577351cb/issues", "body": { "title": "New task", "description": "Details" } } }');
+  lines.push('{ "name": "doer_api", "arguments": { "method": "POST", "endpoint": "/api/companies/ba1dcf35-9204-4273-97ad-2791577351cb/issues/b9b441e2-7952-4344-afe2-a3a1f7d01804/comments", "body": { "content": "Done." } } }');
+  lines.push("```");
+  return lines.join("\n");
 }
 
 function extractTextContent(content: unknown): string {
@@ -258,7 +535,7 @@ const OPENAI_COMPAT_PRESETS: Record<string, ProviderPreset> = {
   groq:         { baseUrl: "https://api.groq.com/openai/v1",      envKey: "GROQ_API_KEY",     label: "Groq",           supportsTools: true  },
   nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY",   label: "NVIDIA NIM",     supportsTools: true  },
   opencode_zen: { baseUrl: "https://opencode.ai/zen/v1",          envKey: "OPENCODE_API_KEY", label: "OpenCode Zen",   supportsTools: false },
-  ollama_cloud: { baseUrl: "https://ollama.com/v1",               envKey: "OLLAMA_API_KEY",   label: "Ollama Cloud",   supportsTools: false },
+  ollama_cloud: { baseUrl: "https://ollama.com/v1",               envKey: "OLLAMA_API_KEY",   label: "Ollama Cloud",   supportsTools: true },
   ollama:       { baseUrl: "http://localhost:11434/v1",           envKey: null,               label: "Ollama (local)", supportsTools: false },
 };
 
@@ -539,8 +816,13 @@ export function buildOfflineSystemPrompt(
   basePrompt: string,
   blocks: LettaCodeMemoryBlock[],
   skillSection = "",
+  toolInstructions = "",
 ): string {
   const parts: string[] = [basePrompt.trim() || "You are a helpful AI agent."];
+
+  if (toolInstructions.trim()) {
+    parts.push("\n\n" + toolInstructions.trim());
+  }
 
   if (blocks.length > 0) {
     parts.push("\n\n## Memory\n");
@@ -660,7 +942,7 @@ async function executeOffline(
     }
   }
 
-  const systemPrompt = buildOfflineSystemPrompt(config.systemPrompt ?? "", blocks, skillSection);
+  const systemPrompt = buildOfflineSystemPrompt(config.systemPrompt ?? "", blocks, skillSection, buildOfflineToolInstructions());
   const userMessage = buildUserMessage(ctx, config.heartbeatPrompt);
 
   await ctx.onMeta?.({
@@ -679,7 +961,7 @@ async function executeOffline(
   try {
     if (resolved.kind === "anthropic") {
       const client = new Anthropic({ apiKey: resolved.apiKey });
-      const tools: Anthropic.Tool[] = delivery === "loop"
+      const baseTools: Anthropic.Tool[] = delivery === "loop"
         ? [{
             name: "read_skill",
             description: "Load the full instructions for a skill by name. Call this before acting in a skill's domain.",
@@ -692,9 +974,15 @@ async function executeOffline(
             },
           }]
         : [];
+      const offlineTools: Anthropic.Tool[] = Object.entries(OFFLINE_TOOLS).map(([name, tool]) => ({
+        name,
+        description: tool.description,
+        input_schema: tool.parameters as Anthropic.Tool["input_schema"],
+      }));
+      const tools: Anthropic.Tool[] = [...baseTools, ...offlineTools];
 
       const messages: Anthropic.MessageParam[] = [{ role: "user", content: userMessage }];
-      const MAX_TOOL_ITERATIONS = 8;
+      const MAX_TOOL_ITERATIONS = 24;
       let iterations = 0;
 
       while (iterations < MAX_TOOL_ITERATIONS) {
@@ -757,27 +1045,38 @@ async function executeOffline(
             toolCallId: tu.id,
           });
           let toolOutput: string;
-          if (tu.name === "read_skill") {
-            const skillName = (tu.input as Record<string, unknown>).name;
-            const fullKey = typeof skillName === "string"
-              ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
-              : null;
-            if (!fullKey) {
-              toolOutput = `Skill "${String(skillName)}" is not available to this agent. Available skills: ${[...skillKeyByName.keys()].join(", ")}.`;
+          let isError = false;
+          try {
+            if (tu.name === "read_skill") {
+              const skillName = (tu.input as Record<string, unknown>).name;
+              const fullKey = typeof skillName === "string"
+                ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
+                : null;
+              if (!fullKey) {
+                toolOutput = `Skill "${String(skillName)}" is not available to this agent. Available skills: ${[...skillKeyByName.keys()].join(", ")}.`;
+                isError = true;
+              } else {
+                const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
+                toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
+                if (!body) isError = true;
+              }
+            } else if (tu.name in OFFLINE_TOOLS) {
+              toolOutput = await OFFLINE_TOOLS[tu.name]!.handler(ctx, parseToolArgs(tu.input), config);
             } else {
-              const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
-              toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
+              toolOutput = `Unknown tool: ${tu.name}`;
+              isError = true;
             }
-          } else {
-            toolOutput = `Unknown tool: ${tu.name}`;
+          } catch (err) {
+            toolOutput = err instanceof Error ? err.message : String(err);
+            isError = true;
           }
           await emit(ctx, {
             type: "tool_return_message",
             content: toolOutput,
             toolCallId: tu.id,
-            isError: false,
+            isError,
           });
-          toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: toolOutput });
+          toolResults.push({ type: "tool_result", tool_use_id: tu.id, content: toolOutput, is_error: isError });
         }
 
         messages.push(assistantMsg, { role: "user", content: toolResults });
@@ -802,7 +1101,14 @@ async function executeOffline(
               required: ["name"],
             },
           },
-        }];
+        }, ...Object.entries(OFFLINE_TOOLS).map(([name, tool]) => ({
+          type: "function" as const,
+          function: {
+            name,
+            description: tool.description,
+            parameters: tool.parameters,
+          },
+        }))];
 
         type OAIMessage = {
           role: string;
@@ -815,7 +1121,7 @@ async function executeOffline(
           { role: "system", content: systemPrompt },
           { role: "user", content: userMessage },
         ];
-        const MAX_TOOL_ITERATIONS = 8;
+        const MAX_TOOL_ITERATIONS = 24;
         let iterations = 0;
 
         while (iterations < MAX_TOOL_ITERATIONS) {
@@ -920,22 +1226,33 @@ async function executeOffline(
             await emit(ctx, { type: "tool_call_message", name: tc.name, input: parsedArgs, toolCallId: tc.id });
 
             let toolOutput: string;
-            if (tc.name === "read_skill") {
-              const skillName = parsedArgs.name;
-              const fullKey = typeof skillName === "string"
-                ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
-                : null;
-              if (!fullKey) {
-                toolOutput = `Skill "${String(skillName)}" is not available. Available: ${[...skillKeyByName.keys()].join(", ")}.`;
+            let isError = false;
+            try {
+              if (tc.name === "read_skill") {
+                const skillName = parsedArgs.name;
+                const fullKey = typeof skillName === "string"
+                  ? (skillKeyByName.get(skillName) ?? (desiredSkillNames.includes(skillName) ? skillName : null))
+                  : null;
+                if (!fullKey) {
+                  toolOutput = `Skill "${String(skillName)}" is not available. Available: ${[...skillKeyByName.keys()].join(", ")}.`;
+                  isError = true;
+                } else {
+                  const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
+                  toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
+                  if (!body) isError = true;
+                }
+              } else if (tc.name in OFFLINE_TOOLS) {
+                toolOutput = await OFFLINE_TOOLS[tc.name]!.handler(ctx, parsedArgs, config);
               } else {
-                const body = await readPaperclipSkillMarkdown(__moduleDir, fullKey);
-                toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
+                toolOutput = `Unknown tool: ${tc.name}`;
+                isError = true;
               }
-            } else {
-              toolOutput = `Unknown tool: ${tc.name}`;
+            } catch (err) {
+              toolOutput = err instanceof Error ? err.message : String(err);
+              isError = true;
             }
 
-            await emit(ctx, { type: "tool_return_message", content: toolOutput, toolCallId: tc.id, isError: false });
+            await emit(ctx, { type: "tool_return_message", content: toolOutput, toolCallId: tc.id, isError });
             messages.push({ role: "tool", content: toolOutput, tool_call_id: tc.id });
           }
         }
