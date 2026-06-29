@@ -15,6 +15,9 @@ import {
   Spark,
   StatusDot,
   StatusChip,
+  Card,
+  Button,
+  Badge,
   formatRelative,
   formatCents,
   type FwStatus,
@@ -56,37 +59,40 @@ function Section({
 }
 
 function Stat({
+  icon,
   label,
   value,
   sub,
   pulse,
 }: {
+  icon: string;
   label: string;
   value: React.ReactNode;
   sub?: React.ReactNode;
   pulse?: boolean;
 }) {
   return (
-    <div className="fw-card" style={{ padding: 14, display: "flex", flexDirection: "column", gap: 6 }}>
-      <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-        {label}
-      </span>
-      <span
-        className="fw-display"
-        style={{
-          fontSize: 28,
-          fontWeight: 600,
-          letterSpacing: "-0.02em",
-          color: pulse ? "var(--accent)" : "var(--ink)",
-          fontVariantNumeric: "tabular-nums",
-        }}
-      >
-        {value}
-      </span>
-      {sub ? (
-        <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{sub}</span>
-      ) : null}
-    </div>
+    <Card padding={14} style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, color: "var(--ink-faint)" }}>
+        <Icon d={icon} size={12} />
+        <span className="fw-uc" style={{ fontSize: 10, letterSpacing: "0.1em" }}>{label}</span>
+      </div>
+      <div style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 }}>
+        <span
+          className="fw-display"
+          style={{
+            fontSize: 24,
+            fontWeight: 600,
+            letterSpacing: "-0.02em",
+            fontVariantNumeric: "tabular-nums",
+            color: pulse ? "var(--accent)" : "var(--ink)",
+          }}
+        >
+          {value}
+        </span>
+        {sub ? <span style={{ fontSize: 11, color: "var(--ink-dim)", whiteSpace: "nowrap" }}>{sub}</span> : null}
+      </div>
+    </Card>
   );
 }
 
@@ -102,45 +108,40 @@ function QuickAction({
   hint?: string;
 }) {
   return (
-    <NavLink
-      to={to}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
-        padding: "12px 14px",
-        borderRadius: 10,
-        border: "1px solid var(--line)",
-        background: "var(--bg-raised)",
-        color: "var(--ink)",
-        textDecoration: "none",
-        transition: "all .15s var(--fw-ease)",
-      }}
-    >
-      <div
+    <NavLink to={to} style={{ textDecoration: "none", color: "inherit", display: "block" }}>
+      <Card
+        hover
+        padding="12px 14px"
         style={{
-          width: 28,
-          height: 28,
-          borderRadius: 8,
-          background: "color-mix(in oklab, var(--accent) 10%, var(--bg-sunken))",
-          border: "1px solid color-mix(in oklab, var(--accent) 25%, var(--line))",
-          color: "var(--accent)",
           display: "flex",
           alignItems: "center",
-          justifyContent: "center",
-          flexShrink: 0,
+          gap: 10,
+          borderRadius: 10,
         }}
       >
-        <Icon d={icon} size={13} />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
-        {hint ? (
-          <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{hint}</span>
-        ) : null}
-      </div>
-      <div style={{ flex: 1 }} />
-      <Icon d={I.arrow} size={12} style={{ color: "var(--ink-faint)" }} />
+        <div
+          style={{
+            width: 28,
+            height: 28,
+            borderRadius: 8,
+            background: "color-mix(in oklab, var(--accent) 10%, var(--bg-sunken))",
+            border: "1px solid color-mix(in oklab, var(--accent) 25%, var(--line))",
+            color: "var(--accent)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            flexShrink: 0,
+          }}
+        >
+          <Icon d={icon} size={13} />
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0 }}>
+          <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>{label}</span>
+          {hint ? <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{hint}</span> : null}
+        </div>
+        <div style={{ flex: 1 }} />
+        <Icon d={I.arrow} size={12} style={{ color: "var(--ink-faint)" }} />
+      </Card>
     </NavLink>
   );
 }
@@ -251,75 +252,145 @@ export function FernwehDashboard() {
         display: "flex",
         flexDirection: "column",
         gap: 28,
-        maxWidth: 1280,
+        maxWidth: 1200,
         margin: "0 auto",
       }}
     >
-      {/* Header */}
-      <header style={{ display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 16 }}>
-        <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-          <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-            HQ
-          </span>
-          <h1 className="fw-display" style={{ fontSize: 28, fontWeight: 600, margin: 0, letterSpacing: "-0.02em" }}>
-            {selectedCompany.name}
-          </h1>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="fw-chip pulse">
-            <span className="fw-dot pulsing" /> {liveRuns.length} live
-          </span>
-          <span className="fw-chip">{agents.length} agents</span>
-          <NavLink
-            to={`/${prefix}/agents/new`}
+      {/* Hero */}
+      <section
+        style={{
+          position: "relative",
+          borderRadius: 16,
+          border: "1px solid var(--line)",
+          overflow: "hidden",
+          background:
+            "linear-gradient(135deg, var(--bg-raised) 0%, var(--bg) 60%, color-mix(in oklab, var(--accent) 6%, var(--bg)) 100%)",
+          padding: "40px 36px 44px",
+        }}
+      >
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            inset: 0,
+            opacity: 0.04,
+            pointerEvents: "none",
+            backgroundImage:
+              "linear-gradient(var(--ink) 1px, transparent 1px), linear-gradient(90deg, var(--ink) 1px, transparent 1px)",
+            backgroundSize: "40px 40px",
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: "absolute",
+            top: -80,
+            right: -80,
+            width: 260,
+            height: 260,
+            borderRadius: 999,
+            background: "radial-gradient(circle, color-mix(in oklab, var(--accent) 35%, transparent) 0%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
+        <div style={{ position: "relative", display: "flex", flexDirection: "column", gap: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <div
+              style={{
+                width: 36,
+                height: 36,
+                borderRadius: 10,
+                background: "var(--accent)",
+                color: "var(--bg)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <Icon d={I.bolt} size={16} stroke={1.8} />
+            </div>
+            <span className="fw-uc" style={{ fontSize: 11, letterSpacing: "0.1em", color: "var(--ink-faint)" }}>
+              Welcome · {selectedCompany.name}
+            </span>
+          </div>
+          <h1
+            className="fw-display"
             style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: 6,
-              padding: "6px 12px",
-              borderRadius: 8,
-              background: "var(--accent)",
-              color: "var(--bg)",
-              fontSize: 12,
-              fontWeight: 500,
-              border: "1px solid var(--accent)",
+              fontSize: 36,
+              fontWeight: 600,
+              letterSpacing: "-0.02em",
+              lineHeight: 1.1,
+              margin: 0,
+              maxWidth: 640,
             }}
           >
-            <Icon d={I.plus} size={11} />
-            <span>New Agent</span>
-          </NavLink>
+            Your AI agent workforce,
+            <br />
+            <span style={{ color: "var(--accent)" }}>organized and running.</span>
+          </h1>
+          <p style={{ fontSize: 15, color: "var(--ink-dim)", maxWidth: 560, margin: 0 }}>
+            Deploy agents, automate workflows, and scale your operations — all from one command center.
+          </p>
+          <div style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap", paddingTop: 4 }}>
+            <NavLink to={`/${prefix}`} style={{ textDecoration: "none" }}>
+              <Button variant="primary" icon={I.home}>
+                Open HQ
+              </Button>
+            </NavLink>
+            <NavLink to={`/${prefix}/agents/new`} style={{ textDecoration: "none" }}>
+              <Button variant="secondary" icon={I.plus}>
+                New Agent
+              </Button>
+            </NavLink>
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, fontSize: 12, color: "var(--accent)" }}>
+              <span
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 999,
+                  background: "var(--pulse)",
+                  animation: "fw-pulse 1.6s ease infinite",
+                }}
+              />
+              All systems operational
+            </span>
+          </div>
         </div>
-      </header>
+      </section>
 
-      {/* Agent grid — new card design with filter pills and transcript modal */}
+      {/* Agent grid — existing ActiveAgentsPanel preserves its internal features */}
       <ActiveAgentsPanel companyId={companyId!} />
 
-      {/* Stat grid */}
+      {/* Stats */}
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+          gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
           gap: 14,
         }}
       >
         <Stat
+          icon={I.agents}
           label="Running"
           value={summary?.agents.running ?? "—"}
           sub={`${summary?.agents.active ?? 0} active`}
           pulse={(summary?.agents.running ?? 0) > 0}
         />
         <Stat
+          icon={I.issues}
           label="Open work"
           value={summary?.tasks.open ?? "—"}
           sub={`${summary?.tasks.inProgress ?? 0} in progress · ${summary?.tasks.blocked ?? 0} blocked`}
         />
         <Stat
+          icon={I.shield}
           label="Pending approvals"
           value={summary?.pendingApprovals ?? "—"}
           sub={(summary?.pendingApprovals ?? 0) > 0 ? "needs review" : "all clear"}
           pulse={(summary?.pendingApprovals ?? 0) > 0}
         />
         <Stat
+          icon={I.dollar}
           label="Spend (mo)"
           value={summary ? formatCents(summary.costs.monthSpendCents) : "—"}
           sub={
@@ -339,30 +410,10 @@ export function FernwehDashboard() {
             gap: 10,
           }}
         >
-          <QuickAction
-            to={`/${prefix}/agents/new`}
-            icon={I.plus}
-            label="New Agent"
-            hint="Hire a specialist"
-          />
-          <QuickAction
-            to={`/${prefix}/routines`}
-            icon={I.bolt}
-            label="New Routine"
-            hint="Schedule a workflow"
-          />
-          <QuickAction
-            to={`/${prefix}/activity`}
-            icon={I.activity}
-            label="View Activity"
-            hint="What's happening now"
-          />
-          <QuickAction
-            to={`/${prefix}/org`}
-            icon={I.org}
-            label="Org Chart"
-            hint="Team topology"
-          />
+          <QuickAction to={`/${prefix}/agents/new`} icon={I.plus} label="New Agent" hint="Hire a specialist" />
+          <QuickAction to={`/${prefix}/routines`} icon={I.bolt} label="New Routine" hint="Schedule a workflow" />
+          <QuickAction to={`/${prefix}/activity`} icon={I.activity} label="View Activity" hint="What's happening now" />
+          <QuickAction to={`/${prefix}/org`} icon={I.org} label="Org Chart" hint="Team topology" />
         </div>
       </Section>
 
@@ -376,10 +427,12 @@ export function FernwehDashboard() {
           </span>
         }
       >
-        <div className="fw-card" style={{ padding: 16, display: "flex", alignItems: "center", gap: 16 }}>
+        <Card padding={16} style={{ display: "flex", alignItems: "center", gap: 16, flexWrap: "wrap" }}>
           <Spark values={sparkValues} width={300} height={42} />
           <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-            <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>Live</span>
+            <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
+              Live
+            </span>
             <HeartbeatRibbon
               beats={
                 liveRuns.length > 0
@@ -390,15 +443,22 @@ export function FernwehDashboard() {
               height={28}
             />
           </div>
-        </div>
+          <div style={{ flex: 1 }} />
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <Badge tone="pulse" dot>
+              {liveRuns.length} live
+            </Badge>
+            <Badge tone="neutral">{agents.length} agents</Badge>
+          </div>
+        </Card>
       </Section>
 
       {/* Agents */}
       <Section title="Agents" hint={`${agents.length} total`}>
         {agents.length === 0 ? (
-          <div className="fw-card" style={{ padding: 24, color: "var(--ink-dim)" }}>
+          <Card padding={24} style={{ color: "var(--ink-dim)" }}>
             No agents yet. Hire one to get started.
-          </div>
+          </Card>
         ) : (
           <div
             style={{
@@ -420,33 +480,52 @@ export function FernwehDashboard() {
                   to={`/${prefix}/agents/${agent.id}`}
                   style={{ textDecoration: "none", color: "inherit", display: "block" }}
                 >
-                <div
-                  className="fw-card"
-                  style={{
-                    padding: 14,
-                    display: "flex",
-                    flexDirection: "column",
-                    gap: 10,
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                    <Avatar name={agent.name} size={32} />
-                    <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
-                      <span style={{ fontWeight: 500, fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                        {agent.name}
-                      </span>
-                      <span style={{ fontSize: 11, color: "var(--ink-dim)", textTransform: "capitalize" }}>
-                        {agent.role}
-                      </span>
+                  <Card
+                    hover
+                    padding={14}
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: 10,
+                      borderRadius: 12,
+                    }}
+                  >
+                    <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                      <Avatar name={agent.name} size={32} />
+                      <div style={{ display: "flex", flexDirection: "column", gap: 2, minWidth: 0, flex: 1 }}>
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            fontSize: 13,
+                            overflow: "hidden",
+                            textOverflow: "ellipsis",
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {agent.name}
+                        </span>
+                        <span style={{ fontSize: 11, color: "var(--ink-dim)", textTransform: "capitalize" }}>
+                          {agent.role}
+                        </span>
+                      </div>
+                      <StatusDot status={status} />
                     </div>
-                    <StatusDot status={status} />
-                  </div>
-                  <HeartbeatRibbon beats={beats} width={250} height={20} />
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 11, color: "var(--ink-dim)" }}>
-                    <span>{formatCents(agent.spentMonthlyCents)} / {formatCents(agent.budgetMonthlyCents)}</span>
-                    <span>{liveCount > 0 ? `${liveCount} running` : formatRelative(agent.lastHeartbeatAt)}</span>
-                  </div>
-                </div>
+                    <HeartbeatRibbon beats={beats} width={250} height={20} />
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        fontSize: 11,
+                        color: "var(--ink-dim)",
+                      }}
+                    >
+                      <span>
+                        {formatCents(agent.spentMonthlyCents)} / {formatCents(agent.budgetMonthlyCents)}
+                      </span>
+                      <span>{liveCount > 0 ? `${liveCount} running` : formatRelative(agent.lastHeartbeatAt)}</span>
+                    </div>
+                  </Card>
                 </NavLink>
               );
             })}
@@ -456,15 +535,13 @@ export function FernwehDashboard() {
 
       {/* Recent issues */}
       <Section title="Recent work" hint="last touched">
-        <div className="fw-card" style={{ padding: 0, overflow: "hidden" }}>
+        <Card padding={0} style={{ overflow: "hidden" }}>
           {sortedRecentIssues.length === 0 ? (
             <div style={{ padding: 24, color: "var(--ink-dim)" }}>No recent issues.</div>
           ) : (
             sortedRecentIssues.slice(0, 6).map((issue, idx) => {
               const visible = sortedRecentIssues.slice(0, 6);
-              const assigneeName = issue.assigneeAgentId
-                ? agentNameById.get(issue.assigneeAgentId) ?? null
-                : null;
+              const assigneeName = issue.assigneeAgentId ? agentNameById.get(issue.assigneeAgentId) ?? null : null;
               return (
                 <div
                   key={issue.id}
@@ -480,21 +557,24 @@ export function FernwehDashboard() {
                   <span className="fw-mono" style={{ fontSize: 11, color: "var(--ink-faint)" }}>
                     {issue.identifier ?? issue.id.slice(0, 6)}
                   </span>
-                  <span style={{ fontSize: 13, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                  <span
+                    style={{
+                      fontSize: 13,
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
                     {issue.title ?? "Untitled"}
                   </span>
                   <StatusChip status={issue.status ?? "idle"} />
-                  <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>
-                    {assigneeName ?? "—"}
-                  </span>
-                  <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>
-                    {formatRelative(issue.updatedAt)}
-                  </span>
+                  <span style={{ fontSize: 11, color: "var(--ink-dim)" }}>{assigneeName ?? "—"}</span>
+                  <span style={{ fontSize: 11, color: "var(--ink-faint)" }}>{formatRelative(issue.updatedAt)}</span>
                 </div>
               );
             })
           )}
-        </div>
+        </Card>
       </Section>
 
       {/* Recent outputs across all agents */}
@@ -509,7 +589,17 @@ export function FernwehDashboard() {
       ) : null}
 
       {/* Footer */}
-      <footer style={{ paddingTop: 12, borderTop: "1px solid var(--line-soft)", display: "flex", alignItems: "center", gap: 8, color: "var(--ink-faint)", fontSize: 11 }}>
+      <footer
+        style={{
+          paddingTop: 12,
+          borderTop: "1px solid var(--line-soft)",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          color: "var(--ink-faint)",
+          fontSize: 11,
+        }}
+      >
         <Icon d={I.bolt} size={11} />
         <span>Fernweh preview · This page is a parallel UI; classic Doer is unaffected.</span>
       </footer>

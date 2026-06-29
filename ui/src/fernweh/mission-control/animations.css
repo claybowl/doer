@@ -1,0 +1,59 @@
+/* Mission Control — live motion. Tokens come from fernweh/tokens.css. */
+
+/* live status halo around a working agent */
+@keyframes mc-halo-k {
+  0%, 100% { transform: scale(1); opacity: 0.55; }
+  50% { transform: scale(1.22); opacity: 0.12; }
+}
+.mc-halo { animation: mc-halo-k 1.8s ease-in-out infinite; }
+
+/* tool-call ripple */
+@keyframes mc-ripple-k {
+  from { transform: scale(0.35); opacity: 0.6; }
+  to { transform: scale(2.4); opacity: 0; }
+}
+.mc-ripple { animation: mc-ripple-k 1.6s ease-out forwards; }
+
+/* comment bloom */
+@keyframes mc-bloom-k {
+  0% { transform: translateY(8px) scale(0.92); opacity: 0; }
+  10% { transform: translateY(0) scale(1); opacity: 1; }
+  70% { opacity: 1; transform: translateY(0) scale(1); }
+  100% { transform: translateY(-16px) scale(0.98); opacity: 0; }
+}
+.mc-bloom { animation: mc-bloom-k 3.6s var(--fw-ease) forwards; }
+
+/* handoff token traveling along the reporting edge */
+@keyframes mc-travel-k { from { offset-distance: 0%; } to { offset-distance: 100%; } }
+.mc-token { animation: mc-travel-k 1.15s var(--fw-ease-spring, var(--fw-ease)) forwards; }
+
+/* pairing edge flow */
+@keyframes mc-flow-k { to { stroke-dashoffset: -16; } }
+.mc-flow { animation: mc-flow-k 0.6s linear infinite; }
+
+/* feed entrance */
+@keyframes mc-rise-k {
+  from { opacity: 0; transform: translateY(-7px); }
+  to { opacity: 1; transform: none; }
+}
+.mc-rise { animation: mc-rise-k 0.42s var(--fw-ease-spring, var(--fw-ease)); }
+
+/* handoff arrow nudge */
+@keyframes mc-arrow-k {
+  0%, 100% { transform: translateX(0); }
+  50% { transform: translateX(3px); }
+}
+.mc-arrow { display: inline-block; animation: mc-arrow-k 1s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .mc-halo, .mc-arrow, .mc-flow, .mc-ripple, .mc-bloom, .mc-token, .mc-rise {
+    animation: none !important;
+  }
+  .mc-token { offset-distance: 100%; }
+  .mc-bloom { opacity: 1; }
+}
+
+/* mission control scrollbars match the shell */
+.mc-scroll::-webkit-scrollbar { width: 9px; height: 9px; }
+.mc-scroll::-webkit-scrollbar-thumb { background: var(--line); border-radius: 999px; }
+.mc-scroll::-webkit-scrollbar-track { background: transparent; }

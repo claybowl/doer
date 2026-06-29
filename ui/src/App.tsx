@@ -56,6 +56,7 @@ import { InviteLandingPage } from "./pages/InviteLanding";
 import { NotFoundPage } from "./pages/NotFound";
 import { FernwehShell } from "./fernweh/FernwehShell";
 import { FernwehDashboard } from "./fernweh/FernwehDashboard";
+import { FernwehMissionControl } from "./fernweh/mission-control/MissionControl";
 import { FernwehHome } from "./fernweh/FernwehHome";
 import { FernwehOrgChart } from "./fernweh/FernwehOrgChart";
 import { FernwehAgents } from "./fernweh/FernwehAgents";
@@ -414,7 +415,7 @@ export function App() {
 
           {/* === FERNWEH — DEFAULT UI AT COMPANY ROOT === */}
           <Route path=":companyPrefix" element={<FernwehShell />}>
-            <Route index element={<FernwehDashboard />} />
+            <Route index element={<FernwehMissionControl />} />
             <Route path="home" element={<FernwehHome />} />
             <Route path="inbox" element={<FernwehInbox />} />
             <Route path="org" element={<FernwehOrgChart />} />
@@ -465,7 +466,7 @@ export function App() {
 
             {/* Redirect old classic paths to Fernweh equivalents */}
             <Route path="dashboard" element={<FernwehDashboard />} />
-            <Route path="hq" element={<FernwehDashboard />} />
+            <Route path="hq" element={<FernwehMissionControl />} />
             <Route path="schrute-benchmark" element={<FernwehSchruteBenchmark />} />
           </Route>
 

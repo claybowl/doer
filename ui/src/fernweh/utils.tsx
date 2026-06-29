@@ -472,6 +472,224 @@ export function ErrorState({
   );
 }
 
+// ---------- Card ----------
+// Elevated surface with hairline border, raised background, large radius.
+// Matches design-system Card: bg-raised + 1px solid var(--line) + var(--radius-card)
+export interface CardProps {
+  children: React.ReactNode;
+  padding?: number | string;
+  hover?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
+  onClick?: () => void;
+}
+
+export function Card({
+  children,
+  padding = 16,
+  hover = false,
+  style,
+  className,
+  onClick,
+}: CardProps) {
+  return (
+    <div
+      className={className}
+      onClick={onClick}
+      style={{
+        background: "var(--bg-raised)",
+        border: "1px solid var(--line)",
+        borderRadius: "var(--radius-card, 14px)",
+        padding,
+        transition: "border-color .2s var(--fw-ease), transform .2s var(--fw-ease)",
+        cursor: onClick ? "pointer" : undefined,
+        ...style,
+      }}
+      onMouseEnter={(e) => {
+        if (hover) e.currentTarget.style.borderColor = "var(--ink-faint)";
+      }}
+      onMouseLeave={(e) => {
+        if (hover) e.currentTarget.style.borderColor = "var(--line)";
+      }}
+    >
+      {children}
+    </div>
+  );
+}
+
+// ---------- Button ----------
+// Primary action element. Variants map to Doer's action hierarchy.
+type ButtonSize = "sm" | "md" | "lg";
+type ButtonVariant = "primary" | "secondary" | "outline" | "ghost" | "danger" | "danger-ghost";
+
+interface ButtonProps {
+  children: React.ReactNode;
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  icon?: string; // Icon path from I.*
+  iconRight?: string;
+  disabled?: boolean;
+  onClick?: () => void;
+  type?: "button" | "submit" | "reset";
+  style?: React.CSSProperties;
+  className?: string;
+  asChild?: boolean; // render as NavLink/Link wrapper
+  to?: string; // for NavLink
+}
+
+const SIZES: Record<ButtonSize, { padding: string; fontSize: number; gap: number; radius: number }> = {
+  sm: { padding: "5px 10px", fontSize: 12, gap: 6, radius: 7 },
+  md: { padding: "9px 14px", fontSize: 13, gap: 8, radius: 8 },
+  lg: { padding: "11px 18px", fontSize: 14, gap: 8, radius: 8 },
+};
+
+function variantStyle(variant: ButtonVariant) {
+  switch (variant) {
+    case "primary":
+      return { background: "var(--accent)", color: "var(--bg)", border: "1px solid var(--accent)" };
+    case "secondary":
+      return { background: "var(--bg-raised)", color: "var(--ink)", border: "1px solid var(--line)" };
+    case "outline":
+      return { background: "transparent", color: "var(--accent)", border: "1px solid var(--accent)" };
+    case "ghost":
+      return { background: "transparent", color: "var(--ink-dim)", border: "1px solid transparent" };
+    case "danger":
+      return { background: "var(--danger)", color: "#fff", border: "1px solid var(--danger)" };
+    case "danger-ghost":
+      return { background: "transparent", color: "var(--danger)", border: "1px solid var(--line)" };
+    default:
+      return { background: "var(--bg-raised)", color: "var(--ink)", border: "1px solid var(--line)" };
+  }
+}
+
+export function Button({
+  children,
+  variant = "secondary",
+  size = "md",
+  icon,
+  iconRight,
+  disabled = false,
+  onClick,
+  type = "button",
+  style,
+  className,
+  asChild = false,
+  to,
+}: ButtonProps) {
+  const s = SIZES[size] ?? SIZES.md;
+  const baseStyles: React.CSSProperties = {
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: s.gap,
+    padding: s.padding,
+    fontSize: s.fontSize,
+    fontWeight: 500,
+    fontFamily: "var(--fw-font-sans)",
+    borderRadius: s.radius,
+    cursor: disabled ? "not-allowed" : "pointer",
+    opacity: disabled ? 0.5 : 1,
+    whiteSpace: "nowrap",
+    transition: "filter .15s var(--fw-ease), background .15s var(--fw-ease)",
+    ...variantStyle(variant),
+    ...style,
+  };
+
+  const content = (
+    <>
+      {icon ? <Icon d={icon} size={s.fontSize} /> : null}
+      {children}
+      {iconRight ? <Icon d={iconRight} size={s.fontSize} /> : null}
+    </>
+  );
+
+  if (asChild && to) {
+    // This pattern requires the consumer to wrap with NavLink externally
+    // We'll handle NavLink in QuickAction instead
+    return <button type={type} disabled={disabled} onClick={onClick} style={baseStyles} className={className}>{content}</button>;
+  }
+
+  return (
+    <button
+      type={type}
+      disabled={disabled}
+      onClick={onClick}
+      style={baseStyles}
+      className={className}
+      onMouseEnter={(e) => {
+        if (!disabled) e.currentTarget.style.filter = "brightness(0.96)";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.filter = "none";
+      }}
+    >
+      {content}
+    </button>
+  );
+}
+
+// ---------- Badge ----------
+// Pill-style status/metadata badge. Tone maps to semantic colors.
+type BadgeTone = "accent" | "pulse" | "warn" | "danger" | "neutral";
+
+interface BadgeProps {
+  children: React.ReactNode;
+  tone?: BadgeTone;
+  uppercase?: boolean;
+  size?: "sm" | "md";
+  dot?: boolean;
+  style?: React.CSSProperties;
+  className?: string;
+}
+
+const TONE_STYLES: Record<BadgeTone, React.CSSProperties> = {
+  accent: { background: "var(--accent-soft)", color: "var(--accent)", borderColor: "transparent" },
+  pulse: { background: "color-mix(in oklab, var(--pulse) 12%, var(--bg-raised))", color: "var(--pulse)", borderColor: "transparent" },
+  warn: { background: "color-mix(in oklab, var(--warn) 12%, var(--bg-raised))", color: "var(--warn)", borderColor: "transparent" },
+  danger: { background: "color-mix(in oklab, var(--danger) 12%, var(--bg-raised))", color: "var(--danger)", borderColor: "transparent" },
+  neutral: { background: "var(--bg-sunken)", color: "var(--ink-faint)", borderColor: "transparent" },
+};
+
+const BADGE_SIZES = {
+  sm: { padding: "1px 8px", fontSize: 10, borderRadius: 999 },
+  md: { padding: "2px 10px", fontSize: 11, borderRadius: 999 },
+};
+
+export function Badge({ children, tone = "neutral", uppercase = false, size = "md", dot = false, style, className }: BadgeProps) {
+  const s = BADGE_SIZES[size];
+  return (
+    <span
+      className={`fw-chip ${className ?? ""}`}
+      style={{
+        ...s,
+        ...TONE_STYLES[tone],
+        border: "1px solid var(--line)",
+        textTransform: uppercase ? "uppercase" : "none",
+        letterSpacing: uppercase ? "0.1em" : "normal",
+        fontFamily: uppercase ? "var(--fw-font-mono)" : "var(--fw-font-sans)",
+        fontWeight: 500,
+        display: "inline-flex",
+        alignItems: "center",
+        gap: 4,
+        ...style,
+      }}
+    >
+      {dot ? (
+        <span
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: 999,
+            background: "currentColor",
+            display: "inline-block",
+          }}
+        />
+      ) : null}
+      {children}
+    </span>
+  );
+}
+
 // ---------- Drawer ----------
 // Unified right-hand drawer with backdrop-click + Esc close. z-index pair 40/41.
 export function Drawer({

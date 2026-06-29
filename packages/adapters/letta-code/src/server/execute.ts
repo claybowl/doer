@@ -18,6 +18,42 @@ import type {
   LettaCodeMemoryBlock,
   LettaCodeMemoryUpdate,
 } from "../shared/types.js";
+import {
+  CREATE_PAPERCLIP_ISSUE_TOOL_NAME,
+  READ_PAPERCLIP_ISSUES_TOOL_NAME,
+  READ_PAPERCLIP_ISSUE_TOOL_NAME,
+  UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
+  POST_ISSUE_COMMENT_TOOL_NAME,
+  GET_FLEET_STATUS_TOOL_NAME,
+  SCHEDULE_COUNCIL_TOOL_NAME,
+  EMERGENCY_PAUSE_AGENT_TOOL_NAME,
+  CLONE_FROM_TEMPLATE_TOOL_NAME,
+  BULK_DISPATCH_TOOL_NAME,
+  REASSIGN_TASK_TOOL_NAME,
+  FORECAST_CAPACITY_TOOL_NAME,
+  BUILD_DEPENDENCY_GRAPH_TOOL_NAME,
+  ANALYZE_ISSUE_PATTERNS_TOOL_NAME,
+  SCAN_FLEET_ANOMALIES_TOOL_NAME,
+  AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
+  GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+  interceptGetFleetStatus,
+  interceptScheduleCouncil,
+  interceptEmergencyPauseAgent,
+  interceptCloneFromTemplate,
+  interceptBulkDispatch,
+  interceptReassignTask,
+  interceptForecastCapacity,
+  interceptBuildDependencyGraph,
+  interceptAnalyzeIssuePatterns,
+  interceptScanFleetAnomalies,
+  interceptAuditAgentCompliance,
+  interceptGenerateWeeklyBrief,
+  interceptCreatePaperclipIssue,
+  interceptReadPaperclipIssues,
+  interceptReadPaperclipIssue,
+  interceptUpdatePaperclipIssue,
+  interceptPostIssueComment,
+} from "./tool-intercepts.js";
 
 const __moduleDir = path.dirname(fileURLToPath(import.meta.url));
 
@@ -331,13 +367,94 @@ function extractTextContent(content: unknown): string {
 
 // ── User message builder ──────────────────────────────────────────────────
 
+function readNonEmptyString(value: unknown): string | null {
+  if (typeof value !== "string") return null;
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+}
+
+/**
+ * Mirror of letta-cloud's buildWakeMessage. Two modes:
+ *  - TASK MODE: context has taskKey/taskId/issueId — sends a directive header
+ *    with the issue body so the agent executes a specific task.
+ *  - QUEUE REVIEW MODE: no task key — wraps the heartbeatPrompt with a preamble.
+ */
+function buildWakeMessage(ctx: AdapterExecutionContext, fallbackUserMessage: string): string {
+  const context = (ctx.context ?? {}) as Record<string, unknown>;
+  const taskKey =
+    readNonEmptyString(context.taskKey) ??
+    readNonEmptyString(context.taskId) ??
+    readNonEmptyString(context.issueId);
+  const wakeReason = readNonEmptyString(context.wakeReason) ?? "unspecified";
+  const wakeCommentId = readNonEmptyString(context.wakeCommentId);
+  const agentName = ctx.agent?.name ?? "agent";
+
+  if (taskKey) {
+    const issueTitle = readNonEmptyString(context.issueTitle);
+    const issueDescription = readNonEmptyString(context.issueDescription);
+    const lines = [
+      "[DOER HEARTBEAT — TASK MODE]",
+      "You have been assigned a specific task. Focus on it.",
+      "",
+      `YOUR TASK: ${taskKey}`,
+    ];
+    if (issueTitle) lines.push(`TITLE: ${issueTitle}`);
+    lines.push(`WAKE REASON: ${wakeReason}`);
+    if (wakeCommentId) lines.push(`TRIGGERING COMMENT: ${wakeCommentId}`);
+    if (issueDescription) {
+      lines.push(
+        "",
+        "── ISSUE BODY ──────────────────────────────────────────",
+        issueDescription.trim(),
+        "────────────────────────────────────────────────────────",
+      );
+    } else {
+      lines.push("", `Read the issue body for ${taskKey} and execute its instructions.`);
+    }
+    lines.push(
+      "",
+      "Do NOT run queue-review, Chef-signaling, or council protocols",
+      "unless the issue body itself asks for them.",
+      "",
+      "Per your Constitution, the wake context (this message + the issue",
+      `body of ${taskKey}) is the highest-priority instruction. Memory`,
+      "blocks describe your DEFAULT mode of operation — they do not",
+      "override an explicit task assignment.",
+      "",
+      "When you finish: update the issue status (done / blocked /",
+      "needs_human) and add a comment summarizing what you did. If you",
+      "cannot finish in this heartbeat, leave the issue in_progress and",
+      "explain what's blocking you.",
+    );
+    return lines.join("\n");
+  }
+
+  // QUEUE REVIEW MODE
+  return [
+    "[DOER HEARTBEAT — QUEUE REVIEW MODE]",
+    `You (${agentName}) have been woken for a general check, not a specific task.`,
+    "",
+    "Before any queue-meta work (counting issues, signaling Chef,",
+    "commenting on stale items), check whether you have issues assigned",
+    "to YOU specifically with status in_progress or todo. Those are",
+    "your direct work — handle the highest-priority one first.",
+    "",
+    "If you have no assigned work, then run your standard heartbeat",
+    "protocol from your work-instructions memory block.",
+    "",
+    "──────────────────────────────────────────────────────────",
+    fallbackUserMessage,
+  ].join("\n");
+}
+
 function buildUserMessage(
   ctx: AdapterExecutionContext,
   heartbeatPrompt: string | undefined,
 ): string {
   if (typeof ctx.context.message === "string" && ctx.context.message) return ctx.context.message;
   if (typeof ctx.context.prompt === "string" && ctx.context.prompt) return ctx.context.prompt;
-  return heartbeatPrompt?.trim() || "Hello";
+  const base = heartbeatPrompt?.trim() || "Hello";
+  return buildWakeMessage(ctx, base);
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -381,6 +498,19 @@ async function executeOnline(
   let inputTokens = 0;
   let outputTokens = 0;
   let stepCount = 0;
+
+  // Side effects fired by intercepts — await after stream closes
+  const pendingSideEffects: Promise<void>[] = [];
+  // Buffer streaming arg fragments per toolCallId; fire intercept on tool_return
+  const pendingToolCallArgs = new Map<string, { name: string; rawArgs: string }>();
+  const BUFFERED_TOOL_NAMES = new Set([
+    GET_FLEET_STATUS_TOOL_NAME, SCHEDULE_COUNCIL_TOOL_NAME, EMERGENCY_PAUSE_AGENT_TOOL_NAME,
+    CLONE_FROM_TEMPLATE_TOOL_NAME, BULK_DISPATCH_TOOL_NAME, REASSIGN_TASK_TOOL_NAME,
+    FORECAST_CAPACITY_TOOL_NAME, BUILD_DEPENDENCY_GRAPH_TOOL_NAME, ANALYZE_ISSUE_PATTERNS_TOOL_NAME,
+    SCAN_FLEET_ANOMALIES_TOOL_NAME, AUDIT_AGENT_COMPLIANCE_TOOL_NAME, GENERATE_WEEKLY_BRIEF_TOOL_NAME,
+    CREATE_PAPERCLIP_ISSUE_TOOL_NAME, READ_PAPERCLIP_ISSUES_TOOL_NAME, READ_PAPERCLIP_ISSUE_TOOL_NAME,
+    UPDATE_PAPERCLIP_ISSUE_TOOL_NAME, POST_ISSUE_COMMENT_TOOL_NAME,
+  ]);
 
   // Stream-token accumulator — merges consecutive same-kind chunks so the UI
   // doesn't split words across separate transcript nodes.
@@ -437,14 +567,28 @@ async function executeOnline(
           break;
         }
         case "tool_call_message": {
-          const toolCalls = rec.tool_calls ?? (rec.tool_call ? [rec.tool_call] : []);
-          if (Array.isArray(toolCalls)) {
-            for (const tc of toolCalls) {
-              const call = tc as Record<string, unknown>;
-              const name = typeof call.name === "string" ? call.name : "unknown";
-              const toolCallId = typeof call.tool_call_id === "string" ? call.tool_call_id : undefined;
-              const input = parseToolArgs(call.arguments ?? call.input);
-              await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
+          // IMPORTANT: Letta Cloud sometimes sends tool_calls=[] (empty array) while
+          // the real data is in tool_call (singular). ?? won't fall back because [] is
+          // not null/undefined — use a length check.
+          const rawArr = Array.isArray(rec.tool_calls) ? rec.tool_calls as unknown[] : null;
+          const toolCalls = rawArr && rawArr.length > 0
+            ? rawArr
+            : rec.tool_call ? [rec.tool_call] : [];
+          for (const tc of toolCalls) {
+            const call = tc as Record<string, unknown>;
+            const name = typeof call.name === "string" ? call.name : "unknown";
+            const toolCallId = typeof call.tool_call_id === "string" ? call.tool_call_id : undefined;
+            const rawArgStr = typeof (call.arguments ?? call.input) === "string"
+              ? String(call.arguments ?? call.input ?? "") : "";
+            const input = parseToolArgs(call.arguments ?? call.input);
+            await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
+            // Buffer args for streaming-aware intercept tools
+            if (toolCallId) {
+              if (BUFFERED_TOOL_NAMES.has(name)) {
+                pendingToolCallArgs.set(toolCallId, { name, rawArgs: rawArgStr });
+              } else if (pendingToolCallArgs.has(toolCallId)) {
+                pendingToolCallArgs.get(toolCallId)!.rawArgs += rawArgStr;
+              }
             }
           }
           break;
@@ -459,6 +603,42 @@ async function executeOnline(
             toolCallId,
             isError: status === "error" || rec.is_err === true,
           });
+          // Fire buffered intercept now that complete args have arrived
+          if (toolCallId && pendingToolCallArgs.has(toolCallId)) {
+            const { name: bufferedName, rawArgs } = pendingToolCallArgs.get(toolCallId)!;
+            pendingToolCallArgs.delete(toolCallId);
+            const completeInput = parseToolArgs(rawArgs);
+            const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<string | void>> = {
+              [GET_FLEET_STATUS_TOOL_NAME]: interceptGetFleetStatus,
+              [SCHEDULE_COUNCIL_TOOL_NAME]: interceptScheduleCouncil,
+              [EMERGENCY_PAUSE_AGENT_TOOL_NAME]: interceptEmergencyPauseAgent,
+              [CLONE_FROM_TEMPLATE_TOOL_NAME]: interceptCloneFromTemplate,
+              [BULK_DISPATCH_TOOL_NAME]: interceptBulkDispatch,
+              [REASSIGN_TASK_TOOL_NAME]: interceptReassignTask,
+              [FORECAST_CAPACITY_TOOL_NAME]: interceptForecastCapacity,
+              [BUILD_DEPENDENCY_GRAPH_TOOL_NAME]: interceptBuildDependencyGraph,
+              [ANALYZE_ISSUE_PATTERNS_TOOL_NAME]: interceptAnalyzeIssuePatterns,
+              [SCAN_FLEET_ANOMALIES_TOOL_NAME]: interceptScanFleetAnomalies,
+              [AUDIT_AGENT_COMPLIANCE_TOOL_NAME]: interceptAuditAgentCompliance,
+              [GENERATE_WEEKLY_BRIEF_TOOL_NAME]: interceptGenerateWeeklyBrief,
+              [CREATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptCreatePaperclipIssue,
+              [READ_PAPERCLIP_ISSUES_TOOL_NAME]: interceptReadPaperclipIssues,
+              [READ_PAPERCLIP_ISSUE_TOOL_NAME]: interceptReadPaperclipIssue,
+              [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptUpdatePaperclipIssue,
+              [POST_ISSUE_COMMENT_TOOL_NAME]: interceptPostIssueComment,
+            };
+            const fn = interceptors[bufferedName];
+            if (fn && completeInput && typeof completeInput === "object" && !Array.isArray(completeInput)) {
+              await ctx.onLog("stdout", `[letta-code/intercept] FIRING ${bufferedName} args=${JSON.stringify(completeInput).slice(0, 300)}\n`);
+              pendingSideEffects.push(
+                fn(ctx, completeInput as Record<string, unknown>)
+                  .then(() => undefined)
+                  .catch((err: unknown) => {
+                    void ctx.onLog("stderr", `[letta-code/intercept] ERROR in ${bufferedName}: ${String(err)}\n`);
+                  }),
+              );
+            }
+          }
           break;
         }
         case "usage_statistics": {
@@ -490,6 +670,9 @@ async function executeOnline(
     }
 
     if (streamBuffer) await flushStreamBuffer();
+    if (pendingSideEffects.length > 0) {
+      await Promise.allSettled(pendingSideEffects);
+    }
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     await ctx.onLog("stderr", `[letta-code/online] Error: ${message}\n`);

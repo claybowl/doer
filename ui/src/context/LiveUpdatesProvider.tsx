@@ -10,6 +10,7 @@ import { useToast } from "./ToastContext";
 import { queryKeys } from "../lib/queryKeys";
 import { toCompanyRelativePath } from "../lib/company-routes";
 import { useLocation } from "../lib/router";
+import { publishLiveEventToBus } from "../lib/live-event-bus";
 
 const TOAST_COOLDOWN_WINDOW_MS = 10_000;
 const TOAST_COOLDOWN_MAX = 3;
@@ -724,6 +725,9 @@ export function LiveUpdatesProvider({ children }: { children: ReactNode }) {
             userId: currentUserId,
             agentId: null,
           });
+          // Re-publish to the raw event bus so surfaces like Mission Control can
+          // react to the live stream without opening a second socket.
+          publishLiveEventToBus(parsed);
         } catch {
           // Ignore non-JSON payloads.
         }

@@ -229,7 +229,7 @@ const lettaCloudAdapter: ServerAdapterModule = {
   listSkills: listLettaSkills,
   syncSkills: syncLettaSkills,
   models: lettaModels,
-  supportsLocalAgentJwt: false,
+  supportsLocalAgentJwt: true,
   agentConfigurationDoc: lettaAgentConfigurationDoc,
   memfsCapability: lettaMemfsCapability,
 };
@@ -249,7 +249,7 @@ const lettaCodeAdapter: ServerAdapterModule = {
   execute: lettaCodeExecute,
   testEnvironment: lettaCodeTestEnvironment,
   models: [...lettaCodeModels],
-  supportsLocalAgentJwt: false,
+  supportsLocalAgentJwt: true,
   agentConfigurationDoc: lettaCodeAgentConfigurationDoc,
   memfsCapability: lettaCodeMemfsCapability,
 };

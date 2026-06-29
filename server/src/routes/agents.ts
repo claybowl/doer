@@ -2202,6 +2202,7 @@ export function agentRoutes(db: Db) {
         triggeredBy: req.actor.type,
         actorId: req.actor.type === "agent" ? req.actor.agentId : req.actor.userId,
         forceFreshSession: req.body.forceFreshSession === true,
+        ...(typeof req.body.issueId === "string" && req.body.issueId.trim() ? { issueId: req.body.issueId.trim() } : {}),
       },
     });
 

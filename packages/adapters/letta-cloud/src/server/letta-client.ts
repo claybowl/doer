@@ -77,10 +77,38 @@ export async function updateMemoryBlock(
   await client.agents.blocks.update(blockLabel, { agent_id: config.agentId, value });
 }
 
-/** Attach a tool by tool ID */
+/** Attach a tool by tool ID. Uses PATCH /v1/agents to update the full tool list. */
 export async function attachTool(config: LettaCloudAdapterConfig, toolId: string): Promise<void> {
   const client = getLettaClient(config);
-  await client.agents.tools.attach(toolId, { agent_id: config.agentId });
+  const toolsPage = await client.agents.tools.list(config.agentId);
+  const currentIds: string[] = [];
+  for await (const t of toolsPage) {
+    const rec = t as unknown as Record<string, unknown>;
+    if (typeof rec.id === "string") currentIds.push(rec.id);
+  }
+  if (currentIds.includes(toolId)) return;
+  await (client.agents as unknown as { update: (id: string, body: unknown) => Promise<unknown> }).update(
+    config.agentId,
+    { tool_ids: [...currentIds, toolId] },
+  );
+}
+
+/**
+ * Attach multiple tools at once — single PATCH call.
+ * Pass the current snapshot tool IDs to avoid a redundant fetch.
+ */
+export async function attachToolsBatch(
+  config: LettaCloudAdapterConfig,
+  currentToolIds: string[],
+  newToolIds: string[],
+): Promise<void> {
+  const client = getLettaClient(config);
+  const toAdd = newToolIds.filter((id) => !currentToolIds.includes(id));
+  if (toAdd.length === 0) return;
+  await (client.agents as unknown as { update: (id: string, body: unknown) => Promise<unknown> }).update(
+    config.agentId,
+    { tool_ids: [...currentToolIds, ...toAdd] },
+  );
 }
 
 /** Detach a tool by tool ID */
@@ -541,78 +569,28 @@ export async function ensureGoalTools(config: LettaCloudAdapterConfig): Promise<
 
 const PAPERCLIP_ISSUE_STUB_NOTE = '"_note": "Handled by Doer adapter"';
 
-const CREATE_PAPERCLIP_ISSUE_SOURCE = `def create_paperclip_issue(title: str, description: str = None, status: str = "todo", priority: str = None, assignee_agent_id: str = None, project_id: str = None, label_ids: list = None) -> dict:
-    """Create a new issue in the Doer task tracker.
-
-    Args:
-        title: Issue title.
-        description: Issue body / instructions.
-        status: One of "todo", "in_progress", "done", "blocked", "cancelled". Defaults to "todo".
-        priority: One of "urgent", "high", "medium", "low".
-        assignee_agent_id: UUID of the Doer agent to assign.
-        project_id: UUID of the project to attach to.
-        label_ids: List of label UUIDs.
-
-    Returns:
-        Dict with id, identifier, and title of the created issue.
-    """
+const CREATE_PAPERCLIP_ISSUE_SOURCE = `def create_paperclip_issue(title: str = "", **kwargs) -> dict:
+    """Create a new issue in the Doer task tracker."""
     return {"id": None, "identifier": None, "title": title, ${PAPERCLIP_ISSUE_STUB_NOTE}}
 `;
 
-const READ_PAPERCLIP_ISSUES_SOURCE = `def read_paperclip_issues(status: str = None, assignee_agent_id: str = None, project_id: str = None, limit: int = None) -> dict:
-    """List issues from the Doer task tracker with optional filters.
-
-    Args:
-        status: Filter by status — "todo", "in_progress", "done", "blocked", "cancelled".
-        assignee_agent_id: Filter by assignee agent UUID.
-        project_id: Filter by project UUID.
-        limit: Max results to return.
-
-    Returns:
-        Dict with "issues" list. Each issue has id, identifier, title, status, priority.
-    """
+const READ_PAPERCLIP_ISSUES_SOURCE = `def read_paperclip_issues(**kwargs) -> dict:
+    """List issues from the Doer task tracker."""
     return {"issues": [], "total": 0, ${PAPERCLIP_ISSUE_STUB_NOTE}}
 `;
 
-const READ_PAPERCLIP_ISSUE_SOURCE = `def read_paperclip_issue(issue_id: str) -> dict:
-    """Read a single issue from the Doer task tracker by ID or identifier.
-
-    Args:
-        issue_id: UUID or identifier (e.g. "DON-42") of the issue.
-
-    Returns:
-        Dict with full issue details: id, identifier, title, description, status, priority, comments.
-    """
+const READ_PAPERCLIP_ISSUE_SOURCE = `def read_paperclip_issue(issue_id: str = "", **kwargs) -> dict:
+    """Read a single issue from the Doer task tracker."""
     return {"issue": None, ${PAPERCLIP_ISSUE_STUB_NOTE}}
 `;
 
-const UPDATE_PAPERCLIP_ISSUE_SOURCE = `def update_paperclip_issue(issue_id: str, title: str = None, description: str = None, status: str = None, priority: str = None, assignee_agent_id: str = None) -> dict:
-    """Update fields on an existing issue in the Doer task tracker.
-
-    Args:
-        issue_id: UUID or identifier of the issue to update.
-        title: New title.
-        description: New body.
-        status: New status — "todo", "in_progress", "done", "blocked", "cancelled", "needs_human".
-        priority: New priority — "urgent", "high", "medium", "low".
-        assignee_agent_id: UUID of the new assignee agent.
-
-    Returns:
-        Dict with updated id, identifier, and status.
-    """
+const UPDATE_PAPERCLIP_ISSUE_SOURCE = `def update_paperclip_issue(issue_id: str = "", status: str = None, **kwargs) -> dict:
+    """Update fields on an existing issue in the Doer task tracker."""
     return {"id": issue_id, "identifier": None, "status": status, ${PAPERCLIP_ISSUE_STUB_NOTE}}
 `;
 
-const POST_ISSUE_COMMENT_SOURCE = `def post_issue_comment(issue_id: str, body: str) -> dict:
-    """Add a comment to an issue in the Doer task tracker.
-
-    Args:
-        issue_id: UUID or identifier of the issue.
-        body: Comment text (markdown supported).
-
-    Returns:
-        Dict with commentId of the created comment.
-    """
+const POST_ISSUE_COMMENT_SOURCE = `def post_issue_comment(issue_id: str = "", body: str = "", **kwargs) -> dict:
+    """Add a comment to an issue in the Doer task tracker."""
     return {"commentId": None, ${PAPERCLIP_ISSUE_STUB_NOTE}}
 `;
 
@@ -626,7 +604,18 @@ async function ensurePaperclipIssueTool(
     const rec = tool as unknown as Record<string, unknown>;
     if (typeof rec.name === "string" && rec.name === name) {
       const id = typeof rec.id === "string" ? rec.id : null;
-      if (id) return id;
+      if (!id) continue;
+      // If this tool still has the old ngrok-calling code, update it to the stub
+      const existingSource = typeof rec.source_code === "string" ? rec.source_code : "";
+      if (!existingSource.includes(PAPERCLIP_ISSUE_STUB_NOTE)) {
+        await (client.tools as unknown as { update: (id: string, body: unknown) => Promise<unknown> }).update(id, {
+          source_code: source,
+          source_type: "python",
+          tags: ["doer", "paperclip", "adapter-handled"],
+          return_char_limit: 512,
+        });
+      }
+      return id;
     }
   }
   const created = await client.tools.create({

@@ -2,6 +2,7 @@ import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/ad
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import {
   attachTool,
+  attachToolsBatch,
   DELIVERABLE_TOOL_NAME,
   ensureDeliverableTool,
   ensureGoalTools,
@@ -574,14 +575,8 @@ async function ensurePaperclipIssueToolsAttached(
   if (paperclipIssueToolsVerifiedAgents.has(agentId)) return;
   try {
     const { createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId } = await ensurePaperclipIssueTools(config);
-    const attachedIds = new Set(snapshot.tools.map((t) => t.id));
-    await Promise.all([
-      !attachedIds.has(createIssueId) ? attachTool(config, createIssueId) : Promise.resolve(),
-      !attachedIds.has(readIssuesId) ? attachTool(config, readIssuesId) : Promise.resolve(),
-      !attachedIds.has(readIssueId) ? attachTool(config, readIssueId) : Promise.resolve(),
-      !attachedIds.has(updateIssueId) ? attachTool(config, updateIssueId) : Promise.resolve(),
-      !attachedIds.has(postCommentId) ? attachTool(config, postCommentId) : Promise.resolve(),
-    ]);
+    const currentIds = snapshot.tools.map((t) => t.id);
+    await attachToolsBatch(config, currentIds, [createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId]);
     paperclipIssueToolsVerifiedAgents.add(agentId);
   } catch (err) {
     console.warn(`[letta-cloud] Could not ensure paperclip issue tools for agent ${agentId}:`, err instanceof Error ? err.message : err);
@@ -611,13 +606,15 @@ async function executeStreaming(
   // ensureDeliverableToolAttached for rationale.
   await ensureDeliverableToolAttached(ctx, config);
 
-  // Self-heal: ensure goal tools (read_goals, create_goal, update_goal_status)
-  // are attached. Non-blocking — failure logs but doesn't abort the run.
+  // Self-heal: ensure goal tools + paperclip issue tools + new orchestration
+  // tools are attached BEFORE streaming so the agent can call them on this
+  // wake. Goal and new tools are low-risk voids; paperclip tools are awaited
+  // so the agent sees them immediately.
   const snapshot = await fetchAgentSnapshot(config).catch(() => null);
   if (snapshot) {
     void ensureGoalToolsAttached(config, config.agentId, snapshot);
     void ensureNewToolsAttached(ctx, config, snapshot);
-    void ensurePaperclipIssueToolsAttached(config, config.agentId, snapshot);
+    await ensurePaperclipIssueToolsAttached(config, config.agentId, snapshot);
   }
 
   // Emit the user message so the transcript shows the full conversation
@@ -640,6 +637,13 @@ async function executeStreaming(
   // finish — otherwise the caller could see a "run complete" event before
   // the deliverable row is inserted.
   const pendingSideEffects: Promise<void>[] = [];
+
+  // Letta Cloud streams tool call arguments in fragments (one JSON chunk per
+  // streaming event). The first event carries the tool name; subsequent events
+  // carry the remaining JSON fragments (with no name field). We buffer the
+  // raw args string per toolCallId so we fire intercepts only after the
+  // complete argument object is assembled — not on the first partial chunk.
+  const pendingToolCallArgs = new Map<string, { name: string; rawArgs: string }>();
 
   // ----------------------------------------------------------------------
   // Stream-token accumulator
@@ -714,6 +718,15 @@ async function executeStreaming(
     const rec = chunk as unknown as Record<string, unknown>;
     const messageType = String(rec.message_type ?? "");
 
+    // Debug: log raw message type so we can see what Letta is sending
+    if (messageType === "tool_call_message") {
+      const tc0 = Array.isArray(rec.tool_calls) ? rec.tool_calls[0] : rec.tool_call;
+      const tcRec = tc0 as Record<string, unknown> | null | undefined;
+      const tcName = tcRec ? String(tcRec.name ?? tcRec.function ?? "?") : "no-tc";
+      const tcArgs = tcRec ? safeStringify(tcRec.arguments ?? tcRec.input ?? tcRec).slice(0, 120) : "";
+      await ctx.onLog("stdout", `[letta-cloud/tool_call] name=${tcName} args=${tcArgs}\n`);
+    }
+
     // Drain accumulated streaming chunks before any non-streamable event
     // so the consumer sees them in the correct interleaved order.
     if (!STREAMABLE_TYPES.has(messageType) && streamBuffer) {
@@ -749,13 +762,25 @@ async function executeStreaming(
       }
 
       case "tool_call_message": {
-        // Prefer tool_calls array (new SDK), fall back to deprecated tool_call
-        const toolCalls = rec.tool_calls ?? (rec.tool_call ? [rec.tool_call] : []);
+        // Prefer tool_calls array (new SDK), fall back to deprecated tool_call.
+        // IMPORTANT: use length check — Letta Cloud sometimes sends tool_calls=[]
+        // (empty array, not null) while the real data is in tool_call (singular).
+        // The ?? operator won't fall back because [] is not null/undefined.
+        const rawToolCallsArr = Array.isArray(rec.tool_calls) ? rec.tool_calls as unknown[] : null;
+        const toolCalls = rawToolCallsArr && rawToolCallsArr.length > 0
+          ? rawToolCallsArr
+          : rec.tool_call ? [rec.tool_call] : [];
         if (Array.isArray(toolCalls)) {
           for (const tc of toolCalls) {
             const call = tc as Record<string, unknown>;
             const name = typeof call.name === "string" ? call.name : "unknown";
             const toolCallId = typeof call.tool_call_id === "string" ? call.tool_call_id : undefined;
+            // Extract the raw argument string — may be a partial JSON fragment
+            // in streaming mode. We use the raw string for buffering and fall back
+            // to the parsed representation only for non-streaming tools.
+            const rawArgStr = typeof (call.arguments ?? call.input) === "string"
+              ? String(call.arguments ?? call.input ?? "")
+              : "";
             const input = parseToolArgs(call.arguments ?? call.input);
             await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
 
@@ -788,8 +813,13 @@ async function executeStreaming(
               );
             }
 
-            // ── New tool intercepts ──────────────────────────────────────────
-            const NEW_TOOL_NAMES = new Set([
+            // ── Streaming-aware intercepts for paperclip/fleet tools ─────────
+            // Letta Cloud streams args as fragments (one JSON chunk per event).
+            // The FIRST event carries the tool name + opening brace; subsequent
+            // events carry more fields. We buffer raw args per toolCallId and
+            // fire the interceptor only after tool_return_message signals the
+            // complete call is done — guaranteeing complete args.
+            const BUFFERED_TOOL_NAMES = new Set([
               GET_FLEET_STATUS_TOOL_NAME,
               SCHEDULE_COUNCIL_TOOL_NAME,
               EMERGENCY_PAUSE_AGENT_TOOL_NAME,
@@ -802,42 +832,19 @@ async function executeStreaming(
               SCAN_FLEET_ANOMALIES_TOOL_NAME,
               AUDIT_AGENT_COMPLIANCE_TOOL_NAME,
               GENERATE_WEEKLY_BRIEF_TOOL_NAME,
-              // Paperclip issue tools — adapter makes the real API call from
-              // localhost; E2B Python stubs can't reach localhost without ngrok.
               CREATE_PAPERCLIP_ISSUE_TOOL_NAME,
               READ_PAPERCLIP_ISSUES_TOOL_NAME,
               READ_PAPERCLIP_ISSUE_TOOL_NAME,
               UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
               POST_ISSUE_COMMENT_TOOL_NAME,
             ]);
-            if (
-              NEW_TOOL_NAMES.has(name) &&
-              input &&
-              typeof input === "object" &&
-              !Array.isArray(input)
-            ) {
-              const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<string | void>> = {
-                [GET_FLEET_STATUS_TOOL_NAME]: interceptGetFleetStatus,
-                [SCHEDULE_COUNCIL_TOOL_NAME]: interceptScheduleCouncil,
-                [EMERGENCY_PAUSE_AGENT_TOOL_NAME]: interceptEmergencyPauseAgent,
-                [CLONE_FROM_TEMPLATE_TOOL_NAME]: interceptCloneFromTemplate,
-                [BULK_DISPATCH_TOOL_NAME]: interceptBulkDispatch,
-                [REASSIGN_TASK_TOOL_NAME]: interceptReassignTask,
-                [FORECAST_CAPACITY_TOOL_NAME]: interceptForecastCapacity,
-                [BUILD_DEPENDENCY_GRAPH_TOOL_NAME]: interceptBuildDependencyGraph,
-                [ANALYZE_ISSUE_PATTERNS_TOOL_NAME]: interceptAnalyzeIssuePatterns,
-                [SCAN_FLEET_ANOMALIES_TOOL_NAME]: interceptScanFleetAnomalies,
-                [AUDIT_AGENT_COMPLIANCE_TOOL_NAME]: interceptAuditAgentCompliance,
-                [GENERATE_WEEKLY_BRIEF_TOOL_NAME]: interceptGenerateWeeklyBrief,
-                [CREATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptCreatePaperclipIssue,
-                [READ_PAPERCLIP_ISSUES_TOOL_NAME]: interceptReadPaperclipIssues,
-                [READ_PAPERCLIP_ISSUE_TOOL_NAME]: interceptReadPaperclipIssue,
-                [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptUpdatePaperclipIssue,
-                [POST_ISSUE_COMMENT_TOOL_NAME]: interceptPostIssueComment,
-              };
-              const fn = interceptors[name];
-              if (fn) {
-                pendingSideEffects.push(fn(ctx, input as Record<string, unknown>).then(() => undefined));
+            if (toolCallId) {
+              if (BUFFERED_TOOL_NAMES.has(name)) {
+                // First fragment: initialize the buffer
+                pendingToolCallArgs.set(toolCallId, { name, rawArgs: rawArgStr });
+              } else if (pendingToolCallArgs.has(toolCallId)) {
+                // Subsequent fragments: accumulate
+                pendingToolCallArgs.get(toolCallId)!.rawArgs += rawArgStr;
               }
             }
           }
@@ -857,6 +864,45 @@ async function executeStreaming(
           isError: status === "error" || rec.is_err === true,
           name: toolName,
         });
+
+        // Fire buffered intercept now that we have complete args.
+        // The buffer was populated incrementally across streaming tool_call_message
+        // events; the tool_return_message signals all fragments have arrived.
+        if (toolCallId && pendingToolCallArgs.has(toolCallId)) {
+          const { name: bufferedName, rawArgs } = pendingToolCallArgs.get(toolCallId)!;
+          pendingToolCallArgs.delete(toolCallId);
+          const completeInput = parseToolArgs(rawArgs);
+          const interceptors: Record<string, (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<string | void>> = {
+            [GET_FLEET_STATUS_TOOL_NAME]: interceptGetFleetStatus,
+            [SCHEDULE_COUNCIL_TOOL_NAME]: interceptScheduleCouncil,
+            [EMERGENCY_PAUSE_AGENT_TOOL_NAME]: interceptEmergencyPauseAgent,
+            [CLONE_FROM_TEMPLATE_TOOL_NAME]: interceptCloneFromTemplate,
+            [BULK_DISPATCH_TOOL_NAME]: interceptBulkDispatch,
+            [REASSIGN_TASK_TOOL_NAME]: interceptReassignTask,
+            [FORECAST_CAPACITY_TOOL_NAME]: interceptForecastCapacity,
+            [BUILD_DEPENDENCY_GRAPH_TOOL_NAME]: interceptBuildDependencyGraph,
+            [ANALYZE_ISSUE_PATTERNS_TOOL_NAME]: interceptAnalyzeIssuePatterns,
+            [SCAN_FLEET_ANOMALIES_TOOL_NAME]: interceptScanFleetAnomalies,
+            [AUDIT_AGENT_COMPLIANCE_TOOL_NAME]: interceptAuditAgentCompliance,
+            [GENERATE_WEEKLY_BRIEF_TOOL_NAME]: interceptGenerateWeeklyBrief,
+            [CREATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptCreatePaperclipIssue,
+            [READ_PAPERCLIP_ISSUES_TOOL_NAME]: interceptReadPaperclipIssues,
+            [READ_PAPERCLIP_ISSUE_TOOL_NAME]: interceptReadPaperclipIssue,
+            [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptUpdatePaperclipIssue,
+            [POST_ISSUE_COMMENT_TOOL_NAME]: interceptPostIssueComment,
+          };
+          const fn = interceptors[bufferedName];
+          if (fn && completeInput && typeof completeInput === "object" && !Array.isArray(completeInput)) {
+            await ctx.onLog("stdout", `[letta-cloud/intercept] FIRING ${bufferedName} args=${JSON.stringify(completeInput).slice(0, 300)}\n`);
+            pendingSideEffects.push(
+              fn(ctx, completeInput as Record<string, unknown>)
+                .then(() => undefined)
+                .catch((err: unknown) => {
+                  void ctx.onLog("stderr", `[letta-cloud/intercept] ERROR in ${bufferedName}: ${String(err)}\n`);
+                }),
+            );
+          }
+        }
         break;
       }
 
