@@ -1,6 +1,6 @@
 import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { NavLink, useParams } from "@/lib/router";
+import { useParams } from "@/lib/router";
 import { useCompany } from "@/context/CompanyContext";
 import { memfsApi } from "@/api/memfs";
 import { queryKeys } from "@/lib/queryKeys";
@@ -79,74 +79,35 @@ function groupByDir(entries: MemfsFileEntry[]): GroupedFiles {
 }
 
 /* ------------------------------------------------------------------
-   Root chip
+   Root tab (compact, used only when multiple roots exist)
 ------------------------------------------------------------------ */
-function RootChip({
+function RootTab({
   root,
   active,
   onClick,
-  fileCount,
 }: {
   root: MemfsRootDTO;
   active: boolean;
   onClick: () => void;
-  fileCount: number | null;
 }) {
   return (
     <button
       onClick={onClick}
-      className="fw-card"
       style={{
-        padding: "10px 14px",
-        display: "flex",
-        alignItems: "center",
-        gap: 10,
+        padding: "5px 12px",
+        fontSize: 12,
+        fontWeight: active ? 600 : 400,
+        color: active ? "var(--ink)" : "var(--ink-dim)",
+        background: active ? "var(--bg-raised)" : "transparent",
+        border: "1px solid",
+        borderColor: active ? "var(--line)" : "transparent",
+        borderRadius: 6,
         cursor: "pointer",
-        borderColor: active ? "var(--accent)" : "var(--line)",
-        background: active ? "var(--bg-raised)" : "var(--bg)",
-        transition: "all .15s var(--fw-ease)",
-        minWidth: 180,
-        textAlign: "left",
+        transition: "all .12s var(--fw-ease)",
+        whiteSpace: "nowrap",
       }}
     >
-      <div
-        style={{
-          width: 32,
-          height: 32,
-          borderRadius: 8,
-          background: "var(--bg-sunken)",
-          border: "1px solid var(--line)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          color: active ? "var(--accent)" : "var(--ink-dim)",
-        }}
-      >
-        <Icon d={I.brain} size={16} />
-      </div>
-      <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1, minWidth: 0 }}>
-        <span style={{ fontSize: 13, fontWeight: 500, color: "var(--ink)" }}>
-          {root.label}
-        </span>
-        <span
-          className="fw-mono"
-          style={{
-            fontSize: 10,
-            color: "var(--ink-faint)",
-            overflow: "hidden",
-            textOverflow: "ellipsis",
-            whiteSpace: "nowrap",
-          }}
-          title={root.rootPath}
-        >
-          {root.rootPath}
-        </span>
-      </div>
-      {fileCount !== null ? (
-        <span className="fw-chip" style={{ fontSize: 10 }}>
-          {fileCount}
-        </span>
-      ) : null}
+      {root.label}
     </button>
   );
 }
@@ -296,7 +257,7 @@ function FileViewer({
           <div style={{ padding: 28 }}>
             <EmptyState
               title="Binary file"
-              subtitle="Preview isn't available for this file type yet. Open in classic UI to inspect or download."
+              subtitle="Preview isn't available for this file type."
             />
           </div>
         ) : tooLarge ? (
@@ -338,9 +299,7 @@ function FileViewer({
 ------------------------------------------------------------------ */
 export function FernwehMemory() {
   const { selectedCompany } = useCompany();
-  const { companyPrefix } = useParams<{ companyPrefix: string }>();
   const companyId = selectedCompany?.id;
-  const prefix = companyPrefix ?? selectedCompany?.issuePrefix ?? "";
 
   const rootsQuery = useQuery({
     queryKey: companyId ? queryKeys.memfs.roots(companyId) : ["memfs", "roots", "none"],
@@ -414,7 +373,7 @@ export function FernwehMemory() {
       <header
         style={{
           display: "flex",
-          alignItems: "baseline",
+          alignItems: "flex-start",
           justifyContent: "space-between",
           gap: 16,
           flexWrap: "wrap",
@@ -422,7 +381,7 @@ export function FernwehMemory() {
       >
         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
           <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-            Memory
+            Agent Memory
           </span>
           <h1
             className="fw-display"
@@ -430,101 +389,48 @@ export function FernwehMemory() {
           >
             {selectedCompany.name}
           </h1>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-          <span className="fw-chip">
-            {roots.length} {roots.length === 1 ? "root" : "roots"}
-          </span>
-          {selectedRootId ? (
-            <span className="fw-chip">
-              {fileCount} {fileCount === 1 ? "file" : "files"}
+          {/* Show the active root name inline when there's only one root */}
+          {roots.length === 1 && roots[0] && (
+            <span style={{ fontSize: 12, color: "var(--ink-dim)", marginTop: 2 }}>
+              {roots[0].label}
+              {selectedRootId && (
+                <span style={{ color: "var(--ink-faint)", marginLeft: 6 }}>
+                  · {fileCount} {fileCount === 1 ? "document" : "documents"}
+                </span>
+              )}
             </span>
-          ) : null}
+          )}
         </div>
-      </header>
 
-      {/* Roots strip */}
-      <section style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-        <header
-          style={{
-            display: "flex",
-            alignItems: "baseline",
-            justifyContent: "space-between",
-            gap: 10,
-          }}
-        >
-          <h2
-            className="fw-display"
-            style={{ margin: 0, fontSize: 15, fontWeight: 600 }}
-          >
-            Roots
-          </h2>
-          <NavLink
-            to={`/${prefix}/admin/memfs`}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 6,
-              fontSize: 11,
-              color: "var(--ink-faint)",
-            }}
-          >
-            <Icon d={I.arrow} size={11} />
-            <span>Manage in classic UI</span>
-          </NavLink>
-        </header>
-        {rootsQuery.isLoading ? (
-          <div className="fw-card" style={{ padding: 20 }}>
-            <LoadingState label="Loading roots…" />
-          </div>
-        ) : rootsQuery.isError ? (
-          <ErrorState error={rootsQuery.error} />
-        ) : roots.length === 0 ? (
-          <EmptyState
-            icon={I.brain}
-            title="No memory roots yet"
-            subtitle="Mount a filesystem root (e.g. your ~/.letta folder) in the classic admin UI, then agents can read from it here."
-            action={
-              <NavLink
-                to={`/${prefix}/admin/memfs`}
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "6px 12px",
-                  fontSize: 12,
-                  color: "var(--ink)",
-                  background: "var(--bg-raised)",
-                  border: "1px solid var(--line)",
-                  borderRadius: 6,
-                }}
-              >
-                <Icon d={I.plus} size={12} />
-                <span>Add a root</span>
-              </NavLink>
-            }
-          />
-        ) : (
-          <div
-            style={{
-              display: "flex",
-              gap: 10,
-              overflowX: "auto",
-              paddingBottom: 4,
-            }}
-          >
+        {/* Multi-root tab switcher — only visible when needed */}
+        {roots.length > 1 && (
+          <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
             {roots.map((r) => (
-              <RootChip
+              <RootTab
                 key={r.id}
                 root={r}
                 active={r.id === selectedRootId}
                 onClick={() => setSelectedRootId(r.id)}
-                fileCount={r.id === selectedRootId ? fileCount : null}
               />
             ))}
           </div>
         )}
-      </section>
+      </header>
+
+      {/* Loading / error / empty for roots query */}
+      {rootsQuery.isLoading ? (
+        <div className="fw-card" style={{ padding: 20 }}>
+          <LoadingState label="Loading memory sources…" />
+        </div>
+      ) : rootsQuery.isError ? (
+        <ErrorState error={rootsQuery.error} />
+      ) : roots.length === 0 ? (
+        <EmptyState
+          icon={I.brain}
+          title="No memory sources connected"
+          subtitle="Connect a memory source so your agents can read and reference files. Ask your admin to set one up."
+        />
+      ) : null}
 
       {/* Split: file list + viewer */}
       {selectedRootId ? (
@@ -558,7 +464,7 @@ export function FernwehMemory() {
               }}
             >
               <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
-                Files
+                Documents
               </span>
               <input
                 value={filter}
@@ -584,8 +490,8 @@ export function FernwehMemory() {
                 <ErrorState error={filesQuery.error} />
               ) : fileCount === 0 ? (
                 <EmptyState
-                  title="Empty root"
-                  subtitle="This root exists but contains no files visible to Doer."
+                  title="No documents yet"
+                  subtitle="This memory source is connected but contains no files your agents can read."
                 />
               ) : grouped.length === 0 ? (
                 <EmptyState title="No matches" subtitle="Try a different filter." />

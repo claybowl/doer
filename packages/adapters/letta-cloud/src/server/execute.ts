@@ -7,6 +7,7 @@ import {
   ensureDeliverableTool,
   ensureGoalTools,
   ensurePaperclipIssueTools,
+  ensureWriteOutputTool,
   fetchAgentSnapshot,
   findToolIdByName,
   getLettaClient,
@@ -32,6 +33,7 @@ import {
   READ_PAPERCLIP_ISSUE_TOOL_NAME,
   UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
   POST_ISSUE_COMMENT_TOOL_NAME,
+  WRITE_OUTPUT_TOOL_NAME,
   interceptGetFleetStatus,
   interceptScheduleCouncil,
   interceptEmergencyPauseAgent,
@@ -49,6 +51,7 @@ import {
   interceptReadPaperclipIssue,
   interceptUpdatePaperclipIssue,
   interceptPostIssueComment,
+  interceptWriteOutput,
 } from "./tool-intercepts.js";
 import { renderTemplate, buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
 
@@ -65,6 +68,9 @@ const goalToolsVerifiedAgents = new Set<string>();
 
 // Process-local cache: agents we've verified have paperclip issue stubs attached.
 const paperclipIssueToolsVerifiedAgents = new Set<string>();
+
+// Process-local cache: agents we've verified have write_output attached.
+const writeOutputToolVerifiedAgents = new Set<string>();
 
 /** Tool names that should be attached per agent role */
 const AGENT_TOOL_SUITE_NAMES: Record<string, string[]> = {
@@ -583,6 +589,24 @@ async function ensurePaperclipIssueToolsAttached(
   }
 }
 
+async function ensureWriteOutputToolAttached(
+  config: LettaCloudAdapterConfig,
+  agentId: string,
+  snapshot: Awaited<ReturnType<typeof fetchAgentSnapshot>>,
+): Promise<void> {
+  if (writeOutputToolVerifiedAgents.has(agentId)) return;
+  try {
+    const toolId = await ensureWriteOutputTool(config);
+    const attachedIds = new Set(snapshot.tools.map((t) => t.id));
+    if (!attachedIds.has(toolId)) {
+      await attachTool(config, toolId);
+    }
+    writeOutputToolVerifiedAgents.add(agentId);
+  } catch (err) {
+    console.warn(`[letta-cloud] Could not ensure write_output for agent ${agentId}:`, err instanceof Error ? err.message : err);
+  }
+}
+
 // ── Emit helpers — one JSON line per stdout write ──────────────────────────
 // The UI parser (`parseLettaCloudStdoutLine`) will parse these back into
 // TranscriptEntry objects for the real-time dashboard transcript.
@@ -614,6 +638,7 @@ async function executeStreaming(
   if (snapshot) {
     void ensureGoalToolsAttached(config, config.agentId, snapshot);
     void ensureNewToolsAttached(ctx, config, snapshot);
+    void ensureWriteOutputToolAttached(config, config.agentId, snapshot);
     await ensurePaperclipIssueToolsAttached(config, config.agentId, snapshot);
   }
 
@@ -890,6 +915,7 @@ async function executeStreaming(
             [READ_PAPERCLIP_ISSUE_TOOL_NAME]: interceptReadPaperclipIssue,
             [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME]: interceptUpdatePaperclipIssue,
             [POST_ISSUE_COMMENT_TOOL_NAME]: interceptPostIssueComment,
+            [WRITE_OUTPUT_TOOL_NAME]: interceptWriteOutput,
           };
           const fn = interceptors[bufferedName];
           if (fn && completeInput && typeof completeInput === "object" && !Array.isArray(completeInput)) {

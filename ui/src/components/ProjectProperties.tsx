@@ -34,6 +34,8 @@ interface ProjectPropertiesProps {
   getFieldSaveState?: (field: ProjectConfigFieldKey) => ProjectFieldSaveState;
   onArchive?: (archived: boolean) => void;
   archivePending?: boolean;
+  onDelete?: () => void;
+  deletePending?: boolean;
 }
 
 export type ProjectFieldSaveState = "idle" | "saving" | "saved" | "error";
@@ -215,10 +217,11 @@ function ArchiveDangerZone({
   );
 }
 
-export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSaveState, onArchive, archivePending }: ProjectPropertiesProps) {
+export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSaveState, onArchive, archivePending, onDelete, deletePending }: ProjectPropertiesProps) {
   const { selectedCompanyId } = useCompany();
   const queryClient = useQueryClient();
   const [goalOpen, setGoalOpen] = useState(false);
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
   const [executionWorkspaceAdvancedOpen, setExecutionWorkspaceAdvancedOpen] = useState(false);
   const [workspaceMode, setWorkspaceMode] = useState<"local" | "repo" | null>(null);
   const [workspaceCwd, setWorkspaceCwd] = useState("");
@@ -1106,18 +1109,49 @@ export function ProjectProperties({ project, onUpdate, onFieldUpdate, getFieldSa
 
       </div>
 
-      {onArchive && (
+      {(onArchive || onDelete) && (
         <>
           <Separator className="my-4" />
           <div className="space-y-4 py-4">
             <div className="text-xs font-medium text-destructive uppercase tracking-wide">
               Danger Zone
             </div>
-            <ArchiveDangerZone
-              project={project}
-              onArchive={onArchive}
-              archivePending={archivePending}
-            />
+            {onArchive && (
+              <ArchiveDangerZone
+                project={project}
+                onArchive={onArchive}
+                archivePending={archivePending}
+              />
+            )}
+            {onDelete && (
+              <div className="flex items-center justify-between gap-2">
+                <div className="space-y-0.5">
+                  <div className="text-sm font-medium">Delete project</div>
+                  <div className="text-xs text-muted-foreground">
+                    Permanently remove this project and all its data. This cannot be undone.
+                  </div>
+                </div>
+                {confirmingDelete ? (
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="text-xs text-destructive font-medium">Delete permanently?</span>
+                    <Button size="sm" variant="destructive" disabled={deletePending} onClick={() => onDelete()}>
+                      {deletePending ? "Deleting…" : "Confirm"}
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setConfirmingDelete(false)}>Cancel</Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10"
+                    onClick={() => setConfirmingDelete(true)}
+                  >
+                    <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                    Delete
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
         </>
       )}

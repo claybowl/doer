@@ -11,10 +11,11 @@ const config: ForgeConfig = {
 	packagerConfig: {
 		asar: true,
 		name: "Doer",
+		icon: "./assets/icon",
 		// Keep symlinks (pnpm structure) intact and include the bundled server
 		// + UI dist alongside the app. Built into .electron-build/ by scripts/prebuild.mjs.
 		derefSymlinks: false,
-		extraResource: ["./.electron-build/server"],
+		extraResource: ["./.electron-build/server", "./assets"],
 	},
 	hooks: {
 		// Build server + UI artifacts and stage them into .electron-build/

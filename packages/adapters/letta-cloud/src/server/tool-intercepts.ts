@@ -773,6 +773,41 @@ export async function interceptPostIssueComment(
   }
 }
 
+/** write_output — write text content to company outputs dir and create a Deliverable row */
+export async function interceptWriteOutput(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const title = String(args.title ?? "");
+    const content = String(args.content ?? "");
+    const kind = String(args.kind ?? "md");
+    if (!title) return JSON.stringify({ success: false, error: "title is required" });
+    if (!content) return JSON.stringify({ success: false, error: "content is required" });
+
+    const companyId = ctx.agent.companyId;
+    const result = (await doerPost(
+      ctx,
+      `/api/companies/${companyId}/agent-tools/write-output`,
+      {
+        title,
+        content,
+        kind,
+        description: args.description ?? null,
+        issueId: args.issue_id ?? null,
+        projectId: args.project_id ?? null,
+      },
+    )) as Record<string, unknown>;
+
+    await ctx.onLog("stdout", `[write_output] Written: ${result.filename as string} (${result.deliverableId as string})\n`);
+    return JSON.stringify(result);
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[write_output] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
 // ── Tool name constants for execute.ts wiring ────────────────────────────
 
 export const CREATE_PAPERCLIP_ISSUE_TOOL_NAME = "create_paperclip_issue";
@@ -793,3 +828,4 @@ export const ANALYZE_ISSUE_PATTERNS_TOOL_NAME = "analyze_issue_patterns";
 export const SCAN_FLEET_ANOMALIES_TOOL_NAME = "scan_fleet_anomalies";
 export const AUDIT_AGENT_COMPLIANCE_TOOL_NAME = "audit_agent_compliance";
 export const GENERATE_WEEKLY_BRIEF_TOOL_NAME = "generate_weekly_brief";
+export const WRITE_OUTPUT_TOOL_NAME = "write_output";

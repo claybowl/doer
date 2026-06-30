@@ -33,6 +33,9 @@ export const AGENT_ADAPTER_TYPES = [
   "hermes_local",
   "letta_cloud",
   "letta_code",
+  "letta_cli",
+  "letta_af_opencode",
+  "gemini_local",
 ] as const;
 export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number];
 

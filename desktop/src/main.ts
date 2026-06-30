@@ -1,6 +1,6 @@
 import path from "node:path";
 import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, nativeImage } from "electron";
 import { type ServerHandle, startServer, stopServer } from "./server-process";
 import { startInAppUpdater } from "./updater";
 
@@ -116,7 +116,19 @@ async function bootstrap() {
 	startInAppUpdater(__DOER_UPDATE_URL__, log);
 }
 
-app.whenReady().then(bootstrap);
+app.whenReady().then(() => {
+	// Set dock icon on macOS (dev + packaged). Packaged builds use the .icns
+	// from packagerConfig.icon; this makes the dock icon match during `pnpm dev`.
+	if (process.platform === "darwin" && app.dock) {
+		const iconPath = app.isPackaged
+			? path.join(process.resourcesPath, "assets", "icon.png")
+			: path.join(__dirname, "../../assets/icon.png");
+		try {
+			app.dock.setIcon(nativeImage.createFromPath(iconPath));
+		} catch { /* non-fatal — icon stays as default if path is wrong */ }
+	}
+	return bootstrap();
+});
 
 app.on("window-all-closed", () => {
 	if (process.platform !== "darwin") app.quit();

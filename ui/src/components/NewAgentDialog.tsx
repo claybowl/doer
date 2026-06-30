@@ -31,7 +31,9 @@ type AdvancedAdapterType =
   | "cursor"
   | "openclaw_gateway"
   | "letta_cloud"
-  | "letta_code";
+  | "letta_code"
+  | "letta_cli"
+  | "letta_af_opencode";
 
 const ADVANCED_ADAPTER_OPTIONS: Array<{
   value: AdvancedAdapterType;
@@ -95,6 +97,18 @@ const ADVANCED_ADAPTER_OPTIONS: Array<{
     label: "letta_code",
     icon: Bot,
     desc: "Letta agent (online or offline)",
+  },
+  {
+    value: "letta_cli",
+    label: "Letta CLI",
+    icon: Bot,
+    desc: "Headless Letta Cloud agent via CLI",
+  },
+  {
+    value: "letta_af_opencode",
+    label: "Letta .af (OpenCode)",
+    icon: Bot,
+    desc: "Letta agent via local OpenCode runtime",
   },
 ];
 

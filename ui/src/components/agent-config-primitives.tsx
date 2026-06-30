@@ -66,6 +66,8 @@ export const adapterLabels: Record<string, string> = {
   cursor: "Cursor (local)",
   letta_cloud: "Letta Cloud",
   letta_code: "Letta Code",
+  letta_cli: "Letta CLI",
+  letta_af_opencode: "Letta .af (OpenCode)",
   process: "Process",
   http: "HTTP",
 };

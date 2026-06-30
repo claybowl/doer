@@ -49,6 +49,9 @@ const ADAPTER_LABEL: Record<AgentAdapterType, string> = {
   hermes_local: "Hermes (local CLI)",
   letta_cloud: "Letta Cloud",
   letta_code: "letta_code",
+  letta_cli: "Letta CLI",
+  letta_af_opencode: "Letta .af (OpenCode)",
+  gemini_local: "Gemini CLI",
 };
 
 export function FernwehNewAgent() {

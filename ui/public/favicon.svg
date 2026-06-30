@@ -1,9 +1,24 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
   <style>
-    path { stroke: #18181b; }
+    .gear { fill: #5298ab; }
+    .eye-ring { fill: #2a6070; }
+    .eye-white { fill: #c8dfe6; }
+    .pupil { fill: #1a3d4a; }
     @media (prefers-color-scheme: dark) {
-      path { stroke: #e4e4e7; }
+      .gear { fill: #5298ab; }
     }
   </style>
-  <path stroke-width="2" d="m16 6-8.414 8.586a2 2 0 0 0 2.829 2.829l8.414-8.586a4 4 0 1 0-5.657-5.657l-8.379 8.551a6 6 0 1 0 8.485 8.485l8.379-8.551"/>
+  <!-- Gear teeth -->
+  <path class="gear" d="
+    M50 5
+    L56 5 L58 14 Q65 16 71 20 L80 15 L85 20 L80 29 Q84 35 86 42 L95 44 L95 56 L86 58 Q84 65 80 71 L85 80 L80 85 L71 80 Q65 84 58 86 L56 95 L44 95 L42 86 Q35 84 29 80 L20 85 L15 80 L20 71 Q16 65 14 58 L5 56 L5 44 L14 42 Q16 35 20 29 L15 20 L20 15 L29 20 Q35 16 42 14 L44 5 Z
+  "/>
+  <!-- Inner gear ring -->
+  <circle class="eye-ring" cx="50" cy="50" r="24"/>
+  <!-- Iris -->
+  <circle class="eye-white" cx="50" cy="50" r="16"/>
+  <!-- Pupil -->
+  <circle class="pupil" cx="50" cy="50" r="8"/>
+  <!-- Highlight -->
+  <circle fill="white" opacity="0.6" cx="54" cy="45" r="3"/>
 </svg>

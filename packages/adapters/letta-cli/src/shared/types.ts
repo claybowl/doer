@@ -12,8 +12,8 @@ export interface LettaCliAdapterConfig {
    */
   backend?: "api" | "local";
   /**
-   * Path to the letta-code binary.
-   * Default: "letta-code" (resolved via PATH)
+   * Path to the letta CLI binary.
+   * Default: "letta" (resolved via PATH — package @letta-ai/letta-code installs as 'letta')
    */
   command?: string;
   /** Heartbeat prompt for timer-triggered wakes. Falls back to "Hello". */

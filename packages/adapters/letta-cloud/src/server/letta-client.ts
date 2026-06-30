@@ -525,7 +525,7 @@ async function ensureGoalTool(
   name: string,
   source: string,
   description: string,
-  argsSchema: Record<string, unknown>,
+  _argsSchema: Record<string, unknown>,
 ): Promise<string> {
   const existingPage = await client.tools.list({ name });
   for await (const tool of existingPage) {
@@ -535,11 +535,13 @@ async function ensureGoalTool(
       if (id) return id;
     }
   }
+  // Note: args_json_schema intentionally omitted — Letta Cloud's DynamicModel
+  // was removed from tool execution scope, causing NameError on any tool with
+  // a non-empty schema. Letta infers args from the Python function signature.
   const created = await client.tools.create({
     source_code: source,
     source_type: "python",
     description,
-    args_json_schema: argsSchema,
     tags: ["doer", "goals"],
     return_char_limit: 4096,
   });
@@ -604,18 +606,7 @@ async function ensurePaperclipIssueTool(
     const rec = tool as unknown as Record<string, unknown>;
     if (typeof rec.name === "string" && rec.name === name) {
       const id = typeof rec.id === "string" ? rec.id : null;
-      if (!id) continue;
-      // If this tool still has the old ngrok-calling code, update it to the stub
-      const existingSource = typeof rec.source_code === "string" ? rec.source_code : "";
-      if (!existingSource.includes(PAPERCLIP_ISSUE_STUB_NOTE)) {
-        await (client.tools as unknown as { update: (id: string, body: unknown) => Promise<unknown> }).update(id, {
-          source_code: source,
-          source_type: "python",
-          tags: ["doer", "paperclip", "adapter-handled"],
-          return_char_limit: 512,
-        });
-      }
-      return id;
+      if (id) return id;
     }
   }
   const created = await client.tools.create({
@@ -646,6 +637,55 @@ export async function ensurePaperclipIssueTools(config: LettaCloudAdapterConfig)
     ensurePaperclipIssueTool(client, "post_issue_comment", POST_ISSUE_COMMENT_SOURCE),
   ]);
   return { createIssueId, readIssuesId, readIssueId, updateIssueId, postCommentId };
+}
+
+// ---------------------------------------------------------------------------
+// write_output — no-op stub; real work done in tool-intercepts.ts
+// ---------------------------------------------------------------------------
+
+export const WRITE_OUTPUT_TOOL_NAME = "write_output";
+
+const WRITE_OUTPUT_SOURCE = `def write_output(title: str = "", content: str = "", kind: str = "md", description: str = None, issue_id: str = None, project_id: str = None) -> dict:
+    """Write text output to the company outputs directory and create a deliverable record.
+
+    Args:
+        title: Human-readable title for the output file.
+        content: Full text content to write.
+        kind: File type — one of md, json, csv, html, txt, other. Defaults to md.
+        description: Optional description of what this output contains.
+        issue_id: Optional ID of the issue this output is associated with.
+        project_id: Optional ID of the project this output is associated with.
+
+    Returns:
+        A dict with deliverableId, filename, path, downloadUrl, and success flag.
+    """
+    return {"success": False, "_note": "Handled by Doer adapter"}
+`;
+
+export async function ensureWriteOutputTool(
+  config: LettaCloudAdapterConfig,
+): Promise<string> {
+  const client = getLettaClient(config);
+  const existingPage = await client.tools.list({ name: WRITE_OUTPUT_TOOL_NAME });
+  for await (const tool of existingPage) {
+    const rec = tool as unknown as Record<string, unknown>;
+    if (typeof rec.name === "string" && rec.name === WRITE_OUTPUT_TOOL_NAME) {
+      const id = typeof rec.id === "string" ? rec.id : null;
+      if (id) return id;
+    }
+  }
+
+  const created = await client.tools.create({
+    source_code: WRITE_OUTPUT_SOURCE,
+    source_type: "python",
+    description: "Write text content to the company outputs directory and create a downloadable deliverable record. Use for reports, summaries, structured data, or any output the user should be able to download.",
+    tags: ["doer", "output", "deliverable", "adapter-handled"],
+    return_char_limit: 512,
+  });
+  const rec = created as unknown as Record<string, unknown>;
+  const id = typeof rec.id === "string" ? rec.id : null;
+  if (!id) throw new Error("Letta returned a created tool with no id; cannot register write_output");
+  return id;
 }
 
 /**

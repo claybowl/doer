@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useParams } from "@/lib/router";
 import { issuesApi } from "@/api/issues";
 import { agentsApi } from "@/api/agents";
+import { goalsApi } from "@/api/goals";
 import { projectsApi } from "@/api/projects";
 import { activityApi } from "@/api/activity";
 import { useCompany } from "@/context/CompanyContext";
@@ -306,6 +307,12 @@ export function FernwehIssueDetail() {
   const projectsQuery = useQuery<Project[]>({
     queryKey: companyId ? queryKeys.projects.list(companyId) : ["projects", "none"],
     queryFn: () => projectsApi.list(companyId!),
+    enabled: !!companyId,
+  });
+
+  const goalsQuery = useQuery({
+    queryKey: companyId ? queryKeys.goals.list(companyId) : ["goals", "none"],
+    queryFn: () => goalsApi.list(companyId!),
     enabled: !!companyId,
   });
 
@@ -719,22 +726,58 @@ export function FernwehIssueDetail() {
             className="fw-card"
             style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}
           >
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
                 Project
               </span>
-              <span style={{ fontSize: 13, color: "var(--ink-dim)" }}>
-                {project?.name ?? "—"}
-              </span>
-            </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+              <select
+                value={issue.projectId ?? ""}
+                onChange={(e) =>
+                  updateMutation.mutate({
+                    projectId: e.target.value === "" ? null : e.target.value,
+                  } as Partial<Issue>)
+                }
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--line)",
+                  background: "var(--bg-raised)",
+                  color: "var(--ink)",
+                  fontSize: 13,
+                }}
+              >
+                <option value="">No project</option>
+                {(projectsQuery.data ?? []).filter((p) => !p.archivedAt).map((p) => (
+                  <option key={p.id} value={p.id}>{p.name}</option>
+                ))}
+              </select>
+            </label>
+            <label style={{ display: "flex", flexDirection: "column", gap: 6 }}>
               <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
                 Goal
               </span>
-              <span style={{ fontSize: 13, color: "var(--ink-dim)" }}>
-                {issue.goal?.title ?? "—"}
-              </span>
-            </div>
+              <select
+                value={issue.goalId ?? ""}
+                onChange={(e) =>
+                  updateMutation.mutate({
+                    goalId: e.target.value === "" ? null : e.target.value,
+                  } as Partial<Issue>)
+                }
+                style={{
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--line)",
+                  background: "var(--bg-raised)",
+                  color: "var(--ink)",
+                  fontSize: 13,
+                }}
+              >
+                <option value="">No goal</option>
+                {(goalsQuery.data ?? []).map((g) => (
+                  <option key={g.id} value={g.id}>{g.title}</option>
+                ))}
+              </select>
+            </label>
             <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
               <span className="fw-uc" style={{ color: "var(--ink-faint)" }}>
                 Currently assigned

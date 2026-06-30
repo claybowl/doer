@@ -1,6 +1,7 @@
 import { Router, type Request, type Response, type NextFunction } from "express";
 import multer from "multer";
 import { randomBytes } from "node:crypto";
+import fs from "node:fs";
 import { and, eq, inArray, isNull, sql } from "drizzle-orm";
 import type { Db } from "@doerai/db";
 import {
@@ -391,18 +392,28 @@ export function deliverableRoutes(db: Db, storage: StorageService) {
       }
       assertCompanyAccess(req, d.companyId);
 
-      const obj = await storage.getObject(d.companyId, d.storagePath);
       res.setHeader("Content-Type", d.contentType);
-      res.setHeader(
-        "Content-Length",
-        String(d.sizeBytes || obj.contentLength || 0),
-      );
       res.setHeader("Cache-Control", "private, max-age=60");
       res.setHeader("X-Content-Type-Options", "nosniff");
-      // `attachment` (not `inline`) — these are meant to be downloaded.
       res.setHeader(
         "Content-Disposition",
         `attachment; filename="${d.filename.replaceAll('"', "")}"`,
+      );
+
+      // File-based deliverables (write_output) store an absolute filesystem
+      // path — serve directly rather than going through the blob storage layer.
+      if (d.storagePath.startsWith("/")) {
+        res.setHeader("Content-Length", String(d.sizeBytes || 0));
+        const stream = fs.createReadStream(d.storagePath);
+        stream.on("error", (err) => next(err));
+        stream.pipe(res);
+        return;
+      }
+
+      const obj = await storage.getObject(d.companyId, d.storagePath);
+      res.setHeader(
+        "Content-Length",
+        String(d.sizeBytes || obj.contentLength || 0),
       );
       obj.stream.on("error", (err) => next(err));
       obj.stream.pipe(res);

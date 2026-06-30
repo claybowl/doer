@@ -10,6 +10,7 @@ import { openClawGatewayUIAdapter } from "./openclaw-gateway";
 import { lettaCloudUIAdapter } from "./letta-cloud";
 import { lettaCodeUIAdapter } from "./letta-code";
 import { lettaAfOpenCodeUIAdapter } from "./letta-af-opencode";
+import { lettaCliUIAdapter } from "./letta-cli";
 import { processUIAdapter } from "./process";
 import { httpUIAdapter } from "./http";
 import { loadDynamicParser, invalidateDynamicParser } from "./dynamic-loader";
@@ -61,6 +62,7 @@ function registerBuiltInUIAdapters() {
     lettaCloudUIAdapter,
     lettaCodeUIAdapter,
     lettaAfOpenCodeUIAdapter,
+    lettaCliUIAdapter,
     processUIAdapter,
     httpUIAdapter,
   ]) {

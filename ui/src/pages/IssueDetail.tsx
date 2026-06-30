@@ -206,6 +206,7 @@ export function IssueDetail() {
   const location = useLocation();
   const { pushToast } = useToast();
   const [moreOpen, setMoreOpen] = useState(false);
+  const [confirmDelete, setConfirmDelete] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mobilePropsOpen, setMobilePropsOpen] = useState(false);
   const [detailTab, setDetailTab] = useState("comments");
@@ -484,6 +485,14 @@ export function IssueDetail() {
     mutationFn: (data: Record<string, unknown>) => issuesApi.update(issueId!, data),
     onSuccess: () => {
       invalidateIssue();
+    },
+  });
+
+  const deleteIssue = useMutation({
+    mutationFn: () => issuesApi.remove(issueId!),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.issues.list(selectedCompanyId!) });
+      navigate("/issues/all");
     },
   });
 
@@ -823,27 +832,56 @@ export function IssueDetail() {
               <SlidersHorizontal className="h-4 w-4" />
             </Button>
 
-            <Popover open={moreOpen} onOpenChange={setMoreOpen}>
+            <Popover open={moreOpen} onOpenChange={(o) => { setMoreOpen(o); if (!o) setConfirmDelete(false); }}>
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon-xs" className="shrink-0">
                   <MoreHorizontal className="h-4 w-4" />
                 </Button>
               </PopoverTrigger>
-            <PopoverContent className="w-44 p-1" align="end">
-              <button
-                className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-destructive"
-                onClick={() => {
-                  updateIssue.mutate(
-                    { hiddenAt: new Date().toISOString() },
-                    { onSuccess: () => navigate("/issues/all") },
-                  );
-                  setMoreOpen(false);
-                }}
-              >
-                <EyeOff className="h-3 w-3" />
-                Hide this Issue
-              </button>
-            </PopoverContent>
+              <PopoverContent className="w-44 p-1" align="end">
+                {confirmDelete ? (
+                  <div className="px-2 py-1.5 space-y-2">
+                    <p className="text-xs text-muted-foreground">Delete permanently?</p>
+                    <div className="flex gap-1">
+                      <button
+                        className="flex-1 text-xs px-2 py-1 rounded bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        onClick={() => { deleteIssue.mutate(); setMoreOpen(false); }}
+                      >
+                        Delete
+                      </button>
+                      <button
+                        className="flex-1 text-xs px-2 py-1 rounded hover:bg-accent/50"
+                        onClick={() => setConfirmDelete(false)}
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <>
+                    <button
+                      className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-muted-foreground"
+                      onClick={() => {
+                        updateIssue.mutate(
+                          { hiddenAt: new Date().toISOString() },
+                          { onSuccess: () => navigate("/issues/all") },
+                        );
+                        setMoreOpen(false);
+                      }}
+                    >
+                      <EyeOff className="h-3 w-3" />
+                      Hide this Issue
+                    </button>
+                    <button
+                      className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-destructive"
+                      onClick={() => setConfirmDelete(true)}
+                    >
+                      <Trash2 className="h-3 w-3" />
+                      Delete Issue
+                    </button>
+                  </>
+                )}
+              </PopoverContent>
             </Popover>
           </div>
         </div>

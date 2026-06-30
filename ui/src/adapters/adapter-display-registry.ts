@@ -99,6 +99,16 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     description: "Letta agent — online (Letta server) or offline (in-process memory files)",
     icon: Bot,
   },
+  letta_cli: {
+    label: "Letta CLI",
+    description: "Headless letta-code CLI subprocess connecting to a Letta Cloud agent by ID",
+    icon: Bot,
+  },
+  letta_af_opencode: {
+    label: "Letta .af (OpenCode)",
+    description: "Letta agent via local OpenCode runtime with .af agent files",
+    icon: Bot,
+  },
   openclaw_gateway: {
     label: "OpenClaw Gateway",
     description: "Invoke OpenClaw via gateway protocol",

@@ -121,6 +121,18 @@ export function FernwehGoalDetail() {
     },
   });
 
+  const linkProjectMutation = useMutation({
+    mutationFn: (project: { id: string; goalIds: string[] }) =>
+      projectsApi.update(project.id, { goalIds: [...project.goalIds, goalId!] }, companyId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.projects.list(companyId) }),
+  });
+
+  const unlinkProjectMutation = useMutation({
+    mutationFn: (project: { id: string; goalIds: string[] }) =>
+      projectsApi.update(project.id, { goalIds: project.goalIds.filter((id) => id !== goalId) }, companyId),
+    onSuccess: () => qc.invalidateQueries({ queryKey: queryKeys.projects.list(companyId) }),
+  });
+
   const [confirmDelete, setConfirmDelete] = React.useState(false);
 
   // Guards
@@ -139,6 +151,8 @@ export function FernwehGoalDetail() {
   const linkedProjects = (projectsQuery.data ?? []).filter(
     (p) => p.goalIds.includes(goal.id) || p.goalId === goal.id,
   );
+  const linkedProjectIds = new Set(linkedProjects.map((p) => p.id));
+  const unlinkableProjects = (projectsQuery.data ?? []).filter((p) => !linkedProjectIds.has(p.id) && !p.archivedAt);
   const linkedIssues = (issuesQuery.data ?? []).filter((i) => i.goalId === goal.id);
 
   const titleValue = editTitle ?? goal.title;
@@ -363,6 +377,30 @@ export function FernwehGoalDetail() {
 
       {/* Projects */}
       <Section label={`Projects (${linkedProjects.length})`}>
+        {unlinkableProjects.length > 0 && (
+          <select
+            value=""
+            onChange={(e) => {
+              const project = (projectsQuery.data ?? []).find((p) => p.id === e.target.value);
+              if (project) linkProjectMutation.mutate({ id: project.id, goalIds: project.goalIds });
+            }}
+            style={{
+              marginBottom: 8,
+              padding: "6px 10px",
+              borderRadius: 6,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink-dim)",
+              fontSize: 13,
+              width: "100%",
+            }}
+          >
+            <option value="">+ Link a project…</option>
+            {unlinkableProjects.map((p) => (
+              <option key={p.id} value={p.id}>{p.name}</option>
+            ))}
+          </select>
+        )}
         {linkedProjects.length === 0 ? (
           <EmptyState title="No linked projects." />
         ) : (
@@ -371,22 +409,45 @@ export function FernwehGoalDetail() {
             style={{ display: "flex", flexDirection: "column", gap: 0, overflow: "hidden" }}
           >
             {linkedProjects.map((p, idx) => (
-              <NavLink
+              <div
                 key={p.id}
-                to={`/${companyPrefix}/projects/${p.id}`}
                 style={{
                   display: "flex",
                   alignItems: "center",
-                  justifyContent: "space-between",
-                  padding: "10px 14px",
                   borderTop: idx === 0 ? "none" : "1px solid var(--line-soft)",
-                  textDecoration: "none",
-                  color: "var(--ink)",
                 }}
               >
-                <span style={{ fontSize: 14 }}>{p.name}</span>
-                <StatusChip status={p.status} />
-              </NavLink>
+                <NavLink
+                  to={`/${companyPrefix}/projects/${p.id}`}
+                  style={{
+                    flex: 1,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "10px 14px",
+                    textDecoration: "none",
+                    color: "var(--ink)",
+                  }}
+                >
+                  <span style={{ fontSize: 14 }}>{p.name}</span>
+                  <StatusChip status={p.status} />
+                </NavLink>
+                <button
+                  onClick={() => unlinkProjectMutation.mutate({ id: p.id, goalIds: p.goalIds })}
+                  title="Unlink project"
+                  style={{
+                    padding: "0 10px",
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    color: "var(--ink-faint)",
+                    fontSize: 16,
+                    lineHeight: 1,
+                  }}
+                >
+                  ×
+                </button>
+              </div>
             ))}
           </div>
         )}

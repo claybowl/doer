@@ -92,7 +92,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const { runId, agent, runtime, config: rawConfig, context, onLog, onMeta, onSpawn, authToken } = ctx;
   const config = rawConfig as unknown as LettaCliAdapterConfig;
 
-  const command = asString(config.command, "letta-code");
+  const command = asString(config.command, "letta");
   const agentId = asString(config.agentId, "");
   const apiKey = asString(config.apiKey, "");
   const baseUrl = asString(config.baseUrl, "https://api.letta.com").replace(/\/$/, "");
@@ -137,10 +137,12 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const runtimeSessionParams = (runtime.sessionParams ?? {}) as Record<string, unknown>;
   const savedConversationId = asString(runtimeSessionParams.conversationId, runtime.sessionId ?? "");
 
+  const prompt = buildWakeMessage(ctx, heartbeatPrompt);
+
   const buildArgs = (conversationId: string | null) => {
     const args = [
-      "--print",
-      "-",
+      "-p",
+      prompt,
       "--output-format",
       "stream-json",
       "--include-partial-messages",
@@ -152,8 +154,6 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     if (conversationId) args.push("--conversation", conversationId);
     return args;
   };
-
-  const prompt = buildWakeMessage(ctx, heartbeatPrompt);
 
   const args = buildArgs(savedConversationId || null);
 
@@ -170,7 +170,6 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const proc = await runChildProcess(runId, command, args, {
     cwd: process.cwd(),
     env,
-    stdin: prompt,
     timeoutSec,
     graceSec,
     onSpawn,

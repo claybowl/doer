@@ -1,5 +1,5 @@
-import { useEffect } from "react";
-import { useParams } from "@/lib/router";
+import { useEffect, useState } from "react";
+import { useParams, useNavigate } from "@/lib/router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { goalsApi } from "../api/goals";
 import { projectsApi } from "../api/projects";
@@ -18,7 +18,8 @@ import { PageSkeleton } from "../components/PageSkeleton";
 import { projectUrl } from "../lib/utils";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus } from "lucide-react";
+import { Plus, Trash2, Link2, X } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import type { Goal, Project } from "@doerai/shared";
 
 export function GoalDetail() {
@@ -28,6 +29,9 @@ export function GoalDetail() {
   const { openPanel, closePanel } = usePanel();
   const { setBreadcrumbs } = useBreadcrumbs();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const [confirmingDelete, setConfirmingDelete] = useState(false);
+  const [projectLinkOpen, setProjectLinkOpen] = useState(false);
 
   const {
     data: goal,
@@ -72,6 +76,33 @@ export function GoalDetail() {
     }
   });
 
+  const deleteGoal = useMutation({
+    mutationFn: () => goalsApi.remove(goalId!),
+    onSuccess: () => {
+      if (resolvedCompanyId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.goals.list(resolvedCompanyId) });
+      }
+      navigate("/goals");
+    },
+  });
+
+  const linkProject = useMutation({
+    mutationFn: (project: Project) =>
+      projectsApi.update(project.id, { goalIds: [...project.goalIds, goalId!] }, resolvedCompanyId ?? undefined),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.list(resolvedCompanyId!) });
+      setProjectLinkOpen(false);
+    },
+  });
+
+  const unlinkProject = useMutation({
+    mutationFn: (project: Project) =>
+      projectsApi.update(project.id, { goalIds: project.goalIds.filter((id) => id !== goalId) }, resolvedCompanyId ?? undefined),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.list(resolvedCompanyId!) });
+    },
+  });
+
   const uploadImage = useMutation({
     mutationFn: async (file: File) => {
       if (!resolvedCompanyId) throw new Error("No company selected");
@@ -90,6 +121,8 @@ export function GoalDetail() {
     if (p.goals.some((goalRef) => goalRef.id === goalId)) return true;
     return p.goalId === goalId;
   });
+  const linkedProjectIds = new Set(linkedProjects.map((p) => p.id));
+  const unlinkableProjects = (allProjects ?? []).filter((p) => !linkedProjectIds.has(p.id) && !p.archivedAt);
 
   useEffect(() => {
     setBreadcrumbs([
@@ -117,11 +150,40 @@ export function GoalDetail() {
   return (
     <div className="space-y-6">
       <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <span className="text-xs uppercase text-muted-foreground">
-            {goal.level}
-          </span>
-          <StatusBadge status={goal.status} />
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2">
+            <span className="text-xs uppercase text-muted-foreground">
+              {goal.level}
+            </span>
+            <StatusBadge status={goal.status} />
+          </div>
+          <div className="flex items-center gap-2">
+            {confirmingDelete ? (
+              <>
+                <span className="text-xs text-destructive font-medium">Delete permanently?</span>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={deleteGoal.isPending}
+                  onClick={() => deleteGoal.mutate()}
+                >
+                  {deleteGoal.isPending ? "Deleting…" : "Confirm"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setConfirmingDelete(false)}>
+                  Cancel
+                </Button>
+              </>
+            ) : (
+              <Button
+                size="sm"
+                variant="ghost"
+                className="text-muted-foreground hover:text-destructive"
+                onClick={() => setConfirmingDelete(true)}
+              >
+                <Trash2 className="h-3.5 w-3.5" />
+              </Button>
+            )}
+          </div>
         </div>
 
         <InlineEditor
@@ -173,19 +235,62 @@ export function GoalDetail() {
           )}
         </TabsContent>
 
-        <TabsContent value="projects" className="mt-4">
+        <TabsContent value="projects" className="mt-4 space-y-3">
+          <div className="flex items-center justify-start">
+            <Popover open={projectLinkOpen} onOpenChange={setProjectLinkOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={unlinkableProjects.length === 0}
+                >
+                  <Link2 className="h-3.5 w-3.5 mr-1.5" />
+                  Link Project
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-60 p-1" align="start">
+                {unlinkableProjects.length === 0 ? (
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">All projects linked.</div>
+                ) : (
+                  unlinkableProjects.map((project) => (
+                    <button
+                      key={project.id}
+                      className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-left"
+                      onClick={() => linkProject.mutate(project)}
+                    >
+                      <span
+                        className="shrink-0 h-2.5 w-2.5 rounded-sm"
+                        style={{ backgroundColor: project.color ?? "#6366f1" }}
+                      />
+                      <span className="truncate">{project.name}</span>
+                    </button>
+                  ))
+                )}
+              </PopoverContent>
+            </Popover>
+          </div>
           {linkedProjects.length === 0 ? (
             <p className="text-sm text-muted-foreground">No linked projects.</p>
           ) : (
-            <div className="border border-border">
+            <div className="border border-border divide-y divide-border">
               {linkedProjects.map((project) => (
-                <EntityRow
-                  key={project.id}
-                  title={project.name}
-                  subtitle={project.description ?? undefined}
-                  to={projectUrl(project)}
-                  trailing={<StatusBadge status={project.status} />}
-                />
+                <div key={project.id} className="flex items-center gap-2 pr-2">
+                  <div className="flex-1 min-w-0">
+                    <EntityRow
+                      title={project.name}
+                      subtitle={project.description ?? undefined}
+                      to={projectUrl(project)}
+                      trailing={<StatusBadge status={project.status} />}
+                    />
+                  </div>
+                  <button
+                    className="shrink-0 text-muted-foreground hover:text-destructive p-1 rounded"
+                    onClick={() => unlinkProject.mutate(project)}
+                    title="Unlink project"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                </div>
               ))}
             </div>
           )}

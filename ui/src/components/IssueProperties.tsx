@@ -5,6 +5,7 @@ import type { Issue } from "@doerai/shared";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { agentsApi } from "../api/agents";
 import { authApi } from "../api/auth";
+import { goalsApi } from "../api/goals";
 import { issuesApi } from "../api/issues";
 import { projectsApi } from "../api/projects";
 import { useCompany } from "../context/CompanyContext";
@@ -125,6 +126,8 @@ export function IssueProperties({ issue, onUpdate, inline }: IssuePropertiesProp
   const [assigneeSearch, setAssigneeSearch] = useState("");
   const [projectOpen, setProjectOpen] = useState(false);
   const [projectSearch, setProjectSearch] = useState("");
+  const [goalOpen, setGoalOpen] = useState(false);
+  const [goalSearch, setGoalSearch] = useState("");
   const [labelsOpen, setLabelsOpen] = useState(false);
   const [labelSearch, setLabelSearch] = useState("");
   const [newLabelName, setNewLabelName] = useState("");
@@ -155,6 +158,12 @@ export function IssueProperties({ issue, onUpdate, inline }: IssuePropertiesProp
     projects: activeProjects,
     companyId,
     userId: currentUserId,
+  });
+
+  const { data: goals } = useQuery({
+    queryKey: queryKeys.goals.list(companyId!),
+    queryFn: () => goalsApi.list(companyId!),
+    enabled: !!companyId,
   });
 
   const { data: labels } = useQuery({
@@ -407,6 +416,53 @@ export function IssueProperties({ issue, onUpdate, inline }: IssuePropertiesProp
     </>
   );
 
+  const currentGoal = issue.goalId ? (goals ?? []).find((g) => g.id === issue.goalId) ?? null : null;
+
+  const goalTrigger = currentGoal ? (
+    <span className="text-sm truncate">{currentGoal.title}</span>
+  ) : (
+    <span className="text-sm text-muted-foreground">No goal</span>
+  );
+
+  const goalContent = (
+    <>
+      <input
+        className="w-full px-2 py-1.5 text-xs bg-transparent outline-none border-b border-border mb-1 placeholder:text-muted-foreground/50"
+        placeholder="Search goals..."
+        value={goalSearch}
+        onChange={(e) => setGoalSearch(e.target.value)}
+        autoFocus={!inline}
+      />
+      <div className="max-h-48 overflow-y-auto overscroll-contain">
+        {issue.goalId && (
+          <button
+            className="flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50"
+            onClick={() => { onUpdate({ goalId: null }); setGoalOpen(false); }}
+          >
+            No goal
+          </button>
+        )}
+        {(goals ?? [])
+          .filter((g) => !goalSearch.trim() || g.title.toLowerCase().includes(goalSearch.toLowerCase()))
+          .map((g) => (
+            <button
+              key={g.id}
+              className={cn(
+                "flex items-center gap-2 w-full px-2 py-1.5 text-xs rounded hover:bg-accent/50 text-left",
+                g.id === issue.goalId && "bg-accent"
+              )}
+              onClick={() => { onUpdate({ goalId: g.id }); setGoalOpen(false); }}
+            >
+              <span className="truncate">{g.title}</span>
+            </button>
+          ))}
+        {(goals ?? []).length === 0 && (
+          <div className="px-2 py-1.5 text-xs text-muted-foreground">No goals yet.</div>
+        )}
+      </div>
+    </>
+  );
+
   const projectTrigger = issue.projectId ? (
     <>
       <span
@@ -537,6 +593,26 @@ export function IssueProperties({ issue, onUpdate, inline }: IssuePropertiesProp
           ) : undefined}
         >
           {assigneeContent}
+        </PropertyPicker>
+
+        <PropertyPicker
+          inline={inline}
+          label="Goal"
+          open={goalOpen}
+          onOpenChange={(open) => { setGoalOpen(open); if (!open) setGoalSearch(""); }}
+          triggerContent={goalTrigger}
+          popoverClassName="w-56"
+          extra={issue.goalId ? (
+            <Link
+              to={`/goals/${issue.goalId}`}
+              className="inline-flex items-center justify-center h-5 w-5 rounded hover:bg-accent/50 transition-colors text-muted-foreground hover:text-foreground"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <ArrowUpRight className="h-3 w-3" />
+            </Link>
+          ) : undefined}
+        >
+          {goalContent}
         </PropertyPicker>
 
         <PropertyPicker

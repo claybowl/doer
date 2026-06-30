@@ -185,6 +185,19 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/adapters/letta-cli:
+    dependencies:
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/adapters/letta-cloud:
     dependencies:
       '@doerai/adapter-utils':
@@ -667,6 +680,9 @@ importers:
       '@doerai/adapter-letta-af-opencode':
         specifier: workspace:*
         version: link:../packages/adapters/letta-af-opencode
+      '@doerai/adapter-letta-cli':
+        specifier: workspace:*
+        version: link:../packages/adapters/letta-cli
       '@doerai/adapter-letta-cloud':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cloud
@@ -836,6 +852,9 @@ importers:
       '@doerai/adapter-letta-af-opencode':
         specifier: workspace:*
         version: link:../packages/adapters/letta-af-opencode
+      '@doerai/adapter-letta-cli':
+        specifier: workspace:*
+        version: link:../packages/adapters/letta-cli
       '@doerai/adapter-letta-cloud':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cloud

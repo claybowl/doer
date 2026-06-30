@@ -8,7 +8,7 @@ import { accessApi } from "../api/access";
 import { assetsApi } from "../api/assets";
 import { queryKeys } from "../lib/queryKeys";
 import { Button } from "@/components/ui/button";
-import { Settings, Check, Download, Upload } from "lucide-react";
+import { Settings, Check, Download, Upload, Trash2 } from "lucide-react";
 import { CompanyPatternIcon } from "../components/CompanyPatternIcon";
 import {
   Field,
@@ -50,6 +50,7 @@ export function CompanySettings() {
   }, [selectedCompany]);
 
   const [inviteError, setInviteError] = useState<string | null>(null);
+  const [confirmingDeleteCompany, setConfirmingDeleteCompany] = useState(false);
   const [inviteSnippet, setInviteSnippet] = useState<string | null>(null);
   const [snippetCopied, setSnippetCopied] = useState(false);
   const [snippetCopyDelightId, setSnippetCopyDelightId] = useState(0);
@@ -196,6 +197,17 @@ export function CompanySettings() {
         queryKey: queryKeys.companies.stats
       });
     }
+  });
+
+  const deleteCompanyMutation = useMutation({
+    mutationFn: () => companiesApi.remove(selectedCompanyId!),
+    onSuccess: async () => {
+      const nextCompanyId = companies.find((c) => c.id !== selectedCompanyId)?.id ?? null;
+      await queryClient.invalidateQueries({ queryKey: queryKeys.companies.all });
+      if (nextCompanyId) {
+        setSelectedCompanyId(nextCompanyId);
+      }
+    },
   });
 
   useEffect(() => {
@@ -542,6 +554,37 @@ export function CompanySettings() {
                   ? archiveMutation.error.message
                   : "Failed to archive company"}
               </span>
+            )}
+          </div>
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-destructive/20">
+            <p className="text-sm text-muted-foreground">
+              Permanently delete this company and all its data. This cannot be undone.
+            </p>
+            {confirmingDeleteCompany ? (
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-destructive font-medium">Delete permanently?</span>
+                <Button
+                  size="sm"
+                  variant="destructive"
+                  disabled={deleteCompanyMutation.isPending}
+                  onClick={() => deleteCompanyMutation.mutate()}
+                >
+                  {deleteCompanyMutation.isPending ? "Deleting…" : "Confirm"}
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => setConfirmingDeleteCompany(false)}>
+                  Cancel
+                </Button>
+              </div>
+            ) : (
+              <Button
+                size="sm"
+                variant="outline"
+                className="shrink-0 text-destructive border-destructive/30 hover:bg-destructive/10"
+                onClick={() => setConfirmingDeleteCompany(true)}
+              >
+                <Trash2 className="h-3.5 w-3.5 mr-1.5" />
+                Delete company
+              </Button>
             )}
           </div>
         </div>

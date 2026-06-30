@@ -101,3 +101,7 @@ export function resolveManagedProjectWorkspaceDir(input: {
 export function resolveHomeAwarePath(value: string): string {
   return path.resolve(expandHomePrefix(value));
 }
+
+export function resolveCompanyOutputsDir(companyId: string): string {
+  return path.resolve(resolvePaperclipInstanceRoot(), "companies", companyId, "outputs");
+}

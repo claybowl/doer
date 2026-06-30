@@ -189,7 +189,15 @@ export class LocalFsStore implements MemfsStore {
       const rel = path.relative(this.rootPath, entryAbs).split(path.sep).join("/");
       const isDir = entry.isDirectory();
       if (isIgnored(rules, rel, isDir)) continue;
-      const stat = await fs.stat(entryAbs);
+      let stat: import("node:fs").Stats;
+      try {
+        stat = await fs.stat(entryAbs);
+      } catch (err) {
+        const e = err as NodeJS.ErrnoException;
+        // Skip broken symlinks and entries that vanish between readdir and stat.
+        if (e.code === "ENOENT" || e.code === "EACCES") continue;
+        throw err;
+      }
       acc.push({
         path: rel,
         size: stat.size,

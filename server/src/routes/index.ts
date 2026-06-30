@@ -19,3 +19,4 @@ export { lettaProxyRoutes } from "./letta-proxy.js";
 export { memfsRoutes } from "./memfs.js";
 export { workspaceRoutes } from "./workspaces.js";
 export { agentMemoryRoutes } from "./agent-memory.js";
+export { agentToolRoutes } from "./agent-tools.js";
