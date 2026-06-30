@@ -698,7 +698,7 @@ export function CompanyImport({ fernweh = false }: { fernweh?: boolean } = {}) {
   });
   const ceoAdapterType = useMemo(() => {
     if (!companyAgents) return "claude_local";
-    const ceo = companyAgents.find((a) => a.role === "ceo");
+    const ceo = companyAgents.find((a) => a.role === "gm");
     return ceo?.adapterType ?? "claude_local";
   }, [companyAgents]);
 
