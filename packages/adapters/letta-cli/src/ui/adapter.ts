@@ -33,6 +33,11 @@ export function parseLettaCliStdoutLine(line: string, ts: string): TranscriptEnt
   // Result event — informational only (session ID already captured in execute.ts)
   if (type === "result") return [];
 
+  // stream_event: partial streaming fragments emitted by --include-partial-messages.
+  // Each logical message also emits a final assembled "message" type event, so these
+  // fragments are pure noise for the transcript viewer. Suppress them.
+  if (type === "stream_event") return [];
+
   if (type === "message") {
     const messageType = typeof parsed.message_type === "string" ? parsed.message_type : "";
 

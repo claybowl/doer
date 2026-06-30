@@ -23,7 +23,7 @@ const [ceo] = await db
   .values({
     companyId: company!.id,
     name: "CEO Agent",
-    role: "ceo",
+    role: "gm",
     title: "Chief Executive Officer",
     status: "idle",
     adapterType: "process",

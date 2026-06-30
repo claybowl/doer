@@ -1440,7 +1440,7 @@ export function resolveJoinRequestAgentManagerId(
   candidates: JoinRequestManagerCandidate[]
 ): string | null {
   const ceoCandidates = candidates.filter(
-    (candidate) => candidate.role === "ceo"
+    (candidate) => candidate.role === "gm"
   );
   if (ceoCandidates.length === 0) return null;
   const rootCeo = ceoCandidates.find(
@@ -1819,7 +1819,7 @@ export function accessRoutes(
       if (!actorAgent || actorAgent.companyId !== companyId) {
         throw forbidden("Agent key cannot access another company");
       }
-      if (actorAgent.role !== "ceo") {
+      if (actorAgent.role !== "gm") {
         throw forbidden("Only CEO agents can generate OpenClaw invite prompts");
       }
       return;

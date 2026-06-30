@@ -116,7 +116,7 @@ export async function interceptScheduleCouncil(
       targetAgents = agents.filter((a) => names.includes(String(a.name ?? "").toLowerCase()));
     } else {
       // Default council members
-      const councilRoles = ["ceo", "cto", "researcher", "engineer"];
+      const councilRoles = ["gm", "cto", "researcher", "engineer"];
       targetAgents = agents.filter((a) => councilRoles.includes(String(a.role ?? "")));
     }
 
@@ -657,8 +657,10 @@ export async function interceptCreatePaperclipIssue(
     };
     if (args.description !== undefined) body.description = String(args.description);
     if (args.priority !== undefined) body.priority = String(args.priority);
-    if (args.assigneeAgentId !== undefined) body.assigneeAgentId = String(args.assigneeAgentId);
-    if (args.projectId !== undefined) body.projectId = String(args.projectId);
+    // Accept both camelCase (API convention) and snake_case (Letta tool convention)
+    const assigneeId = args.assigneeAgentId ?? args.assignee_agent_id;
+    if (assigneeId !== undefined && String(assigneeId).trim()) body.assigneeAgentId = String(assigneeId);
+    if (args.projectId ?? args.project_id) body.projectId = String(args.projectId ?? args.project_id);
     if (args.labelIds !== undefined) body.labelIds = args.labelIds;
 
     const issue = (await doerPost(ctx, `/api/companies/${companyId}/issues`, body)) as Record<string, unknown>;

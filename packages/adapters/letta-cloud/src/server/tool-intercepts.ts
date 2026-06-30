@@ -116,7 +116,7 @@ export async function interceptScheduleCouncil(
       targetAgents = agents.filter((a) => names.includes(String(a.name ?? "").toLowerCase()));
     } else {
       // Default council members
-      const councilRoles = ["ceo", "cto", "researcher", "engineer"];
+      const councilRoles = ["gm", "cto", "researcher", "engineer"];
       targetAgents = agents.filter((a) => councilRoles.includes(String(a.role ?? "")));
     }
 

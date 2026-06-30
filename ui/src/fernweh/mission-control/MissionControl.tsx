@@ -76,7 +76,7 @@ export function FernwehMissionControl() {
   const companyName = selectedCompany?.name ?? "Company";
   const prefix = companyPrefix ?? selectedCompany?.issuePrefix ?? "";
 
-  const [mode, setMode] = React.useState<Mode>("pulse");
+  const [mode, setMode] = React.useState<Mode>("wall");
   const [paused, setPaused] = React.useState(false);
   const [immersive, setImmersive] = React.useState(() => loadBool(IMMERSIVE_KEY, true));
   const [calm, setCalm] = React.useState(() => loadBool(MOTION_KEY, false));
@@ -194,7 +194,7 @@ export function FernwehMissionControl() {
           ) : mode === "stream" ? (
             <StreamView state={state} onSelect={onSelect} />
           ) : (
-            <WallboardView state={state} onSelect={onSelect} />
+            <WallboardView state={state} companyId={companyId!} />
           )}
         </div>
         {showRail && realAgentCount > 0 && <FeedRail state={state} onSelect={onSelect} />}

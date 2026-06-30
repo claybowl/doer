@@ -138,7 +138,7 @@ const ROLE_ICONS: Record<string, {
 function guessRoleTag(node: OrgNode): string {
   const name = node.name.toLowerCase();
   const role = node.role.toLowerCase();
-  if (name === "ceo" || role.includes("chief executive")) return "ceo";
+  if (name  === "gm" || role.includes("chief executive")) return "gm";
   if (name === "cto" || role.includes("chief technology") || role.includes("technology")) return "cto";
   if (name === "cmo" || role.includes("chief marketing") || role.includes("marketing")) return "cmo";
   if (name === "cfo" || role.includes("chief financial")) return "cfo";
@@ -231,7 +231,7 @@ const THEMES: Record<OrgChartStyle, StyleTheme> = {
     renderCard: (ln: LayoutNode, theme: StyleTheme) => {
       const { tag, roleLabel, emojiSvg } = getRoleInfo(ln.node);
       const cx = ln.x + ln.width / 2;
-      const isCeo = tag === "ceo";
+      const isCeo = tag  === "gm";
       const borderColor = isCeo ? "rgba(168,85,247,0.35)" : theme.cardBorder;
       const bgColor = isCeo ? "rgba(168,85,247,0.06)" : theme.cardBg;
 
