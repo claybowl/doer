@@ -301,9 +301,13 @@ async function resolveSpawnTarget(
 }
 
 export function ensurePathInEnv(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
-  if (typeof env.PATH === "string" && env.PATH.length > 0) return env;
-  if (typeof env.Path === "string" && env.Path.length > 0) return env;
-  return { ...env, PATH: defaultPathForPlatform() };
+  // Always prepend known-good dirs so Electron's stripped PATH (no /opt/homebrew/bin)
+  // doesn't silently hide binaries like `letta` that live there.
+  const delimiter = process.platform === "win32" ? ";" : ":";
+  const existing = (env.PATH ?? env.Path ?? "").split(delimiter).filter(Boolean);
+  const defaults = defaultPathForPlatform().split(delimiter).filter(Boolean);
+  const merged = [...new Set([...defaults, ...existing])];
+  return { ...env, PATH: merged.join(delimiter) };
 }
 
 export async function ensureAbsoluteDirectory(
