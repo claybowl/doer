@@ -124,7 +124,7 @@ describe("POST /companies/:companyId/openclaw/invite-prompt", () => {
     mockAgentService.getById.mockResolvedValue({
       id: "agent-1",
       companyId: "company-1",
-      role: "ceo",
+      role: "gm",
     });
     const app = createApp(
       {

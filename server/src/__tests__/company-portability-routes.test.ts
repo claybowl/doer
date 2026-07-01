@@ -94,7 +94,7 @@ describe("company portability routes", () => {
     mockAgentService.getById.mockResolvedValue({
       id: "agent-1",
       companyId: "11111111-1111-4111-8111-111111111111",
-      role: "ceo",
+      role: "gm",
     });
     mockCompanyPortabilityService.previewExport.mockResolvedValue({
       rootPath: "doer",
@@ -127,7 +127,7 @@ describe("company portability routes", () => {
     mockAgentService.getById.mockResolvedValue({
       id: "agent-1",
       companyId: "11111111-1111-4111-8111-111111111111",
-      role: "ceo",
+      role: "gm",
     });
     const app = await createApp({
       type: "agent",

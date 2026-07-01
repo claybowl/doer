@@ -362,7 +362,7 @@ describe("agent skill routes", () => {
       .post("/api/companies/company-1/agents")
       .send({
         name: "CEO",
-        role: "ceo",
+        role: "gm",
         adapterType: "claude_local",
         adapterConfig: {},
       });
@@ -371,7 +371,7 @@ describe("agent skill routes", () => {
     expect(mockAgentInstructionsService.materializeManagedBundle).toHaveBeenCalledWith(
       expect.objectContaining({
         id: "11111111-1111-4111-8111-111111111111",
-        role: "ceo",
+        role: "gm",
         adapterType: "claude_local",
       }),
       expect.objectContaining({

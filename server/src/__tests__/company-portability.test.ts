@@ -179,7 +179,7 @@ describe("company portability", () => {
         id: "agent-2",
         name: "CMO",
         status: "idle",
-        role: "cmo",
+        role: "sales",
         title: "Chief Marketing Officer",
         icon: "globe",
         reportsTo: null,
