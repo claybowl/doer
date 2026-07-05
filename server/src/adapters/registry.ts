@@ -111,6 +111,8 @@ import {
 import {
   execute as lettaCliExecute,
   testEnvironment as lettaCliTestEnvironment,
+  listLettaCliSkills,
+  syncLettaCliSkills,
 } from "@doerai/adapter-letta-cli/server";
 import {
   agentConfigurationDoc as lettaCliAgentConfigurationDoc,
@@ -267,6 +269,8 @@ const lettaCliAdapter: ServerAdapterModule = {
   type: "letta_cli",
   execute: lettaCliExecute,
   testEnvironment: lettaCliTestEnvironment,
+  listSkills: listLettaCliSkills,
+  syncSkills: syncLettaCliSkills,
   models: [...lettaCliModels],
   supportsLocalAgentJwt: true,
   agentConfigurationDoc: lettaCliAgentConfigurationDoc,

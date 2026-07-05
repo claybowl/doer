@@ -2002,7 +2002,7 @@ function PromptsTab({
     document.body.style.userSelect = "none";
   }, [filePanelWidth]);
 
-  if (agent.adapterType === "letta_cloud") {
+  if (agent.adapterType === "letta_cloud" || agent.adapterType === "letta_cli") {
     return (
       <LettaHeartbeatPromptEditor
         agent={agent}

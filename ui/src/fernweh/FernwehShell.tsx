@@ -8,6 +8,7 @@ import { NewProjectDialog } from "@/components/NewProjectDialog";
 import { NewGoalDialog } from "@/components/NewGoalDialog";
 import { NewRoutineDialog } from "@/components/NewRoutineDialog";
 import { NewAgentDialog } from "@/components/NewAgentDialog";
+import { NotFoundPage } from "@/pages/NotFound";
 import { Icon, I } from "./utils";
 import "./tokens.css";
 
@@ -184,14 +185,28 @@ export function FernwehShell() {
   // URL prefix is canonical — `selectedCompany` is only a fallback for routes without a prefix.
   // Without this precedence, navigating to /LAW/... while CompanyContext holds DEM silently
   // routes all API calls (skill create, etc.) to the wrong company. See FernwehShell bug fix.
-  const company = companies.find((c) => c.issuePrefix === prefix) ?? selectedCompany ?? companies[0] ?? null;
+  //
+  // An archived company must never win this match: CompanyContext's own auto-select effect
+  // excludes archived companies and bounces `selectedCompanyId` away from them, while this
+  // effect used to bounce it right back (URL still says the archived prefix) — an infinite
+  // render loop that looked like two pages flickering on top of each other.
+  const matchedByPrefix = companies.find((c) => c.issuePrefix === prefix);
+  const isArchivedPrefix = matchedByPrefix?.status === "archived";
+  const company = !isArchivedPrefix
+    ? (matchedByPrefix ?? selectedCompany ?? companies[0] ?? null)
+    : (companies.find((c) => c.status !== "archived") ?? null);
 
   // Keep CompanyContext in sync with the URL so downstream useCompany() consumers stay consistent.
   React.useEffect(() => {
+    if (isArchivedPrefix) return;
     if (company && company.id !== selectedCompany?.id) {
       setSelectedCompanyId(company.id);
     }
-  }, [company, selectedCompany?.id, setSelectedCompanyId]);
+  }, [isArchivedPrefix, company, selectedCompany?.id, setSelectedCompanyId]);
+
+  if (isArchivedPrefix) {
+    return <NotFoundPage scope="invalid_company_prefix" requestedPrefix={prefix} />;
+  }
 
   const fallbackBg = theme === "dark" ? "#121418" : "#fafafa";
   const fallbackInk = theme === "dark" ? "#e8e8ec" : "#1b1c20";

@@ -97,6 +97,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const apiKey = asString(config.apiKey, "");
   const baseUrl = asString(config.baseUrl, "https://api.letta.com").replace(/\/$/, "");
   const backend = asString(config.backend, "api");
+  const model = asString(config.model, "");
   const timeoutSec = asNumber(config.timeoutSec, 0);
   const graceSec = asNumber(config.graceSec, 20);
   const heartbeatPrompt = asString(config.heartbeatPrompt, "Hello");
@@ -105,14 +106,14 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     await onLog("stderr", "[letta-cli] Missing agentId in adapterConfig\n");
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "agentId is required" };
   }
-  if (!apiKey) {
+  if (!apiKey && backend !== "local") {
     await onLog("stderr", "[letta-cli] Missing apiKey in adapterConfig\n");
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "apiKey is required" };
   }
 
   const env: Record<string, string> = { ...buildPaperclipEnv(agent) };
   env.DOER_RUN_ID = runId;
-  env.LETTA_API_KEY = apiKey;
+  if (apiKey) env.LETTA_API_KEY = apiKey;
   env.LETTA_BASE_URL = baseUrl;
 
   // Propagate TASK MODE env vars for tools the agent might shell out to
@@ -151,6 +152,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       "--backend",
       backend,
     ];
+    if (model) args.push("--model", model);
     if (conversationId) args.push("--conversation", conversationId);
     return args;
   };

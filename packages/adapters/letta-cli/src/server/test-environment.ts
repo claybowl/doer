@@ -72,19 +72,22 @@ export async function testEnvironment(
     checks.push({ code: "agent_id_ok", level: "info", message: `agentId: ${config.agentId}` });
   }
 
-  if (!config.apiKey) {
+  const backend = config.backend || "api";
+
+  if (!config.apiKey && backend !== "local") {
     checks.push({
       code: "api_key_missing",
       level: "error",
       message: "apiKey is required",
       hint: "Set your Letta API key from app.letta.com",
     });
-  } else {
+  } else if (config.apiKey) {
     checks.push({ code: "api_key_ok", level: "info", message: "Letta API key present" });
+  } else {
+    checks.push({ code: "api_key_not_needed", level: "info", message: "No apiKey needed for local backend" });
   }
 
   const baseUrl = config.baseUrl?.trim() || "https://api.letta.com";
-  const backend = config.backend || "api";
   checks.push({ code: "target", level: "info", message: `${baseUrl} (backend=${backend})` });
 
   const status: AdapterEnvironmentTestResult["status"] = checks.some((c) => c.level === "error")
