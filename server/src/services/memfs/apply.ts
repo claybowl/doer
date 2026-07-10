@@ -210,18 +210,29 @@ function synthesizeLegacyLettaBinding(lettaAgentId: string): ResolvedMemfsBindin
   if (!lettaAgentId) return null;
   const now = new Date().toISOString();
   const lettaHome = path.join(os.homedir(), ".letta");
+  // Local-backend agents (created via `letta --backend local agents create`)
+  // always get IDs prefixed "agent-local-" and live under a completely
+  // different MemFS root than Letta Cloud clones. Without this branch the
+  // legacy fallback always resolved the cloud path, which never exists for
+  // local-backend agents — a harmless but noisy "fs-mount source does not
+  // exist" warning on every single run.
+  const isLocalBackend = lettaAgentId.startsWith("agent-local-");
+  const rootPath = isLocalBackend ? path.join(lettaHome, "lc-local-backend", "memfs") : lettaHome;
+  const pathPrefix = isLocalBackend
+    ? path.posix.join(lettaAgentId, "memory")
+    : path.posix.join("agents", lettaAgentId, "memory");
   return {
     id: `legacy:${lettaAgentId}`,
     agentId: lettaAgentId,
     rootId: `legacy-root:${lettaAgentId}`,
-    pathPrefix: path.posix.join("agents", lettaAgentId, "memory"),
+    pathPrefix,
     strategy: "fs-mount",
     permission: "read",
     mountAs: ".letta-memory",
     label: "letta",
     createdAt: now,
     updatedAt: now,
-    rootPath: lettaHome,
+    rootPath,
     rootKind: "local-fs",
     rootLabel: "letta",
   };

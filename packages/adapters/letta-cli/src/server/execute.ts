@@ -140,6 +140,10 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
 
   const prompt = buildWakeMessage(ctx, heartbeatPrompt);
 
+  // `letta` rejects `--conversation` combined with `--agent` ("Error: --conversation
+  // cannot be used with --agent") — always, unconditionally. A saved conversation ID
+  // already resolves its owning agent internally, so resuming means passing
+  // *only* `--conversation`; a fresh run (no saved session yet) passes `--agent`.
   const buildArgs = (conversationId: string | null) => {
     const args = [
       "-p",
@@ -147,13 +151,15 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       "--output-format",
       "stream-json",
       "--include-partial-messages",
-      "--agent",
-      agentId,
       "--backend",
       backend,
     ];
+    if (conversationId) {
+      args.push("--conversation", conversationId);
+    } else {
+      args.push("--agent", agentId);
+    }
     if (model) args.push("--model", model);
-    if (conversationId) args.push("--conversation", conversationId);
     return args;
   };
 

@@ -314,7 +314,13 @@ export function memfsService(db: Db) {
     if (!lettaAgentId) return null;
 
     const root = await ensureDefaultRoot(companyId);
-    const pathPrefix = path.posix.join("agents", lettaAgentId, "memory");
+    // Local-backend agents (created via `letta --backend local agents create`)
+    // always get IDs prefixed "agent-local-" and live under a different MemFS
+    // root than Letta Cloud clones — without this branch every local-backend
+    // agent got a binding pointing at a cloud path that never exists.
+    const pathPrefix = lettaAgentId.startsWith("agent-local-")
+      ? path.posix.join("lc-local-backend", "memfs", lettaAgentId, "memory")
+      : path.posix.join("agents", lettaAgentId, "memory");
 
     const existing = await db
       .select()

@@ -38,6 +38,19 @@ export function parseLettaCliStdoutLine(line: string, ts: string): TranscriptEnt
   // fragments are pure noise for the transcript viewer. Suppress them.
   if (type === "stream_event") return [];
 
+  // auto_approval: informational side-channel logged whenever a tool call is
+  // auto-approved (e.g. unrestricted permission mode). The tool_call_message /
+  // tool_return_message for the same call are emitted separately and already
+  // render properly, so this raw event — which can embed the full tool
+  // arguments (e.g. an entire inline script) — is pure noise here. Without
+  // this case it fell through to the raw-JSON stdout fallback below and
+  // dumped the whole escaped blob into the transcript.
+  if (type === "auto_approval") return [];
+
+  // recovery: internal retry/backoff notice (e.g. auto-denying a stale
+  // pending approval before retrying). Same raw-dump problem as above.
+  if (type === "recovery") return [];
+
   if (type === "message") {
     const messageType = typeof parsed.message_type === "string" ? parsed.message_type : "";
 
