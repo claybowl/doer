@@ -79,6 +79,19 @@ export interface LettaCodeOfflineConfig {
 
   /** Working directory for offline tools (bash, read, write, grep). Defaults to the process cwd. */
   cwd?: string;
+
+  /**
+   * Capability boundary for the custom offline harness. Ollama Cloud defaults
+   * to cloud_safe: no local tools, no shell, and no Doer API access.
+   * Privileged access is reserved for local providers.
+   */
+  toolProfile?: "cloud_safe" | "privileged";
+
+  /**
+   * Memory block labels allowed to leave the machine for a cloud-safe agent.
+   * Omit or provide an empty list to send no persistent memory to the provider.
+   */
+  cloudMemoryLabels?: string[];
 }
 
 /**

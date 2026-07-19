@@ -54,4 +54,10 @@ describe("resolveProvider", () => {
     const r = resolveProvider({ provider: "nvidia" }, { NVIDIA_API_KEY: "from-binding" });
     expect(r.apiKey).toBe("from-binding");
   });
+
+  it("rejects an Ollama Cloud key embedded in adapter config", () => {
+    expect(() => resolveProvider({ provider: "ollama_cloud", apiKey: "plaintext" }, { OLLAMA_API_KEY: "bound" })).toThrow(
+      "OLLAMA_API_KEY must come from an environment or secret binding",
+    );
+  });
 });

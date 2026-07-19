@@ -77,11 +77,13 @@ OpenAI-compatible endpoint reached over \`/v1/chat/completions\`. Override any w
 | Field | Description |
 |-------|-------------|
 | \`baseUrl\` | Override the provider's preset endpoint (OpenAI-compatible only) |
-| \`apiKey\` | API key override (falls back to the provider's env var) |
+| \`apiKey\` | API key override (falls back to the provider's env var). **Not accepted for \`ollama_cloud\`; use an encrypted/environment secret binding for \`OLLAMA_API_KEY\`.** |
 | \`systemPrompt\` | Base persona — memory block content is injected below this |
 | \`heartbeatPrompt\` | Default user message for timer-triggered wakes |
 | \`temperature\` | Sampling temperature |
 | \`maxTokens\` | Max tokens per run (default 8192) |
+| \`toolProfile\` | \`cloud_safe\` (automatic for remote providers) disables shell, filesystem, Doer API, runtime skills, and persistent-memory writes. \`privileged\` is only permitted for local Ollama. |
+| \`cloudMemoryLabels\` | For \`cloud_safe\`, the explicit allowlist of non-sensitive memory-block labels sent to the provider. Defaults to no persistent memory. |
 
 **Memory update protocol:**
 The LLM updates a block by including in its response:

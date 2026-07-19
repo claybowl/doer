@@ -86,7 +86,13 @@ type ToolHandler = (
   config: LettaCodeOfflineConfig,
 ) => Promise<string>;
 
-const OFFLINE_TOOLS: Record<string, { description: string; parameters: Record<string, unknown>; handler: ToolHandler }> = {
+type OfflineToolDefinition = {
+  description: string;
+  parameters: Record<string, unknown>;
+  handler: ToolHandler;
+};
+
+const OFFLINE_TOOLS: Record<string, OfflineToolDefinition> = {
   bash: {
     description: "Run a shell command in the agent workspace. Use for git, curl, ls, cat, npm, pnpm, etc. Prefer doer_api for Doer API calls.",
     parameters: {
@@ -165,6 +171,49 @@ const OFFLINE_TOOLS: Record<string, { description: string; parameters: Record<st
     handler: doerApiCall,
   },
 };
+
+const PRIVILEGED_OFFLINE_TOOL_NAMES = ["bash", "read", "write", "edit", "grep", "doer_api"] as const;
+
+export type OfflineToolProfile = "cloud_safe" | "privileged";
+
+export function resolveOfflineToolPolicy(
+  config: Pick<LettaCodeOfflineConfig, "provider" | "toolProfile">,
+): { profile: OfflineToolProfile; allowedTools: string[] } {
+  const provider = config.provider ?? "anthropic";
+  const isLocalProvider = provider === "ollama";
+  const profile: OfflineToolProfile = config.toolProfile ?? (isLocalProvider ? "privileged" : "cloud_safe");
+
+  if (profile === "privileged" && provider === "ollama_cloud") {
+    throw new Error("Ollama Cloud agents cannot use the privileged tool profile");
+  }
+  if (profile === "privileged" && !isLocalProvider) {
+    throw new Error("Only local Ollama agents can use the privileged tool profile");
+  }
+
+  return {
+    profile,
+    allowedTools: profile === "privileged" ? [...PRIVILEGED_OFFLINE_TOOL_NAMES] : [],
+  };
+}
+
+function selectOfflineTools(allowedTools: readonly string[]): Record<string, OfflineToolDefinition> {
+  const selected: Record<string, OfflineToolDefinition> = {};
+  for (const name of allowedTools) {
+    const tool = OFFLINE_TOOLS[name];
+    if (tool) selected[name] = tool;
+  }
+  return selected;
+}
+
+export function selectMemoryBlocksForProfile(
+  blocks: readonly LettaCodeMemoryBlock[],
+  profile: OfflineToolProfile,
+  cloudMemoryLabels: readonly string[] = [],
+): LettaCodeMemoryBlock[] {
+  if (profile === "privileged") return [...blocks];
+  const allowed = new Set(cloudMemoryLabels);
+  return blocks.filter((block) => allowed.has(block.label));
+}
 
 function resolveWorkspacePath(ctx: AdapterExecutionContext, config: LettaCodeOfflineConfig, raw: unknown): string {
   if (typeof raw !== "string" || !raw) throw new Error("file_path is required");
@@ -322,7 +371,7 @@ async function doerApiCall(
   return `${res.status} ${res.statusText}\n${text.slice(0, 4000)}`;
 }
 
-function buildOfflineToolInstructions(): string {
+function buildOfflineToolInstructions(tools: Record<string, OfflineToolDefinition>): string {
   const lines = [
     "## Available Tools",
     "",
@@ -330,7 +379,7 @@ function buildOfflineToolInstructions(): string {
     "",
     "### Tools",
   ];
-  for (const [name, tool] of Object.entries(OFFLINE_TOOLS)) {
+  for (const [name, tool] of Object.entries(tools)) {
     lines.push(`- **${name}**: ${tool.description}`);
   }
   lines.push("");
@@ -742,6 +791,9 @@ export function resolveProvider(
   env: Record<string, string>,
 ): ResolvedProvider {
   const provider = config.provider || "anthropic";
+  if (provider === "ollama_cloud" && config.apiKey) {
+    throw new Error("OLLAMA_API_KEY must come from an environment or secret binding");
+  }
   if (provider === "anthropic") {
     return {
       kind: "anthropic",
@@ -1052,6 +1104,15 @@ async function executeOffline(
   // provider (Groq, Ollama, NVIDIA, OpenCode Zen, …) via preset base URL.
   const offlineEnv = ((ctx.config as Record<string, unknown>).env ?? {}) as Record<string, string>;
   const resolved = resolveProvider(config, offlineEnv);
+  let toolPolicy: ReturnType<typeof resolveOfflineToolPolicy>;
+  try {
+    toolPolicy = resolveOfflineToolPolicy(config);
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[letta-code/offline] ${message}\n`);
+    return { exitCode: 1, signal: null, timedOut: false, errorMessage: message };
+  }
+  const enabledOfflineTools = selectOfflineTools(toolPolicy.allowedTools);
 
   if (!resolved.apiKey) {
     await ctx.onLog(
@@ -1064,7 +1125,8 @@ async function executeOffline(
   let blocks: LettaCodeMemoryBlock[] = [];
   try {
     blocks = await loadMemoryBlocks(memoryDir);
-    await ctx.onLog("stdout", `[letta-code/offline] ${blocks.length} block(s) from ${memoryDir}\n`);
+    blocks = selectMemoryBlocksForProfile(blocks, toolPolicy.profile, config.cloudMemoryLabels);
+    await ctx.onLog("stdout", `[letta-code/offline] ${blocks.length} permitted block(s) from ${memoryDir}\n`);
   } catch (err) {
     await ctx.onLog("stderr", `[letta-code/offline] Failed to load blocks: ${err instanceof Error ? err.message : String(err)}\n`);
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: "Memory block load failed" };
@@ -1079,15 +1141,18 @@ async function executeOffline(
     config as unknown as Record<string, unknown>,
     allSkillEntries,
   );
-  const delivery = resolveSkillDelivery(resolved, config);
+  const delivery = toolPolicy.profile === "cloud_safe" ? "inject" : resolveSkillDelivery(resolved, config);
 
   let skillSection = "";
+  // A cloud-safe worker receives no runtime skills: a skill body is local
+  // context and would be disclosed to the remote inference provider.
+  const allowRuntimeSkills = toolPolicy.profile !== "cloud_safe";
   // Maps display name (shown to the agent in the manifest) → full canonical key
   // (used with readPaperclipSkillMarkdown). Built during loop-mode manifest
   // construction so the read_skill handler can resolve agent-supplied names.
   const skillKeyByName = new Map<string, string>();
 
-  if (desiredSkillNames.length > 0) {
+  if (allowRuntimeSkills && desiredSkillNames.length > 0) {
     if (delivery === "loop") {
       // Manifest only — bodies pulled via read_skill tool during the turn.
       const manifests: Array<{ name: string; description: string }> = [];
@@ -1125,7 +1190,12 @@ async function executeOffline(
     }
   }
 
-  const systemPrompt = buildOfflineSystemPrompt(config.systemPrompt ?? "", blocks, skillSection, buildOfflineToolInstructions());
+  const systemPrompt = buildOfflineSystemPrompt(
+    config.systemPrompt ?? "",
+    blocks,
+    skillSection,
+    buildOfflineToolInstructions(enabledOfflineTools),
+  );
   const userMessage = buildUserMessage(ctx, config.heartbeatPrompt);
 
   await ctx.onMeta?.({
@@ -1157,12 +1227,12 @@ async function executeOffline(
             },
           }]
         : [];
-      const offlineTools: Anthropic.Tool[] = Object.entries(OFFLINE_TOOLS).map(([name, tool]) => ({
+      const offlineToolSchemas: Anthropic.Tool[] = Object.entries(enabledOfflineTools).map(([name, tool]) => ({
         name,
         description: tool.description,
         input_schema: tool.parameters as Anthropic.Tool["input_schema"],
       }));
-      const tools: Anthropic.Tool[] = [...baseTools, ...offlineTools];
+      const tools: Anthropic.Tool[] = [...baseTools, ...offlineToolSchemas];
 
       const messages: Anthropic.MessageParam[] = [{ role: "user", content: userMessage }];
       const MAX_TOOL_ITERATIONS = 24;
@@ -1243,8 +1313,8 @@ async function executeOffline(
                 toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
                 if (!body) isError = true;
               }
-            } else if (tu.name in OFFLINE_TOOLS) {
-              toolOutput = await OFFLINE_TOOLS[tu.name]!.handler(ctx, parseToolArgs(tu.input), config);
+            } else if (tu.name in enabledOfflineTools) {
+              toolOutput = await enabledOfflineTools[tu.name]!.handler(ctx, parseToolArgs(tu.input), config);
             } else {
               toolOutput = `Unknown tool: ${tu.name}`;
               isError = true;
@@ -1284,7 +1354,7 @@ async function executeOffline(
               required: ["name"],
             },
           },
-        }, ...Object.entries(OFFLINE_TOOLS).map(([name, tool]) => ({
+        }, ...Object.entries(enabledOfflineTools).map(([name, tool]) => ({
           type: "function" as const,
           function: {
             name,
@@ -1424,8 +1494,8 @@ async function executeOffline(
                   toolOutput = body ?? `Skill "${String(skillName)}" not found.`;
                   if (!body) isError = true;
                 }
-              } else if (tc.name in OFFLINE_TOOLS) {
-                toolOutput = await OFFLINE_TOOLS[tc.name]!.handler(ctx, parsedArgs, config);
+              } else if (tc.name in enabledOfflineTools) {
+                toolOutput = await enabledOfflineTools[tc.name]!.handler(ctx, parsedArgs, config);
               } else {
                 toolOutput = `Unknown tool: ${tc.name}`;
                 isError = true;
@@ -1471,17 +1541,22 @@ async function executeOffline(
     stepCount: 1,
   });
 
-  // Persist any memory updates the LLM emitted
+  // Cloud-safe agents are read-only with respect to persistent memory. This
+  // prevents a remote model from planting state that a later local run trusts.
   const updates = parseMemoryUpdates(fullResponse);
-  for (const update of updates) {
-    const existing = blocks.find((b) => b.label === update.label);
-    const filePath = existing?.filePath ?? path.join(memoryDir, `${update.label}.md`);
-    try {
-      await writeMemoryBlock({ label: update.label, content: update.content, filePath }, update.content);
-      await emit(ctx, { type: "tool_call_message", name: "memory_update", input: { label: update.label } });
-      await ctx.onLog("stdout", `[letta-code/offline] updated block "${update.label}"\n`);
-    } catch (err) {
-      await ctx.onLog("stderr", `[letta-code/offline] write block "${update.label}" failed: ${err instanceof Error ? err.message : String(err)}\n`);
+  if (toolPolicy.profile === "cloud_safe" && updates.length > 0) {
+    await ctx.onLog("stdout", `[letta-code/offline] ignored ${updates.length} cloud-safe memory update(s)\n`);
+  } else {
+    for (const update of updates) {
+      const existing = blocks.find((b) => b.label === update.label);
+      const filePath = existing?.filePath ?? path.join(memoryDir, `${update.label}.md`);
+      try {
+        await writeMemoryBlock({ label: update.label, content: update.content, filePath }, update.content);
+        await emit(ctx, { type: "tool_call_message", name: "memory_update", input: { label: update.label } });
+        await ctx.onLog("stdout", `[letta-code/offline] updated block "${update.label}"\n`);
+      } catch (err) {
+        await ctx.onLog("stderr", `[letta-code/offline] write block "${update.label}" failed: ${err instanceof Error ? err.message : String(err)}\n`);
+      }
     }
   }
 
