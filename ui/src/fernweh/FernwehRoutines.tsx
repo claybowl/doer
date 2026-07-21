@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { NavLink, useParams, useSearchParams } from "@/lib/router";
 import { routinesApi } from "@/api/routines";
 import { agentsApi } from "@/api/agents";
+import { projectsApi } from "@/api/projects";
 import { useCompany } from "@/context/CompanyContext";
 import { queryKeys } from "@/lib/queryKeys";
 import type {
@@ -461,6 +462,8 @@ export function FernwehRoutines() {
   const [filter, setFilter] = React.useState<StatusFilter>("all");
   const [showCreate, setShowCreate] = React.useState(false);
   const [newName, setNewName] = React.useState("");
+  const [newProjectId, setNewProjectId] = React.useState("");
+  const [newAssigneeAgentId, setNewAssigneeAgentId] = React.useState("");
 
   const setSelected = React.useCallback(
     (id: string | null) => {
@@ -475,11 +478,17 @@ export function FernwehRoutines() {
   const qc = useQueryClient();
 
   const createMutation = useMutation({
-    mutationFn: () => routinesApi.create(companyId!, { title: newName.trim() }),
+    mutationFn: () => routinesApi.create(companyId!, {
+      title: newName.trim(),
+      projectId: newProjectId,
+      assigneeAgentId: newAssigneeAgentId,
+    }),
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: queryKeys.routines.list(companyId!) });
       setShowCreate(false);
       setNewName("");
+      setNewProjectId("");
+      setNewAssigneeAgentId("");
     },
   });
 
@@ -493,6 +502,12 @@ export function FernwehRoutines() {
   const agentsQuery = useQuery({
     queryKey: queryKeys.agents.list(companyId!),
     queryFn: () => agentsApi.list(companyId!),
+    enabled: !!companyId,
+  });
+
+  const projectsQuery = useQuery({
+    queryKey: queryKeys.projects.list(companyId!),
+    queryFn: () => projectsApi.list(companyId!),
     enabled: !!companyId,
   });
 
@@ -584,9 +599,14 @@ export function FernwehRoutines() {
         <form
           onSubmit={(e) => {
             e.preventDefault();
-            if (newName.trim() && !createMutation.isPending) createMutation.mutate();
+            if (
+              newName.trim() &&
+              newProjectId &&
+              newAssigneeAgentId &&
+              !createMutation.isPending
+            ) createMutation.mutate();
           }}
-          style={{ display: "flex", alignItems: "center", gap: 8 }}
+          style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}
         >
           <input
             autoFocus
@@ -605,9 +625,51 @@ export function FernwehRoutines() {
               outline: "none",
             }}
           />
+          <select
+            aria-label="Routine project"
+            value={newProjectId}
+            onChange={(e) => setNewProjectId(e.target.value)}
+            disabled={projectsQuery.isLoading || createMutation.isPending}
+            style={{
+              minWidth: 150,
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink)",
+              fontSize: 12,
+              fontFamily: "inherit",
+            }}
+          >
+            <option value="">Select project…</option>
+            {(projectsQuery.data ?? []).map((project) => (
+              <option key={project.id} value={project.id}>{project.name}</option>
+            ))}
+          </select>
+          <select
+            aria-label="Routine assignee"
+            value={newAssigneeAgentId}
+            onChange={(e) => setNewAssigneeAgentId(e.target.value)}
+            disabled={agentsQuery.isLoading || createMutation.isPending}
+            style={{
+              minWidth: 150,
+              padding: "8px 10px",
+              borderRadius: 8,
+              border: "1px solid var(--line)",
+              background: "var(--bg-raised)",
+              color: "var(--ink)",
+              fontSize: 12,
+              fontFamily: "inherit",
+            }}
+          >
+            <option value="">Select assignee…</option>
+            {agents.map((agent) => (
+              <option key={agent.id} value={agent.id}>{agent.name}</option>
+            ))}
+          </select>
           <button
             type="submit"
-            disabled={!newName.trim() || createMutation.isPending}
+            disabled={!newName.trim() || !newProjectId || !newAssigneeAgentId || createMutation.isPending}
             style={{
               padding: "8px 14px",
               borderRadius: 8,
@@ -616,15 +678,20 @@ export function FernwehRoutines() {
               color: "var(--bg)",
               fontSize: 12,
               fontWeight: 500,
-              cursor: !newName.trim() || createMutation.isPending ? "not-allowed" : "pointer",
-              opacity: !newName.trim() || createMutation.isPending ? 0.5 : 1,
+              cursor: !newName.trim() || !newProjectId || !newAssigneeAgentId || createMutation.isPending ? "not-allowed" : "pointer",
+              opacity: !newName.trim() || !newProjectId || !newAssigneeAgentId || createMutation.isPending ? 0.5 : 1,
             }}
           >
             {createMutation.isPending ? "Creating…" : "Create"}
           </button>
           <button
             type="button"
-            onClick={() => { setShowCreate(false); setNewName(""); }}
+            onClick={() => {
+              setShowCreate(false);
+              setNewName("");
+              setNewProjectId("");
+              setNewAssigneeAgentId("");
+            }}
             style={{
               padding: "8px 12px",
               borderRadius: 8,

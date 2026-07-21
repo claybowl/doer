@@ -255,15 +255,15 @@ function OnboardingRoutePage() {
     : null;
 
   const title = matchedCompany
-    ? `Add another agent to ${matchedCompany.name}`
+    ? `Add a Letta agent to ${matchedCompany.name}`
     : companies.length > 0
       ? "Create another company"
       : "Create your first company";
   const description = matchedCompany
-    ? "Run onboarding again to add an agent and a starter task for this company."
+    ? "Add one local-first Letta agent with persistent Doer-managed memory."
     : companies.length > 0
-      ? "Run onboarding again to create another company and seed its first agent."
-      : "Get started by creating a company and your first agent.";
+      ? "Create a company and start it with one local-first Letta agent."
+      : "Get started by creating a company and your first Letta agent.";
 
   return (
     <div className="mx-auto max-w-xl py-10">
@@ -278,7 +278,7 @@ function OnboardingRoutePage() {
                 : openOnboarding()
             }
           >
-            {matchedCompany ? "Add Agent" : "Start Onboarding"}
+            {matchedCompany ? "Add Letta Agent" : "Start Onboarding"}
           </Button>
         </div>
       </div>
