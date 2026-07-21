@@ -1,9 +1,7 @@
 // ─── letta_code Adapter — Shared Types ──────────────────────────────────────
 
 /**
- * Online mode: connects to a Letta server (api.letta.com, self-hosted, etc.)
- * using the official letta-client SDK. Behaves like letta_cloud but lives
- * inside letta_code so users have one unified "Letta agent" adapter.
+ * Legacy online shape. Normalized to SDK cloud-attached compatibility.
  */
 export interface LettaCodeOnlineConfig {
   mode: "online";
@@ -29,8 +27,7 @@ export interface LettaCodeOnlineConfig {
 }
 
 /**
- * Offline mode: loads memory blocks from local .md files, calls Anthropic or
- * OpenAI directly in-process. No external server, no PostgreSQL, no Docker.
+ * Legacy offline shape. Normalized to the local Agent SDK backend.
  */
 export interface LettaCodeOfflineConfig {
   mode: "offline";
@@ -80,26 +77,73 @@ export interface LettaCodeOfflineConfig {
   /** Working directory for offline tools (bash, read, write, grep). Defaults to the process cwd. */
   cwd?: string;
 
-  /**
-   * Capability boundary for the custom offline harness. Ollama Cloud defaults
-   * to cloud_safe: no local tools, no shell, and no Doer API access.
-   * Privileged access is reserved for local providers.
-   */
+  /** @deprecated Ignored. SDK permissions are provider-independent. */
   toolProfile?: "cloud_safe" | "privileged";
 
-  /**
-   * Memory block labels allowed to leave the machine for a cloud-safe agent.
-   * Omit or provide an empty list to send no persistent memory to the provider.
-   */
+  /** @deprecated Ignored by the unified Agent SDK runtime. */
   cloudMemoryLabels?: string[];
 }
 
 /**
  * Unified letta_code adapter config.
- * Discriminated on `mode` — "online" talks to a Letta server,
- * "offline" runs entirely in-process from local .md files.
+ * SDK shape is canonical; mode-based shapes remain for stored-record migration.
  */
-export type LettaCodeAdapterConfig = LettaCodeOnlineConfig | LettaCodeOfflineConfig;
+export type LettaCodeAdapterConfig = LettaCodeSdkConfig | LettaCodeOnlineConfig | LettaCodeOfflineConfig;
+
+export type LettaCodeBackend = "local" | "cloud_attached";
+export type LettaCodePermissionMode = "standard" | "acceptEdits" | "unrestricted";
+export type LettaCodeReasoningEffort = "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
+export type LettaCodeSkillSource = "bundled" | "global" | "agent" | "project";
+
+/** Canonical Agent SDK configuration. Legacy online/offline fields are normalized into this shape. */
+export interface LettaCodeSdkConfig {
+  backend?: LettaCodeBackend;
+  lettaAgentId?: string;
+  /** Provenance only; never used as the canonical local runtime ID. */
+  sourceAgentId?: string;
+  sourceCloudAgentId?: string;
+  apiKey?: string;
+  apiBaseUrl?: string;
+  cwd?: string;
+  model?: string;
+  reasoningEffort?: LettaCodeReasoningEffort;
+  permissionMode?: LettaCodePermissionMode;
+  allowedTools?: string[];
+  disallowedTools?: string[];
+  skillSources?: LettaCodeSkillSource[];
+  systemInfoReminder?: boolean;
+  modsEnabled?: boolean;
+  dreaming?: {
+    trigger?: "off" | "step-count" | "compaction-event";
+    behavior?: "reminder" | "auto-launch";
+    stepCount?: number;
+  };
+  heartbeatPrompt?: string;
+}
+
+export interface ResolvedLettaCodeConfig extends Required<Pick<
+  LettaCodeSdkConfig,
+  "backend" | "permissionMode" | "allowedTools" | "disallowedTools" | "skillSources" | "modsEnabled"
+>> {
+  harnessBackend: "local" | "api";
+  lettaAgentId: string;
+  sourceCloudAgentId: string;
+  apiKey: string;
+  apiBaseUrl: string;
+  cwd: string;
+  model: string;
+  reasoningEffort?: LettaCodeReasoningEffort;
+  systemInfoReminder?: boolean;
+  dreaming?: LettaCodeSdkConfig["dreaming"];
+  heartbeatPrompt: string;
+}
+
+export interface LettaCodeSessionParams {
+  conversationId: string;
+  lettaAgentId: string;
+  cwd: string;
+  backend: LettaCodeBackend;
+}
 
 // ── Offline-mode helpers ──────────────────────────────────────────────────
 

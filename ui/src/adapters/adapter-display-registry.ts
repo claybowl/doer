@@ -90,23 +90,23 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     icon: MousePointer2,
   },
   letta_cloud: {
-    label: "Letta Cloud",
-    description: "Cloud-hosted Letta agent with persistent memory",
+    label: "Letta Cloud (Legacy)",
+    description: "Existing agents remain supported; migrate to the unified Letta adapter",
     icon: Bot,
   },
   letta_code: {
-    label: "letta_code",
-    description: "Letta agent — online (Letta server) or offline (in-process memory files)",
+    label: "Letta",
+    description: "Local-first Agent SDK runtime with Cloud compatibility, local tools, and Doer MemFS",
     icon: Bot,
   },
   letta_cli: {
-    label: "Letta CLI",
-    description: "Headless letta-code CLI subprocess connecting to a Letta Cloud agent by ID",
+    label: "Letta CLI (Legacy)",
+    description: "Existing agents remain supported; CLI and mods are companions to the unified adapter",
     icon: Bot,
   },
   letta_af_opencode: {
-    label: "Letta .af (OpenCode)",
-    description: "Letta agent via local OpenCode runtime with .af agent files",
+    label: "Letta .af (Legacy)",
+    description: "Existing agents remain supported; migrate to the unified Letta adapter",
     icon: Bot,
   },
   openclaw_gateway: {

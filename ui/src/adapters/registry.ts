@@ -30,6 +30,13 @@ const builtinAdaptersByType = new Map<string, UIAdapterModule>();
 // Tracks which builtin types currently have an active external override.
 const activeExternalOverrides = new Set<string>();
 
+/** Parsers remain registered so existing agents keep working. */
+export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
+  "letta_cloud",
+  "letta_cli",
+  "letta_af_opencode",
+]);
+
 // Generation counter to discard stale dynamic parser loads. When an override
 // is deactivated while a load is in-flight, the generation is bumped and the
 // stale result is discarded in its .then() handler.
@@ -265,4 +272,8 @@ export function syncExternalAdapters(
 
 export function listUIAdapters(): UIAdapterModule[] {
   return [...uiAdapters];
+}
+
+export function listCreatableUIAdapters(): UIAdapterModule[] {
+  return listUIAdapters().filter((adapter) => !LEGACY_LETTA_ADAPTER_TYPES.has(adapter.type));
 }

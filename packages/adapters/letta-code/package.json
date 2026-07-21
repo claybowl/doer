@@ -1,7 +1,7 @@
 {
   "name": "@doerai/adapter-letta-code",
   "version": "0.1.0",
-  "description": "letta_code adapter — persistent memory agents running natively in Doer's Node.js process, no external server required",
+  "description": "Unified local-first Letta Agent SDK adapter with Doer MemFS and local tools",
   "license": "MIT",
   "type": "module",
   "exports": {
@@ -27,8 +27,7 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.55.0",
-    "@letta-ai/letta-client": "^1.10.1",
+    "@letta-ai/letta-agent-sdk": "^0.2.6",
     "@doerai/adapter-utils": "workspace:*"
   },
   "devDependencies": {

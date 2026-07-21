@@ -16,6 +16,7 @@ const agentSvc = {
   list: vi.fn(),
   create: vi.fn(),
   update: vi.fn(),
+  remove: vi.fn(),
 };
 
 const accessSvc = {
@@ -438,6 +439,156 @@ describe("company portability", () => {
     expect(extension).not.toContain("budgetMonthlyCents: 0");
     expect(exported.warnings).toContain("Agent claudecoder command /Users/dotta/.local/bin/claude was omitted from export because it is system-dependent.");
     expect(exported.warnings).toContain("Agent claudecoder PATH override was omitted from export because it is system-dependent.");
+  });
+
+  it("exports a letta_code agent with complete MemFS Git history", async () => {
+    const root = await fs.mkdtemp(path.join(os.tmpdir(), "doer-company-letta-"));
+    try {
+      await fs.mkdir(path.join(root, "system"), { recursive: true });
+      execFileSync("git", ["init", root]);
+      execFileSync("git", ["-C", root, "config", "user.email", "agent@doer.local"]);
+      execFileSync("git", ["-C", root, "config", "user.name", "Doer Agent"]);
+      await fs.writeFile(path.join(root, "system", "persona.md"), "portable persona\n");
+      execFileSync("git", ["-C", root, "add", "."]);
+      execFileSync("git", ["-C", root, "commit", "-m", "memory"]);
+      agentSvc.list.mockResolvedValueOnce([{
+        id: "agent-doer-letta",
+        name: "Portable Letta",
+        status: "idle",
+        role: "engineer",
+        title: "Portable Agent",
+        icon: null,
+        reportsTo: null,
+        capabilities: null,
+        adapterType: "letta_code",
+        adapterConfig: {
+          backend: "local",
+          lettaAgentId: "agent-local-source",
+          apiKey: "must-not-export",
+          memoryDir: "/must/not/export",
+        },
+        runtimeConfig: {},
+        budgetMonthlyCents: 0,
+        permissions: {},
+        metadata: null,
+      }]);
+      const portability = companyPortabilityService({} as any, undefined, {
+        listMemfsBindings: async () => [{
+          rootPath: root,
+          pathPrefix: "",
+          strategy: "fs-mount",
+          permission: "read_write",
+        }],
+      });
+
+      const exported = await portability.exportBundle("company-1", {
+        include: { company: true, agents: true, projects: false, issues: false, skills: false },
+      });
+
+      expect(exported.files["agents/portable-letta/letta/memfs.bundle"]).toMatchObject({ encoding: "base64" });
+      expect(asTextFile(exported.files["agents/portable-letta/letta/manifest.json"])).toContain('"version": 1');
+      expect(exported.manifest.agents[0]?.workspace?.includeSnapshot).toBe(true);
+      expect(exported.manifest.agents[0]?.lettaArtifact).toMatchObject({
+        version: 1,
+        memfsBundlePath: "agents/portable-letta/letta/memfs.bundle",
+        sourceAgentId: "agent-local-source",
+      });
+      expect(asTextFile(exported.files[".doer.yaml"])).not.toContain("must-not-export");
+    } finally {
+      await fs.rm(root, { recursive: true, force: true });
+    }
+  });
+
+  it("imports Letta memory as a fresh local canonical agent", async () => {
+    const sourceRepo = await fs.mkdtemp(path.join(os.tmpdir(), "doer-company-letta-source-"));
+    const restoreParent = await fs.mkdtemp(path.join(os.tmpdir(), "doer-company-letta-target-"));
+    const restorePath = path.join(restoreParent, "portable-letta");
+    try {
+      execFileSync("git", ["init", sourceRepo]);
+      execFileSync("git", ["-C", sourceRepo, "config", "user.email", "agent@doer.local"]);
+      execFileSync("git", ["-C", sourceRepo, "config", "user.name", "Doer Agent"]);
+      await fs.writeFile(path.join(sourceRepo, "persona.md"), "first memory\n");
+      execFileSync("git", ["-C", sourceRepo, "add", "."]);
+      execFileSync("git", ["-C", sourceRepo, "commit", "-m", "first memory"]);
+      await fs.writeFile(path.join(sourceRepo, "persona.md"), "whole portable memory\n");
+      execFileSync("git", ["-C", sourceRepo, "add", "."]);
+      execFileSync("git", ["-C", sourceRepo, "commit", "-m", "second memory"]);
+
+      agentSvc.list.mockResolvedValueOnce([{
+        id: "agent-doer-letta",
+        name: "Portable Letta",
+        status: "idle",
+        role: "engineer",
+        title: "Portable Agent",
+        icon: null,
+        reportsTo: null,
+        capabilities: null,
+        adapterType: "letta_code",
+        adapterConfig: {
+          backend: "cloud_attached",
+          lettaAgentId: "agent-cloud-source",
+          apiKey: "must-not-import",
+          memoryDir: "/must/not/import",
+          permissionMode: "unrestricted",
+        },
+        runtimeConfig: {},
+        budgetMonthlyCents: 0,
+        permissions: {},
+        metadata: null,
+      }]);
+      const portability = companyPortabilityService({} as any, undefined, {
+        listMemfsBindings: async () => [{
+          rootPath: sourceRepo,
+          pathPrefix: "",
+          strategy: "fs-mount",
+          permission: "read_write",
+        }],
+        prepareMemfsRestore: async () => restorePath,
+      });
+      const exported = await portability.exportBundle("company-1", {
+        include: { company: true, agents: true, projects: false, issues: false, skills: false },
+      });
+
+      agentSvc.list.mockResolvedValue([]);
+      agentSvc.create.mockImplementation(async (companyId: string, input: Record<string, unknown>) => ({
+        id: "agent-imported-letta",
+        companyId,
+        ...input,
+      }));
+      agentSvc.update.mockImplementation(async (_id: string, input: Record<string, unknown>) => ({
+        id: "agent-imported-letta",
+        companyId: "company-1",
+        name: "Portable Letta",
+        adapterType: "letta_code",
+        ...input,
+      }));
+
+      await portability.importBundle({
+        source: { type: "inline", rootPath: exported.rootPath, files: exported.files },
+        include: { company: false, agents: true, projects: false, issues: false, skills: false },
+        target: { mode: "existing_company", companyId: "company-1" },
+        agents: "all",
+        collisionStrategy: "rename",
+      }, "user-1");
+
+      const createConfig = agentSvc.create.mock.calls[0]?.[1]?.adapterConfig as Record<string, unknown>;
+      expect(createConfig).toMatchObject({
+        backend: "local",
+        sourceAgentId: "agent-cloud-source",
+        sourceCloudAgentId: "agent-cloud-source",
+        permissionMode: "unrestricted",
+      });
+      expect(createConfig).not.toHaveProperty("lettaAgentId");
+      expect(createConfig).not.toHaveProperty("apiKey");
+      expect(createConfig).not.toHaveProperty("memoryDir");
+      expect(await fs.readFile(path.join(restorePath, "persona.md"), "utf8")).toBe("whole portable memory\n");
+      expect(execFileSync("git", ["-C", restorePath, "rev-list", "--count", "HEAD"], { encoding: "utf8" }).trim()).toBe("2");
+    } finally {
+      agentSvc.create.mockReset();
+      agentSvc.update.mockReset();
+      await fs.rm(sourceRepo, { recursive: true, force: true });
+      await fs.rm(restoreParent, { recursive: true, force: true });
+    }
   });
 
   it("exports default sidebar order into the Doer extension and manifest", async () => {

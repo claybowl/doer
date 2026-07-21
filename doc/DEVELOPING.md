@@ -41,6 +41,18 @@ This starts:
 
 `pnpm dev:once` now tracks backend-relevant file changes and pending migrations. When the current boot is stale, the board UI shows a `Restart required` banner. You can also enable guarded auto-restart in `Instance Settings > Experimental`, which waits for queued/running local agent runs to finish before restarting the dev server.
 
+When the packaged Electron app is using 3100, run source development on 3101:
+
+```sh
+PORT=3101 pnpm dev
+curl http://localhost:3101/api/health
+```
+
+The source server uses `~/.doer/instances/default/`; the packaged macOS app uses
+`~/Library/Application Support/@doer/desktop/instances/default/`. They do not share
+the embedded database. Setting a different port alone does not isolate two source
+servers; use `pnpm doerai worktree init --server-port 3101` when both are source builds.
+
 Tailscale/private-auth dev mode:
 
 ```sh
@@ -129,6 +141,33 @@ When a local agent run has no resolved project/session workspace, Doer falls bac
 - `~/.doer/instances/default/workspaces/<agent-id>`
 
 This path honors `DOER_HOME` and `DOER_INSTANCE_ID` in non-default setups.
+
+## Unified Letta Adapter
+
+Create new Letta agents with `letta_code`. The adapter uses the Letta Agent SDK;
+the older `letta_cloud`, `letta_cli`, and `letta_af_opencode` types remain runnable
+for existing records but are hidden from normal creation flows.
+
+- `backend: local` creates a canonical `agent-local-*` identity. Model selection is
+  independent of permissions, so Ollama, Ollama Cloud, ChatGPT subscription models,
+  and other Letta-supported handles can all use local shell/filesystem tools when
+  `permissionMode` allows them.
+- Run `letta /connect` to authenticate providers, including a ChatGPT subscription.
+  The CLI is also the companion interface for model discovery and mods; execution
+  itself runs through the SDK.
+- Agent memory is mounted from Doer MemFS. The Letta local backend is scoped beside
+  that agent's Doer state, not in a shared global database.
+- Mods are discovered from `~/.letta/mods`; diagnostics are read without installing,
+  removing, or reloading mods during a run.
+- Cloud migration uses the preview/apply endpoints under
+  `/api/companies/:companyId/agents/:agentId/letta-migration/`. Apply creates new
+  Doer and local Letta IDs and leaves the Cloud source unchanged.
+
+Company export stores each initialized Letta MemFS repository as a checksummed Git
+bundle. Import restores the full history before activating the new local canonical
+agent. Credentials and machine-specific paths are never included. Letta Code 0.27's
+local backend does not support direct AgentFile import/export, so the Git bundle and
+memory-block snapshot are the authoritative portability mechanisms.
 
 For `codex_local`, Doer also manages a per-company Codex home under the instance root and seeds it from the shared Codex login/config home (`$CODEX_HOME` or `~/.codex`):
 

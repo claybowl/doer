@@ -32,6 +32,7 @@ import { assetRoutes } from "./routes/assets.js";
 import { accessRoutes } from "./routes/access.js";
 import { lettaProxyRoutes } from "./routes/letta-proxy.js";
 import { memfsRoutes } from "./routes/memfs.js";
+import { lettaMigrationRoutes } from "./routes/letta-migration.js";
 import { teamRoutes } from "./routes/teams.js";
 import { agentMemoryRoutes } from "./routes/agent-memory.js";
 import { agentToolRoutes } from "./routes/agent-tools.js";
@@ -178,6 +179,7 @@ export async function createApp(
   api.use(sidebarBadgeRoutes(db));
   api.use(instanceSettingsRoutes(db));
   api.use(memfsRoutes(db));
+  api.use(lettaMigrationRoutes(db));
   api.use(agentToolRoutes(db));
   api.use(teamRoutes(db));
   api.use(deliverableRoutes(db, opts.storageService));

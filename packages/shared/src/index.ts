@@ -278,6 +278,7 @@ export type {
   CompanyPortabilityCompanyManifestEntry,
   CompanyPortabilitySidebarOrder,
   CompanyPortabilityAgentManifestEntry,
+  CompanyPortabilityLettaArtifact,
   CompanyPortabilitySkillManifestEntry,
   CompanyPortabilityProjectManifestEntry,
   CompanyPortabilityProjectWorkspaceManifestEntry,

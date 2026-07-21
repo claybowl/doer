@@ -127,6 +127,15 @@ export interface CompanyPortabilityAgentManifestEntry {
     subdirs: string[];
     lettaAgentId?: string | null;
   } | null;
+  lettaArtifact?: CompanyPortabilityLettaArtifact | null;
+}
+
+export interface CompanyPortabilityLettaArtifact {
+  version: 1;
+  memfsBundlePath: string;
+  sha256: string;
+  agentFilePath?: string | null;
+  sourceAgentId?: string | null;
 }
 
 export interface CompanyPortabilitySkillManifestEntry {

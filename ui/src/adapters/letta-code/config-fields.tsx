@@ -1,96 +1,11 @@
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
 import type { AdapterConfigFieldsProps, CreateConfigValues } from "../types";
-import { Field, DraftInput } from "../../components/agent-config-primitives";
+import { DraftInput, Field } from "../../components/agent-config-primitives";
 
-// ─── Shared input style ───────────────────────────────────────────────────────
-const inputClass =
-  "w-full rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm font-mono placeholder:text-muted-foreground/40";
+const controlClass =
+  "w-full rounded-md border border-border bg-transparent px-2.5 py-1.5 text-sm font-mono outline-none placeholder:text-muted-foreground/40 focus-visible:ring-ring focus-visible:ring-[3px]";
 
-// ─── Provider presets (mirrors the server-side OPENAI_COMPAT_PRESETS) ─────────
-const PROVIDER_META: Record<
-  string,
-  { baseUrl: string; envKey: string | null; modelPlaceholder: string; modelHint: string }
-> = {
-  anthropic:    { baseUrl: "https://api.anthropic.com",          envKey: "ANTHROPIC_API_KEY", modelPlaceholder: "claude-sonnet-4-6",        modelHint: "e.g. claude-sonnet-4-6, claude-haiku-4-5" },
-  groq:         { baseUrl: "https://api.groq.com/openai/v1",      envKey: "GROQ_API_KEY",      modelPlaceholder: "llama-3.3-70b-versatile",  modelHint: "e.g. llama-3.3-70b-versatile, openai/gpt-oss-120b" },
-  ollama:       { baseUrl: "http://localhost:11434/v1",          envKey: null,                modelPlaceholder: "llama3.2",                 modelHint: "Any model you've pulled, e.g. llama3.2, qwen2.5" },
-  ollama_cloud: { baseUrl: "https://ollama.com/v1",              envKey: "OLLAMA_API_KEY",    modelPlaceholder: "gpt-oss:120b",             modelHint: "e.g. gpt-oss:120b, qwen3-coder:480b" },
-  nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY",   modelPlaceholder: "meta/llama-3.3-70b-instruct", modelHint: "e.g. meta/llama-3.3-70b-instruct" },
-  opencode_zen: { baseUrl: "https://opencode.ai/zen/v1",         envKey: "OPENCODE_API_KEY",  modelPlaceholder: "grok-code",                modelHint: "e.g. grok-code, qwen3-coder" },
-  openai:       { baseUrl: "https://api.openai.com/v1",          envKey: "OPENAI_API_KEY",    modelPlaceholder: "gpt-4o",                   modelHint: "e.g. gpt-4o, gpt-4o-mini" },
-};
+const SKILL_SOURCES = ["bundled", "global", "agent", "project"] as const;
 
-// ─── Secret field (API key) ───────────────────────────────────────────────────
-function SecretInput({
-  value,
-  onCommit,
-  placeholder,
-}: {
-  value: string;
-  onCommit: (v: string) => void;
-  placeholder?: string;
-}) {
-  const [visible, setVisible] = useState(false);
-  return (
-    <div className="relative">
-      <button
-        type="button"
-        onClick={() => setVisible((v) => !v)}
-        className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground/50 hover:text-muted-foreground transition-colors"
-      >
-        {visible ? <Eye className="h-3.5 w-3.5" /> : <EyeOff className="h-3.5 w-3.5" />}
-      </button>
-      <DraftInput
-        value={value}
-        onCommit={onCommit}
-        immediate
-        type={visible ? "text" : "password"}
-        className={inputClass + " pl-8"}
-        placeholder={placeholder}
-      />
-    </div>
-  );
-}
-
-// ─── Mode toggle (Online / Offline) ─────────────────────────────────────────────
-function ModeToggle({
-  value,
-  onChange,
-}: {
-  value: "online" | "offline";
-  onChange: (mode: "online" | "offline") => void;
-}) {
-  const opts: { id: "online" | "offline"; label: string; sub: string }[] = [
-    { id: "online", label: "Online", sub: "Letta server" },
-    { id: "offline", label: "Offline", sub: "Local .md files" },
-  ];
-  return (
-    <div className="grid grid-cols-2 gap-2">
-      {opts.map((o) => {
-        const active = value === o.id;
-        return (
-          <button
-            key={o.id}
-            type="button"
-            onClick={() => onChange(o.id)}
-            className={
-              "flex flex-col items-start rounded-md border px-3 py-2 text-left transition-colors " +
-              (active
-                ? "border-primary bg-primary/10"
-                : "border-border hover:bg-accent/40")
-            }
-          >
-            <span className="text-sm font-medium">{o.label}</span>
-            <span className="text-xs text-muted-foreground">{o.sub}</span>
-          </button>
-        );
-      })}
-    </div>
-  );
-}
-
-// ─── Main config fields component ─────────────────────────────────────────────
 export function LettaCodeConfigFields({
   isCreate,
   values,
@@ -99,137 +14,264 @@ export function LettaCodeConfigFields({
   eff,
   mark,
 }: AdapterConfigFieldsProps) {
-  const setField = (field: string, v: unknown) =>
-    isCreate
-      ? set?.({ [field]: v } as unknown as Partial<CreateConfigValues>)
-      : mark("adapterConfig", field, v);
+  const setField = (field: string, value: unknown) => {
+    if (isCreate) set?.({ [field]: value } as unknown as Partial<CreateConfigValues>);
+    else mark("adapterConfig", field, value);
+  };
+  const getValue = <T,>(field: string, fallback: T): T => isCreate
+    ? (((values as unknown as Record<string, unknown>)?.[field] as T) ?? fallback)
+    : eff("adapterConfig", field, (config[field] as T) ?? fallback);
+  const getString = (field: string, fallback = "") => String(getValue(field, fallback) ?? fallback);
+  const getBoolean = (field: string, fallback: boolean) => getValue(field, fallback) === true;
+  const getList = (field: string, fallback: string[]) => {
+    const value = getValue<unknown>(field, fallback);
+    if (Array.isArray(value)) return value.filter((entry): entry is string => typeof entry === "string");
+    if (typeof value === "string") return value.split(/[\n,]/).map((entry) => entry.trim()).filter(Boolean);
+    return fallback;
+  };
 
-  const getField = (field: string, fallback: string) =>
-    isCreate
-      ? (((values as unknown as Record<string, unknown>)?.[field] as string) ?? fallback)
-      // Read the agent's SAVED value as the baseline, not a static fallback —
-      // otherwise eff() returns the constant after the overlay clears on save,
-      // making every field appear to "reset" to its default.
-      : (eff("adapterConfig", field, (config[field] as string) ?? fallback) as string);
-
-  // Default to offline — it's the zero-dependency mode.
-  const mode = (getField("mode", "offline") || "offline") as "online" | "offline";
+  const backend = getString("backend", "local") === "cloud_attached" ? "cloud_attached" : "local";
+  const permissionMode = getString("permissionMode", "standard");
+  const skillSources = getList("skillSources", [...SKILL_SOURCES]);
+  const dreamingTrigger = getString("dreamingTrigger", "off");
 
   return (
     <div className="space-y-4">
-      {/* ── Mode ──────────────────────────────────────────────────────────── */}
-      <Field label="Mode" hint="Online connects to a Letta server. Offline runs in-process from local .md memory files.">
-        <ModeToggle value={mode} onChange={(m) => setField("mode", m)} />
+      <Field label="Backend" hint="Local is canonical. Cloud-attached keeps compatibility with an existing Constellation agent while tools still run on this Doer machine.">
+        <div className="grid grid-cols-2 gap-2" role="group" aria-label="Letta backend">
+          {([
+            ["local", "Local Canonical", "Doer memory & local tools"],
+            ["cloud_attached", "Cloud Attached", "Existing Constellation ID"],
+          ] as const).map(([id, label, detail]) => (
+            <button
+              key={id}
+              type="button"
+              aria-pressed={backend === id}
+              onClick={() => setField("backend", id)}
+              className={`rounded-md border px-3 py-2 text-left focus-visible:ring-ring focus-visible:ring-[3px] ${
+                backend === id ? "border-primary bg-primary/10" : "border-border hover:bg-accent/50"
+              }`}
+            >
+              <span className="block text-sm font-medium">{label}</span>
+              <span className="block text-xs text-muted-foreground">{detail}</span>
+            </button>
+          ))}
+        </div>
       </Field>
 
-      {mode === "online" ? (
-        <>
-          {/* ── Online fields ─────────────────────────────────────────────── */}
-          <Field label="Agent ID" hint="Letta agent ID — format: agent-xxxxxxxx-xxxx-...">
-            <DraftInput
-              value={getField("agentId", "")}
-              onCommit={(v) => setField("agentId", v)}
-              immediate
-              className={inputClass}
-              placeholder="agent-2402fdcd-8623-4482-9998-590a1c13ce21"
-            />
-          </Field>
+      <div className="rounded-md border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+        Shell, filesystem, and Doer tools execute on this machine. Model choice does not reduce those permissions. Agent memory uses the binding configured in the Memory tab.
+      </div>
 
-          <Field label="API Key" hint="Letta API key (stored encrypted). Use 'local' for a no-auth local server.">
-            <SecretInput
-              value={getField("apiKey", "")}
-              onCommit={(v) => setField("apiKey", v)}
-              placeholder="sk-letta-… (or 'local')"
-            />
-          </Field>
+      <Field
+        label="Letta Agent ID"
+        hint={backend === "local" ? "Leave blank to create a new canonical agent-local ID on first run." : "Required: the existing Constellation agent ID."}
+      >
+        <DraftInput
+          name="lettaAgentId"
+          aria-label="Letta Agent ID"
+          autoComplete="off"
+          spellCheck={false}
+          value={getString("lettaAgentId")}
+          onCommit={(value) => setField("lettaAgentId", value || undefined)}
+          immediate
+          className={controlClass}
+          placeholder={backend === "local" ? "Created automatically…" : "agent-xxxxxxxx-xxxx-…"}
+        />
+      </Field>
 
-          <Field label="Base URL" hint="Leave blank for Letta Cloud. Set for self-hosted, e.g. http://localhost:8283">
-            <DraftInput
-              value={getField("baseUrl", "")}
-              onCommit={(v) => setField("baseUrl", v || undefined)}
-              immediate
-              className={inputClass}
-              placeholder="https://api.letta.com"
-            />
-          </Field>
-        </>
-      ) : (
-        <>
-          {/* ── Offline fields ────────────────────────────────────────────── */}
-          <Field
-            label="Memory directory"
-            hint="Absolute path to a folder of .md memory blocks. Leave blank to use the attached memory binding (Memory tab)."
+      <Field label="Model Handle" hint="Any model available through Letta, including ChatGPT subscription, Ollama, Ollama Cloud, or BYOK providers.">
+        <DraftInput
+          name="lettaModel"
+          aria-label="Letta model handle"
+          autoComplete="off"
+          spellCheck={false}
+          value={getString("model")}
+          onCommit={(value) => setField("model", value || undefined)}
+          immediate
+          className={controlClass}
+          placeholder="openai-codex/gpt-5…"
+        />
+      </Field>
+
+      <div className="grid grid-cols-2 gap-3">
+        <Field label="Reasoning" hint="Reasoning tier supported by the selected model.">
+          <select
+            name="lettaReasoningEffort"
+            aria-label="Letta reasoning effort"
+            value={getString("reasoningEffort")}
+            onChange={(event) => setField("reasoningEffort", event.target.value || undefined)}
+            className={controlClass}
           >
-            <DraftInput
-              value={getField("memoryDir", "")}
-              onCommit={(v) => setField("memoryDir", v || undefined)}
-              immediate
-              className={inputClass}
-              placeholder="/Users/you/.letta/agents/agent-…/memory  (or leave blank)"
-            />
-          </Field>
+            <option value="">Model default</option>
+            {[
+              "none", "minimal", "low", "medium", "high", "xhigh",
+            ].map((value) => <option key={value} value={value}>{value}</option>)}
+          </select>
+        </Field>
+        <Field label="Tool Permissions" hint="Controls approval prompts for tools running locally on the Doer machine.">
+          <select
+            name="lettaPermissionMode"
+            aria-label="Letta tool permission mode"
+            value={permissionMode}
+            onChange={(event) => setField("permissionMode", event.target.value)}
+            className={controlClass}
+          >
+            <option value="standard">Standard</option>
+            <option value="acceptEdits">Accept Edits</option>
+            <option value="unrestricted">Unrestricted</option>
+          </select>
+        </Field>
+      </div>
 
-          {(() => {
-            const provider = getField("provider", "anthropic") || "anthropic";
-            const meta = PROVIDER_META[provider] ?? PROVIDER_META.anthropic;
-            return (
-              <>
-                <Field label="Provider" hint="Which LLM backend to call directly. Groq, NVIDIA, Ollama and OpenCode Zen are free or near-free.">
-                  <select
-                    value={provider}
-                    onChange={(e) => setField("provider", e.target.value)}
-                    className={inputClass + " cursor-pointer"}
-                  >
-                    <option value="anthropic">Anthropic (paid)</option>
-                    <option value="groq">Groq (free tier)</option>
-                    <option value="ollama">Ollama — local (free)</option>
-                    <option value="ollama_cloud">Ollama Cloud (free daily)</option>
-                    <option value="nvidia">NVIDIA NIM (free tier)</option>
-                    <option value="opencode_zen">OpenCode Zen (free models)</option>
-                    <option value="openai">OpenAI (paid)</option>
-                  </select>
-                </Field>
+      <Field label="Allowed Tools" hint="Optional allowlist of Letta Code tool names, comma-separated. Blank means Letta defaults.">
+        <DraftInput
+          name="lettaAllowedTools"
+          aria-label="Allowed Letta tools"
+          autoComplete="off"
+          spellCheck={false}
+          value={getList("allowedTools", []).join(", ")}
+          onCommit={(value) => setField("allowedTools", value.split(",").map((item) => item.trim()).filter(Boolean))}
+          className={controlClass}
+          placeholder="Bash, Read, Write, Edit…"
+        />
+      </Field>
 
-                <Field label="Model" hint={meta.modelHint}>
-                  <DraftInput
-                    value={getField("model", "")}
-                    onCommit={(v) => setField("model", v || undefined)}
-                    immediate
-                    className={inputClass}
-                    placeholder={meta.modelPlaceholder}
-                  />
-                </Field>
+      <Field label="Disallowed Tools" hint="Optional denylist applied after the allowlist.">
+        <DraftInput
+          name="lettaDisallowedTools"
+          aria-label="Disallowed Letta tools"
+          autoComplete="off"
+          spellCheck={false}
+          value={getList("disallowedTools", []).join(", ")}
+          onCommit={(value) => setField("disallowedTools", value.split(",").map((item) => item.trim()).filter(Boolean))}
+          className={controlClass}
+          placeholder="Tool names…"
+        />
+      </Field>
 
-                <Field label="Base URL" hint={`Override the endpoint. Blank uses the preset: ${meta.baseUrl}`}>
-                  <DraftInput
-                    value={getField("baseUrl", "")}
-                    onCommit={(v) => setField("baseUrl", v || undefined)}
-                    immediate
-                    className={inputClass}
-                    placeholder={meta.baseUrl}
-                  />
-                </Field>
-
-                {meta.envKey ? (
-                  <Field label="API Key" hint={`Optional override. Falls back to ${meta.envKey} in the environment.`}>
-                    <SecretInput
-                      value={getField("apiKey", "")}
-                      onCommit={(v) => setField("apiKey", v || undefined)}
-                      placeholder={`${meta.envKey} (optional)`}
-                    />
-                  </Field>
-                ) : (
-                  <div className="rounded-md border border-border/60 bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
-                    Local Ollama needs no API key — just make sure <code>ollama serve</code> is running on this machine.
-                  </div>
+      <Field label="Skill Sources" hint="Choose which Letta Code skill locations are available. Agent/project skills can include mod-provided customization.">
+        <div className="grid grid-cols-2 gap-2">
+          {SKILL_SOURCES.map((source) => (
+            <label key={source} className="flex cursor-pointer items-center gap-2 rounded-md border border-border px-2.5 py-2 text-xs hover:bg-accent/50">
+              <input
+                type="checkbox"
+                name={`lettaSkillSource-${source}`}
+                checked={skillSources.includes(source)}
+                onChange={(event) => setField(
+                  "skillSources",
+                  event.target.checked
+                    ? [...skillSources, source]
+                    : skillSources.filter((item) => item !== source),
                 )}
-              </>
-            );
-          })()}
-        </>
+              />
+              <span className="capitalize">{source}</span>
+            </label>
+          ))}
+        </div>
+      </Field>
+
+      <div className="space-y-2 rounded-md border border-border px-3 py-2">
+        {[
+          ["modsEnabled", "Enable Letta Code Mods", "Loads installed mods; execution never installs or removes them."],
+          ["systemInfoReminder", "System Info Reminder", "Includes local device, Git, and workspace context on the first turn."],
+        ].map(([field, label, detail]) => (
+          <label key={field} className="flex cursor-pointer items-start gap-2 text-xs">
+            <input
+              type="checkbox"
+              name={field}
+              checked={getBoolean(field, field === "modsEnabled")}
+              onChange={(event) => setField(field, event.target.checked)}
+              className="mt-0.5"
+            />
+            <span><span className="font-medium text-foreground">{label}</span><span className="block text-muted-foreground">{detail}</span></span>
+          </label>
+        ))}
+      </div>
+
+      <Field label="Dreaming" hint="Optional Letta memory-reflection behavior.">
+        <select
+          name="lettaDreamingTrigger"
+          aria-label="Letta dreaming trigger"
+          value={dreamingTrigger}
+          onChange={(event) => setField("dreamingTrigger", event.target.value)}
+          className={controlClass}
+        >
+          <option value="off">Off</option>
+          <option value="step-count">Step Count</option>
+          <option value="compaction-event">Compaction Event</option>
+        </select>
+      </Field>
+
+      {dreamingTrigger !== "off" && (
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Dreaming Behavior" hint="Show a reminder or launch reflection automatically.">
+            <select
+              name="lettaDreamingBehavior"
+              aria-label="Letta dreaming behavior"
+              value={getString("dreamingBehavior", "reminder")}
+              onChange={(event) => setField("dreamingBehavior", event.target.value)}
+              className={controlClass}
+            >
+              <option value="reminder">Reminder</option>
+              <option value="auto-launch">Auto Launch</option>
+            </select>
+          </Field>
+          {dreamingTrigger === "step-count" && (
+            <Field label="Step Count" hint="Positive number of steps between reflection prompts.">
+              <DraftInput
+                type="number"
+                inputMode="numeric"
+                min={1}
+                name="lettaDreamingStepCount"
+                aria-label="Letta dreaming step count"
+                autoComplete="off"
+                value={getString("dreamingStepCount", "10")}
+                onCommit={(value) => setField("dreamingStepCount", Number(value) || 10)}
+                immediate
+                className={controlClass}
+              />
+            </Field>
+          )}
+        </div>
       )}
 
-      {/* Heartbeat prompt is edited in the Instructions tab (shared with letta_cloud). */}
+      {backend === "cloud_attached" && (
+        <div className="space-y-3 rounded-md border border-border p-3">
+          <div>
+            <p className="text-sm font-medium">Cloud Compatibility</p>
+            <p className="text-xs text-muted-foreground">Optional when this machine is already authenticated through <code>letta /connect</code>.</p>
+          </div>
+          <Field label="API Key" hint="Explicit Constellation credential. Prefer the Letta CLI login when possible.">
+            <DraftInput
+              type="password"
+              name="lettaApiKey"
+              aria-label="Letta API key"
+              autoComplete="off"
+              spellCheck={false}
+              value={getString("apiKey")}
+              onCommit={(value) => setField("apiKey", value || undefined)}
+              immediate
+              className={controlClass}
+              placeholder="Optional API key…"
+            />
+          </Field>
+          <Field label="API Base URL" hint="Leave blank for https://api.letta.com.">
+            <DraftInput
+              type="url"
+              name="lettaApiBaseUrl"
+              aria-label="Letta API base URL"
+              autoComplete="off"
+              spellCheck={false}
+              value={getString("apiBaseUrl")}
+              onCommit={(value) => setField("apiBaseUrl", value || undefined)}
+              immediate
+              className={controlClass}
+              placeholder="https://api.letta.com…"
+            />
+          </Field>
+        </div>
+      )}
     </div>
   );
 }

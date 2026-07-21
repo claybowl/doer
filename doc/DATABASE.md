@@ -19,6 +19,11 @@ That's it. On first start the server:
 
 Data persists across restarts in `~/.doer/instances/default/db/`. To reset local dev data, delete that directory.
 
+The packaged macOS Electron app uses a separate instance at
+`~/Library/Application Support/@doer/desktop/instances/default/`. A development
+server on port 3101 therefore does not read or write the packaged app's port-3100
+database. Do not point either process at the other's `DOER_HOME` or `DATABASE_URL`.
+
 If you need to apply pending migrations manually, run:
 
 ```sh

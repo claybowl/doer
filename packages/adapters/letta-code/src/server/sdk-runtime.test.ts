@@ -1,0 +1,218 @@
+import { describe, expect, it, vi } from "vitest";
+import { resolveLettaCodeConfig } from "./config.js";
+import { runLettaSdkTurn, type LettaSdkClientLike, type LettaSdkSessionLike } from "./sdk-runtime.js";
+
+function sessionWith(events: unknown[]): LettaSdkSessionLike & { send: ReturnType<typeof vi.fn>; close: ReturnType<typeof vi.fn> } {
+  return {
+    agentId: "agent-local-1",
+    sessionId: "session-1",
+    conversationId: "conversation-1",
+    send: vi.fn(async () => undefined),
+    stream: async function* () {
+      for (const event of events) yield event;
+    },
+    abort: vi.fn(async () => undefined),
+    close: vi.fn(),
+  };
+}
+
+describe("runLettaSdkTurn", () => {
+  it("creates a canonical local agent, runs a turn, emits events, and closes", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "openai-codex/gpt-5" },
+      { type: "assistant", content: "done", uuid: "message-1" },
+      { type: "result", success: true, result: "finished", durationMs: 25, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "agent-local-1"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+    const createClient = vi.fn(() => client);
+    const onEvent = vi.fn(async () => undefined);
+
+    const result = await runLettaSdkTurn({
+      prompt: "Work the issue",
+      config: resolveLettaCodeConfig({ backend: "local", model: "openai-codex/gpt-5", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory", DOER_AGENT_STATE_DIR: "/state" },
+      onEvent,
+    }, { createClient });
+
+    expect(createClient).toHaveBeenCalledWith({
+      backend: "local",
+      transport: "app-server",
+      appServer: { harnessBackend: "local" },
+    });
+    expect(client.createAgent).toHaveBeenCalledWith(expect.objectContaining({
+      memfs: true,
+      model: "openai-codex/gpt-5",
+      env: expect.objectContaining({
+        MEMORY_DIR: "/memory",
+        LETTA_LOCAL_BACKEND_DIR: "/state/letta-local-backend",
+      }),
+    }));
+    expect(client.resumeSession).toHaveBeenCalledWith("agent-local-1", expect.objectContaining({ cwd: "/work" }));
+    expect(sdkSession.send).toHaveBeenCalledWith("Work the issue");
+    expect(onEvent).toHaveBeenCalledWith({ type: "assistant_message", content: "done" });
+    expect(sdkSession.close).toHaveBeenCalledOnce();
+    expect(result).toMatchObject({
+      success: true,
+      summary: "finished",
+      model: "openai-codex/gpt-5",
+      sessionParams: {
+        conversationId: "conversation-1",
+        lettaAgentId: "agent-local-1",
+        cwd: "/work",
+        backend: "local",
+      },
+    });
+  });
+
+  it("resumes the persisted conversation instead of creating an agent", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-2", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    await runLettaSdkTurn({
+      prompt: "continue",
+      config: resolveLettaCodeConfig({ backend: "local", lettaAgentId: "agent-local-1", cwd: "/work" }),
+      sessionParams: { conversationId: "conversation-1", lettaAgentId: "agent-local-1", cwd: "/work", backend: "local" },
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(client.createAgent).not.toHaveBeenCalled();
+    expect(client.resumeSession).toHaveBeenCalledWith("conversation-1", expect.any(Object));
+  });
+
+  it("passes Doer MemFS and local tool permissions to every provider unchanged", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "ollama-cloud/kimi" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    const tools = [{
+      name: "doer_test",
+      label: "Doer Test",
+      description: "test",
+      parameters: { type: "object" },
+      execute: vi.fn(async () => ({ content: [{ type: "text" as const, text: "ok" }] })),
+    }];
+    await runLettaSdkTurn({
+      prompt: "use local tools",
+      config: resolveLettaCodeConfig({
+        backend: "local",
+        lettaAgentId: "agent-local-1",
+        model: "ollama-cloud/kimi",
+        cwd: "/work",
+        permissionMode: "unrestricted",
+        allowedTools: ["Bash", "Read", "Write", "Edit"],
+      }),
+      env: {
+        LETTA_MEMFS_DIR: "/doer/memory",
+        DOER_API_KEY: "doer-key",
+        DOER_BASE_URL: "http://127.0.0.1:3101/api",
+        DOER_AGENT_STATE_DIR: "/doer/state",
+      },
+      tools,
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(client.resumeSession).toHaveBeenCalledWith("agent-local-1", expect.objectContaining({
+      cwd: "/work",
+      model: "ollama-cloud/kimi",
+      permissionMode: "unrestricted",
+      allowedTools: ["Bash", "Read", "Write", "Edit"],
+      env: expect.objectContaining({
+        MEMORY_DIR: "/doer/memory",
+        LETTA_MEMORY_DIR: "/doer/memory",
+        LETTA_MEMORY_DIR_EXPLICIT: "1",
+        LETTA_MEMFS_DIR: "/doer/memory",
+        LETTA_LOCAL_BACKEND_DIR: "/doer/state/letta-local-backend",
+        DOER_API_KEY: "doer-key",
+        DOER_BASE_URL: "http://127.0.0.1:3101/api",
+        DOER_AGENT_STATE_DIR: "/doer/state",
+      }),
+      tools,
+    }));
+  });
+
+  it("returns an unsuccessful SDK result and always closes the session", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: false, error: "max_steps", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    const result = await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", lettaAgentId: "agent-local-1", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(result).toMatchObject({ success: false, summary: "max_steps" });
+    expect(sdkSession.close).toHaveBeenCalledOnce();
+  });
+
+  it("closes and propagates SDK exceptions", async () => {
+    const sdkSession = sessionWith([]);
+    sdkSession.send.mockRejectedValueOnce(new Error("provider failed"));
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    await expect(runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", lettaAgentId: "agent-local-1", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client })).rejects.toThrow("provider failed");
+    expect(sdkSession.close).toHaveBeenCalledOnce();
+  });
+
+  it("falls back from a stale conversation to the canonical agent", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-2", conversationId: "conversation-2", model: "gpt" },
+      { type: "result", success: true, result: "recovered", durationMs: 1, conversationId: "conversation-2" },
+    ]);
+    const resumeSession = vi.fn((id: string) => {
+      if (id === "conversation-stale") throw new Error("Conversation conversation-stale not found");
+      return sdkSession;
+    });
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession,
+    };
+
+    const result = await runLettaSdkTurn({
+      prompt: "continue",
+      config: resolveLettaCodeConfig({ backend: "local", lettaAgentId: "agent-local-1", cwd: "/work" }),
+      sessionParams: { conversationId: "conversation-stale", lettaAgentId: "agent-local-1", cwd: "/work", backend: "local" },
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(resumeSession).toHaveBeenNthCalledWith(1, "conversation-stale", expect.any(Object));
+    expect(resumeSession).toHaveBeenNthCalledWith(2, "agent-local-1", expect.any(Object));
+    expect(result.summary).toBe("recovered");
+  });
+});

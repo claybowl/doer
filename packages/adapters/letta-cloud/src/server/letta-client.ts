@@ -67,6 +67,11 @@ export async function fetchAgentSnapshot(config: LettaCloudAdapterConfig): Promi
   };
 }
 
+/** Export the complete portable AgentFile. Letta scrubs attached secret values. */
+export async function exportAgentFile(config: LettaCloudAdapterConfig): Promise<string> {
+  return getLettaClient(config).agents.exportFile(config.agentId);
+}
+
 /** Update a single memory block by label */
 export async function updateMemoryBlock(
   config: LettaCloudAdapterConfig,

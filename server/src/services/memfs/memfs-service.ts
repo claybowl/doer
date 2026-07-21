@@ -87,9 +87,9 @@ function normalizeRootPath(input: string | undefined): string {
   return raw;
 }
 
-function extractLettaAgentId(agent: Pick<AgentRow, "adapterType" | "adapterConfig">): string | null {
+export function extractLettaAgentId(agent: Pick<AgentRow, "adapterType" | "adapterConfig">): string | null {
   const config = asRecord(agent.adapterConfig);
-  const directAgentId = asNonEmptyString(config?.agentId);
+  const directAgentId = asNonEmptyString(config?.lettaAgentId) ?? asNonEmptyString(config?.agentId);
   if (agent.adapterType === "letta_cloud" && directAgentId) return directAgentId;
 
   const env = asRecord(config?.env);

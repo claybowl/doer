@@ -296,6 +296,17 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
   ].map((a) => [a.type, a]),
 );
 
+/** Retained for stored-agent execution only. New Letta agents use letta_code. */
+export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
+  "letta_cloud",
+  "letta_cli",
+  "letta_af_opencode",
+]);
+
+export function getAdapterCreationRecommendation(type: string): string | null {
+  return LEGACY_LETTA_ADAPTER_TYPES.has(type) ? "letta_code" : null;
+}
+
 export function getServerAdapter(type: string): ServerAdapterModule {
   const adapter = adaptersByType.get(type);
   if (!adapter) {
@@ -317,6 +328,10 @@ export async function listAdapterModels(type: string): Promise<{ id: string; lab
 
 export function listServerAdapters(): ServerAdapterModule[] {
   return Array.from(adaptersByType.values());
+}
+
+export function listCreatableServerAdapters(): ServerAdapterModule[] {
+  return listServerAdapters().filter((adapter) => !LEGACY_LETTA_ADAPTER_TYPES.has(adapter.type));
 }
 
 export function findServerAdapter(type: string): ServerAdapterModule | null {

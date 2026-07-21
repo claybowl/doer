@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { promises as fs } from "node:fs";
 import { execFile } from "node:child_process";
 import path from "node:path";
+import os from "node:os";
 import { promisify } from "node:util";
 import type { Db } from "@doerai/db";
 import type {
@@ -59,6 +60,14 @@ import { validateCron } from "./cron.js";
 import { issueService } from "./issues.js";
 import { projectService } from "./projects.js";
 import { routineService } from "./routines.js";
+import { memfsService } from "./memfs/memfs-service.js";
+import {
+  createMemfsBundle,
+  restoreMemfsBundle,
+  scrubLettaPortableConfig,
+  sha256 as sha256Portable,
+  validateLettaArtifact,
+} from "./letta-portability.js";
 
 /** Build OrgNode tree from manifest agent list (slug + reportsToSlug). */
 function buildOrgTreeFromManifest(agents: CompanyPortabilityManifest["agents"]): OrgNode[] {
@@ -630,6 +639,7 @@ function disableImportedTimerHeartbeat(runtimeConfig: unknown) {
 }
 
 function buildPortableAgentWorkspaceMetadata(input: {
+  adapterType: string;
   adapterConfig: Record<string, unknown>;
   metadata: Record<string, unknown> | null;
 }) {
@@ -638,7 +648,7 @@ function buildPortableAgentWorkspaceMetadata(input: {
   return {
     mode: managedHosted ? "managed_hosted" as const : "doer_native" as const,
     pathPolicy: "deterministic" as const,
-    includeSnapshot: false,
+    includeSnapshot: input.adapterType === "letta_code",
     subdirs: ["memory", "instructions", "skills", "tools", "runs", "outputs", "state"],
     lettaAgentId: lettaAgentId ?? null,
   };
@@ -2368,6 +2378,22 @@ function buildManifestFromPackageFiles(
     const extensionPermissions = isPlainRecord(extension.permissions) ? extension.permissions : null;
     const extensionMetadata = isPlainRecord(extension.metadata) ? extension.metadata : null;
     const extensionWorkspace = normalizePortableAgentWorkspace(extension.workspace);
+    let extensionLettaArtifact: CompanyPortabilityAgentManifestEntry["lettaArtifact"] = null;
+    if (extension.lettaArtifact !== undefined) {
+      try {
+        const artifact = validateLettaArtifact(extension.lettaArtifact);
+        const bundleEntry = normalizedFiles[artifact.memfsBundlePath];
+        if (!bundleEntry) {
+          warnings.push(`Letta MemFS bundle is missing for agent ${slug}: ${artifact.memfsBundlePath}`);
+        } else if (sha256Portable(portableFileToBuffer(bundleEntry, artifact.memfsBundlePath)) !== artifact.sha256) {
+          warnings.push(`Letta MemFS checksum mismatch for agent ${slug}.`);
+        } else {
+          extensionLettaArtifact = artifact;
+        }
+      } catch (error) {
+        warnings.push(`Invalid Letta artifact for agent ${slug}: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    }
     const adapterConfig = isPlainRecord(extensionAdapter?.config)
       ? extensionAdapter.config
       : {};
@@ -2394,6 +2420,7 @@ function buildManifestFromPackageFiles(
           : 0,
       metadata: extensionMetadata,
       workspace: extensionWorkspace,
+      lettaArtifact: extensionLettaArtifact,
     });
 
     manifest.envInputs.push(...readAgentEnvInputs(extension, slug));
@@ -2648,7 +2675,21 @@ function resolveRawGitHubUrl(owner: string, repo: string, ref: string, filePath:
   return `https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${normalizedFilePath}`;
 }
 
-export function companyPortabilityService(db: Db, storage?: StorageService) {
+export interface CompanyPortabilityServiceOptions {
+  listMemfsBindings?: (companyId: string, agentId: string) => Promise<Array<{
+    rootPath: string;
+    pathPrefix: string;
+    strategy: string;
+    permission: string;
+  }>>;
+  prepareMemfsRestore?: (companyId: string, agentId: string, agentSlug: string) => Promise<string>;
+}
+
+export function companyPortabilityService(
+  db: Db,
+  storage?: StorageService,
+  options: CompanyPortabilityServiceOptions = {},
+) {
   const companies = companyService(db);
   const agents = agentService(db);
   const assetRecords = assetService(db);
@@ -2658,6 +2699,39 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
   const projects = projectService(db);
   const issues = issueService(db);
   const companySkills = companySkillService(db);
+  const listMemfsBindings = options.listMemfsBindings
+    ?? ((companyId: string, agentId: string) => memfsService(db).listBindingsForAgent(companyId, agentId));
+  const prepareMemfsRestore = options.prepareMemfsRestore
+    ?? (async (companyId: string, agentId: string, agentSlug: string) => {
+      const binding = await memfsService(db).ensureDefaultAgentMemoryBinding(companyId, agentId, { agentSlug });
+      if (!binding) throw new Error(`Could not create a MemFS binding for ${agentSlug}`);
+      return path.join(binding.rootPath, ...binding.pathPrefix.split("/").filter(Boolean));
+    });
+
+  async function restoreImportedLettaMemory(
+    companyId: string,
+    agentId: string,
+    agentSlug: string,
+    artifactValue: NonNullable<CompanyPortabilityAgentManifestEntry["lettaArtifact"]>,
+    files: Record<string, CompanyPortabilityFileEntry>,
+  ) {
+    const artifact = validateLettaArtifact(artifactValue);
+    const bundleEntry = files[artifact.memfsBundlePath];
+    if (!bundleEntry) throw new Error(`Missing Letta MemFS bundle ${artifact.memfsBundlePath}`);
+    const destination = await prepareMemfsRestore(companyId, agentId, agentSlug);
+    const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "doer-letta-import-"));
+    const bundlePath = path.join(temporaryDir, "memfs.bundle");
+    try {
+      await fs.writeFile(bundlePath, portableFileToBuffer(bundleEntry, artifact.memfsBundlePath));
+      // The binding helper creates only a seed directory for this newly-created
+      // agent. Remove that seed so restoreMemfsBundle can atomically rename the
+      // verified Git clone into place.
+      await fs.rm(destination, { recursive: true, force: true });
+      await restoreMemfsBundle(bundlePath, destination, artifact);
+    } finally {
+      await fs.rm(temporaryDir, { recursive: true, force: true });
+    }
+  }
 
   async function resolveSource(source: CompanyPortabilityPreview["source"]): Promise<ResolvedSource> {
     if (source.type === "inline") {
@@ -3060,7 +3134,7 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         envInputs.push(...exportedEnvInputs);
         const adapterDefaultRules = ADAPTER_DEFAULT_RULES_BY_TYPE[agent.adapterType] ?? [];
         const portableAdapterConfig = pruneDefaultLikeValue(
-          normalizePortableConfig(agent.adapterConfig),
+          scrubLettaPortableConfig(normalizePortableConfig(agent.adapterConfig)),
           {
             dropFalseBooleans: true,
             defaultRules: adapterDefaultRules,
@@ -3083,6 +3157,34 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
         const desiredSkills = readPaperclipSkillSyncPreference(
           (agent.adapterConfig as Record<string, unknown>) ?? {},
         ).desiredSkills;
+
+        let lettaArtifact: CompanyPortabilityAgentManifestEntry["lettaArtifact"] = null;
+        if (agent.adapterType === "letta_code") {
+          const bindings = await listMemfsBindings(companyId, agent.id);
+          const binding = bindings.find((entry) => entry.strategy === "fs-mount") ?? bindings[0];
+          if (!binding) {
+            warnings.push(`Agent ${slug} has no initialized MemFS binding; memory history was not exported.`);
+          } else {
+            const repositoryPath = path.join(binding.rootPath, ...binding.pathPrefix.split("/").filter(Boolean));
+            const temporaryDir = await fs.mkdtemp(path.join(os.tmpdir(), "doer-letta-export-"));
+            try {
+              const portableBundlePath = `agents/${slug}/letta/memfs.bundle`;
+              const bundlePath = path.join(temporaryDir, "memfs.bundle");
+              const sourceAgentId = asString((agent.adapterConfig as Record<string, unknown>).lettaAgentId)
+                ?? asString((agent.adapterConfig as Record<string, unknown>).agentId)
+                ?? undefined;
+              lettaArtifact = await createMemfsBundle(repositoryPath, bundlePath, portableBundlePath, sourceAgentId);
+              const bundle = await fs.readFile(bundlePath);
+              files[portableBundlePath] = bufferToPortableBinaryFile(bundle, "application/x-git-bundle");
+              files[`agents/${slug}/letta/manifest.json`] = `${JSON.stringify(lettaArtifact, null, 2)}\n`;
+            } catch (error) {
+              warnings.push(`Agent ${slug} MemFS history could not be exported: ${error instanceof Error ? error.message : String(error)}`);
+              lettaArtifact = null;
+            } finally {
+              await fs.rm(temporaryDir, { recursive: true, force: true });
+            }
+          }
+        }
 
         const commandValue = asString(portableAdapterConfig.command);
         if (commandValue && isAbsoluteCommand(commandValue)) {
@@ -3119,9 +3221,11 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           budgetMonthlyCents: (agent.budgetMonthlyCents ?? 0) > 0 ? agent.budgetMonthlyCents : undefined,
           metadata: (agent.metadata as Record<string, unknown> | null) ?? null,
           workspace: buildPortableAgentWorkspaceMetadata({
+            adapterType: agent.adapterType,
             adapterConfig: agent.adapterConfig as Record<string, unknown>,
             metadata: (agent.metadata as Record<string, unknown> | null) ?? null,
           }),
+          lettaArtifact,
         });
         if (isPlainRecord(extension) && agentEnvInputs.length > 0) {
           extension.inputs = {
@@ -3927,6 +4031,26 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           ? { ...adapterOverride.adapterConfig }
           : { ...manifestAgent.adapterConfig } as Record<string, unknown>;
 
+        if (effectiveAdapterType === "letta_code" && manifestAgent.lettaArtifact) {
+          const portableConfig = scrubLettaPortableConfig(baseAdapterConfig) as Record<string, unknown>;
+          const sourceAgentId = manifestAgent.lettaArtifact.sourceAgentId
+            ?? asString(portableConfig.lettaAgentId)
+            ?? asString(portableConfig.agentId)
+            ?? undefined;
+          for (const key of ["lettaAgentId", "agentId", "mode", "memoryDir", "cwd", "stateDir", "localBackendDir"]) {
+            delete portableConfig[key];
+          }
+          portableConfig.backend = "local";
+          if (sourceAgentId) {
+            portableConfig.sourceAgentId = sourceAgentId;
+            if (!sourceAgentId.startsWith("agent-local-")) portableConfig.sourceCloudAgentId = sourceAgentId;
+          }
+          Object.assign(baseAdapterConfig, portableConfig);
+          for (const key of Object.keys(baseAdapterConfig)) {
+            if (!(key in portableConfig)) delete baseAdapterConfig[key];
+          }
+        }
+
         const desiredSkills = (manifestAgent.skills ?? []).map((skillRef) => desiredSkillRefMap.get(skillRef) ?? skillRef);
         const adapterConfigWithSkills = writePaperclipSkillSyncPreference(
           baseAdapterConfig,
@@ -4027,6 +4151,20 @@ export function companyPortabilityService(db: Db, storage?: StorageService) {
           });
         } catch (err) {
           warnings.push(`Failed to ensure native workspace for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
+        }
+        if (effectiveAdapterType === "letta_code" && manifestAgent.lettaArtifact) {
+          try {
+            await restoreImportedLettaMemory(
+              targetCompany.id,
+              created.id,
+              manifestAgent.slug,
+              manifestAgent.lettaArtifact,
+              plan.source.files,
+            );
+          } catch (err) {
+            await agents.remove(created.id).catch(() => null);
+            throw unprocessable(`Failed to restore Letta memory for ${manifestAgent.slug}: ${err instanceof Error ? err.message : String(err)}`);
+          }
         }
         importedSlugToAgentId.set(planAgent.slug, created.id);
         existingSlugToAgentId.set(normalizeAgentUrlKey(created.name) ?? created.id, created.id);
