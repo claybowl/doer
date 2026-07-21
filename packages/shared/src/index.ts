@@ -613,6 +613,22 @@ export {
 } from "./validators/index.js";
 
 export { API_PREFIX, API } from "./api.js";
+export type {
+  ProviderType,
+  ProviderAuthMode,
+  ProviderConnection,
+  DiscoveredProviderModel,
+  DiscoveredLettaAgent,
+  ProviderConnectionTestResult,
+} from "./types/provider-connection.js";
+export {
+  providerTypeSchema,
+  providerAuthModeSchema,
+  createProviderConnectionSchema,
+  updateProviderConnectionSchema,
+  type CreateProviderConnection,
+  type UpdateProviderConnection,
+} from "./validators/provider-connection.js";
 export { normalizeAgentUrlKey, deriveAgentUrlKey, isUuidLike } from "./agent-url-key.js";
 export { deriveProjectUrlKey, normalizeProjectUrlKey } from "./project-url-key.js";
 export {

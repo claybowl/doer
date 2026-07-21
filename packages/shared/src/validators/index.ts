@@ -250,6 +250,15 @@ export {
 } from "./asset.js";
 
 export {
+  providerTypeSchema,
+  providerAuthModeSchema,
+  createProviderConnectionSchema,
+  updateProviderConnectionSchema,
+  type CreateProviderConnection,
+  type UpdateProviderConnection,
+} from "./provider-connection.js";
+
+export {
   createCompanyInviteSchema,
   createOpenClawInvitePromptSchema,
   acceptInviteSchema,
