@@ -6,6 +6,13 @@ export { runLettaSdkTurn } from "./sdk-runtime.js";
 export { createLocalAgentFromSnapshot } from "./migration.js";
 export type { LettaImportSnapshot, LettaLocalImportOptions } from "./migration.js";
 export { buildDoerAgentTools } from "./doer-tools.js";
+export { discoverModels, discoverAgents, type DiscoveryDependencies } from "./discovery.js";
+export {
+  LETTA_API_DEFAULT,
+  PROVIDER_DEFAULTS,
+  getProviderDefaults,
+  type ProviderDefaults,
+} from "./provider-defaults.js";
 export {
   discoverLettaCliVersion,
   parseLettaCliVersion,

@@ -11,6 +11,9 @@ const mockService = vi.hoisted(() => ({
   create: vi.fn(),
   update: vi.fn(),
   remove: vi.fn(),
+  discoverModels: vi.fn(),
+  discoverAgents: vi.fn(),
+  test: vi.fn(),
 }));
 const mockLogActivity = vi.hoisted(() => vi.fn());
 
@@ -58,6 +61,13 @@ describe("provider connection routes", () => {
     mockService.create.mockResolvedValue(connection);
     mockService.update.mockResolvedValue(connection);
     mockService.remove.mockResolvedValue(connection);
+    mockService.discoverModels.mockResolvedValue([
+      { id: "ollama/qwen3", label: "Qwen 3", provider: "ollama" },
+    ]);
+    mockService.discoverAgents.mockResolvedValue([
+      { id: "agent-1", name: "DonDog", model: "ollama/qwen3" },
+    ]);
+    mockService.test.mockResolvedValue({ ok: true, message: "Connection succeeded" });
   });
 
   it("lists only the requested company's connections", async () => {
@@ -111,5 +121,29 @@ describe("provider connection routes", () => {
     ).get(`/api/companies/${connection.companyId}/provider-connections`);
 
     expect(res.status).toBe(403);
+  });
+
+  it("passes refresh through for live model discovery", async () => {
+    const res = await request(createApp()).get(
+      `/api/provider-connections/${connection.id}/models?refresh=true`,
+    );
+
+    expect(res.status).toBe(200);
+    expect(mockService.discoverModels).toHaveBeenCalledWith(connection.id, true);
+    expect(res.body[0].id).toBe("ollama/qwen3");
+  });
+
+  it("discovers known Letta agents and tests the connection", async () => {
+    const app = createApp();
+    const agentsRes = await request(app).get(
+      `/api/provider-connections/${connection.id}/letta-agents`,
+    );
+    const testRes = await request(app).post(
+      `/api/provider-connections/${connection.id}/test`,
+    );
+
+    expect(agentsRes.status).toBe(200);
+    expect(agentsRes.body[0].id).toBe("agent-1");
+    expect(testRes.body).toEqual({ ok: true, message: "Connection succeeded" });
   });
 });

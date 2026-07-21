@@ -19,6 +19,42 @@ export function providerConnectionRoutes(db: Db) {
     res.json(await service.list(companyId));
   });
 
+  async function authorizedConnection(req: Parameters<typeof assertBoard>[0]) {
+    assertBoard(req);
+    const id = req.params.id as string;
+    const connection = await service.getById(id);
+    if (!connection) return null;
+    assertCompanyAccess(req, connection.companyId);
+    return connection;
+  }
+
+  router.get("/provider-connections/:id/models", async (req, res) => {
+    const connection = await authorizedConnection(req);
+    if (!connection) {
+      res.status(404).json({ error: "Provider connection not found" });
+      return;
+    }
+    res.json(await service.discoverModels(connection.id, req.query.refresh === "true"));
+  });
+
+  router.get("/provider-connections/:id/letta-agents", async (req, res) => {
+    const connection = await authorizedConnection(req);
+    if (!connection) {
+      res.status(404).json({ error: "Provider connection not found" });
+      return;
+    }
+    res.json(await service.discoverAgents(connection.id, req.query.refresh === "true"));
+  });
+
+  router.post("/provider-connections/:id/test", async (req, res) => {
+    const connection = await authorizedConnection(req);
+    if (!connection) {
+      res.status(404).json({ error: "Provider connection not found" });
+      return;
+    }
+    res.json(await service.test(connection.id));
+  });
+
   router.post(
     "/companies/:companyId/provider-connections",
     validate(createProviderConnectionSchema),

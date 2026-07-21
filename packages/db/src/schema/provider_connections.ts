@@ -2,6 +2,19 @@ import { boolean, index, jsonb, pgTable, text, timestamp, uniqueIndex, uuid } fr
 import { companies } from "./companies.js";
 import { companySecrets } from "./company_secrets.js";
 
+type ProviderConnectionProviderType =
+  | "letta"
+  | "chatgpt_oauth"
+  | "openai"
+  | "anthropic"
+  | "ollama"
+  | "ollama_cloud"
+  | "openrouter"
+  | "groq"
+  | "together"
+  | "custom";
+type ProviderConnectionAuthMode = "api_key" | "letta_cli" | "oauth" | "none";
+
 export const providerConnections = pgTable(
   "provider_connections",
   {
@@ -10,13 +23,13 @@ export const providerConnections = pgTable(
       .notNull()
       .references(() => companies.id, { onDelete: "cascade" }),
     name: text("name").notNull(),
-    providerType: text("provider_type").notNull(),
-    authMode: text("auth_mode").notNull(),
+    providerType: text("provider_type").$type<ProviderConnectionProviderType>().notNull(),
+    authMode: text("auth_mode").$type<ProviderConnectionAuthMode>().notNull(),
     secretId: uuid("secret_id").references(() => companySecrets.id, { onDelete: "restrict" }),
     lettaBaseUrl: text("letta_base_url").notNull().default("https://api.letta.com"),
     providerBaseUrl: text("provider_base_url"),
     isDefault: boolean("is_default").notNull().default(false),
-    metadata: jsonb("metadata").notNull().default({}),
+    metadata: jsonb("metadata").$type<Record<string, unknown>>().notNull().default({}),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
   },

@@ -3,9 +3,16 @@ import type { Db } from "@doerai/db";
 import { agents, providerConnections } from "@doerai/db";
 import {
   createProviderConnectionSchema,
+  type DiscoveredLettaAgent,
+  type DiscoveredProviderModel,
+  type ProviderType,
   type CreateProviderConnection,
   type UpdateProviderConnection,
 } from "@doerai/shared";
+import {
+  discoverAgents as discoverProviderAgents,
+  discoverModels as discoverProviderModels,
+} from "@doerai/adapter-letta-code/server";
 import { conflict, notFound } from "../errors.js";
 import { secretService } from "./secrets.js";
 
@@ -15,6 +22,40 @@ function referencesConnection(config: Record<string, unknown>, connectionId: str
 
 export function providerConnectionService(db: Db) {
   const secrets = secretService(db);
+  const discoveryCache = new Map<string, { expiresAt: number; value: unknown }>();
+  const discoveryCacheTtlMs = 5 * 60_000;
+  const discoveryCacheLimit = 100;
+
+  function cacheKey(id: string, updatedAt: Date, resource: "models" | "agents") {
+    return `${id}:${updatedAt.toISOString()}:${resource}`;
+  }
+
+  function cached<T>(key: string): T | null {
+    const entry = discoveryCache.get(key);
+    if (!entry) return null;
+    if (entry.expiresAt <= Date.now()) {
+      discoveryCache.delete(key);
+      return null;
+    }
+    return entry.value as T;
+  }
+
+  function remember(key: string, value: unknown) {
+    if (discoveryCache.size >= discoveryCacheLimit) {
+      const oldest = discoveryCache.keys().next().value as string | undefined;
+      if (oldest) discoveryCache.delete(oldest);
+    }
+    discoveryCache.set(key, { expiresAt: Date.now() + discoveryCacheTtlMs, value });
+  }
+
+  async function discoveryContext(id: string) {
+    const connection = await getById(id);
+    if (!connection) throw notFound("Provider connection not found");
+    const secretValue = connection.secretId
+      ? await secrets.resolveSecretValue(connection.companyId, connection.secretId, "latest")
+      : null;
+    return { connection, secretValue };
+  }
 
   async function getById(id: string) {
     return db
@@ -46,7 +87,7 @@ export function providerConnectionService(db: Db) {
   async function clearDefault(
     tx: Parameters<Parameters<Db["transaction"]>[0]>[0],
     companyId: string,
-    providerType: string,
+    providerType: ProviderType,
     exceptId?: string,
   ) {
     const currentDefaults = await tx
@@ -78,6 +119,52 @@ export function providerConnectionService(db: Db) {
         .orderBy(desc(providerConnections.isDefault), providerConnections.name),
 
     getById,
+
+    discoverModels: async (id: string, refresh = false): Promise<DiscoveredProviderModel[]> => {
+      const { connection, secretValue } = await discoveryContext(id);
+      const key = cacheKey(id, connection.updatedAt, "models");
+      if (!refresh) {
+        const hit = cached<DiscoveredProviderModel[]>(key);
+        if (hit) return hit;
+      }
+      const models = await discoverProviderModels(connection, secretValue);
+      remember(key, models);
+      return models;
+    },
+
+    discoverAgents: async (id: string, refresh = false): Promise<DiscoveredLettaAgent[]> => {
+      const { connection, secretValue } = await discoveryContext(id);
+      const key = cacheKey(id, connection.updatedAt, "agents");
+      if (!refresh) {
+        const hit = cached<DiscoveredLettaAgent[]>(key);
+        if (hit) return hit;
+      }
+      const discoveredAgents = await discoverProviderAgents(connection, secretValue);
+      remember(key, discoveredAgents);
+      return discoveredAgents;
+    },
+
+    test: async (id: string) => {
+      const connection = await getById(id);
+      if (!connection) throw notFound("Provider connection not found");
+      try {
+        if (connection.providerType === "letta") {
+          await discoveryContext(id).then(({ connection: current, secretValue }) =>
+            discoverProviderAgents(current, secretValue),
+          );
+        } else {
+          await discoveryContext(id).then(({ connection: current, secretValue }) =>
+            discoverProviderModels(current, secretValue),
+          );
+        }
+        return { ok: true, message: "Connection succeeded" };
+      } catch (error) {
+        return {
+          ok: false,
+          message: error instanceof Error ? error.message : "Connection failed",
+        };
+      }
+    },
 
     create: async (companyId: string, input: CreateProviderConnection) => {
       await validateSecret(companyId, input);

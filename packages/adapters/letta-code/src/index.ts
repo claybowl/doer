@@ -8,6 +8,7 @@ export type {
   LettaCodeMemoryUpdate,
 } from "./shared/types.js";
 export { parseLettaCodeStdoutLine } from "./ui/adapter.js";
+export { PROVIDER_DEFAULTS, LETTA_API_DEFAULT, getProviderDefaults } from "./server/provider-defaults.js";
 
 export const models = [
   { id: "openai-codex/gpt-5", label: "ChatGPT Subscription (via Letta)" },
