@@ -13,6 +13,7 @@ export function LettaCodeConfigFields({
   config,
   eff,
   mark,
+  models,
 }: AdapterConfigFieldsProps) {
   const setField = (field: string, value: unknown) => {
     if (isCreate) set?.({ [field]: value } as unknown as Partial<CreateConfigValues>);
@@ -34,6 +35,9 @@ export function LettaCodeConfigFields({
   const permissionMode = getString("permissionMode", "standard");
   const skillSources = getList("skillSources", [...SKILL_SOURCES]);
   const dreamingTrigger = getString("dreamingTrigger", "off");
+  const currentModel = getString("model");
+  const modelOptions = [...models].sort((a, b) => a.label.localeCompare(b.label));
+  const currentModelIsKnown = modelOptions.some((model) => model.id === currentModel);
 
   return (
     <div className="space-y-4">
@@ -80,18 +84,24 @@ export function LettaCodeConfigFields({
         />
       </Field>
 
-      <Field label="Model Handle" hint="Any model available through Letta, including ChatGPT subscription, Ollama, Ollama Cloud, or BYOK providers.">
-        <DraftInput
+      <Field label="Model Handle" hint="Choose a model from the Letta offline and Constellation catalog. Existing custom handles remain available while editing.">
+        <select
           name="lettaModel"
           aria-label="Letta model handle"
-          autoComplete="off"
-          spellCheck={false}
-          value={getString("model")}
-          onCommit={(value) => setField("model", value || undefined)}
-          immediate
+          value={currentModel}
+          onChange={(event) => setField("model", event.target.value || undefined)}
           className={controlClass}
-          placeholder="openai-codex/gpt-5…"
-        />
+        >
+          <option value="">Letta default</option>
+          {!currentModelIsKnown && currentModel && (
+            <option value={currentModel}>Current: {currentModel}</option>
+          )}
+          {modelOptions.map((model) => (
+            <option key={model.id} value={model.id}>
+              {model.label} ({model.id})
+            </option>
+          ))}
+        </select>
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
