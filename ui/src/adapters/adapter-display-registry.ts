@@ -100,8 +100,8 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     icon: Bot,
   },
   letta_cli: {
-    label: "Letta CLI (Legacy)",
-    description: "Existing agents remain supported; CLI and mods are companions to the unified adapter",
+    label: "Letta CLI",
+    description: "Headless Letta Code CLI runtime with its own session and provider flow",
     icon: Bot,
   },
   letta_af_opencode: {

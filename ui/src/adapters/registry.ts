@@ -33,7 +33,6 @@ const activeExternalOverrides = new Set<string>();
 /** Parsers remain registered so existing agents keep working. */
 export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
   "letta_cloud",
-  "letta_cli",
   "letta_af_opencode",
 ]);
 

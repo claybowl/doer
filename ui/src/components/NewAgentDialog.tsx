@@ -30,7 +30,8 @@ type AdvancedAdapterType =
   | "pi_local"
   | "cursor"
   | "openclaw_gateway"
-  | "letta_code";
+  | "letta_code"
+  | "letta_cli";
 
 const ADVANCED_ADAPTER_OPTIONS: Array<{
   value: AdvancedAdapterType;
@@ -88,6 +89,12 @@ const ADVANCED_ADAPTER_OPTIONS: Array<{
     label: "Letta",
     icon: Bot,
     desc: "Local-first Letta Agent SDK runtime",
+  },
+  {
+    value: "letta_cli",
+    label: "Letta CLI",
+    icon: Terminal,
+    desc: "Headless Letta Code CLI runtime",
   },
 ];
 

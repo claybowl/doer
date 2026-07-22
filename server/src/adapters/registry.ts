@@ -299,7 +299,6 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
 /** Retained for stored-agent execution only. New Letta agents use letta_code. */
 export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
   "letta_cloud",
-  "letta_cli",
   "letta_af_opencode",
 ]);
 
