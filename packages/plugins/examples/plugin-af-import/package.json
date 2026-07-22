@@ -4,6 +4,7 @@
   "description": "Import Letta .af agent files to local filesystem (Letta-Code layout) for use in Doer",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },

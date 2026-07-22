@@ -4,6 +4,7 @@
   "description": "Multi-agent council session orchestration plugin for Doer",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },

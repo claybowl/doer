@@ -4,6 +4,7 @@
   "description": "Karpathy-style LLM wiki + Graphify-style knowledge graph over Doer memfs memory and gremlin work outputs. Mounted at /:companyPrefix/wiki.",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },

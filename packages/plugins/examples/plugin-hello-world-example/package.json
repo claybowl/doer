@@ -4,6 +4,7 @@
   "description": "First-party reference plugin that adds a Hello World dashboard widget",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },

@@ -4,6 +4,7 @@
   "description": "Schrute Benchmark — run the Dwight-10 AI office simulation against your Doer agent team.",
   "type": "module",
   "private": true,
+  "files": ["dist", "desks"],
   "exports": { ".": "./src/index.ts" },
   "paperclipPlugin": {
     "manifest": "./dist/manifest.js",

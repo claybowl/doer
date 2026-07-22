@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "description": "A Doer plugin",
   "scripts": {
     "build": "node ./esbuild.config.mjs",

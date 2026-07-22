@@ -4,6 +4,7 @@
   "description": "Reference plugin that demonstrates the full Doer plugin surface area in one package",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },

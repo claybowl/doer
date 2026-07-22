@@ -4,6 +4,7 @@
   "description": "Magazine-style showcase of shipped agent work. Replaces the in-tree /oversight feature as a portable Doer plugin mounted at /delivered.",
   "type": "module",
   "private": true,
+  "files": ["dist"],
   "exports": {
     ".": "./src/index.ts"
   },
