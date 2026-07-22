@@ -8,7 +8,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { PluginRecord } from "@doerai/shared";
 import { Link } from "@/lib/router";
-import { AlertTriangle, FlaskConical, Plus, Power, Puzzle, Settings, Trash } from "lucide-react";
+import { AlertTriangle, FlaskConical, Plus, Power, Puzzle, RefreshCw, Settings, Trash } from "lucide-react";
 import { useCompany } from "@/context/CompanyContext";
 import { useBreadcrumbs } from "@/context/BreadcrumbContext";
 import { pluginsApi } from "@/api/plugins";
@@ -29,6 +29,7 @@ import {
 } from "@/components/ui/dialog";
 import { useToast } from "@/context/ToastContext";
 import { cn } from "@/lib/utils";
+import { Checkbox } from "@/components/ui/checkbox";
 
 function firstNonEmptyLine(value: string | null | undefined): string | null {
   if (!value) return null;
@@ -70,6 +71,7 @@ export function PluginManager() {
   const [installDialogOpen, setInstallDialogOpen] = useState(false);
   const [uninstallPluginId, setUninstallPluginId] = useState<string | null>(null);
   const [uninstallPluginName, setUninstallPluginName] = useState<string>("");
+  const [purgePluginData, setPurgePluginData] = useState(false);
   const [errorDetailsPlugin, setErrorDetailsPlugin] = useState<PluginRecord | null>(null);
 
   useEffect(() => {
@@ -111,13 +113,33 @@ export function PluginManager() {
   });
 
   const uninstallMutation = useMutation({
-    mutationFn: (pluginId: string) => pluginsApi.uninstall(pluginId),
+    mutationFn: ({ pluginId, purge }: { pluginId: string; purge: boolean }) =>
+      pluginsApi.uninstall(pluginId, purge),
     onSuccess: () => {
       invalidatePluginQueries();
       pushToast({ title: "Plugin uninstalled successfully", tone: "success" });
     },
     onError: (err: Error) => {
       pushToast({ title: "Failed to uninstall plugin", body: err.message, tone: "error" });
+    },
+  });
+
+  const repairMutation = useMutation({
+    mutationFn: async (plugin: PluginRecord) => {
+      await pluginsApi.uninstall(plugin.id);
+      return pluginsApi.install({
+        packageName: plugin.packagePath ?? plugin.packageName,
+        isLocalPath: Boolean(plugin.packagePath),
+        version: plugin.packagePath ? undefined : plugin.version,
+      });
+    },
+    onSuccess: () => {
+      invalidatePluginQueries();
+      pushToast({ title: "Plugin repaired successfully", tone: "success" });
+    },
+    onError: (err: Error) => {
+      invalidatePluginQueries();
+      pushToast({ title: "Failed to repair plugin", body: err.message, tone: "error" });
     },
   });
 
@@ -368,6 +390,15 @@ export function PluginManager() {
                           >
                             View full error
                           </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled={repairMutation.isPending}
+                            onClick={() => repairMutation.mutate(plugin)}
+                          >
+                            <RefreshCw className="mr-2 h-4 w-4" />
+                            {repairMutation.isPending ? "Repairing..." : "Repair"}
+                          </Button>
                         </div>
                       </div>
                     )}
@@ -443,9 +474,20 @@ export function PluginManager() {
           <DialogHeader>
             <DialogTitle>Uninstall Plugin</DialogTitle>
             <DialogDescription>
-              Are you sure you want to uninstall <strong>{uninstallPluginName}</strong>? This action cannot be undone.
+              Are you sure you want to uninstall <strong>{uninstallPluginName}</strong>? Plugin data is retained unless you choose to purge it.
             </DialogDescription>
           </DialogHeader>
+          <div className="flex items-start gap-3 rounded-md border border-destructive/25 bg-destructive/[0.04] px-3 py-3">
+            <Checkbox
+              id="purge-plugin-data"
+              checked={purgePluginData}
+              onCheckedChange={(checked) => setPurgePluginData(checked === true)}
+            />
+            <div className="space-y-1">
+              <Label htmlFor="purge-plugin-data">Permanently delete plugin data</Label>
+              <p className="text-xs text-muted-foreground">This cannot be undone and prevents restoring data during reinstall.</p>
+            </div>
+          </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setUninstallPluginId(null)}>Cancel</Button>
             <Button
@@ -453,8 +495,11 @@ export function PluginManager() {
               disabled={uninstallMutation.isPending}
               onClick={() => {
                 if (uninstallPluginId) {
-                  uninstallMutation.mutate(uninstallPluginId, {
-                    onSettled: () => setUninstallPluginId(null),
+                  uninstallMutation.mutate({ pluginId: uninstallPluginId, purge: purgePluginData }, {
+                    onSettled: () => {
+                      setUninstallPluginId(null);
+                      setPurgePluginData(false);
+                    },
                   });
                 }
               }}
