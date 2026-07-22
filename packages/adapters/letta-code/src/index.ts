@@ -11,8 +11,30 @@ export { parseLettaCodeStdoutLine } from "./ui/adapter.js";
 
 export const models = [
   { id: "openai-codex/gpt-5", label: "ChatGPT Subscription (via Letta)" },
+  { id: "openai-codex/gpt-5-mini", label: "GPT-5 Mini (ChatGPT Subscription)" },
+  { id: "openai/gpt-5", label: "GPT-5 (OpenAI API)" },
+  { id: "openai/gpt-5-mini", label: "GPT-5 Mini (OpenAI API)" },
+  { id: "openai/gpt-4.1", label: "GPT-4.1 (OpenAI API)" },
+  { id: "openai/gpt-4.1-mini", label: "GPT-4.1 Mini (OpenAI API)" },
+  { id: "openai/gpt-4o", label: "GPT-4o (OpenAI API)" },
+  { id: "anthropic/claude-opus-4-1", label: "Claude Opus 4.1 (Anthropic)" },
+  { id: "anthropic/claude-sonnet-4-20250514", label: "Claude Sonnet 4 (Anthropic)" },
+  { id: "anthropic/claude-3-7-sonnet-20250219", label: "Claude 3.7 Sonnet (Anthropic)" },
+  { id: "anthropic/claude-3-5-sonnet-20241022", label: "Claude 3.5 Sonnet (Anthropic)" },
+  { id: "google_ai/gemini-2.5-pro", label: "Gemini 2.5 Pro (Google)" },
+  { id: "google_ai/gemini-2.5-flash", label: "Gemini 2.5 Flash (Google)" },
+  { id: "google_ai/gemini-2.0-flash", label: "Gemini 2.0 Flash (Google)" },
+  { id: "openrouter/auto", label: "OpenRouter Auto" },
+  { id: "openrouter/deepseek/deepseek-r1", label: "DeepSeek R1 (OpenRouter)" },
+  { id: "openrouter/qwen/qwen3-235b-a22b", label: "Qwen3 235B (OpenRouter)" },
   { id: "ollama/llama3.2", label: "Ollama Local (via Letta)" },
+  { id: "ollama/llama3.3", label: "Llama 3.3 (Ollama Local)" },
+  { id: "ollama/qwen3:30b", label: "Qwen3 30B (Ollama Local)" },
+  { id: "ollama/deepseek-r1:32b", label: "DeepSeek R1 32B (Ollama Local)" },
+  { id: "ollama/gemma3:27b", label: "Gemma 3 27B (Ollama Local)" },
   { id: "ollama-cloud/kimi-k2.5", label: "Ollama Cloud (via Letta)" },
+  { id: "ollama-cloud/llama3.3", label: "Llama 3.3 (Ollama Cloud)" },
+  { id: "ollama-cloud/qwen3-coder", label: "Qwen3 Coder (Ollama Cloud)" },
 ] as const;
 
 export const memfsCapability = {

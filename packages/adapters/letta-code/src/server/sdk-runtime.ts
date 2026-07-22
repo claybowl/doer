@@ -94,8 +94,9 @@ function sessionOptions(
     ...(config.reasoningEffort ? { reasoningEffort: config.reasoningEffort } : {}),
     ...(config.cwd ? { cwd: config.cwd } : {}),
     permissionMode: config.permissionMode,
-    allowedTools: config.allowedTools,
-    disallowedTools: config.disallowedTools,
+    // The app-server currently rejects allowedTools/disallowedTools on both
+    // createAgent and session requests. Keep parsing legacy config for
+    // compatibility, but let the app-server own tool availability.
     skillSources: config.skillSources,
     ...(config.systemInfoReminder === undefined ? {} : { systemInfoReminder: config.systemInfoReminder }),
     ...(config.dreaming ? { dreaming: config.dreaming } : {}),

@@ -136,7 +136,7 @@ describe("runLettaSdkTurn", () => {
     expect(client.resumeSession).toHaveBeenCalledWith("conversation-1", expect.any(Object));
   });
 
-  it("passes Doer MemFS and local tool permissions to every provider unchanged", async () => {
+  it("passes Doer MemFS and supported local session options to the app-server", async () => {
     const sdkSession = sessionWith([
       { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "ollama-cloud/kimi" },
       { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
@@ -178,7 +178,6 @@ describe("runLettaSdkTurn", () => {
       cwd: "/work",
       model: "ollama-cloud/kimi",
       permissionMode: "unrestricted",
-      allowedTools: ["Bash", "Read", "Write", "Edit"],
       env: expect.objectContaining({
         MEMORY_DIR: "/doer/memory",
         LETTA_MEMORY_DIR: "/doer/memory",
