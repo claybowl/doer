@@ -17,6 +17,51 @@ function sessionWith(events: unknown[]): LettaSdkSessionLike & { send: ReturnTyp
 }
 
 describe("runLettaSdkTurn", () => {
+  it("does not duplicate streamed text when the SDK emits a final assembled message", async () => {
+    const events: Array<Record<string, unknown>> = [];
+    const result = await runLettaSdkTurn({
+      prompt: "hello",
+      config: resolveLettaCodeConfig({ backend: "local", model: "openai-codex/gpt-5", cwd: "/work" }),
+      env: {},
+      onEvent: async (event) => { events.push(event); },
+    }, {
+      createClient: () => ({
+        createAgent: async () => "agent-local-1",
+        createSession: () => ({
+          agentId: "agent-local-1",
+          sessionId: "session-1",
+          conversationId: "conversation-1",
+          send: async () => undefined,
+          stream: async function* () {
+            yield { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "openai-codex/gpt-5" };
+            yield { type: "assistant", content: "hello", delta: true };
+            yield { type: "assistant", content: "hello world" };
+            yield { type: "result", success: true, result: "done" };
+          },
+          abort: async () => undefined,
+          close: () => undefined,
+        }),
+        resumeSession: () => ({
+          agentId: "agent-local-1",
+          sessionId: "session-1",
+          conversationId: "conversation-1",
+          send: async () => undefined,
+          stream: async function* () {
+            yield { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "openai-codex/gpt-5" };
+            yield { type: "assistant", content: "hello", delta: true };
+            yield { type: "assistant", content: "hello world" };
+            yield { type: "result", success: true, result: "done" };
+          },
+          abort: async () => undefined,
+          close: () => undefined,
+        }),
+      }),
+    });
+
+    expect(events.filter((event) => event.type === "assistant_message").map((event) => event.content)).toEqual(["hello", " world"]);
+    expect(result.success).toBe(true);
+  });
+
   it("creates a canonical local agent, runs a turn, emits events, and closes", async () => {
     const sdkSession = sessionWith([
       { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "openai-codex/gpt-5" },

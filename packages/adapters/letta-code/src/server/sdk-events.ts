@@ -26,6 +26,30 @@ function numberValue(value: unknown): number {
   return typeof value === "number" && Number.isFinite(value) ? value : 0;
 }
 
+function streamText(value: unknown): { text: string; reasoning: boolean } | null {
+  const recordValue = record(value);
+  const delta = record(recordValue.delta);
+  const event = record(recordValue.event);
+  const candidates = [
+    recordValue.text,
+    recordValue.content,
+    recordValue.delta,
+    delta.text,
+    delta.content,
+    event.text,
+    event.content,
+    record(event.delta).text,
+    record(event.delta).content,
+  ];
+  const text = candidates.find((candidate): candidate is string => typeof candidate === "string" && candidate.length > 0);
+  if (!text) return null;
+  const kind = [recordValue.kind, recordValue.role, recordValue.messageType, event.type, delta.type]
+    .filter((value): value is string => typeof value === "string")
+    .join(" ")
+    .toLowerCase();
+  return { text, reasoning: /reason|thinking/.test(kind) };
+}
+
 /** Convert an untrusted Agent SDK message into Doer's stable JSON-line protocol. */
 export function mapSdkMessage(value: unknown): MappedSdkMessage {
   const message = record(value);
@@ -43,9 +67,21 @@ export function mapSdkMessage(value: unknown): MappedSdkMessage {
         },
       };
     case "assistant":
-      return { events: [{ type: "assistant_message", content: stringValue(message.content) }] };
+      return {
+        events: [{
+          type: "assistant_message",
+          content: stringValue(message.content),
+          ...(message.delta === true ? { delta: true } : {}),
+        }],
+      };
     case "reasoning":
-      return { events: [{ type: "reasoning_message", content: stringValue(message.content) }] };
+      return {
+        events: [{
+          type: "reasoning_message",
+          content: stringValue(message.content),
+          ...(message.delta === true ? { delta: true } : {}),
+        }],
+      };
     case "tool_call":
       return {
         events: [{
@@ -96,7 +132,17 @@ export function mapSdkMessage(value: unknown): MappedSdkMessage {
           durationMs: numberValue(message.durationMs),
         }],
       };
-    case "stream_event":
+    case "stream_event": {
+      const streamed = streamText(message);
+      if (!streamed) return { events: [] };
+      return {
+        events: [{
+          type: streamed.reasoning ? "reasoning_message" : "assistant_message",
+          content: streamed.text,
+          delta: true,
+        }],
+      };
+    }
     case "queue_update":
     case "loop_status":
     default:

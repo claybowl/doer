@@ -152,12 +152,36 @@ export async function runLettaSdkTurn(
     input.signal?.addEventListener("abort", abort, { once: true });
     let identity: LettaCodeSdkSessionIdentity | undefined;
     let resultMessage: Record<string, unknown> | undefined;
+    let streamedAssistant = "";
+    let streamedReasoning = "";
     try {
       await session.send(input.prompt);
       for await (const message of session.stream()) {
         const mapped = mapSdkMessage(message);
         if (mapped.session) identity = mapped.session;
-        for (const event of mapped.events) await input.onEvent(event);
+        for (const event of mapped.events) {
+          if (event.type === "assistant_message" || event.type === "reasoning_message") {
+            const content = typeof event.content === "string" ? event.content : "";
+            const stream = event.type === "assistant_message" ? streamedAssistant : streamedReasoning;
+            if (event.delta === true) {
+              if (event.type === "assistant_message") streamedAssistant += content;
+              else streamedReasoning += content;
+              await input.onEvent(event);
+              continue;
+            }
+            if (stream && content.startsWith(stream)) {
+              const remainder = content.slice(stream.length);
+              if (event.type === "assistant_message") streamedAssistant = "";
+              else streamedReasoning = "";
+              if (!remainder) continue;
+              await input.onEvent({ ...event, content: remainder });
+              continue;
+            }
+            if (event.type === "assistant_message") streamedAssistant = "";
+            else streamedReasoning = "";
+          }
+          await input.onEvent(event);
+        }
         const candidate = record(message);
         if (candidate.type === "result") resultMessage = candidate;
       }

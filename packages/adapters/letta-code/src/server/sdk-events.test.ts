@@ -65,8 +65,18 @@ describe("mapSdkMessage", () => {
     });
   });
 
-  it("ignores stream and status messages handled by the SDK's normalized events", () => {
-    expect(mapSdkMessage({ type: "stream_event", event: {}, uuid: "s1" })).toEqual({ events: [] });
+  it("maps text-bearing stream events into incremental transcript deltas", () => {
+    expect(mapSdkMessage({
+      type: "stream_event",
+      event: { type: "content_block_delta", delta: { type: "text_delta", text: "hel" } },
+      uuid: "s1",
+    })).toEqual({ events: [{ type: "assistant_message", content: "hel", delta: true }] });
+    expect(mapSdkMessage({
+      type: "stream_event",
+      event: { type: "reasoning_delta", delta: { text: "thinking" } },
+      uuid: "s2",
+    })).toEqual({ events: [{ type: "reasoning_message", content: "thinking", delta: true }] });
+    expect(mapSdkMessage({ type: "stream_event", event: {}, uuid: "s3" })).toEqual({ events: [] });
     expect(mapSdkMessage({ type: "loop_status", status: "idle", activeRunIds: [] })).toEqual({ events: [] });
   });
 });

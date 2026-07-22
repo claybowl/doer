@@ -67,6 +67,8 @@ export function useLiveRunTranscripts({
 }: UseLiveRunTranscriptsOptions) {
   const [chunksByRun, setChunksByRun] = useState<Map<string, RunLogChunk[]>>(new Map());
   const seenChunkKeysRef = useRef(new Set<string>());
+  const pendingChunksByRunRef = useRef(new Map<string, Array<RunLogChunk & { dedupeKey: string }>>());
+  const flushTimerRef = useRef<number | null>(null);
   const pendingLogRowsByRunRef = useRef(new Map<string, string>());
   const logOffsetByRunRef = useRef(new Map<string, number>());
   // Run IDs that returned 404 — skip these forever, they don't exist on this server.
@@ -86,28 +88,42 @@ export function useLiveRunTranscripts({
     [runs],
   );
 
-  const appendChunks = (runId: string, chunks: Array<RunLogChunk & { dedupeKey: string }>) => {
-    if (chunks.length === 0) return;
+  const flushChunks = () => {
+    flushTimerRef.current = null;
+    const pending = pendingChunksByRunRef.current;
+    pendingChunksByRunRef.current = new Map();
     setChunksByRun((prev) => {
       const next = new Map(prev);
-      const existing = [...(next.get(runId) ?? [])];
       let changed = false;
-
-      for (const chunk of chunks) {
-        if (seenChunkKeysRef.current.has(chunk.dedupeKey)) continue;
-        seenChunkKeysRef.current.add(chunk.dedupeKey);
-        existing.push({ ts: chunk.ts, stream: chunk.stream, chunk: chunk.chunk });
-        changed = true;
+      for (const [runId, chunks] of pending) {
+        const existing = [...(next.get(runId) ?? [])];
+        for (const chunk of chunks) {
+          if (seenChunkKeysRef.current.has(chunk.dedupeKey)) continue;
+          seenChunkKeysRef.current.add(chunk.dedupeKey);
+          existing.push({ ts: chunk.ts, stream: chunk.stream, chunk: chunk.chunk });
+          changed = true;
+        }
+        if (changed) next.set(runId, existing.slice(-maxChunksPerRun));
       }
-
       if (!changed) return prev;
-      if (seenChunkKeysRef.current.size > 12000) {
-        seenChunkKeysRef.current.clear();
-      }
-      next.set(runId, existing.slice(-maxChunksPerRun));
+      if (seenChunkKeysRef.current.size > 12000) seenChunkKeysRef.current.clear();
       return next;
     });
   };
+
+  const appendChunks = (runId: string, chunks: Array<RunLogChunk & { dedupeKey: string }>) => {
+    if (chunks.length === 0) return;
+    const pending = pendingChunksByRunRef.current.get(runId) ?? [];
+    pending.push(...chunks);
+    pendingChunksByRunRef.current.set(runId, pending);
+    if (flushTimerRef.current === null) {
+      flushTimerRef.current = window.setTimeout(flushChunks, 50);
+    }
+  };
+
+  useEffect(() => () => {
+    if (flushTimerRef.current !== null) window.clearTimeout(flushTimerRef.current);
+  }, []);
 
   useEffect(() => {
     const knownRunIds = new Set(runs.map((run) => run.id));

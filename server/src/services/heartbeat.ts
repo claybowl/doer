@@ -2390,6 +2390,7 @@ export function heartbeatService(db: Db) {
 
     let seq = 1;
     let handle: RunLogHandle | null = null;
+    let logWriteChain = Promise.resolve();
     let stdoutExcerpt = "";
     let stderrExcerpt = "";
     try {
@@ -2456,14 +2457,6 @@ export function heartbeatService(db: Db) {
         if (stream === "stderr") stderrExcerpt = appendExcerpt(stderrExcerpt, sanitizedChunk);
         const ts = new Date().toISOString();
 
-        if (handle) {
-          await runLogStore.append(handle, {
-            stream,
-            chunk: sanitizedChunk,
-            ts,
-          });
-        }
-
         const payloadChunk =
           sanitizedChunk.length > MAX_LIVE_LOG_CHUNK_BYTES
             ? sanitizedChunk.slice(sanitizedChunk.length - MAX_LIVE_LOG_CHUNK_BYTES)
@@ -2481,6 +2474,14 @@ export function heartbeatService(db: Db) {
             truncated: payloadChunk.length !== sanitizedChunk.length,
           },
         });
+
+        if (handle) {
+          logWriteChain = logWriteChain
+            .then(() => runLogStore.append(handle!, { stream, chunk: sanitizedChunk, ts }))
+            .catch((err) => {
+              logger.warn({ err, runId: run.id }, "failed to persist live run log chunk");
+            });
+        }
       };
       // Cloud adapters (no local sessionCodec) don't use a local workspace —
       // they run entirely in the cloud. Suppress workspace-fallback warnings for
@@ -2707,6 +2708,7 @@ export function heartbeatService(db: Db) {
 
       let logSummary: { bytes: number; sha256?: string; compressed: boolean } | null = null;
       if (handle) {
+        await logWriteChain;
         logSummary = await runLogStore.finalize(handle);
       }
 
@@ -2871,7 +2873,8 @@ export function heartbeatService(db: Db) {
       let logSummary: { bytes: number; sha256?: string; compressed: boolean } | null = null;
       if (handle) {
         try {
-          logSummary = await runLogStore.finalize(handle);
+        await logWriteChain;
+        logSummary = await runLogStore.finalize(handle);
         } catch (finalizeErr) {
           logger.warn({ err: finalizeErr, runId }, "failed to finalize run log after error");
         }
