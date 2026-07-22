@@ -457,6 +457,13 @@ export function PluginManager() {
                           Configure
                         </Link>
                       </Button>
+                      {plugin.manifestJson.ui?.slots?.some((slot) => slot.type === "page") && selectedCompany?.issuePrefix && (
+                        <Button size="sm" className="mt-2 h-8" asChild>
+                          <Link to={`/${selectedCompany.issuePrefix}/plugins/${plugin.id}`}>
+                            Open Page
+                          </Link>
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
