@@ -114,8 +114,6 @@ function createAgentOptions(
     ...(config.model ? { model: config.model } : {}),
     ...(config.cwd ? { cwd: config.cwd } : {}),
     permissionMode: config.permissionMode,
-    allowedTools: config.allowedTools,
-    disallowedTools: config.disallowedTools,
     skillSources: config.skillSources,
     ...(config.systemInfoReminder === undefined ? {} : { systemInfoReminder: config.systemInfoReminder }),
     ...(config.dreaming ? { dreaming: config.dreaming } : {}),
