@@ -1000,6 +1000,7 @@ export interface PluginGoalsClient {
     companyId: string;
     title: string;
     description?: string;
+    successCriteria?: string;
     level?: Goal["level"];
     status?: Goal["status"];
     parentId?: string;
@@ -1010,6 +1011,7 @@ export interface PluginGoalsClient {
     patch: Partial<Pick<
       Goal,
       "title" | "description" | "level" | "status" | "parentId" | "ownerAgentId"
+      | "successCriteria"
     >>,
     companyId: string,
   ): Promise<Goal>;

@@ -906,6 +906,7 @@ export function buildHostServices(
         return (await goals.create(companyId, {
           title: params.title,
           description: params.description,
+          successCriteria: params.successCriteria,
           level: params.level as any,
           status: params.status as any,
           parentId: params.parentId,
