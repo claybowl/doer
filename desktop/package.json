@@ -7,8 +7,9 @@
 	"scripts": {
 		"start": "electron-forge start",
 		"package": "electron-forge package",
-		"make": "electron-forge make",
-		"release": "electron-forge make && node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs"
+		"make": "electron-forge make && node scripts/validate-artifacts.mjs",
+		"validate-artifacts": "node scripts/validate-artifacts.mjs",
+		"release": "pnpm run make && node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs"
 	},
 	"dependencies": {
 		"electron-squirrel-startup": "^1.0.1",
