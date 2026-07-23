@@ -205,6 +205,22 @@ export function GoalDetail() {
             return asset.contentPath;
           }}
         />
+
+        <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-1.5">
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs font-medium uppercase text-muted-foreground">
+              Success Criteria
+            </span>
+          </div>
+          <InlineEditor
+            value={goal.successCriteria ?? ""}
+            onSave={(successCriteria) => updateGoal.mutate({ successCriteria })}
+            as="p"
+            className="text-sm text-foreground"
+            placeholder="Define what 'achieved' looks like for this goal..."
+            multiline
+          />
+        </div>
       </div>
 
       <Tabs defaultValue="children">

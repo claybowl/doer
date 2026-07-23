@@ -22,6 +22,7 @@ import { registerPluginCommands } from "./commands/client/plugin.js";
 import { registerClientAuthCommands } from "./commands/client/auth.js";
 import { registerMemfsCommands } from "./commands/client/memfs.js";
 import { registerBenchmarkCommands } from "./commands/client/benchmark.js";
+import { registerStatusCommands, fetchAndPrintStatus } from "./commands/client/status.js";
 
 const program = new Command();
 const DATA_DIR_OPTION_HELP =
@@ -143,6 +144,27 @@ registerWorktreeCommands(program);
 registerPluginCommands(program);
 registerMemfsCommands(program);
 registerBenchmarkCommands(program);
+registerStatusCommands(program);
+
+program
+  .command("status")
+  .description("Quick overview: agents, costs, approvals, tasks, and budget status")
+  .option("-c, --config <path>", "Path to config file")
+  .option("-d, --data-dir <path>", DATA_DIR_OPTION_HELP)
+  .option("--context <path>", "Path to CLI context file")
+  .option("--profile <name>", "CLI context profile name")
+  .option("--api-base <url>", "Base URL for the Doer API")
+  .option("--api-key <token>", "Bearer token for agent-authenticated calls")
+  .option("-C, --company-id <id>", "Company ID")
+  .option("--json", "Output raw JSON")
+  .action(async (opts) => {
+    try {
+      await fetchAndPrintStatus(opts);
+    } catch (err) {
+      const { handleCommandError } = await import("./commands/client/common.js");
+      handleCommandError(err);
+    }
+  });
 
 const auth = program.command("auth").description("Authentication and bootstrap utilities");
 

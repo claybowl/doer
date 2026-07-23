@@ -5,6 +5,7 @@ export interface Goal {
   companyId: string;
   title: string;
   description: string | null;
+  successCriteria: string | null;
   level: GoalLevel;
   status: GoalStatus;
   parentId: string | null;

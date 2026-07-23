@@ -149,6 +149,20 @@ export function GoalProperties({ goal, onUpdate }: GoalPropertiesProps) {
         )}
       </div>
 
+      {goal.successCriteria && (
+        <>
+          <Separator />
+          <div className="space-y-1.5">
+            <span className="text-xs font-medium uppercase text-muted-foreground">
+              Success Criteria
+            </span>
+            <p className="text-sm text-foreground whitespace-pre-wrap">
+              {goal.successCriteria}
+            </p>
+          </div>
+        </>
+      )}
+
       <Separator />
 
       <div className="space-y-1">
