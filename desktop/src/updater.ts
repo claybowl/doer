@@ -1,6 +1,7 @@
 import path from "node:path";
+import { createHash } from "node:crypto";
 import { createWriteStream } from "node:fs";
-import { chmod } from "node:fs/promises";
+import { chmod, readFile, rm } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { app, BrowserWindow, dialog, shell } from "electron";
 import {
@@ -33,20 +34,36 @@ async function fetchManifest(baseUrl: string): Promise<ReleaseManifest | null> {
 	}
 }
 
-async function downloadAsset(url: string, onLog: (m: string) => void): Promise<string> {
+async function downloadAsset(url: string, expectedSha256: string | undefined, onLog: (m: string) => void): Promise<string> {
 	const filename = decodeURIComponent(url.split("/").pop() || `Doer-update`);
 	const dest = path.join(app.getPath("downloads"), filename);
-	const res = await fetch(url);
-	if (!res.ok || !res.body) throw new Error(`download failed: HTTP ${res.status}`);
-	await new Promise<void>((resolve, reject) => {
-		const file = createWriteStream(dest);
-		Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0])
-			.pipe(file)
-			.on("finish", () => resolve())
-			.on("error", reject);
-	});
-	onLog(`[updater] downloaded ${filename} -> ${dest}`);
-	return dest;
+	let lastError: Error | null = null;
+	for (let attempt = 1; attempt <= 3; attempt++) {
+		try {
+			const res = await fetch(url, { cache: "no-store" });
+			if (!res.ok || !res.body) throw new Error(`download failed: HTTP ${res.status}`);
+			await new Promise<void>((resolve, reject) => {
+				const file = createWriteStream(dest);
+				Readable.fromWeb(res.body as Parameters<typeof Readable.fromWeb>[0])
+					.pipe(file)
+					.on("finish", () => resolve())
+					.on("error", reject);
+			});
+			if (expectedSha256) {
+				const actual = createHash("sha256").update(await readFile(dest)).digest("hex");
+				if (actual.toLowerCase() !== expectedSha256.toLowerCase()) {
+					throw new Error(`checksum mismatch (expected ${expectedSha256}, got ${actual})`);
+				}
+			}
+			onLog(`[updater] downloaded ${filename} -> ${dest} (verified)`);
+			return dest;
+		} catch (error) {
+			lastError = error instanceof Error ? error : new Error(String(error));
+			await rm(dest, { force: true }).catch(() => {});
+			onLog(`[updater] download attempt ${attempt}/3 failed: ${lastError.message}`);
+		}
+	}
+	throw lastError ?? new Error("download failed");
 }
 
 /** Run/reveal the downloaded asset per platform. */
@@ -82,7 +99,7 @@ async function promptAndInstall(update: UpdateInfo, onLog: (m: string) => void):
 	if (response !== 0) return;
 
 	try {
-		const file = await downloadAsset(update.url, onLog);
+		const file = await downloadAsset(update.url, update.sha256, onLog);
 		await installAsset(file);
 		if (process.platform !== "win32") {
 			const w = BrowserWindow.getAllWindows()[0] ?? null;

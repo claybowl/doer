@@ -16,6 +16,7 @@
 // update-electron-app reads `name` (= version) and skips the download when it
 // matches app.getVersion() on the running client.
 
+import { createHash } from "node:crypto";
 import { existsSync, readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -93,6 +94,7 @@ for (const t of targets) {
 		name: version,
 		notes: `Doer ${version}`,
 		pub_date: pubDate,
+		sha256: createHash("sha256").update(readFileSync(localFile)).digest("hex"),
 	};
 	const key = `${S3_FOLDER}/${t.platform}/${t.arch}/RELEASES.json`;
 

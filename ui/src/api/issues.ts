@@ -12,6 +12,10 @@ import type {
 import { api } from "./client";
 
 export const issuesApi = {
+  diagnostics: (companyId: string) =>
+    api.get<{ total: number; counts: Record<string, number>; latestUpdatedAt: string | null; lastSuccessfulReadAt: string }>(
+      `/companies/${companyId}/issues/diagnostics`,
+    ),
   list: (
     companyId: string,
     filters?: {

@@ -34,6 +34,11 @@ function statusLabel(status: string): string {
   return status.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+const STALE_IN_PROGRESS_MS = 48 * 60 * 60 * 1000;
+function isStaleInProgress(issue: Issue): boolean {
+  return issue.status === "in_progress" && Date.now() - new Date(issue.updatedAt).getTime() > STALE_IN_PROGRESS_MS;
+}
+
 /* ── View state ── */
 
 export type IssueViewState = {
@@ -156,6 +161,7 @@ function countActiveFilters(state: IssueViewState): number {
 interface Agent {
   id: string;
   name: string;
+  status?: string;
 }
 
 interface ProjectOption {
@@ -818,6 +824,11 @@ export function IssuesList({
                       <span className="shrink-0 font-mono text-xs text-muted-foreground">
                         {issue.identifier ?? issue.id.slice(0, 8)}
                       </span>
+                      {isStaleInProgress(issue) && (
+                        <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300" title="In progress for more than 48 hours">
+                          Stale
+                        </span>
+                      )}
                       {liveIssueIds?.has(issue.id) && (
                         <span className="inline-flex items-center gap-1 rounded-full bg-blue-500/10 px-1.5 py-0.5 sm:gap-1.5 sm:px-2">
                           <span className="relative flex h-2 w-2">
@@ -872,7 +883,14 @@ export function IssuesList({
                             }}
                           >
                             {issue.assigneeAgentId && agentName(issue.assigneeAgentId) ? (
-                              <Identity name={agentName(issue.assigneeAgentId)!} size="sm" />
+                              <span className="inline-flex items-center gap-1.5">
+                                <Identity name={agentName(issue.assigneeAgentId)!} size="sm" />
+                                {agents?.find((agent) => agent.id === issue.assigneeAgentId)?.status === "paused" && (
+                                  <span className="rounded-full bg-amber-500/15 px-1.5 py-0.5 text-[10px] font-medium text-amber-700 dark:text-amber-300" title="Agent is paused">
+                                    Paused
+                                  </span>
+                                )}
+                              </span>
                             ) : issue.assigneeUserId ? (
                               <span className="inline-flex items-center gap-1.5 text-xs">
                                 <span className="inline-flex h-5 w-5 items-center justify-center rounded-full border border-dashed border-muted-foreground/35 bg-muted/30">

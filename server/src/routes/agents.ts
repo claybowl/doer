@@ -2000,6 +2000,19 @@ export function agentRoutes(db: Db) {
           rawEffectiveAdapterConfig,
         );
       }
+      // Accept the historical providerType spelling, but persist the field
+      // consumed by adapter runtimes. Without this normalization a save can
+      // silently fall back to Anthropic and fail later on first wake.
+      if (
+        typeof rawEffectiveAdapterConfig.provider !== "string" &&
+        typeof rawEffectiveAdapterConfig.providerType === "string" &&
+        rawEffectiveAdapterConfig.providerType.trim()
+      ) {
+        rawEffectiveAdapterConfig = {
+          ...rawEffectiveAdapterConfig,
+          provider: rawEffectiveAdapterConfig.providerType.trim(),
+        };
+      }
       const effectiveAdapterConfig = applyCreateDefaultsByAdapterType(
         requestedAdapterType,
         rawEffectiveAdapterConfig,

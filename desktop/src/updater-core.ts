@@ -15,12 +15,15 @@ export interface ReleaseManifest {
 	name: string;
 	notes?: string;
 	pub_date?: string;
+	/** Optional SHA-256 checksum of the downloaded asset. */
+	sha256?: string;
 }
 
 export interface UpdateInfo {
 	version: string;
 	notes: string;
 	url: string;
+	sha256?: string;
 }
 
 /** Parse a version string ("v0.1.6" / "0.1.6") into numeric segments. */
@@ -53,5 +56,6 @@ export function evaluateManifest(manifest: ReleaseManifest, currentVersion: stri
 		version: manifest.name.replace(/^v/i, ""),
 		notes: (manifest.notes ?? "").trim(),
 		url: manifest.url,
+		sha256: manifest.sha256,
 	};
 }

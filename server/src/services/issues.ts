@@ -557,6 +557,24 @@ export function issueService(db: Db) {
   }
 
   return {
+    diagnostics: async (companyId: string) => {
+      const rows = await db
+        .select({
+          status: issues.status,
+          count: sql<number>`count(*)::int`,
+          latestUpdatedAt: sql<Date | null>`max(${issues.updatedAt})`,
+        })
+        .from(issues)
+        .where(and(eq(issues.companyId, companyId), isNull(issues.hiddenAt)))
+        .groupBy(issues.status);
+      const counts = Object.fromEntries(rows.map((row) => [row.status, row.count]));
+      const total = rows.reduce((sum, row) => sum + row.count, 0);
+      const latestUpdatedAt = rows.reduce<Date | null>((latest, row) => {
+        if (!row.latestUpdatedAt) return latest;
+        return !latest || row.latestUpdatedAt > latest ? row.latestUpdatedAt : latest;
+      }, null);
+      return { total, counts, latestUpdatedAt, lastSuccessfulReadAt: new Date() };
+    },
     list: async (companyId: string, filters?: IssueFilters) => {
       const conditions = [eq(issues.companyId, companyId)];
       const touchedByUserId = filters?.touchedByUserId?.trim() || undefined;

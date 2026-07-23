@@ -282,6 +282,12 @@ export function issueRoutes(db: Db, storage: StorageService) {
     res.json(result);
   });
 
+  router.get("/companies/:companyId/issues/diagnostics", async (req, res) => {
+    const companyId = req.params.companyId as string;
+    assertCompanyAccess(req, companyId);
+    res.json(await svc.diagnostics(companyId));
+  });
+
   router.get("/companies/:companyId/labels", async (req, res) => {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);

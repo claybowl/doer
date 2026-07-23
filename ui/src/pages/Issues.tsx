@@ -84,6 +84,13 @@ export function Issues() {
     enabled: !!selectedCompanyId,
   });
 
+  const { data: diagnostics, error: diagnosticsError } = useQuery({
+    queryKey: queryKeys.issues.diagnostics(selectedCompanyId!),
+    queryFn: () => issuesApi.diagnostics(selectedCompanyId!),
+    enabled: !!selectedCompanyId,
+    refetchInterval: 30_000,
+  });
+
   const updateIssue = useMutation({
     mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) =>
       issuesApi.update(id, data),
@@ -97,20 +104,36 @@ export function Issues() {
   }
 
   return (
-    <IssuesList
-      issues={issues ?? []}
-      isLoading={isLoading}
-      error={error as Error | null}
-      agents={agents}
-      projects={projects}
-      liveIssueIds={liveIssueIds}
-      viewStateKey="doer:issues-view"
-      issueLinkState={issueLinkState}
-      initialAssignees={searchParams.get("assignee") ? [searchParams.get("assignee")!] : undefined}
-      initialSearch={initialSearch}
-      onSearchChange={handleSearchChange}
-      onUpdateIssue={(id, data) => updateIssue.mutate({ id, data })}
-      searchFilters={participantAgentId ? { participantAgentId } : undefined}
-    />
+    <div className="space-y-3">
+      <div className={`flex flex-wrap items-center gap-x-3 gap-y-1 border px-3 py-2 text-xs ${
+        diagnosticsError ? "border-destructive/30 bg-destructive/5 text-destructive" :
+        diagnostics?.total === 0 ? "border-amber-500/30 bg-amber-500/5 text-amber-800 dark:text-amber-200" :
+        "border-border bg-muted/20 text-muted-foreground"
+      }`}>
+        <span className="font-medium">Queue health</span>
+        {diagnosticsError ? <span>Diagnostics unavailable — queue state cannot be confirmed.</span> : diagnostics ? (
+          <>
+            <span>{diagnostics.total} total issues</span>
+            <span>last successful read {new Date(diagnostics.lastSuccessfulReadAt).toLocaleTimeString()}</span>
+            {diagnostics.total === 0 && <span className="font-medium">No work found; the queue read is healthy.</span>}
+          </>
+        ) : <span>Checking…</span>}
+      </div>
+      <IssuesList
+        issues={issues ?? []}
+        isLoading={isLoading}
+        error={error as Error | null}
+        agents={agents}
+        projects={projects}
+        liveIssueIds={liveIssueIds}
+        viewStateKey="doer:issues-view"
+        issueLinkState={issueLinkState}
+        initialAssignees={searchParams.get("assignee") ? [searchParams.get("assignee")!] : undefined}
+        initialSearch={initialSearch}
+        onSearchChange={handleSearchChange}
+        onUpdateIssue={(id, data) => updateIssue.mutate({ id, data })}
+        searchFilters={participantAgentId ? { participantAgentId } : undefined}
+      />
+    </div>
   );
 }
