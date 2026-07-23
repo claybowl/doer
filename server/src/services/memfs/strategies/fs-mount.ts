@@ -32,19 +32,41 @@ export const fsMountStrategy: MemfsMountStrategy = {
     }
 
     const normalizedPrefix = normalizeMemfsPath(binding.pathPrefix);
-    const sourceAbs = path.resolve(binding.rootPath, normalizedPrefix);
+    let sourceAbs = path.resolve(binding.rootPath, normalizedPrefix);
 
     // Verify the source exists before symlinking; don't create dangling links.
     try {
       await fs.access(sourceAbs);
     } catch {
-      return {
-        ok: false,
-        strategy: "fs-mount",
-        bindingId: binding.id,
-        mountedPath: null,
-        note: `fs-mount source does not exist: ${sourceAbs}`,
-      };
+      // Older Letta bindings stored the UUID without the `agent-` prefix.
+      // Repair only that exact legacy shape, and only when the canonical
+      // agent-prefixed directory already exists.
+      const legacyAgentMatch = normalizedPrefix.match(/^agents\/([^/]+)\/memory$/);
+      const canonicalPrefix = legacyAgentMatch && binding.agentId === `agent-${legacyAgentMatch[1]}`
+        ? `agents/${binding.agentId}/memory`
+        : null;
+      if (!canonicalPrefix) {
+        return {
+          ok: false,
+          strategy: "fs-mount",
+          bindingId: binding.id,
+          mountedPath: null,
+          note: `fs-mount source does not exist: ${sourceAbs}`,
+        };
+      }
+      const canonicalSourceAbs = path.resolve(binding.rootPath, canonicalPrefix);
+      try {
+        await fs.access(canonicalSourceAbs);
+        sourceAbs = canonicalSourceAbs;
+      } catch {
+        return {
+          ok: false,
+          strategy: "fs-mount",
+          bindingId: binding.id,
+          mountedPath: null,
+          note: `fs-mount source does not exist: ${sourceAbs} (canonical fallback also missing: ${canonicalSourceAbs})`,
+        };
+      }
     }
 
     const mountRel = resolveMountRel(binding);
@@ -81,13 +103,18 @@ export const fsMountStrategy: MemfsMountStrategy = {
             note: "fs-mount symlink already present.",
           };
         }
-        // Symlink exists but points elsewhere — give actionable error.
+        // A symlink contains no user data, so it is safe to repair when a
+        // binding's source moved (for example after Letta local-backend
+        // migration). Never apply this replacement to directories or files.
+        await fs.unlink(mountAbs);
+        await fs.mkdir(path.dirname(mountAbs), { recursive: true });
+        await fs.symlink(sourceAbs, mountAbs, "dir");
         return {
-          ok: false,
+          ok: true,
           strategy: "fs-mount",
           bindingId: binding.id,
-          mountedPath: null,
-          note: `fs-mount target is a symlink pointing to ${resolvedExisting} instead of ${sourceAbs}. Remove the existing symlink at ${mountAbs} and retry the heartbeat, or change the binding's mountAs to use a different path.`,
+          mountedPath: mountAbs,
+          note: `fs-mount symlink repaired from ${resolvedExisting} to ${sourceAbs}.`,
         };
       }
 

@@ -114,6 +114,22 @@ describe("memfs fs-mount strategy", () => {
     expect(result.note).toMatch(/does not exist/i);
   });
 
+  it("repairs the legacy unprefixed Letta agent path when the canonical source exists", async () => {
+    const sourceAbs = await seedSource(rootDir, "agents/agent-a-111/memory");
+    const result = await fsMountStrategy.mount(
+      buildBinding({
+        agentId: "agent-a-111",
+        rootPath: rootDir,
+        pathPrefix: "agents/a-111/memory",
+      }),
+      { workingDirectory: workingDir, adapterType: "letta_code" },
+    );
+
+    expect(result.ok).toBe(true);
+    const resolvedTarget = path.resolve(path.dirname(result.mountedPath!), await fs.readlink(result.mountedPath!));
+    expect(resolvedTarget).toBe(sourceAbs);
+  });
+
   it("is idempotent — re-mounting an existing symlink returns ok", async () => {
     await seedSource(rootDir, "agents/a-789/memory");
     const ctx = { workingDirectory: workingDir, adapterType: "letta_cloud" };
@@ -129,6 +145,30 @@ describe("memfs fs-mount strategy", () => {
     expect(second.ok).toBe(true);
     expect(second.mountedPath).toBe(first.mountedPath);
     expect(second.note).toMatch(/already present/i);
+  });
+
+  it("repairs a stale symlink without touching either memory directory", async () => {
+    const oldSource = await seedSource(rootDir, "agents/old/memory");
+    const newSource = await seedSource(rootDir, "agents/new/memory");
+    const binding = buildBinding({
+      rootPath: rootDir,
+      pathPrefix: "agents/new/memory",
+    });
+    const mountPath = path.join(workingDir, ".memory", "letta");
+    await fs.mkdir(path.dirname(mountPath), { recursive: true });
+    await fs.symlink(oldSource, mountPath, "dir");
+
+    const result = await fsMountStrategy.mount(binding, {
+      workingDirectory: workingDir,
+      adapterType: "letta_code",
+    });
+
+    expect(result.ok).toBe(true);
+    expect(result.note).toMatch(/repaired/i);
+    const resolvedTarget = path.resolve(path.dirname(mountPath), await fs.readlink(mountPath));
+    expect(resolvedTarget).toBe(newSource);
+    await expect(fs.readFile(path.join(oldSource, "persona.md"), "utf8")).resolves.toContain("guard dog");
+    await expect(fs.readFile(path.join(newSource, "persona.md"), "utf8")).resolves.toContain("guard dog");
   });
 
   it("unmount removes the symlink but leaves the source untouched", async () => {
