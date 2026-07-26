@@ -29,6 +29,25 @@ describe("resolveLettaCodeConfig", () => {
     });
   });
 
+  it("infers Constellation mode for existing non-local agent IDs", () => {
+    expect(resolveLettaCodeConfig({
+      lettaAgentId: "agent-constellation-1",
+    })).toMatchObject({
+      backend: "cloud_attached",
+      harnessBackend: "api",
+      lettaAgentId: "agent-constellation-1",
+    });
+  });
+
+  it("keeps local agent identities local", () => {
+    expect(resolveLettaCodeConfig({
+      lettaAgentId: "agent-local-1",
+    })).toMatchObject({
+      backend: "local",
+      harnessBackend: "local",
+    });
+  });
+
   it("does not couple a remote model to tool permissions", () => {
     expect(resolveLettaCodeConfig({
       backend: "local",

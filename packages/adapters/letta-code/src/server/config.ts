@@ -57,7 +57,10 @@ function dreaming(value: unknown): ResolvedLettaCodeConfig["dreaming"] {
 export function resolveLettaCodeConfig(value: unknown): ResolvedLettaCodeConfig {
   const raw = record(value);
   const legacyOnline = raw.mode === "online";
-  const backend: LettaCodeBackend = raw.backend === "cloud_attached" || legacyOnline
+  const configuredAgentId = stringValue(raw.lettaAgentId) || stringValue(raw.agentId);
+  const inferredCloudAttached = configuredAgentId.startsWith("agent-")
+    && !configuredAgentId.startsWith("agent-local-");
+  const backend: LettaCodeBackend = raw.backend === "cloud_attached" || legacyOnline || inferredCloudAttached
     ? "cloud_attached"
     : "local";
   const permissionCandidate = stringValue(raw.permissionMode) as LettaCodePermissionMode;
@@ -67,7 +70,7 @@ export function resolveLettaCodeConfig(value: unknown): ResolvedLettaCodeConfig 
   return {
     backend,
     harnessBackend: backend === "cloud_attached" ? "api" : "local",
-    lettaAgentId: stringValue(raw.lettaAgentId) || stringValue(raw.agentId),
+    lettaAgentId: configuredAgentId,
     sourceCloudAgentId: stringValue(raw.sourceCloudAgentId),
     apiKey: stringValue(raw.apiKey),
     apiBaseUrl: apiBaseUrl.replace(/\/+$/, ""),

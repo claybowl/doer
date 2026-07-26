@@ -639,6 +639,127 @@ export async function interceptGenerateWeeklyBrief(
   }
 }
 
+// ── Goal and project tool intercepts ────────────────────────────────────
+
+/** read_goals — list company goals with optional filters */
+export async function interceptReadGoals(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const params = new URLSearchParams();
+    if (args.level) params.set("level", String(args.level));
+    if (args.status) params.set("status", String(args.status));
+    const qs = params.toString();
+    const goals = (await doerGet(ctx, `/api/companies/${companyId}/goals${qs ? `?${qs}` : ""}`)) as Array<Record<string, unknown>>;
+    return JSON.stringify({ success: true, total: goals.length, goals });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+/** create_goal — create a goal in the current Doer company */
+export async function interceptCreateGoal(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const goal = (await doerPost(ctx, `/api/companies/${companyId}/goals`, {
+      title: String(args.title ?? "Untitled goal"),
+      description: args.description == null ? null : String(args.description),
+      level: String(args.level ?? "task"),
+      status: String(args.status ?? "active"),
+      parentId: args.parent_id ?? args.parentId ?? null,
+      ownerAgentId: args.owner_agent_id ?? args.ownerAgentId ?? null,
+    })) as Record<string, unknown>;
+    return JSON.stringify({ success: true, goal });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+/** update_goal_status — update a Doer goal's status */
+export async function interceptUpdateGoalStatus(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const goalId = String(args.goal_id ?? args.goalId ?? "");
+    if (!goalId) return JSON.stringify({ success: false, error: "goal_id is required" });
+    const goal = (await doerPatch(ctx, `/api/goals/${encodeURIComponent(goalId)}`, {
+      status: String(args.status ?? "active"),
+    })) as Record<string, unknown>;
+    return JSON.stringify({ success: true, goal });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+/** read_projects — list projects in the current Doer company */
+export async function interceptReadProjects(
+  ctx: AdapterExecutionContext,
+  _args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const projects = (await doerGet(ctx, `/api/companies/${companyId}/projects`)) as Array<Record<string, unknown>>;
+    return JSON.stringify({ success: true, total: projects.length, projects });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+/** create_project — create a goal-linked project */
+export async function interceptCreateProject(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const companyId = ctx.agent.companyId;
+    const rawGoalIds = args.goalIds ?? args.goal_ids;
+    const goalIds = Array.isArray(rawGoalIds)
+      ? rawGoalIds.map(String)
+      : args.goalId ?? args.goal_id
+        ? [String(args.goalId ?? args.goal_id)]
+        : [];
+    const project = (await doerPost(ctx, `/api/companies/${companyId}/projects`, {
+      name: String(args.name ?? args.title ?? "Untitled project"),
+      description: args.description == null ? null : String(args.description),
+      status: String(args.status ?? "planned"),
+      goalIds,
+      leadAgentId: args.leadAgentId ?? args.lead_agent_id ?? null,
+      targetDate: args.targetDate ?? args.target_date ?? null,
+    })) as Record<string, unknown>;
+    return JSON.stringify({ success: true, project });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
+/** update_project — update a Doer project */
+export async function interceptUpdateProject(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const projectId = String(args.project_id ?? args.projectId ?? args.id ?? "");
+    if (!projectId) return JSON.stringify({ success: false, error: "project_id is required" });
+    const patch: Record<string, unknown> = {};
+    for (const key of ["name", "description", "status", "leadAgentId", "targetDate", "goalIds"]) {
+      if (args[key] !== undefined) patch[key] = args[key];
+    }
+    if (args.lead_agent_id !== undefined) patch.leadAgentId = args.lead_agent_id;
+    if (args.target_date !== undefined) patch.targetDate = args.target_date;
+    if (args.goal_ids !== undefined) patch.goalIds = args.goal_ids;
+    const project = (await doerPatch(ctx, `/api/projects/${encodeURIComponent(projectId)}`, patch)) as Record<string, unknown>;
+    return JSON.stringify({ success: true, project });
+  } catch (err) {
+    return JSON.stringify({ success: false, error: err instanceof Error ? err.message : String(err) });
+  }
+}
+
 // ── Paperclip issue tool intercepts ─────────────────────────────────────
 // These replace the Python tools that run inside E2B sandboxes and call
 // localhost:3100 (unreachable from E2B without ngrok). The adapter
@@ -661,6 +782,8 @@ export async function interceptCreatePaperclipIssue(
     const assigneeId = args.assigneeAgentId ?? args.assignee_agent_id;
     if (assigneeId !== undefined && String(assigneeId).trim()) body.assigneeAgentId = String(assigneeId);
     if (args.projectId ?? args.project_id) body.projectId = String(args.projectId ?? args.project_id);
+    if (args.goalId ?? args.goal_id) body.goalId = String(args.goalId ?? args.goal_id);
+    if (args.parentId ?? args.parent_id) body.parentId = String(args.parentId ?? args.parent_id);
     if (args.labelIds !== undefined) body.labelIds = args.labelIds;
 
     const issue = (await doerPost(ctx, `/api/companies/${companyId}/issues`, body)) as Record<string, unknown>;
@@ -694,9 +817,13 @@ export async function interceptReadPaperclipIssues(
       id: i.id,
       identifier: i.identifier,
       title: i.title,
+      description: i.description,
       status: i.status,
       priority: i.priority,
       assigneeAgentId: i.assigneeAgentId,
+      projectId: i.projectId,
+      goalId: i.goalId,
+      parentId: i.parentId,
     }));
 
     await ctx.onLog("stdout", `[read_paperclip_issues] Fetched ${issues.length} issues\n`);
@@ -782,6 +909,13 @@ export const READ_PAPERCLIP_ISSUES_TOOL_NAME = "read_paperclip_issues";
 export const READ_PAPERCLIP_ISSUE_TOOL_NAME = "read_paperclip_issue";
 export const UPDATE_PAPERCLIP_ISSUE_TOOL_NAME = "update_paperclip_issue";
 export const POST_ISSUE_COMMENT_TOOL_NAME = "post_issue_comment";
+
+export const READ_GOALS_TOOL_NAME = "read_goals";
+export const CREATE_GOAL_TOOL_NAME = "create_goal";
+export const UPDATE_GOAL_STATUS_TOOL_NAME = "update_goal_status";
+export const READ_PROJECTS_TOOL_NAME = "read_projects";
+export const CREATE_PROJECT_TOOL_NAME = "create_project";
+export const UPDATE_PROJECT_TOOL_NAME = "update_project";
 
 export const GET_FLEET_STATUS_TOOL_NAME = "get_fleet_status";
 export const SCHEDULE_COUNCIL_TOOL_NAME = "schedule_council";

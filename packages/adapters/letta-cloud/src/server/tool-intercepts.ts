@@ -659,6 +659,8 @@ export async function interceptCreatePaperclipIssue(
     if (args.priority !== undefined) body.priority = String(args.priority);
     if (args.assigneeAgentId !== undefined) body.assigneeAgentId = String(args.assigneeAgentId);
     if (args.projectId !== undefined) body.projectId = String(args.projectId);
+    if (args.goalId ?? args.goal_id) body.goalId = String(args.goalId ?? args.goal_id);
+    if (args.parentId ?? args.parent_id) body.parentId = String(args.parentId ?? args.parent_id);
     if (args.labelIds !== undefined) body.labelIds = args.labelIds;
 
     const issue = (await doerPost(ctx, `/api/companies/${companyId}/issues`, body)) as Record<string, unknown>;
@@ -692,9 +694,13 @@ export async function interceptReadPaperclipIssues(
       id: i.id,
       identifier: i.identifier,
       title: i.title,
+      description: i.description,
       status: i.status,
       priority: i.priority,
       assigneeAgentId: i.assigneeAgentId,
+      projectId: i.projectId,
+      goalId: i.goalId,
+      parentId: i.parentId,
     }));
 
     await ctx.onLog("stdout", `[read_paperclip_issues] Fetched ${issues.length} issues\n`);

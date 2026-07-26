@@ -11,12 +11,16 @@ function stringList(value: unknown): string[] {
 /** Build the canonical Agent SDK configuration. Model selection never changes tool permissions. */
 export function buildLettaCodeConfig(values: CreateConfigValues): Record<string, unknown> {
   const v = values as unknown as Record<string, unknown>;
-  const backend = v.backend === "cloud_attached" ? "cloud_attached" : "local";
+  const lettaAgentId = typeof v.lettaAgentId === "string" ? v.lettaAgentId.trim() : "";
+  const inferredCloudAttached = lettaAgentId.startsWith("agent-") && !lettaAgentId.startsWith("agent-local-");
+  const backend = v.backend === "cloud_attached" || (v.backend === undefined && inferredCloudAttached)
+    ? "cloud_attached"
+    : "local";
   const dreamingTrigger = typeof v.dreamingTrigger === "string" ? v.dreamingTrigger : "";
   const dreamingStepCount = Number(v.dreamingStepCount);
   return {
     backend,
-    ...((v.lettaAgentId as string)?.trim() ? { lettaAgentId: (v.lettaAgentId as string).trim() } : {}),
+    ...(lettaAgentId ? { lettaAgentId } : {}),
     ...((v.model as string)?.trim() ? { model: (v.model as string).trim() } : {}),
     ...((v.reasoningEffort as string)?.trim() ? { reasoningEffort: v.reasoningEffort } : {}),
     permissionMode: (v.permissionMode as string) || "standard",

@@ -31,7 +31,9 @@ export function LettaCodeConfigFields({
     return fallback;
   };
 
-  const backend = getString("backend", "local") === "cloud_attached" ? "cloud_attached" : "local";
+  const lettaAgentId = getString("lettaAgentId");
+  const inferredCloudAttached = lettaAgentId.startsWith("agent-") && !lettaAgentId.startsWith("agent-local-");
+  const backend = getString("backend", inferredCloudAttached ? "cloud_attached" : "local") === "cloud_attached" ? "cloud_attached" : "local";
   const permissionMode = getString("permissionMode", "standard");
   const skillSources = getList("skillSources", [...SKILL_SOURCES]);
   const dreamingTrigger = getString("dreamingTrigger", "off");
