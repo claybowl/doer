@@ -681,15 +681,15 @@ async function executeStreaming(
   // renders each as a sibling node and inserts whitespace between, so
   // users see "Heart beat" instead of "Heartbeat" everywhere.
   //
-  // Fix: accumulate consecutive chunks of the same kind (and same Letta
-  // message id, when present), emit one consolidated event when the kind
-  // changes, when a new logical message starts, when a non-streamable
-  // event arrives (tool calls, returns, errors, etc.), or when the
-  // stream ends.
+  // Fix: accumulate consecutive chunks of the same kind, emit one
+  // consolidated event when the kind
+  // changes, when a non-streamable event arrives (tool calls, returns,
+  // errors, etc.), or when the stream ends.  We intentionally do NOT key
+  // on message id because Letta's streaming tokens carry unique ids,
+  // which would defeat accumulation and produce one JSON line per token.
   type StreamKind = "assistant" | "reasoning";
   type StreamBuffer = {
     kind: StreamKind;
-    messageId: string | null;
     text: string;
   };
   let streamBuffer: StreamBuffer | null = null;
@@ -714,21 +714,17 @@ async function executeStreaming(
   }
 
   // Helper: append `text` to the buffer, opening a new buffer or flushing
-  // the previous one when the kind / messageId changes.
+  // the previous one when the kind changes.
   async function appendToStreamBuffer(
     kind: StreamKind,
-    messageId: string | null,
     text: string,
   ): Promise<void> {
     if (text.length === 0) return;
-    if (
-      streamBuffer &&
-      (streamBuffer.kind !== kind || streamBuffer.messageId !== messageId)
-    ) {
+    if (streamBuffer && streamBuffer.kind !== kind) {
       await flushStreamBuffer();
     }
     if (!streamBuffer) {
-      streamBuffer = { kind, messageId, text: "" };
+      streamBuffer = { kind, text: "" };
     }
     streamBuffer.text += text;
   }
@@ -761,18 +757,14 @@ async function executeStreaming(
     switch (messageType) {
       case "assistant_message": {
         const text = extractAssistantContent(rec.content);
-        const messageId =
-          typeof rec.id === "string" ? rec.id : null;
-        await appendToStreamBuffer("assistant", messageId, text);
+        await appendToStreamBuffer("assistant", text);
         break;
       }
 
       case "reasoning_message": {
         const reasoning =
           typeof rec.reasoning === "string" ? rec.reasoning : "";
-        const messageId =
-          typeof rec.id === "string" ? rec.id : null;
-        await appendToStreamBuffer("reasoning", messageId, reasoning);
+        await appendToStreamBuffer("reasoning", reasoning);
         break;
       }
 
