@@ -67,6 +67,9 @@ function buildWakeMessage(ctx: AdapterExecutionContext, heartbeatPrompt: string)
       "blocks describe your DEFAULT mode of operation — they do not",
       "override an explicit task assignment.",
       "",
+      "HEADLESS CONSTRAINT: You cannot call tools that require approval.",
+      "Use only the Bash tool with curl for any Doer API calls.",
+      "",
       "When you finish: update the issue status (done / blocked /",
       "needs_human) and add a comment summarizing what you did.",
     );
@@ -85,11 +88,14 @@ function buildWakeMessage(ctx: AdapterExecutionContext, heartbeatPrompt: string)
     "",
     "──────────────────────────────────────────────────────────",
     heartbeatPrompt,
+    "",
+    "HEADLESS CONSTRAINT: You are running in headless mode and tools are unavailable.",
+    "Respond with a short status message only. Do NOT call any tools.",
   ].join("\n");
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
-  const { runId, agent, runtime, config: rawConfig, context, onLog, onMeta, onSpawn, authToken } = ctx;
+  const { runId, agent, config: rawConfig, context, onLog, onMeta, onSpawn, authToken } = ctx;
   const config = rawConfig as unknown as LettaCliAdapterConfig;
 
   const command = asString(config.command, "letta");
@@ -134,36 +140,27 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
   const effectiveEnv = ensurePathInEnv({ ...process.env, ...env });
   await ensureCommandResolvable(command, process.cwd(), effectiveEnv);
 
-  // Session resumption — stored as conversationId from a prior run
-  const runtimeSessionParams = (runtime.sessionParams ?? {}) as Record<string, unknown>;
-  const savedConversationId = asString(runtimeSessionParams.conversationId, runtime.sessionId ?? "");
-
   const prompt = buildWakeMessage(ctx, heartbeatPrompt);
 
-  // `letta` rejects `--conversation` combined with `--agent` ("Error: --conversation
-  // cannot be used with --agent") — always, unconditionally. A saved conversation ID
-  // already resolves its owning agent internally, so resuming means passing
-  // *only* `--conversation`; a fresh run (no saved session yet) passes `--agent`.
-  const buildArgs = (conversationId: string | null) => {
-    const args = [
-      "-p",
-      prompt,
-      "--output-format",
-      "stream-json",
-      "--include-partial-messages",
-      "--backend",
-      backend,
-    ];
-    if (conversationId) {
-      args.push("--conversation", conversationId);
-    } else {
-      args.push("--agent", agentId);
-    }
-    if (model) args.push("--model", model);
-    return args;
-  };
-
-  const args = buildArgs(savedConversationId || null);
+  // Always start a fresh conversation (`--new`) to avoid stale approval gates
+  // from previous runs. Lettai agents have approval-gated tools (e.g.
+  // create_paperclip_issue) that block headless execution if a prior run
+  // left a pending approval_request_message. Session resumption would hit
+  // "Cannot process approval response: No tool call is currently awaiting
+  // approval." — so we never resume.
+  const args = [
+    "-p",
+    prompt,
+    "--new",
+    "--output-format",
+    "stream-json",
+    "--include-partial-messages",
+    "--backend",
+    backend,
+    "--agent",
+    agentId,
+  ];
+  if (model) args.push("--model", model);
 
   if (onMeta) {
     await onMeta({
@@ -171,7 +168,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       command,
       commandArgs: args,
       prompt,
-      context: { agentId, backend, baseUrl, conversationId: savedConversationId || null },
+      context: { agentId, backend, baseUrl, mode: "fresh-conversation" },
     });
   }
 
@@ -209,11 +206,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
     };
   }
 
-  const resolvedConversationId = parsed.conversationId ?? (savedConversationId || null);
-  const sessionParams = resolvedConversationId
-    ? ({ conversationId: resolvedConversationId } as Record<string, unknown>)
-    : null;
-
+  // Don't save conversationId for session resumption — see --new comment above.
   return {
     exitCode: proc.exitCode,
     signal: proc.signal,
@@ -223,9 +216,7 @@ export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExec
       : describeLettaCliFailure(proc),
     errorCode,
     usage: parsed.usage ?? undefined,
-    sessionId: resolvedConversationId ?? undefined,
-    sessionParams,
-    sessionDisplayId: resolvedConversationId ?? undefined,
+    // No sessionId/sessionParams — always create fresh conversations (see --new above)
     provider: "letta",
     biller: "letta",
     model: parsed.model || undefined,
