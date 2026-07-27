@@ -39,7 +39,7 @@ export function LettaCodeConfigFields({
   const dreamingTrigger = getString("dreamingTrigger", "off");
   const currentModel = getString("model");
   const modelOptions = [...models].sort((a, b) => a.label.localeCompare(b.label));
-  const currentModelIsKnown = modelOptions.some((model) => model.id === currentModel);
+  const modelSuggestionsId = "letta-model-suggestions";
 
   return (
     <div className="space-y-4">
@@ -86,24 +86,24 @@ export function LettaCodeConfigFields({
         />
       </Field>
 
-      <Field label="Model Handle" hint="Choose a model from the Letta offline and Constellation catalog. Existing custom handles remain available while editing.">
-        <select
-          name="lettaModel"
-          aria-label="Letta model handle"
-          value={currentModel}
-          onChange={(event) => setField("model", event.target.value || undefined)}
-          className={controlClass}
-        >
-          <option value="">Letta default</option>
-          {!currentModelIsKnown && currentModel && (
-            <option value={currentModel}>Current: {currentModel}</option>
-          )}
-          {modelOptions.map((model) => (
-            <option key={model.id} value={model.id}>
-              {model.label} ({model.id})
-            </option>
-          ))}
-        </select>
+      <Field label="Model Handle" hint="Type any provider/model handle. The catalog is only a set of suggestions; it never restricts models configured in Letta.">
+        <>
+          <DraftInput
+            name="lettaModel"
+            aria-label="Letta model handle"
+            value={currentModel}
+            onCommit={(value) => setField("model", value.trim() || undefined)}
+            immediate
+            list={modelSuggestionsId}
+            className={controlClass}
+            placeholder="Letta default — or type provider/model"
+          />
+          <datalist id={modelSuggestionsId}>
+            {modelOptions.map((model) => (
+              <option key={model.id} value={model.id}>{model.label}</option>
+            ))}
+          </datalist>
+        </>
       </Field>
 
       <div className="grid grid-cols-2 gap-3">
