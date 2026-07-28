@@ -1,6 +1,7 @@
 import path from "node:path";
 import type {
   LettaCodeBackend,
+  LettaCodeLlmProvider,
   LettaCodePermissionMode,
   LettaCodeReasoningEffort,
   LettaCodeSessionParams,
@@ -14,6 +15,27 @@ const SKILL_SOURCES = new Set<LettaCodeSkillSource>(["bundled", "global", "agent
 const DEFAULT_SKILL_SOURCES: LettaCodeSkillSource[] = ["bundled", "global", "agent", "project"];
 const DREAM_TRIGGERS = new Set(["off", "step-count", "compaction-event"]);
 const DREAM_BEHAVIORS = new Set(["reminder", "auto-launch"]);
+
+const LLM_PROVIDERS: Set<LettaCodeLlmProvider> = new Set([
+  "anthropic", "openai", "groq", "nvidia", "opencode_zen", "ollama", "ollama_cloud",
+]);
+
+/**
+ * Preset base URLs and env var names for OpenAI-compatible LLM providers.
+ * Used to inject adapterConfig.apiKey into the correct per-provider env var
+ * so the Letta local runtime can authenticate with the LLM API.
+ */
+export const LLM_PROVIDER_PRESETS: Record<Exclude<LettaCodeLlmProvider, "anthropic">, {
+  baseUrl: string;
+  envKey: string;
+}> = {
+  openai:       { baseUrl: "https://api.openai.com/v1",       envKey: "OPENAI_API_KEY" },
+  groq:         { baseUrl: "https://api.groq.com/openai/v1",  envKey: "GROQ_API_KEY" },
+  nvidia:       { baseUrl: "https://integrate.api.nvidia.com/v1", envKey: "NVIDIA_API_KEY" },
+  opencode_zen: { baseUrl: "https://api.opencode.dev/v1",     envKey: "OPENCODE_ZEN_API_KEY" },
+  ollama:       { baseUrl: "http://localhost:11434/v1",       envKey: "OLLAMA_API_KEY" },
+  ollama_cloud: { baseUrl: "https://api.olama.cloud/v1",      envKey: "OLLAMA_CLOUD_API_KEY" },
+};
 
 function record(value: unknown): Record<string, unknown> {
   return value && typeof value === "object" && !Array.isArray(value)
@@ -67,6 +89,21 @@ export function resolveLettaCodeConfig(value: unknown): ResolvedLettaCodeConfig 
   const reasoningCandidate = stringValue(raw.reasoningEffort) as LettaCodeReasoningEffort;
   const apiBaseUrl = stringValue(raw.apiBaseUrl) || stringValue(raw.baseUrl) || "https://api.letta.com";
 
+  // ── LLM provider resolution for local backend ──────────────────────────────
+  // Legacy offline config stores `provider`, `apiKey` (per-provider), and
+  // `baseUrl` (per-provider override). We carry these forward so
+  // sessionEnvironment() can map apiKey → GROQ_API_KEY / OPENAI_API_KEY / …
+  // for the Letta local runtime (which reads provider-specific env vars).
+  const providerRaw = stringValue(raw.provider) as LettaCodeLlmProvider;
+  const llmProvider: LettaCodeLlmProvider | null = LLM_PROVIDERS.has(providerRaw) ? providerRaw : null;
+  const llmApiKey = stringValue(raw.apiKey);
+  const llmBaseUrlRaw = stringValue(raw.baseUrl);
+  const llmBaseUrl = llmProvider && llmProvider !== "anthropic" && llmBaseUrlRaw
+    ? llmBaseUrlRaw
+    : (llmProvider && llmProvider !== "anthropic" && LLM_PROVIDER_PRESETS[llmProvider]
+        ? LLM_PROVIDER_PRESETS[llmProvider].baseUrl
+        : "");
+
   return {
     backend,
     harnessBackend: backend === "cloud_attached" ? "api" : "local",
@@ -76,6 +113,9 @@ export function resolveLettaCodeConfig(value: unknown): ResolvedLettaCodeConfig 
     apiBaseUrl: apiBaseUrl.replace(/\/+$/, ""),
     cwd: stringValue(raw.cwd),
     model: stringValue(raw.model),
+    llmProvider,
+    llmApiKey,
+    llmBaseUrl: llmBaseUrl.replace(/\/+$/, ""),
     reasoningEffort: REASONING_EFFORTS.has(reasoningCandidate) ? reasoningCandidate : undefined,
     permissionMode: PERMISSION_MODES.has(permissionCandidate) ? permissionCandidate : "standard",
     allowedTools: stringList(raw.allowedTools),

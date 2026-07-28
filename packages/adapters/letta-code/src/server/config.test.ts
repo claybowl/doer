@@ -66,6 +66,75 @@ describe("resolveLettaCodeConfig", () => {
       dreaming: { trigger: "step-count", behavior: "auto-launch", stepCount: 12, secret: "ignored" },
     }).dreaming).toEqual({ trigger: "step-count", behavior: "auto-launch", stepCount: 12 });
   });
+
+  it("carries llmProvider/llmApiKey for a Groq offline agent", () => {
+    const config = resolveLettaCodeConfig({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      apiKey: "gsk-my-key",
+      baseUrl: "https://api.groq.com/openai/v1",
+    });
+    expect(config).toMatchObject({
+      llmProvider: "groq",
+      llmApiKey: "gsk-my-key",
+      llmBaseUrl: "https://api.groq.com/openai/v1",
+    });
+  });
+
+  it("falls back to the Groq preset baseUrl when none is provided", () => {
+    const config = resolveLettaCodeConfig({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      apiKey: "gsk-my-key",
+    });
+    expect(config.llmProvider).toBe("groq");
+    expect(config.llmApiKey).toBe("gsk-my-key");
+    expect(config.llmBaseUrl).toBe("https://api.groq.com/openai/v1");
+  });
+
+  it("sets llmProvider to null for anthropic (uses its own env var)", () => {
+    const config = resolveLettaCodeConfig({
+      provider: "anthropic",
+      model: "claude-sonnet-4-6",
+    });
+    expect(config.llmProvider).toBe("anthropic");
+    expect(config.llmApiKey).toBe("");
+    expect(config.llmBaseUrl).toBe("");
+  });
+
+  it("sets llmProvider to null for unknown provider values", () => {
+    const config = resolveLettaCodeConfig({
+      provider: "luna",
+      apiKey: "ln-key",
+    });
+    expect(config.llmProvider).toBeNull();
+    expect(config.llmApiKey).toBe("ln-key");
+  });
+
+  it("resolves llm fields regardless of backend (env mapping gated in sessionEnvironment)", () => {
+    const config = resolveLettaCodeConfig({
+      mode: "online",
+      agentId: "agent-cloud-1",
+      apiKey: "gsk-groq-key",
+      provider: "groq",
+    });
+    expect(config.backend).toBe("cloud_attached");
+    expect(config.llmProvider).toBe("groq");
+    expect(config.llmApiKey).toBe("gsk-groq-key");
+  });
+
+  it("resolves OpenRouter baseUrl override for groq agents", () => {
+    // This tests the scenario where the stored baseUrl was wrong (openrouter)
+    // and the config keeps the stored value as an explicit override.
+    const config = resolveLettaCodeConfig({
+      provider: "groq",
+      model: "llama-3.3-70b-versatile",
+      apiKey: "gsk-key",
+      baseUrl: "https://openrouter.ai/api/v1",
+    });
+    expect(config.llmBaseUrl).toBe("https://openrouter.ai/api/v1");
+    expect(config.llmBaseUrl).not.toBe("https://api.groq.com/openai/v1");
+  });
 });
 
 describe("resolveLettaCodeSession", () => {

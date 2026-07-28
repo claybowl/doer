@@ -121,6 +121,8 @@ export interface LettaCodeSdkConfig {
   heartbeatPrompt?: string;
 }
 
+export type LettaCodeLlmProvider = "anthropic" | "openai" | "groq" | "nvidia" | "opencode_zen" | "ollama" | "ollama_cloud";
+
 export interface ResolvedLettaCodeConfig extends Required<Pick<
   LettaCodeSdkConfig,
   "backend" | "permissionMode" | "allowedTools" | "disallowedTools" | "skillSources" | "modsEnabled"
@@ -132,6 +134,17 @@ export interface ResolvedLettaCodeConfig extends Required<Pick<
   apiBaseUrl: string;
   cwd: string;
   model: string;
+  /**
+   * LLM provider for local-backend execution. Carried from the legacy offline
+   * config's `provider` field so sessionEnvironment() can map the adapter
+   * apiKey/baseUrl to the correct env var (GROQ_API_KEY, OPENAI_API_KEY, …)
+   * instead of only LETTA_API_KEY (cloud-attached).
+   */
+  llmProvider: LettaCodeLlmProvider | null;
+  /** Per-provider API key override (from adapterConfig.apiKey). */
+  llmApiKey: string;
+  /** Per-provider base URL override (from adapterConfig.baseUrl or preset). */
+  llmBaseUrl: string;
   reasoningEffort?: LettaCodeReasoningEffort;
   systemInfoReminder?: boolean;
   dreaming?: LettaCodeSdkConfig["dreaming"];

@@ -6,7 +6,8 @@ import {
   type LettaCodeClientSessionOptions,
 } from "@letta-ai/letta-agent-sdk";
 import path from "node:path";
-import type { LettaCodeSessionParams, ResolvedLettaCodeConfig } from "../shared/types.js";
+import type { LettaCodeLlmProvider, LettaCodeSessionParams, ResolvedLettaCodeConfig } from "../shared/types.js";
+import { LLM_PROVIDER_PRESETS } from "./config.js";
 import { mapSdkMessage, type LettaCodeOutputEvent, type LettaCodeSdkSessionIdentity } from "./sdk-events.js";
 
 export interface LettaSdkSessionLike {
@@ -79,6 +80,16 @@ function sessionEnvironment(
   if (config.backend === "cloud_attached") {
     if (config.apiKey) env.LETTA_API_KEY = config.apiKey;
     if (config.apiBaseUrl) env.LETTA_BASE_URL = config.apiBaseUrl;
+  } else if (config.backend === "local" && config.llmProvider && config.llmProvider !== "anthropic") {
+    // Inject the per-LLM-provider API key and base URL into env vars that
+    // the Letta local runtime reads when talking to the OpenAI-compatible
+    // provider (Groq, OpenAI, NVIDIA, Ollama, …). Anthropic is handled by
+    // the SDK's own ANTHROPIC_API_KEY env var convention.
+    const preset = LLM_PROVIDER_PRESETS[config.llmProvider as Exclude<LettaCodeLlmProvider, "anthropic">];
+    if (preset) {
+      if (config.llmApiKey) env[preset.envKey] = config.llmApiKey;
+      if (config.llmBaseUrl) env.LETTA_LLM_BASE_URL = config.llmBaseUrl;
+    }
   }
   if (!config.modsEnabled) env.LETTA_DISABLE_MODS = "1";
   return env;

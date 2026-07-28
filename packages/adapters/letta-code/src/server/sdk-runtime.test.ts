@@ -259,4 +259,75 @@ describe("runLettaSdkTurn", () => {
     expect(resumeSession).toHaveBeenNthCalledWith(2, "agent-local-1", expect.any(Object));
     expect(result.summary).toBe("recovered");
   });
+
+  it("injects GROQ_API_KEY env var for local Groq agents", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "llama-3.3-70b-versatile" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({
+        provider: "groq",
+        model: "llama-3.3-70b-versatile",
+        apiKey: "gsk-my-groq-key",
+        backend: "local",
+        cwd: "/work",
+      }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    // The env passed to createAgent should include GROQ_API_KEY
+    expect(client.createAgent).toHaveBeenCalledWith(expect.objectContaining({
+      env: expect.objectContaining({
+        GROQ_API_KEY: "gsk-my-groq-key",
+      }),
+    }));
+
+    // baseUrl is set via LLM provider preset
+    const createAgentCall = (client.createAgent as ReturnType<typeof vi.fn>).mock.calls[0][0];
+    expect(createAgentCall.env.LETTA_LLM_BASE_URL).toBe("https://api.groq.com/openai/v1");
+  });
+
+  it("does not inject GROQ_API_KEY for cloud-attached agents (uses LETTA_API_KEY instead)", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-cloud-1", sessionId: "session-1", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({
+        mode: "online",
+        agentId: "agent-cloud-1",
+        apiKey: "cloud-key",
+        provider: "groq",
+        model: "gpt",
+        cwd: "/work",
+      }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    // cloud-attached: env passed to resumeSession includes LETTA_API_KEY, NOT GROQ_API_KEY
+    expect(client.resumeSession).toHaveBeenCalledWith("agent-cloud-1", expect.objectContaining({
+      env: expect.objectContaining({
+        LETTA_API_KEY: "cloud-key",
+      }),
+    }));
+    const resumeCall = (client.resumeSession as ReturnType<typeof vi.fn>).mock.calls[0][1];
+    expect(resumeCall.env.GROQ_API_KEY).toBeUndefined();
+  });
 });
