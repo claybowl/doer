@@ -1489,7 +1489,22 @@ export function heartbeatService(db: Db) {
       .then((rows) => rows[0] ?? null);
   }
 
-  async function clearDetachedRunWarning(runId: string) {
+  /**
+   * Record progress from a running adapter. The orphan reaper treats
+   * heartbeat_runs.updated_at as its staleness signal, so streamed adapter
+   * output must refresh it even when the adapter cannot report a child PID.
+   */
+  async function refreshRunActivity(runId: string) {
+    const activity = await db
+      .update(heartbeatRuns)
+      .set({
+        updatedAt: new Date(),
+      })
+      .where(and(eq(heartbeatRuns.id, runId), eq(heartbeatRuns.status, "running")))
+      .returning()
+      .then((rows) => rows[0] ?? null);
+    if (!activity || activity.errorCode !== DETACHED_PROCESS_ERROR_CODE) return activity;
+
     const updated = await db
       .update(heartbeatRuns)
       .set({
@@ -1500,7 +1515,7 @@ export function heartbeatService(db: Db) {
       .where(and(eq(heartbeatRuns.id, runId), eq(heartbeatRuns.status, "running"), eq(heartbeatRuns.errorCode, DETACHED_PROCESS_ERROR_CODE)))
       .returning()
       .then((rows) => rows[0] ?? null);
-    if (!updated) return null;
+    if (!updated) return activity;
 
     await appendRunEvent(updated, await nextRunEventSeq(updated.id), {
       eventType: "lifecycle",
@@ -2428,6 +2443,7 @@ export function heartbeatService(db: Db) {
       }
 
       const currentRun = run;
+      let lastRunActivityRefreshAt = 0;
       await appendRunEvent(currentRun, seq++, {
         eventType: "lifecycle",
         stream: "system",
@@ -2456,6 +2472,14 @@ export function heartbeatService(db: Db) {
         if (stream === "stdout") stdoutExcerpt = appendExcerpt(stdoutExcerpt, sanitizedChunk);
         if (stream === "stderr") stderrExcerpt = appendExcerpt(stderrExcerpt, sanitizedChunk);
         const ts = new Date().toISOString();
+
+        // Do not write on every streaming token, but keep a continuously
+        // producing run fresh enough for the five-minute orphan reaper.
+        const nowMs = Date.now();
+        if (nowMs - lastRunActivityRefreshAt >= 10_000) {
+          lastRunActivityRefreshAt = nowMs;
+          await refreshRunActivity(currentRun.id);
+        }
 
         const payloadChunk =
           sanitizedChunk.length > MAX_LIVE_LOG_CHUNK_BYTES
@@ -3950,7 +3974,7 @@ export function heartbeatService(db: Db) {
 
     wakeup: enqueueWakeup,
 
-    reportRunActivity: clearDetachedRunWarning,
+    reportRunActivity: refreshRunActivity,
 
     reapOrphanedRuns,
 

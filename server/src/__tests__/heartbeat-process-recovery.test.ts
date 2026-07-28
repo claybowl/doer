@@ -176,6 +176,36 @@ describeEmbeddedPostgres("heartbeat orphaned process recovery", () => {
     expect(wakeup?.status).toBe("claimed");
   });
 
+  it("keeps a Letta Code run active when its recorded child pid is still alive", async () => {
+    const child = spawnAliveProcess();
+    childProcesses.add(child);
+    expect(child.pid).toBeTypeOf("number");
+
+    const { runId } = await seedRunFixture({
+      adapterType: "letta_code",
+      processPid: child.pid ?? null,
+      includeIssue: false,
+    });
+    const heartbeat = heartbeatService(db);
+
+    const result = await heartbeat.reapOrphanedRuns();
+    expect(result.reaped).toBe(0);
+
+    const run = await heartbeat.getRun(runId);
+    expect(run?.status).toBe("running");
+    expect(run?.errorCode).toBe("process_detached");
+  });
+
+  it("refreshes updatedAt when a running agent reports activity", async () => {
+    const { runId } = await seedRunFixture({ includeIssue: false });
+    const heartbeat = heartbeatService(db);
+
+    const updated = await heartbeat.reportRunActivity(runId);
+
+    expect(updated?.status).toBe("running");
+    expect(updated?.updatedAt.getTime()).toBeGreaterThan(new Date("2026-03-19T00:00:00.000Z").getTime());
+  });
+
   it("queues exactly one retry when the recorded local pid is dead", async () => {
     const { agentId, runId, issueId } = await seedRunFixture({
       processPid: 999_999_999,
