@@ -1969,6 +1969,50 @@ export function heartbeatService(db: Db) {
     });
   }
 
+  /**
+   * Execute `fn` with up to RETRY_COUNT retries when the failure is a
+   * `.git/config.lock` race from the Letta local SDK. The local SDK calls
+   * `git config --local` during agent initialization, and when multiple
+   * agents share the same workspace git repo they hit "could not lock config
+   * file .git/config: File exists". The failure is transient — retry with
+   * exponential backoff.
+   *
+   * Retries are intentionally scoped to git config lock errors only, not
+   * all adapter failures. Other errors propagate immediately.
+   */
+  const GIT_LOCK_RETRY_COUNT = 3;
+  const GIT_LOCK_RETRY_BASE_MS = 500;
+  async function executeWithGitConfigRetry(
+    fn: () => Promise<AdapterExecutionResult>,
+    log: (stream: "stdout" | "stderr", chunk: string) => Promise<void>,
+  ): Promise<AdapterExecutionResult> {
+    let lastError: Error | null = null;
+    for (let attempt = 0; attempt <= GIT_LOCK_RETRY_COUNT; attempt++) {
+      try {
+        return await fn();
+      } catch (err) {
+        lastError = err instanceof Error ? err : new Error(String(err));
+        const message = lastError.message;
+        if (
+          attempt < GIT_LOCK_RETRY_COUNT &&
+          message.includes("could not lock config file") &&
+          message.includes(".git/config")
+        ) {
+          const delay = GIT_LOCK_RETRY_BASE_MS * Math.pow(2, attempt);
+          const jitter = Math.random() * 200;
+          await log(
+            "stdout",
+            `[doer] git config lock collision (attempt ${attempt + 1}/${GIT_LOCK_RETRY_COUNT + 1}), retrying in ${Math.round(delay + jitter)}ms\n`,
+          );
+          await new Promise((resolve) => setTimeout(resolve, delay + jitter));
+          continue;
+        }
+        throw lastError;
+      }
+    }
+    throw lastError ?? new Error("executeWithGitConfigRetry exhausted");
+  }
+
   async function executeRun(runId: string) {
     let run = await getRun(runId);
     if (!run) return;
@@ -2641,19 +2685,28 @@ export function heartbeatService(db: Db) {
         }
       }
 
-      const adapterResult = await adapter.execute({
-        runId: run.id,
-        agent,
-        runtime: runtimeForAdapter,
-        config: runtimeConfigForAdapter,
-        context,
+      // Retry adapter.execute when the Letta local SDK hits a
+      // .git/config.lock race with another concurrently starting agent.
+      // This happens when multiple letta_code agents share a workspace
+      // git repo and the SDK calls `git config --local` during init.
+      // Retries are cheap because the failure happens on the very first
+      // git config call before any SDK work begins.
+      const adapterResult = await executeWithGitConfigRetry(
+        () => adapter.execute({
+          runId: run.id,
+          agent,
+          runtime: runtimeForAdapter,
+          config: runtimeConfigForAdapter,
+          context,
+          onLog,
+          onMeta: onAdapterMeta,
+          onSpawn: async (meta) => {
+            await persistRunProcessMetadata(run.id, meta);
+          },
+          authToken: authToken ?? undefined,
+        }),
         onLog,
-        onMeta: onAdapterMeta,
-        onSpawn: async (meta) => {
-          await persistRunProcessMetadata(run.id, meta);
-        },
-        authToken: authToken ?? undefined,
-      });
+      );
       const adapterManagedRuntimeServices = adapterResult.runtimeServices
         ? await persistAdapterManagedRuntimeServices({
             db,
