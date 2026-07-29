@@ -1,40 +1,40 @@
 {
-	"name": "@doer/desktop",
-	"version": "0.2.6",
-	"private": true,
-	"description": "Doer desktop shell (Electron)",
-	"main": ".vite/build/main.js",
-	"scripts": {
-		"start": "electron-forge start",
-		"package": "electron-forge package",
-		"make": "electron-forge make && node scripts/validate-artifacts.mjs",
-		"validate-artifacts": "node scripts/validate-artifacts.mjs",
-		"release": "pnpm run make && node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs"
-	},
-	"dependencies": {
-		"electron-squirrel-startup": "^1.0.1",
-		"react": "^19.2.4",
-		"react-dom": "^19.2.4",
-		"update-electron-app": "^3.1.2"
-	},
-	"devDependencies": {
-		"@aws-sdk/client-s3": "^3.888.0",
-		"@aws-sdk/lib-storage": "^3.1037.0",
-		"@aws-sdk/s3-request-presigner": "^3.1038.0",
-		"@electron-forge/cli": "^7.11.1",
-		"@electron-forge/maker-squirrel": "^7.11.1",
-		"@electron-forge/maker-zip": "^7.11.1",
-		"@electron-forge/plugin-fuses": "^7.11.1",
-		"@electron-forge/plugin-vite": "^7.11.1",
-		"@electron-forge/publisher-s3": "^7.11.1",
-		"@electron-forge/shared-types": "^7.11.1",
-		"@electron/fuses": "^2.1.1",
-		"@reforged/maker-appimage": "^5.2.0",
-		"@types/react": "^19.0.0",
-		"@types/react-dom": "^19.0.0",
-		"@vitejs/plugin-react": "^6.0.1",
-		"electron": "^41.1.1",
-		"typescript": "^5.9.3",
-		"vite": "^8.0.4"
-	}
+  "name": "@doer/desktop",
+  "version": "0.2.7",
+  "private": true,
+  "description": "Doer desktop shell (Electron)",
+  "main": ".vite/build/main.js",
+  "scripts": {
+    "start": "electron-forge start",
+    "package": "electron-forge package",
+    "make": "electron-forge make && node scripts/validate-artifacts.mjs",
+    "validate-artifacts": "node scripts/validate-artifacts.mjs",
+    "release": "pnpm run make && node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "update-electron-app": "^3.1.2"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-s3": "^3.888.0",
+    "@aws-sdk/lib-storage": "^3.1037.0",
+    "@aws-sdk/s3-request-presigner": "^3.1038.0",
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
+    "@electron-forge/publisher-s3": "^7.11.1",
+    "@electron-forge/shared-types": "^7.11.1",
+    "@electron/fuses": "^2.1.1",
+    "@reforged/maker-appimage": "^5.2.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.0.1",
+    "electron": "^41.1.1",
+    "typescript": "^5.9.3",
+    "vite": "^8.0.4"
+  }
 }
