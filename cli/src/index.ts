@@ -22,7 +22,7 @@ import { registerPluginCommands } from "./commands/client/plugin.js";
 import { registerClientAuthCommands } from "./commands/client/auth.js";
 import { registerMemfsCommands } from "./commands/client/memfs.js";
 import { registerBenchmarkCommands } from "./commands/client/benchmark.js";
-import { registerStatusCommands, fetchAndPrintStatus } from "./commands/client/status.js";
+import { fetchAndPrintStatus } from "./commands/client/status.js";
 
 const program = new Command();
 const DATA_DIR_OPTION_HELP =
@@ -144,8 +144,6 @@ registerWorktreeCommands(program);
 registerPluginCommands(program);
 registerMemfsCommands(program);
 registerBenchmarkCommands(program);
-registerStatusCommands(program);
-
 program
   .command("status")
   .description("Quick overview: agents, costs, approvals, tasks, and budget status")
