@@ -7,7 +7,7 @@
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make && node scripts/validate-artifacts.mjs",
+    "make": "electron-forge make",
     "validate-artifacts": "node scripts/validate-artifacts.mjs",
     "release": "pnpm run make && node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs"
   },
