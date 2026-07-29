@@ -19,6 +19,7 @@ describe("selectDefaultCompanyGoalId", () => {
           parentId: null,
           ownerAgentId: null,
           createdAt: new Date("2026-03-04T00:00:00Z"),
+          successCriteria: null,
           updatedAt: new Date("2026-03-04T00:00:00Z"),
         },
         {
@@ -31,6 +32,7 @@ describe("selectDefaultCompanyGoalId", () => {
           parentId: null,
           ownerAgentId: null,
           createdAt: new Date("2026-03-03T00:00:00Z"),
+          successCriteria: null,
           updatedAt: new Date("2026-03-03T00:00:00Z"),
         },
         {
@@ -43,6 +45,7 @@ describe("selectDefaultCompanyGoalId", () => {
           parentId: null,
           ownerAgentId: null,
           createdAt: new Date("2026-03-02T00:00:00Z"),
+          successCriteria: null,
           updatedAt: new Date("2026-03-02T00:00:00Z"),
         },
       ]),
@@ -62,6 +65,7 @@ describe("selectDefaultCompanyGoalId", () => {
           parentId: null,
           ownerAgentId: null,
           createdAt: new Date("2026-03-03T00:00:00Z"),
+          successCriteria: null,
           updatedAt: new Date("2026-03-03T00:00:00Z"),
         },
         {
@@ -74,6 +78,7 @@ describe("selectDefaultCompanyGoalId", () => {
           parentId: null,
           ownerAgentId: null,
           createdAt: new Date("2026-03-02T00:00:00Z"),
+          successCriteria: null,
           updatedAt: new Date("2026-03-02T00:00:00Z"),
         },
       ]),
