@@ -900,7 +900,7 @@ export function buildHostServices(
         const goal = await goals.getById(params.goalId);
         return (inCompany(goal, companyId) ? goal : null) as Goal | null;
       },
-      async create(params) {
+      async create(params: { companyId: string; title: string; description?: string | null; successCriteria?: string | null; level?: string; status?: string; parentId?: string; ownerAgentId?: string }) {
         const companyId = ensureCompanyId(params.companyId);
         await ensurePluginAvailableForCompany(companyId);
         return (await goals.create(companyId, {
