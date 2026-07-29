@@ -184,6 +184,16 @@ export function LettaCliConfigFields({
               placeholder="https://api.letta.com"
             />
           </Field>
+
+          <Field label="Model" hint="Leave blank for Letta auto model. Set to override, e.g. openai/gpt-4.1 or anthropic/claude-sonnet-4-6">
+            <DraftInput
+              value={getField("model", "")}
+              onCommit={(v) => setField("model", v || undefined)}
+              immediate
+              className={inputClass}
+              placeholder="auto"
+            />
+          </Field>
         </>
       ) : (
         <>
