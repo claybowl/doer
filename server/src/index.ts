@@ -521,6 +521,9 @@ export async function startServer(): Promise<StartedServer> {
   if (listenPort !== config.port) {
     config.port = listenPort;
   }
+  // Export the resolved port so child processes (letta_code adapter, buildPaperclipEnv)
+  // inherit the correct port instead of falling back to the default 3100.
+  process.env.DOER_LISTEN_PORT = String(listenPort);
   if (resolvedEmbeddedPostgresPort !== null && resolvedEmbeddedPostgresPort !== config.embeddedPostgresPort) {
     config.embeddedPostgresPort = resolvedEmbeddedPostgresPort;
   }
