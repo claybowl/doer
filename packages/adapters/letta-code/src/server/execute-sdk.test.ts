@@ -62,13 +62,19 @@ describe("letta_code Agent SDK execute", () => {
       command: "letta-agent-sdk",
       cwd: "/doer/workspace",
     }));
-    expect(ctx.onLog).toHaveBeenCalledWith("stdout", `${JSON.stringify({ type: "assistant_message", content: "done" })}\n`);
+    expect(ctx.onLog).toHaveBeenCalledWith(
+      "stdout",
+      expect.stringMatching(
+        /^\{"ts":"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z","type":"assistant_message","content":"done"}\n$/,
+      ),
+    );
     expect(result).toMatchObject({
       exitCode: 0,
       provider: "letta",
       model: "openai-codex/gpt-5",
       sessionDisplayId: "session-1",
       sessionParams: { conversationId: "conversation-1", lettaAgentId: "agent-local-1", backend: "local" },
+      resultJson: expect.objectContaining({ trajectory: expect.any(Array) }),
     });
   });
 

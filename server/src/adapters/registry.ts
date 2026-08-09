@@ -121,6 +121,14 @@ import {
 } from "@doerai/adapter-letta-cli";
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
+import {
+  execute as a2aExecute,
+  testEnvironment as a2aTestEnvironment,
+} from "@doerai/adapter-a2a/server";
+import {
+  agentConfigurationDoc as a2aAgentConfigurationDoc,
+  memfsCapability as a2aMemfsCapability,
+} from "@doerai/adapter-a2a";
 
 const claudeLocalAdapter: ServerAdapterModule = {
   type: "claude_local",
@@ -277,6 +285,16 @@ const lettaCliAdapter: ServerAdapterModule = {
   memfsCapability: lettaCliMemfsCapability,
 };
 
+const a2aAdapter: ServerAdapterModule = {
+  type: "a2a",
+  execute: a2aExecute,
+  testEnvironment: a2aTestEnvironment,
+  models: [],
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: a2aAgentConfigurationDoc,
+  memfsCapability: a2aMemfsCapability,
+};
+
 const adaptersByType = new Map<string, ServerAdapterModule>(
   [
     claudeLocalAdapter,
@@ -291,6 +309,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     lettaAfOpenCodeAdapter,
     lettaCodeAdapter,
     lettaCliAdapter,
+    a2aAdapter,
     processAdapter,
     httpAdapter,
   ].map((a) => [a.type, a]),

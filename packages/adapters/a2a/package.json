@@ -1,0 +1,40 @@
+{
+  "name": "@doerai/adapter-a2a",
+  "version": "0.1.0",
+  "description": "A2A (Agent-to-Agent Protocol) adapter for Doer — delegate to remote A2A agents via JSON-RPC 2.0 + SSE",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server/index.d.ts",
+      "import": "./dist/server/index.js"
+    },
+    "./ui": {
+      "types": "./dist/ui/index.d.ts",
+      "import": "./dist/ui/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@doerai/adapter-utils": "workspace:*"
+  },
+  "devDependencies": {
+    "@doerai/shared": "workspace:*",
+    "@types/node": "^24.6.0",
+    "typescript": "^5.7.3"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "access": "public"
+}

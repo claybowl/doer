@@ -7,6 +7,7 @@ import {
 } from "@letta-ai/letta-agent-sdk";
 import path from "node:path";
 import type { LettaCodeLlmProvider, LettaCodeSessionParams, ResolvedLettaCodeConfig } from "../shared/types.js";
+import { StreamTokenBuffer } from "@doerai/adapter-utils/stream-buffer";
 import { LLM_PROVIDER_PRESETS } from "./config.js";
 import { mapSdkMessage, type LettaCodeOutputEvent, type LettaCodeSdkSessionIdentity } from "./sdk-events.js";
 
@@ -162,8 +163,9 @@ export async function runLettaSdkTurn(
     input.signal?.addEventListener("abort", abort, { once: true });
     let identity: LettaCodeSdkSessionIdentity | undefined;
     let resultMessage: Record<string, unknown> | undefined;
-    let streamedAssistant = "";
-    let streamedReasoning = "";
+    // Shared StreamTokenBuffer from adapter-utils consolidates partial
+    // streaming tokens using the SDK prefix-match pattern.
+    const streamBuffer = new StreamTokenBuffer();
     try {
       await session.send(input.prompt);
       for await (const message of session.stream()) {
@@ -172,23 +174,18 @@ export async function runLettaSdkTurn(
         for (const event of mapped.events) {
           if (event.type === "assistant_message" || event.type === "reasoning_message") {
             const content = typeof event.content === "string" ? event.content : "";
-            const stream = event.type === "assistant_message" ? streamedAssistant : streamedReasoning;
+            const kind = event.type === "assistant_message" ? "assistant" : "reasoning";
             if (event.delta === true) {
-              if (event.type === "assistant_message") streamedAssistant += content;
-              else streamedReasoning += content;
+              // Incremental delta — accumulate into the shared buffer
+              streamBuffer.appendDelta(kind, content);
               await input.onEvent(event);
               continue;
             }
-            if (stream && content.startsWith(stream)) {
-              const remainder = content.slice(stream.length);
-              if (event.type === "assistant_message") streamedAssistant = "";
-              else streamedReasoning = "";
-              if (!remainder) continue;
-              await input.onEvent({ ...event, content: remainder });
-              continue;
-            }
-            if (event.type === "assistant_message") streamedAssistant = "";
-            else streamedReasoning = "";
+            // Full-content event — match against accumulated deltas
+            const remainder = streamBuffer.matchFullAndConsume(kind, content);
+            if (!remainder) continue;
+            await input.onEvent({ ...event, content: remainder });
+            continue;
           }
           await input.onEvent(event);
         }

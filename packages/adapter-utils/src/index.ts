@@ -54,3 +54,4 @@ export {
   redactTranscriptEntryPaths,
 } from "./log-redaction.js";
 export { inferOpenAiCompatibleBiller } from "./billing.js";
+export { StreamTokenBuffer, type StreamKind, type StreamTokenEntry } from "./stream-buffer.js";

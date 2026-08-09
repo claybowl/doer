@@ -1,4 +1,5 @@
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
+import { StreamTokenBuffer } from "@doerai/adapter-utils/stream-buffer";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
 import {
   attachTool,
@@ -612,7 +613,8 @@ async function ensureWriteOutputToolAttached(
 // TranscriptEntry objects for the real-time dashboard transcript.
 
 async function emit(ctx: AdapterExecutionContext, payload: Record<string, unknown>): Promise<void> {
-  await ctx.onLog("stdout", JSON.stringify(payload) + "\n");
+  const entry = { ts: new Date().toISOString(), ...payload };
+  await ctx.onLog("stdout", JSON.stringify(entry) + "\n");
 }
 
 // ── Streaming execution ───────────────────────────────────────────────────
@@ -642,8 +644,43 @@ async function executeStreaming(
     await ensurePaperclipIssueToolsAttached(config, config.agentId, snapshot);
   }
 
+  // Stream-token accumulator — uses the shared StreamTokenBuffer from
+  // adapter-utils (see doc/plans/2026-07-31-acp-a2a-trajectory-analysis.md).
+  const streamBuffer = new StreamTokenBuffer();
+
+  // Trajectory accumulator: every emitted JSON-line is collected here
+  // so the full session transcript can be returned in resultJson
+  // for cross-harness "dreaming" and memory formation.
+  const trajectory: Array<Record<string, unknown>> = [];
+  const emitTracked = async (payload: Record<string, unknown>): Promise<void> => {
+    const entry = { ts: new Date().toISOString(), ...payload };
+    await ctx.onLog("stdout", JSON.stringify(entry) + "\n");
+    trajectory.push(entry);
+  };
+
+  // Streamable Letta message_types — anything else is a logical break and
+  // forces the buffer to drain BEFORE we run that event's handler so the
+  // ordering of events the UI sees stays correct (assistant text before
+  // the tool call it triggered, etc.).
+  const STREAMABLE_TYPES = new Set(["assistant_message", "reasoning_message"]);
+
+  async function flushAndEmit(): Promise<void> {
+    const flushed = streamBuffer.flush();
+    if (flushed) {
+      await emitTracked({ type: flushed.type, content: flushed.content });
+    }
+  }
+
+  async function appendAndEmit(kind: "assistant" | "reasoning", text: string): Promise<void> {
+    if (!text) return;
+    const flushed = streamBuffer.appendDelta(kind, text);
+    if (flushed) {
+      await emitTracked({ type: flushed.type, content: flushed.content });
+    }
+  }
+
   // Emit the user message so the transcript shows the full conversation
-  await emit(ctx, { type: "user_message", content: userMessage });
+  await emitTracked({ type: "user_message", content: userMessage });
 
   const stream = await client.agents.messages.create(config.agentId, {
     messages: [{ role: "user", content: userMessage }],
@@ -670,70 +707,8 @@ async function executeStreaming(
   // complete argument object is assembled — not on the first partial chunk.
   const pendingToolCallArgs = new Map<string, { name: string; rawArgs: string }>();
 
-  // ----------------------------------------------------------------------
-  // Stream-token accumulator
-  // ----------------------------------------------------------------------
-  // We request `stream_tokens: true` from Letta because it gives us live,
-  // typewriter-style streaming during the run. The downside is each chunk
-  // becomes a separate message_type event (often a partial word — "ng" +
-  // "rok", "Heart" + "beat"). If we naively emit each chunk as its own
-  // assistant_message / reasoning_message event, the Doer transcript UI
-  // renders each as a sibling node and inserts whitespace between, so
-  // users see "Heart beat" instead of "Heartbeat" everywhere.
-  //
-  // Fix: accumulate consecutive chunks of the same kind, emit one
-  // consolidated event when the kind
-  // changes, when a non-streamable event arrives (tool calls, returns,
-  // errors, etc.), or when the stream ends.  We intentionally do NOT key
-  // on message id because Letta's streaming tokens carry unique ids,
-  // which would defeat accumulation and produce one JSON line per token.
-  type StreamKind = "assistant" | "reasoning";
-  type StreamBuffer = {
-    kind: StreamKind;
-    text: string;
-  };
-  let streamBuffer: StreamBuffer | null = null;
-
-  async function flushStreamBuffer(): Promise<void> {
-    if (!streamBuffer || streamBuffer.text.length === 0) {
-      streamBuffer = null;
-      return;
-    }
-    if (streamBuffer.kind === "assistant") {
-      await emit(ctx, {
-        type: "assistant_message",
-        content: streamBuffer.text,
-      });
-    } else {
-      await emit(ctx, {
-        type: "reasoning_message",
-        content: streamBuffer.text,
-      });
-    }
-    streamBuffer = null;
-  }
-
-  // Helper: append `text` to the buffer, opening a new buffer or flushing
-  // the previous one when the kind changes.
-  async function appendToStreamBuffer(
-    kind: StreamKind,
-    text: string,
-  ): Promise<void> {
-    if (text.length === 0) return;
-    if (streamBuffer && streamBuffer.kind !== kind) {
-      await flushStreamBuffer();
-    }
-    if (!streamBuffer) {
-      streamBuffer = { kind, text: "" };
-    }
-    streamBuffer.text += text;
-  }
-
-  // Streamable Letta message_types — anything else is a logical break and
-  // forces the buffer to drain BEFORE we run that event's handler so the
-  // ordering of events the UI sees stays correct (assistant text before
-  // the tool call it triggered, etc.).
-  const STREAMABLE_TYPES = new Set(["assistant_message", "reasoning_message"]);
+  // Stream-token buffer, trajectory accumulator, emitTracked, flushAndEmit,
+  // and appendAndEmit are all declared above (before the user_message emit).
 
   for await (const chunk of stream) {
     const rec = chunk as unknown as Record<string, unknown>;
@@ -750,28 +725,28 @@ async function executeStreaming(
 
     // Drain accumulated streaming chunks before any non-streamable event
     // so the consumer sees them in the correct interleaved order.
-    if (!STREAMABLE_TYPES.has(messageType) && streamBuffer) {
-      await flushStreamBuffer();
+    if (!STREAMABLE_TYPES.has(messageType) && streamBuffer.isBuffered) {
+      await flushAndEmit();
     }
 
     switch (messageType) {
       case "assistant_message": {
         const text = extractAssistantContent(rec.content);
-        await appendToStreamBuffer("assistant", text);
+        await appendAndEmit("assistant", text);
         break;
       }
 
       case "reasoning_message": {
         const reasoning =
           typeof rec.reasoning === "string" ? rec.reasoning : "";
-        await appendToStreamBuffer("reasoning", reasoning);
+        await appendAndEmit("reasoning", reasoning);
         break;
       }
 
       case "hidden_reasoning_message": {
         // Redacted reasoning — emit as a single line, not buffered. The
         // pre-loop drain already flushed any pending streamable chunks.
-        await emit(ctx, {
+        await emitTracked({
           type: "reasoning_message",
           content: "(reasoning redacted by model)",
         });
@@ -799,7 +774,7 @@ async function executeStreaming(
               ? String(call.arguments ?? call.input ?? "")
               : "";
             const input = parseToolArgs(call.arguments ?? call.input);
-            await emit(ctx, { type: "tool_call_message", name, input, toolCallId });
+            await emitTracked({ type: "tool_call_message", name, input, toolCallId });
 
             // Interception: when the agent calls `produce_deliverable`,
             // Letta's sandbox runs a no-op stub. The REAL work happens
@@ -874,7 +849,7 @@ async function executeStreaming(
         const toolCallId = typeof rec.tool_call_id === "string" ? rec.tool_call_id : "";
         const status = typeof rec.status === "string" ? rec.status : "success";
         const toolName = typeof rec.name === "string" ? rec.name : undefined;
-        await emit(ctx, {
+        await emitTracked({
           type: "tool_return_message",
           content: toolReturn,
           toolCallId,
@@ -927,7 +902,7 @@ async function executeStreaming(
       case "system_message": {
         const text = typeof rec.content === "string" ? rec.content : "";
         if (text) {
-          await emit(ctx, { type: "system_message", content: text });
+          await emitTracked({ type: "system_message", content: text });
         }
         break;
       }
@@ -938,7 +913,7 @@ async function executeStreaming(
         cachedTokens = typeof rec.cached_input_tokens === "number" ? rec.cached_input_tokens : cachedTokens;
         stepCount = typeof rec.step_count === "number" ? rec.step_count : stepCount;
         // Emit a result summary so the UI can show tokens/cost
-        await emit(ctx, {
+        await emitTracked({
           type: "usage_statistics",
           inputTokens,
           outputTokens,
@@ -959,7 +934,7 @@ async function executeStreaming(
       case "stop_reason": {
         // Final event — log it but don't need to emit to transcript
         const reason = typeof rec.stop_reason === "string" ? rec.stop_reason : "unknown";
-        await emit(ctx, { type: "stop_reason", reason });
+        await emitTracked({ type: "stop_reason", reason });
         break;
       }
 
@@ -969,7 +944,7 @@ async function executeStreaming(
 
       default:
         // Unknown message type — emit as raw stdout for debugging
-        await emit(ctx, { type: "unknown", messageType, raw: safeStringify(rec) });
+        await emitTracked({ type: "unknown", messageType, raw: safeStringify(rec) });
         break;
     }
   }
@@ -977,8 +952,8 @@ async function executeStreaming(
   // Final drain of the streaming accumulator — there may be a trailing
   // assistant_message or reasoning_message that wasn't followed by a
   // non-streamable event before the stream closed.
-  if (streamBuffer) {
-    await flushStreamBuffer();
+  if (streamBuffer.isBuffered) {
+    await flushAndEmit();
   }
 
   // Drain any pending deliverable uploads before reporting success. We
@@ -998,6 +973,11 @@ async function executeStreaming(
       inputTokens,
       outputTokens,
       cachedInputTokens: cachedTokens,
+    },
+    resultJson: {
+      exitCode: 0,
+      stepCount,
+      trajectory,
     },
   };
 }

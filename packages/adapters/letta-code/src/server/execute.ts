@@ -127,7 +127,13 @@ export async function execute(
       model: configured.model || null,
     },
   });
-  await ctx.onLog("stdout", `${JSON.stringify({ type: "user_message", content: prompt })}\n`);
+
+  // Trajectory accumulator: every emitted event is collected here for
+  // cross-harness "dreaming" and memory formation.
+  const trajectory: Array<Record<string, unknown>> = [];
+  const userMessageEntry = { ts: new Date().toISOString(), type: "user_message" as const, content: prompt };
+  trajectory.push(userMessageEntry);
+  await ctx.onLog("stdout", `${JSON.stringify(userMessageEntry)}\n`);
 
   try {
     const result = await dependencies.runTurn({
@@ -137,7 +143,9 @@ export async function execute(
       env,
       tools: buildDoerAgentTools(ctx),
       onEvent: async (event) => {
-        await ctx.onLog("stdout", `${JSON.stringify(event)}\n`);
+        const entry = { ts: new Date().toISOString(), ...event };
+        trajectory.push(entry);
+        await ctx.onLog("stdout", `${JSON.stringify(entry)}\n`);
       },
     });
     return {
@@ -158,6 +166,7 @@ export async function execute(
         success: result.success,
         lettaAgentId: result.sessionParams.lettaAgentId,
         conversationId: result.sessionParams.conversationId,
+        trajectory,
       },
     };
   } catch (error) {

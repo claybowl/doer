@@ -13,6 +13,7 @@ import { lettaAfOpenCodeUIAdapter } from "./letta-af-opencode";
 import { lettaCliUIAdapter } from "./letta-cli";
 import { processUIAdapter } from "./process";
 import { httpUIAdapter } from "./http";
+import { a2aUIAdapter } from "./a2a";
 import { loadDynamicParser, invalidateDynamicParser } from "./dynamic-loader";
 import { SchemaConfigFields, buildSchemaAdapterConfig } from "./schema-config-fields";
 
@@ -69,6 +70,7 @@ function registerBuiltInUIAdapters() {
     lettaCodeUIAdapter,
     lettaAfOpenCodeUIAdapter,
     lettaCliUIAdapter,
+    a2aUIAdapter,
     processUIAdapter,
     httpUIAdapter,
   ]) {
