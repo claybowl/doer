@@ -106,8 +106,24 @@ jobs:
         working-directory: desktop
         run: pnpm run validate-artifacts
 
-      # Real release: build + publish to R2 + upload RELEASES.json manifest
-      - name: Release (build + publish to R2)
+      # Real release: build installers. Upload happens only AFTER the macOS
+      # zip passes validation — never publish an artifact we haven't checked.
+      - name: Make (release build)
+        if: ${{ !inputs.dry_run }}
+        working-directory: desktop
+        run: pnpm run make
+
+      # validate-artifacts only checks the macOS zip, so it must only run on
+      # the darwin matrix job. Running it on Linux/Windows makes the build
+      # fail with "file not found at .../Doer-darwin-arm64-*.zip".
+      - name: Validate artifacts (release, macOS only)
+        if: ${{ !inputs.dry_run && matrix.platform == 'darwin' }}
+        working-directory: desktop
+        run: pnpm run validate-artifacts
+
+      # Publish validated installers to R2 + upload RELEASES.json manifest.
+      # Blocked automatically if the Validate step above fails.
+      - name: Publish to R2 (upload + manifest)
         if: ${{ !inputs.dry_run }}
         working-directory: desktop
         env:
@@ -118,16 +134,7 @@ jobs:
           S3_ACCESS_KEY_ID: ${{ secrets.S3_ACCESS_KEY_ID }}
           S3_SECRET_ACCESS_KEY: ${{ secrets.S3_SECRET_ACCESS_KEY }}
           S3_FOLDER: beta
-        run: pnpm run release
-
-      # validate-artifacts only checks the macOS zip, so it must only run on
-      # the darwin matrix job. Running it on Linux/Windows makes the build
-      # fail with "file not found at .../Doer-darwin-arm64-*.zip".
-      # Only validate after Release in non-dry-run mode (Release produces the artifacts).
-      - name: Validate artifacts (release, macOS only)
-        if: ${{ !inputs.dry_run && matrix.platform == 'darwin' }}
-        working-directory: desktop
-        run: pnpm run validate-artifacts
+        run: node scripts/upload-artifacts.mjs && node scripts/publish-manifest.mjs
 
       # Upload artifacts to GitHub only on dry runs (real releases go to R2).
       # Short retention keeps quota in check — grab the installer within 3 days.
