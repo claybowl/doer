@@ -86,6 +86,8 @@ Headers: X-Doer-Run-Id: $DOER_RUN_ID
 
 Status values: `backlog`, `todo`, `in_progress`, `in_review`, `done`, `blocked`, `cancelled`. Priority values: `critical`, `high`, `medium`, `low`. Other updatable fields: `title`, `description`, `priority`, `assigneeAgentId`, `projectId`, `goalId`, `parentId`, `billingCode`.
 
+**Closing requires a deliverable.** Before setting status to `done`, register a deliverable (`POST /api/companies/{companyId}/deliverables` with `issueId`) or include `"deliverableExemption": "<reason>"` in the close payload — the server rejects agent closes with neither (422).
+
 **Step 9 — Delegate if needed.** Create subtasks with `POST /api/companies/{companyId}/issues`. Always set `parentId` and `goalId`. Set `billingCode` for cross-team work.
 
 ## NOOP Circuit Breaker

@@ -20,6 +20,7 @@ import { validate } from "../middleware/validate.js";
 import {
   accessService,
   agentService,
+  deliverableService,
   executionWorkspaceService,
   goalService,
   heartbeatService,
@@ -32,7 +33,7 @@ import {
   workProductService,
 } from "../services/index.js";
 import { logger } from "../middleware/logger.js";
-import { forbidden, HttpError, unauthorized } from "../errors.js";
+import { forbidden, HttpError, unauthorized, unprocessable } from "../errors.js";
 import { assertCompanyAccess, getActorInfo } from "./authz.js";
 import { shouldWakeAssigneeOnCheckout } from "./issues-checkout-wakeup.js";
 import { isAllowedContentType, MAX_ATTACHMENT_BYTES } from "../attachment-types.js";
@@ -54,6 +55,7 @@ export function issueRoutes(db: Db, storage: StorageService) {
   const workProductsSvc = workProductService(db);
   const documentsSvc = documentService(db);
   const routinesSvc = routineService(db);
+  const deliverablesSvc = deliverableService(db);
   const upload = multer({
     storage: multer.memoryStorage(),
     limits: { fileSize: MAX_ATTACHMENT_BYTES, files: 1 },
@@ -950,13 +952,32 @@ export function issueRoutes(db: Db, storage: StorageService) {
 
     const actor = getActorInfo(req);
     const isClosed = existing.status === "done" || existing.status === "cancelled";
-    const { comment: commentBody, reopen: reopenRequested, hiddenAt: hiddenAtRaw, ...updateFields } = req.body;
+    const { comment: commentBody, reopen: reopenRequested, hiddenAt: hiddenAtRaw, deliverableExemption, ...updateFields } = req.body;
     if (hiddenAtRaw !== undefined) {
       updateFields.hiddenAt = hiddenAtRaw ? new Date(hiddenAtRaw) : null;
     }
     if (commentBody && reopenRequested === true && isClosed && updateFields.status === undefined) {
       updateFields.status = "todo";
     }
+
+    // Deliverable hard gate: agents may not transition an issue to done
+    // unless a deliverable is registered against it or the request carries
+    // an explicit exemption reason. Board actors (humans) are never blocked.
+    const closingToDone = updateFields.status === "done" && existing.status !== "done";
+    if (closingToDone && req.actor.type !== "board") {
+      const registered = await deliverablesSvc.list(existing.companyId, {
+        issueId: existing.id,
+        limit: 1,
+      });
+      if (registered.length === 0 && !deliverableExemption) {
+        throw unprocessable(
+          `Cannot close issue ${existing.identifier ?? existing.id}: no deliverable registered. ` +
+            `Register one first via POST /api/companies/${existing.companyId}/deliverables ` +
+            `(multipart file upload with issueId=${existing.id}), or retry with an explicit "deliverableExemption" reason.`,
+        );
+      }
+    }
+
     let issue;
     try {
       issue = await svc.update(id, updateFields);
@@ -1028,6 +1049,29 @@ export function issueRoutes(db: Db, storage: StorageService) {
         _previous: hasFieldChanges ? previous : undefined,
       },
     });
+
+    // Record an explicit deliverable exemption so the close is auditable.
+    if (closingToDone && deliverableExemption) {
+      const exemptionComment = await svc.addComment(id, `**Deliverable exemption:** ${deliverableExemption}`, {
+        agentId: actor.agentId ?? undefined,
+        userId: actor.actorType === "user" ? actor.actorId : undefined,
+      });
+      await logActivity(db, {
+        companyId: issue.companyId,
+        actorType: actor.actorType,
+        actorId: actor.actorId,
+        agentId: actor.agentId,
+        runId: actor.runId,
+        action: "issue.deliverable_exemption",
+        entityType: "issue",
+        entityId: issue.id,
+        details: {
+          reason: deliverableExemption,
+          commentId: exemptionComment.id,
+          identifier: issue.identifier,
+        },
+      });
+    }
 
     let comment = null;
     if (commentBody) {

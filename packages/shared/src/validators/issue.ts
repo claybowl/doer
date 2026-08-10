@@ -67,6 +67,10 @@ export const updateIssueSchema = createIssueSchema.partial().extend({
   comment: z.string().min(1).optional(),
   reopen: z.boolean().optional(),
   hiddenAt: z.string().datetime().nullable().optional(),
+  // Explicit reason for closing an issue without a registered deliverable.
+  // Required for agents closing an issue with no deliverables; recorded as
+  // an issue comment + activity entry for audit.
+  deliverableExemption: z.string().trim().min(1).max(2000).optional(),
 });
 
 export type UpdateIssue = z.infer<typeof updateIssueSchema>;
