@@ -811,7 +811,11 @@ export function FernwehCosts() {
         <MetricTile
           label="Spend"
           value={summary ? formatCents(summary.spendCents) : "—"}
-          hint={PRESET_LABEL[preset]}
+          hint={
+            summary && summary.estimatedCostCents > 0
+              ? `${PRESET_LABEL[preset]} · ~${formatCents(summary.estimatedCostCents)} est`
+              : PRESET_LABEL[preset]
+          }
         />
         <MetricTile
           label="Budget"
@@ -921,6 +925,7 @@ export function FernwehCosts() {
                   a.inputTokens + a.outputTokens > 0
                     ? `${formatTokens(a.inputTokens + a.outputTokens)} tok`
                     : null,
+                  a.estimatedCostCents > 0 ? `~${formatCents(a.estimatedCostCents)} est` : null,
                 ]
                   .filter(Boolean)
                   .join(" · ");

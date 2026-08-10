@@ -49,6 +49,12 @@ export const deliverablesApi = {
    * `<a href>` or `window.open()` as they prefer.
    */
   downloadUrl: (id: string) => `/api/deliverables/${id}/download`,
+
+  /**
+   * Same bytes as downloadUrl but served with Content-Disposition: inline,
+   * so <iframe>/<img> previews can render instead of forcing a download.
+   */
+  previewUrl: (id: string) => `/api/deliverables/${id}/download?inline=true`,
 };
 
 export const shareTokensApi = {

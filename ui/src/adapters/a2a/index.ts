@@ -8,5 +8,5 @@ export const a2aUIAdapter: UIAdapterModule = {
   parseStdoutLine: parseA2aStdoutLine,
   ConfigFields: A2aConfigFields as UIAdapterModule["ConfigFields"],
   buildAdapterConfig: (values: CreateConfigValues) =>
-    buildA2aAdapterConfig(values as unknown as Record<string, unknown>),
+    buildA2aAdapterConfig(values as unknown as Record<string, unknown>) as unknown as Record<string, unknown>,
 };

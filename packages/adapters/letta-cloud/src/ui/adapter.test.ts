@@ -146,6 +146,83 @@ describe("parseLettaCloudStdoutLine", () => {
       }
     });
 
+    it("uses server-computed costUsd and costEstimated from the line", () => {
+      const line = JSON.stringify({
+        type: "usage_statistics",
+        inputTokens: 12300,
+        outputTokens: 45,
+        cachedTokens: 0,
+        totalTokens: 12345,
+        model: "moonshotai/kimi-k2-5",
+        costUsd: 0.0123,
+        costEstimated: true,
+      });
+      const entries = parseLettaCloudStdoutLine(line, ts);
+      expect(entries).toHaveLength(1);
+      if (entries[0].kind === "result") {
+        expect(entries[0].costUsd).toBe(0.0123);
+        expect(entries[0].costEstimated).toBe(true);
+        expect(entries[0].subtype).toBe("usage");
+        expect(entries[0].text).toBe("12345 tokens (~$0.0123 est)");
+      }
+    });
+
+    it("estimates cost from the line's model when costUsd is absent (known model)", () => {
+      const line = JSON.stringify({
+        type: "usage_statistics",
+        inputTokens: 1500,
+        outputTokens: 300,
+        cachedTokens: 100,
+        totalTokens: 1800,
+        model: "moonshotai/kimi-k2-5",
+      });
+      const entries = parseLettaCloudStdoutLine(line, ts);
+      expect(entries).toHaveLength(1);
+      if (entries[0].kind === "result") {
+        // (1400 * 0.6 + 100 * 0.15 + 300 * 2.5) / 1e6 = 0.001605
+        expect(entries[0].costUsd).toBeCloseTo(0.001605, 9);
+        expect(entries[0].costEstimated).toBe(true);
+        expect(entries[0].text).toContain("est");
+        expect(entries[0].text).toContain("1800 tokens");
+      }
+    });
+
+    it("keeps costUsd 0 with no estimate for an unknown model", () => {
+      const line = JSON.stringify({
+        type: "usage_statistics",
+        inputTokens: 1500,
+        outputTokens: 300,
+        totalTokens: 1800,
+        model: "somevendor/mystery-model-9000",
+      });
+      const entries = parseLettaCloudStdoutLine(line, ts);
+      expect(entries).toHaveLength(1);
+      if (entries[0].kind === "result") {
+        expect(entries[0].costUsd).toBe(0);
+        expect(entries[0].costEstimated).toBeUndefined();
+        expect(entries[0].text).toBe("");
+        expect(entries[0].subtype).toBe("usage");
+      }
+    });
+
+    it("treats server cost without the estimated flag as provider-reported", () => {
+      const line = JSON.stringify({
+        type: "usage_statistics",
+        inputTokens: 1500,
+        outputTokens: 300,
+        totalTokens: 1800,
+        model: "moonshotai/kimi-k2-5",
+        costUsd: 0.0042,
+      });
+      const entries = parseLettaCloudStdoutLine(line, ts);
+      expect(entries).toHaveLength(1);
+      if (entries[0].kind === "result") {
+        expect(entries[0].costUsd).toBe(0.0042);
+        expect(entries[0].costEstimated).toBeUndefined();
+        expect(entries[0].text).toBe("1800 tokens (~$0.0042)");
+      }
+    });
+
     it("returns empty for stop_reason", () => {
       const line = JSON.stringify({ type: "stop_reason", reason: "max_steps" });
       const entries = parseLettaCloudStdoutLine(line, ts);

@@ -25,7 +25,7 @@ import {
   StatusChip,
   formatRelative,
 } from "./utils";
-import { OutputsSection } from "./OutputsSection";
+import { IssueFilesSection } from "./IssueFilesSection";
 
 /* ============================================================
    FernwehIssueDetail — dedicated detail page for a single issue.
@@ -898,15 +898,12 @@ export function FernwehIssueDetail() {
         )}
       </Section>
 
-      {/* Outputs delivered against this issue */}
+      {/* Files captured against this issue — explorer with inline preview */}
       {companyId ? (
-        <OutputsSection
+        <IssueFilesSection
           companyId={companyId}
           prefix={prefix}
-          filter={{ issueId: issue.id }}
-          title="Outputs"
-          hint="files delivered against this issue"
-          limit={8}
+          issueId={issue.id}
         />
       ) : null}
 

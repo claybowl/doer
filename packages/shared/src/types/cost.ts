@@ -17,6 +17,8 @@ export interface CostEvent {
   cachedInputTokens: number;
   outputTokens: number;
   costCents: number;
+  /** True when costCents came from a rate-card estimate rather than provider billing. */
+  costEstimated: boolean;
   occurredAt: Date;
   createdAt: Date;
 }
@@ -24,6 +26,8 @@ export interface CostEvent {
 export interface CostSummary {
   companyId: string;
   spendCents: number;
+  /** Portion of spendCents that is rate-card estimated, not provider-billed. */
+  estimatedCostCents: number;
   budgetCents: number;
   utilizationPercent: number;
 }
@@ -33,6 +37,8 @@ export interface CostByAgent {
   agentName: string | null;
   agentStatus: string | null;
   costCents: number;
+  /** Portion of costCents that is rate-card estimated, not provider-billed. */
+  estimatedCostCents: number;
   inputTokens: number;
   cachedInputTokens: number;
   outputTokens: number;
@@ -97,6 +103,8 @@ export interface CostWindowSpendRow {
   /** rolling window duration in hours */
   windowHours: number;
   costCents: number;
+  /** Portion of costCents that is rate-card estimated, not provider-billed. */
+  estimatedCostCents: number;
   inputTokens: number;
   cachedInputTokens: number;
   outputTokens: number;

@@ -392,12 +392,17 @@ export function deliverableRoutes(db: Db, storage: StorageService) {
       }
       assertCompanyAccess(req, d.companyId);
 
+      // ?inline=true serves the file with Content-Disposition: inline so the
+      // UI can render it in an <iframe>/<img> preview instead of forcing a
+      // download. Content-Type is unchanged (declared type + nosniff still
+      // apply), and the Fernweh preview sandboxes HTML iframes regardless.
+      const inline = req.query.inline === "true";
       res.setHeader("Content-Type", d.contentType);
       res.setHeader("Cache-Control", "private, max-age=60");
       res.setHeader("X-Content-Type-Options", "nosniff");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${d.filename.replaceAll('"', "")}"`,
+        `${inline ? "inline" : "attachment"}; filename="${d.filename.replaceAll('"', "")}"`,
       );
 
       // File-based deliverables (write_output) store an absolute filesystem

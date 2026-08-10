@@ -1,5 +1,5 @@
 import { Field, DraftInput } from "../../components/agent-config-primitives";
-import type { AdapterConfigFieldsProps } from "../types";
+import type { AdapterConfigFieldsProps, CreateConfigValues } from "../types";
 
 // ─── Shared input style ───────────────────────────────────────────────────────
 const inputClass =
@@ -56,9 +56,11 @@ export function A2aConfigFields({
         label="Auth Token"
         hint="Bearer token for A2A authentication (stored encrypted)."
       >
-        <SecretField
+        <DraftInput
           value={getField("authToken", "")}
           onCommit={(v) => setField("authToken", v)}
+          immediate
+          className={inputClass}
           placeholder="Bearer token (optional)"
         />
       </Field>

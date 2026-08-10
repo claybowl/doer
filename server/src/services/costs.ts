@@ -12,6 +12,11 @@ export interface CostDateRange {
 const METERED_BILLING_TYPE = "metered_api";
 const SUBSCRIPTION_BILLING_TYPES = ["subscription_included", "subscription_overage"] as const;
 
+// Sum of cost_cents for rows whose amount came from the token rate card rather
+// than a provider-reported bill. Keeps estimated spend distinguishable in every
+// rollup while still counting toward totals and budget utilization.
+const estimatedCostCentsSql = sql<number>`coalesce(sum(case when ${costEvents.costEstimated} then ${costEvents.costCents} else 0 end), 0)::int`;
+
 function currentUtcMonthWindow(now = new Date()) {
   const year = now.getUTCFullYear();
   const month = now.getUTCMonth();
@@ -66,6 +71,7 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
           biller: data.biller ?? data.provider,
           billingType: data.billingType ?? "unknown",
           cachedInputTokens: data.cachedInputTokens ?? 0,
+          costEstimated: data.costEstimated ?? false,
         })
         .returning()
         .then((rows) => rows[0]);
@@ -109,9 +115,10 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
       if (range?.from) conditions.push(gte(costEvents.occurredAt, range.from));
       if (range?.to) conditions.push(lte(costEvents.occurredAt, range.to));
 
-      const [{ total }] = await db
+      const [{ total, estimatedTotal }] = await db
         .select({
           total: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          estimatedTotal: estimatedCostCentsSql,
         })
         .from(costEvents)
         .where(and(...conditions));
@@ -125,6 +132,7 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
       return {
         companyId,
         spendCents,
+        estimatedCostCents: Number(estimatedTotal),
         budgetCents: company.budgetMonthlyCents,
         utilizationPercent: Number(utilization.toFixed(2)),
       };
@@ -141,6 +149,7 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
           agentName: agents.name,
           agentStatus: agents.status,
           costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+          estimatedCostCents: estimatedCostCentsSql,
           inputTokens: sql<number>`coalesce(sum(${costEvents.inputTokens}), 0)::int`,
           cachedInputTokens: sql<number>`coalesce(sum(${costEvents.cachedInputTokens}), 0)::int`,
           outputTokens: sql<number>`coalesce(sum(${costEvents.outputTokens}), 0)::int`,
@@ -245,6 +254,7 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
               provider: costEvents.provider,
               biller: sql<string>`case when count(distinct ${costEvents.biller}) = 1 then min(${costEvents.biller}) else 'mixed' end`,
               costCents: sql<number>`coalesce(sum(${costEvents.costCents}), 0)::int`,
+              estimatedCostCents: estimatedCostCentsSql,
               inputTokens: sql<number>`coalesce(sum(${costEvents.inputTokens}), 0)::int`,
               cachedInputTokens: sql<number>`coalesce(sum(${costEvents.cachedInputTokens}), 0)::int`,
               outputTokens: sql<number>`coalesce(sum(${costEvents.outputTokens}), 0)::int`,
@@ -265,6 +275,7 @@ export function costService(db: Db, budgetHooks: BudgetServiceHooks = {}) {
             window: label as string,
             windowHours: hours,
             costCents: row.costCents,
+            estimatedCostCents: row.estimatedCostCents,
             inputTokens: row.inputTokens,
             cachedInputTokens: row.cachedInputTokens,
             outputTokens: row.outputTokens,

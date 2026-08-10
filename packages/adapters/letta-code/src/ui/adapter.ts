@@ -1,4 +1,5 @@
 import type { TranscriptEntry } from "@doerai/adapter-utils";
+import { estimateCostUsd } from "@doerai/adapter-utils";
 
 function asRecord(value: unknown): Record<string, unknown> | null {
   if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
@@ -61,15 +62,33 @@ export function parseLettaCodeStdoutLine(line: string, ts: string): TranscriptEn
     case "usage_statistics": {
       const inputTokens = typeof parsed.inputTokens === "number" ? parsed.inputTokens : 0;
       const outputTokens = typeof parsed.outputTokens === "number" ? parsed.outputTokens : 0;
+      const cachedTokens = typeof parsed.cachedTokens === "number" ? parsed.cachedTokens : 0;
+      // A provider-reported cost (positive number on the line) always wins.
+      // Otherwise estimate from the rate card when the model is known; the
+      // empty env keeps this browser-safe (no process.env access).
+      const providerCost =
+        typeof parsed.costUsd === "number" && Number.isFinite(parsed.costUsd) && parsed.costUsd > 0
+          ? parsed.costUsd
+          : null;
+      const model = typeof parsed.model === "string" && parsed.model.trim() ? parsed.model : null;
+      const estimated = providerCost === null && model
+        ? estimateCostUsd(model, { inputTokens, outputTokens, cachedTokens }, {})
+        : null;
+      const costUsd = providerCost ?? estimated ?? 0;
+      const totalTokens = inputTokens + outputTokens;
+      const text = estimated !== null
+        ? `${totalTokens} tokens (~$${estimated.toFixed(4)} est)`
+        : `${totalTokens} tokens`;
       return [
         {
           kind: "result",
           ts,
-          text: `${inputTokens + outputTokens} tokens`,
+          text,
           inputTokens,
           outputTokens,
-          cachedTokens: 0,
-          costUsd: 0,
+          cachedTokens,
+          costUsd,
+          costEstimated: estimated !== null,
           subtype: "usage",
           isError: false,
           errors: [],

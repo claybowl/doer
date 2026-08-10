@@ -450,4 +450,103 @@ describe("runLettaSdkTurn", () => {
 
     expect(sweepStaleApprovals).not.toHaveBeenCalled();
   });
+
+  it("estimates cost from usage tokens when the provider reports none (known model)", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "moonshotai/kimi-k2-5" },
+      {
+        type: "stream_event",
+        event: {
+          message_type: "usage_statistics",
+          prompt_tokens: 10000,
+          completion_tokens: 5000,
+          cached_input_tokens: 4000,
+          step_count: 2,
+        },
+        uuid: "u1",
+      },
+      { type: "result", success: true, result: "done", durationMs: 10, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "agent-local-1"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+    const onEvent = vi.fn(async () => undefined);
+
+    const result = await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", model: "moonshotai/kimi-k2-5", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent,
+    }, { createClient: () => client });
+
+    // (6000 * $0.60 + 4000 * $0.15 + 5000 * $2.50) / 1M = $0.0167
+    expect(result.costUsd).toBeCloseTo(0.0167, 6);
+    expect(result.costEstimated).toBe(true);
+    expect(result.usage).toEqual({ inputTokens: 10000, outputTokens: 5000, cachedTokens: 4000 });
+    expect(onEvent).toHaveBeenCalledWith(expect.objectContaining({
+      type: "usage_statistics",
+      inputTokens: 10000,
+      outputTokens: 5000,
+      cachedTokens: 4000,
+      model: "moonshotai/kimi-k2-5",
+    }));
+  });
+
+  it("reports no cost when usage exists but the model is unknown to the rate card", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "acme/mystery-9000" },
+      {
+        type: "stream_event",
+        event: { message_type: "usage_statistics", prompt_tokens: 10000, completion_tokens: 5000 },
+        uuid: "u1",
+      },
+      { type: "result", success: true, result: "done", durationMs: 10, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "agent-local-1"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    const result = await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", model: "acme/mystery-9000", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(result.costUsd).toBeNull();
+    expect(result.costEstimated).toBe(false);
+    expect(result.usage).toEqual({ inputTokens: 10000, outputTokens: 5000, cachedTokens: 0 });
+  });
+
+  it("prefers a provider-reported cost over the rate-card estimate", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-local-1", sessionId: "session-1", conversationId: "conversation-1", model: "moonshotai/kimi-k2-5" },
+      {
+        type: "stream_event",
+        event: { message_type: "usage_statistics", prompt_tokens: 10000, completion_tokens: 5000 },
+        uuid: "u1",
+      },
+      { type: "result", success: true, result: "done", durationMs: 10, totalCostUsd: 0.42, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "agent-local-1"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+
+    const result = await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", model: "moonshotai/kimi-k2-5", cwd: "/work" }),
+      env: { LETTA_MEMFS_DIR: "/memory" },
+      onEvent: async () => undefined,
+    }, { createClient: () => client });
+
+    expect(result.costUsd).toBe(0.42);
+    expect(result.costEstimated).toBe(false);
+    expect(result.usage).toEqual({ inputTokens: 10000, outputTokens: 5000, cachedTokens: 0 });
+  });
 });

@@ -1,5 +1,6 @@
 import type { TranscriptEntry } from "@doerai/adapter-utils";
 import type { LettaCreateConfigValues } from "../shared/types.js";
+import { computeRunCost } from "../shared/cost.js";
 
 export function buildLettaCloudConfig(values: LettaCreateConfigValues): Record<string, unknown> {
   return {
@@ -100,14 +101,42 @@ export function parseLettaCloudStdoutLine(line: string, ts: string): TranscriptE
       const inputTokens = asNumber(parsed.inputTokens);
       const outputTokens = asNumber(parsed.outputTokens);
       const cachedTokens = asNumber(parsed.cachedTokens);
+      const totalTokens = asNumber(parsed.totalTokens) || inputTokens + outputTokens;
+
+      // Cost: the server (execute.ts) normally computes this and emits
+      // costUsd + costEstimated on the line. Fall back to estimating from
+      // the line's model when costUsd is absent (older servers, tests).
+      let costUsd = 0;
+      let costEstimated = false;
+      if (typeof parsed.costUsd === "number" && Number.isFinite(parsed.costUsd)) {
+        costUsd = parsed.costUsd;
+        costEstimated = parsed.costEstimated === true;
+      } else {
+        const cost = computeRunCost({
+          model: typeof parsed.model === "string" ? parsed.model : null,
+          usage: { inputTokens, outputTokens, cachedTokens },
+        });
+        if (cost) {
+          costUsd = cost.costUsd;
+          costEstimated = cost.costEstimated;
+        }
+      }
+
+      // Make estimated costs visible as estimates; never claim precision
+      // we don't have. Empty text when there's no cost signal at all.
+      const text = costUsd > 0
+        ? `${totalTokens} tokens (~$${costUsd.toFixed(4)}${costEstimated ? " est" : ""})`
+        : "";
+
       return [{
         kind: "result",
         ts,
-        text: "",
+        text,
         inputTokens,
         outputTokens,
         cachedTokens,
-        costUsd: 0, // Letta doesn't report cost directly
+        costUsd, // estimated from the rate card unless the provider reported one
+        ...(costEstimated ? { costEstimated: true } : {}),
         subtype: "usage",
         isError: false,
         errors: [],

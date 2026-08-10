@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import type { AdapterExecutionContext } from "@doerai/adapter-utils";
 import { buildDoerAgentTools } from "./doer-tools.js";
 
@@ -11,6 +11,7 @@ describe("buildDoerAgentTools", () => {
       "read_paperclip_issue",
       "update_paperclip_issue",
       "post_issue_comment",
+      "write_output",
       "get_fleet_status",
       "schedule_council",
       "emergency_pause_agent",
@@ -18,5 +19,66 @@ describe("buildDoerAgentTools", () => {
     ]));
     expect(new Set(tools.map((tool) => tool.name)).size).toBe(tools.length);
     expect(tools.every((tool) => tool.parameters && typeof tool.execute === "function")).toBe(true);
+  });
+});
+
+describe("write_output tool", () => {
+  function makeCtx(): AdapterExecutionContext {
+    return {
+      runId: "run-1",
+      authToken: "tok-1",
+      agent: { id: "agent-1", companyId: "company-1", name: "Builder", adapterType: "letta_code", adapterConfig: {} },
+      runtime: { sessionId: null, sessionParams: null, sessionDisplayId: null, taskKey: null },
+      config: {},
+      context: {},
+      onLog: vi.fn(async () => undefined),
+    } as AdapterExecutionContext;
+  }
+
+  function resultText(out: unknown): Record<string, unknown> {
+    const content = (out as { content: Array<{ text: string }> }).content;
+    return JSON.parse(content[0]!.text) as Record<string, unknown>;
+  }
+
+  it("posts deliverable content to the agent-tools write-output endpoint", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ deliverableId: "d-1", filename: "2026-08-10-brief.md" }), { status: 200 })),
+    );
+    try {
+      const tool = buildDoerAgentTools(makeCtx()).find((t) => t.name === "write_output")!;
+      const out = await tool.execute("call-1", {
+        title: "Brief",
+        content: "# Hi",
+        kind: "md",
+        issue_id: "123e4567-e89b-42d3-a456-426614174000",
+      });
+
+      const [url, init] = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as unknown as [string, RequestInit];
+      expect(url).toContain("/api/companies/company-1/agent-tools/write-output");
+      expect((init.headers as Record<string, string>).Authorization).toBe("Bearer tok-1");
+      expect(JSON.parse(String(init.body))).toMatchObject({
+        title: "Brief",
+        content: "# Hi",
+        kind: "md",
+        issueId: "123e4567-e89b-42d3-a456-426614174000",
+        projectId: null,
+      });
+      expect(resultText(out)).toMatchObject({ deliverableId: "d-1" });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("rejects calls missing title or content without hitting the API", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    try {
+      const tool = buildDoerAgentTools(makeCtx()).find((t) => t.name === "write_output")!;
+      const out = await tool.execute("call-1", { title: "", content: "" });
+      expect(resultText(out)).toMatchObject({ success: false });
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 });

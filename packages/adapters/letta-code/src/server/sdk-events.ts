@@ -133,6 +133,22 @@ export function mapSdkMessage(value: unknown): MappedSdkMessage {
         }],
       };
     case "stream_event": {
+      // Letta usage reports pass through as raw stream events (same wire
+      // shape the letta-cloud adapter consumes). Surface them so token counts
+      // reach the transcript and the cost estimator.
+      const payload = record(message.event);
+      if (stringValue(payload.message_type) === "usage_statistics") {
+        return {
+          events: [{
+            type: "usage_statistics",
+            inputTokens: numberValue(payload.prompt_tokens),
+            outputTokens: numberValue(payload.completion_tokens),
+            cachedTokens: numberValue(payload.cached_input_tokens),
+            stepCount: numberValue(payload.step_count),
+            totalTokens: numberValue(payload.total_tokens),
+          }],
+        };
+      }
       const streamed = streamText(message);
       if (!streamed) return { events: [] };
       return {

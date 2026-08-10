@@ -79,4 +79,28 @@ describe("mapSdkMessage", () => {
     expect(mapSdkMessage({ type: "stream_event", event: {}, uuid: "s3" })).toEqual({ events: [] });
     expect(mapSdkMessage({ type: "loop_status", status: "idle", activeRunIds: [] })).toEqual({ events: [] });
   });
+
+  it("maps Letta usage_statistics stream events into usage events", () => {
+    expect(mapSdkMessage({
+      type: "stream_event",
+      event: {
+        message_type: "usage_statistics",
+        prompt_tokens: 10000,
+        completion_tokens: 5000,
+        cached_input_tokens: 4000,
+        step_count: 3,
+        total_tokens: 15000,
+      },
+      uuid: "s4",
+    })).toEqual({
+      events: [{
+        type: "usage_statistics",
+        inputTokens: 10000,
+        outputTokens: 5000,
+        cachedTokens: 4000,
+        stepCount: 3,
+        totalTokens: 15000,
+      }],
+    });
+  });
 });

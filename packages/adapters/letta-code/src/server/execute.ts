@@ -1,8 +1,10 @@
 import path from "node:path";
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
+import { buildPaperclipEnv } from "@doerai/adapter-utils/server-utils";
 import type { LettaCodeOfflineConfig } from "../shared/types.js";
 import { resolveLettaCodeConfig, resolveLettaCodeSession } from "./config.js";
 import { buildDoerAgentTools } from "./doer-tools.js";
+import { captureRunOutputs } from "./output-sweep.js";
 import { runLettaSdkTurn, type LettaSdkTurnInput, type LettaSdkTurnResult } from "./sdk-runtime.js";
 
 export interface LettaCodeExecuteDependencies {
@@ -103,6 +105,17 @@ export async function execute(
     return { exitCode: 1, signal: null, timedOut: false, errorMessage: message };
   }
 
+  // Publish path: give the agent shell the DOER_* env the deliverable skill
+  // documents, so local agents can POST outputs to the Doer API directly.
+  const paperclipEnv = buildPaperclipEnv(ctx.agent);
+  if (!env.DOER_AGENT_ID && paperclipEnv.DOER_AGENT_ID) env.DOER_AGENT_ID = paperclipEnv.DOER_AGENT_ID;
+  if (!env.DOER_COMPANY_ID && paperclipEnv.DOER_COMPANY_ID) env.DOER_COMPANY_ID = paperclipEnv.DOER_COMPANY_ID;
+  if (!env.DOER_API_URL && paperclipEnv.DOER_API_URL) env.DOER_API_URL = paperclipEnv.DOER_API_URL;
+  if (ctx.authToken) env.DOER_API_KEY = ctx.authToken;
+  env.DOER_RUN_ID = ctx.runId;
+  const wakeIssueId = nonEmptyString(context.issueId) ?? nonEmptyString(context.taskId);
+  if (wakeIssueId) env.DOER_TASK_ID = wakeIssueId;
+
   const prompt = buildLettaCodePrompt(ctx, configured.heartbeatPrompt);
   const sessionParams = resolveLettaCodeSession(
     ctx.runtime.sessionParams,
@@ -136,6 +149,7 @@ export async function execute(
   await ctx.onLog("stdout", `${JSON.stringify(userMessageEntry)}\n`);
 
   try {
+    const runStartMs = Date.now();
     const result = await dependencies.runTurn({
       prompt,
       config: configured,
@@ -148,6 +162,17 @@ export async function execute(
         await ctx.onLog("stdout", `${JSON.stringify(entry)}\n`);
       },
     });
+    if (result.success) {
+      // Structural deliverable capture: whatever the agent dropped into
+      // <cwd>/outputs|deliverables during this run gets published to Outputs.
+      const sweep = await captureRunOutputs(ctx, configured.cwd, runStartMs);
+      if (sweep.captured > 0 || sweep.failed > 0) {
+        await ctx.onLog(
+          "stdout",
+          `[output-sweep] Captured ${sweep.captured} file(s) → Outputs${sweep.failed > 0 ? ` (${sweep.failed} failed)` : ""}\n`,
+        );
+      }
+    }
     return {
       exitCode: result.success ? 0 : 1,
       signal: null,
@@ -161,6 +186,14 @@ export async function execute(
       billingType: "unknown",
       model: result.model || configured.model || null,
       costUsd: result.costUsd,
+      ...(result.costEstimated ? { costEstimated: true } : {}),
+      usage: result.usage
+        ? {
+            inputTokens: result.usage.inputTokens,
+            outputTokens: result.usage.outputTokens,
+            cachedInputTokens: result.usage.cachedTokens,
+          }
+        : undefined,
       summary: result.summary,
       resultJson: {
         success: result.success,

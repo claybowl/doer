@@ -24,6 +24,7 @@ import {
   UPDATE_GOAL_STATUS_TOOL_NAME,
   UPDATE_PAPERCLIP_ISSUE_TOOL_NAME,
   UPDATE_PROJECT_TOOL_NAME,
+  WRITE_OUTPUT_TOOL_NAME,
   interceptAnalyzeIssuePatterns,
   interceptAuditAgentCompliance,
   interceptBuildDependencyGraph,
@@ -47,6 +48,7 @@ import {
   interceptUpdateGoalStatus,
   interceptUpdatePaperclipIssue,
   interceptUpdateProject,
+  interceptWriteOutput,
 } from "./tool-intercepts.js";
 
 type Handler = (ctx: AdapterExecutionContext, args: Record<string, unknown>) => Promise<string | void>;
@@ -63,6 +65,7 @@ const TOOL_SPECS: Array<[name: string, description: string, handler: Handler]> =
   [READ_PAPERCLIP_ISSUE_TOOL_NAME, "Read one Doer issue by ID or identifier.", interceptReadPaperclipIssue],
   [UPDATE_PAPERCLIP_ISSUE_TOOL_NAME, "Update a Doer issue's fields or status.", interceptUpdatePaperclipIssue],
   [POST_ISSUE_COMMENT_TOOL_NAME, "Post a comment to a Doer issue.", interceptPostIssueComment],
+  [WRITE_OUTPUT_TOOL_NAME, "Publish a text deliverable to the company Outputs page (creates a downloadable file record).", interceptWriteOutput],
   [GET_FLEET_STATUS_TOOL_NAME, "Read current Doer agent fleet status and spend.", interceptGetFleetStatus],
   [SCHEDULE_COUNCIL_TOOL_NAME, "Schedule a governed Doer council run.", interceptScheduleCouncil],
   [EMERGENCY_PAUSE_AGENT_TOOL_NAME, "Pause an agent in an operational emergency.", interceptEmergencyPauseAgent],
@@ -86,6 +89,8 @@ const PARAMETERS = {
     status: { type: "string" },
     priority: { type: "string" },
     body: { type: "string", description: "Comment or request body" },
+    content: { type: "string", description: "Full text content for write_output deliverables" },
+    kind: { type: "string", description: "Deliverable kind for write_output: md | html | csv | json | txt | other" },
     agent_id: { type: "string" },
     assignee_agent_id: { type: "string" },
     goalId: { type: "string" },

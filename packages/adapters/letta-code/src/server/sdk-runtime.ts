@@ -8,6 +8,7 @@ import {
 import path from "node:path";
 import type { LettaCodeLlmProvider, LettaCodeSessionParams, ResolvedLettaCodeConfig } from "../shared/types.js";
 import { StreamTokenBuffer } from "@doerai/adapter-utils/stream-buffer";
+import { estimateCostUsd } from "@doerai/adapter-utils";
 import { LLM_PROVIDER_PRESETS } from "./config.js";
 import { mapSdkMessage, type LettaCodeOutputEvent, type LettaCodeSdkSessionIdentity } from "./sdk-events.js";
 import {
@@ -54,11 +55,21 @@ export interface LettaSdkTurnInput {
   tools?: AnyAgentTool[];
 }
 
+export interface LettaSdkTurnUsage {
+  inputTokens: number;
+  outputTokens: number;
+  cachedTokens: number;
+}
+
 export interface LettaSdkTurnResult {
   success: boolean;
   summary: string;
   model: string;
   costUsd: number | null;
+  /** True when `costUsd` was estimated from the rate card, not provider-reported. */
+  costEstimated: boolean;
+  /** Latest cumulative token usage reported by the Letta stream, if any. */
+  usage: LettaSdkTurnUsage | null;
   sessionParams: LettaCodeSessionParams;
   sessionDisplayId: string;
 }
@@ -156,6 +167,10 @@ function record(value: unknown): Record<string, unknown> {
     : {};
 }
 
+function numberField(value: unknown): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
 export async function runLettaSdkTurn(
   input: LettaSdkTurnInput,
   dependencies: LettaSdkRuntimeDependencies = DEFAULT_DEPENDENCIES,
@@ -170,6 +185,9 @@ export async function runLettaSdkTurn(
   }
 
   const options = sessionOptions(input.config, input.env, input.tools);
+  // Latest cumulative usage report from the stream, shared across retry
+  // attempts. Holder object so TS doesn't narrow the closure-assigned value.
+  const turnUsage: { latest: LettaSdkTurnUsage | null } = { latest: null };
   const consume = async (resumeId: string) => {
     const session = client.resumeSession(resumeId, options);
     const abort = () => { void session.abort(); };
@@ -185,6 +203,17 @@ export async function runLettaSdkTurn(
         const mapped = mapSdkMessage(message);
         if (mapped.session) identity = mapped.session;
         for (const event of mapped.events) {
+          if (event.type === "usage_statistics") {
+            turnUsage.latest = {
+              inputTokens: numberField(event.inputTokens),
+              outputTokens: numberField(event.outputTokens),
+              cachedTokens: numberField(event.cachedTokens),
+            };
+            // Tag with the resolved model so downstream transcript parsers can
+            // estimate cost without seeing the adapter config.
+            await input.onEvent({ ...event, model: identity?.model || input.config.model });
+            continue;
+          }
           if (event.type === "assistant_message" || event.type === "reasoning_message") {
             const content = typeof event.content === "string" ? event.content : "";
             const kind = event.type === "assistant_message" ? "assistant" : "reasoning";
@@ -270,11 +299,32 @@ export async function runLettaSdkTurn(
   const canonicalAgentId = identity?.lettaAgentId || turn.agentId || agentId;
   if (!conversationId || !canonicalAgentId) throw new Error("Letta SDK did not return canonical session identity");
 
+  const model = identity?.model || input.config.model;
+  // Letta does not report per-run cost. When it ever does (totalCostUsd),
+  // prefer it; otherwise estimate from token usage via the rate card. Unknown
+  // models yield null — never fabricate a cost.
+  const latestUsage = turnUsage.latest;
+  let costUsd = typeof resultMessage.totalCostUsd === "number" ? resultMessage.totalCostUsd : null;
+  let costEstimated = false;
+  if (costUsd === null && latestUsage && latestUsage.inputTokens + latestUsage.outputTokens > 0) {
+    const estimate = estimateCostUsd(model, {
+      inputTokens: latestUsage.inputTokens,
+      outputTokens: latestUsage.outputTokens,
+      cachedTokens: latestUsage.cachedTokens,
+    });
+    if (estimate !== null) {
+      costUsd = estimate;
+      costEstimated = true;
+    }
+  }
+
   return {
     success,
     summary,
-    model: identity?.model || input.config.model,
-    costUsd: typeof resultMessage.totalCostUsd === "number" ? resultMessage.totalCostUsd : null,
+    model,
+    costUsd,
+    costEstimated,
+    usage: latestUsage,
     sessionParams: {
       conversationId,
       lettaAgentId: canonicalAgentId,

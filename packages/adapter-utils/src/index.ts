@@ -54,4 +54,11 @@ export {
   redactTranscriptEntryPaths,
 } from "./log-redaction.js";
 export { inferOpenAiCompatibleBiller } from "./billing.js";
+export {
+  MODEL_PRICES,
+  estimateCostUsd,
+  resolveModelPrice,
+  type ModelPrice,
+  type TokenUsageForEstimate,
+} from "./pricing.js";
 export { StreamTokenBuffer, type StreamKind, type StreamTokenEntry } from "./stream-buffer.js";

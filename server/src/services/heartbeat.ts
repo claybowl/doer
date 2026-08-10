@@ -294,8 +294,15 @@ function resolveLedgerBiller(result: AdapterExecutionResult): string {
   return readNonEmptyString(result.biller) ?? readNonEmptyString(result.provider) ?? "unknown";
 }
 
-function normalizeBilledCostCents(costUsd: number | null | undefined, billingType: BillingType): number {
-  if (billingType === "subscription_included") return 0;
+export function normalizeBilledCostCents(
+  costUsd: number | null | undefined,
+  billingType: BillingType,
+  costEstimated?: boolean,
+): number {
+  // Provider-billed amounts for subscription_included runs are not extra spend,
+  // but a rate-card estimate is recorded so token burn stays visible in rollups
+  // and budget utilization even when the provider bills $0 for the run.
+  if (!costEstimated && billingType === "subscription_included") return 0;
   if (typeof costUsd !== "number" || !Number.isFinite(costUsd)) return 0;
   return Math.max(0, Math.round(costUsd * 100));
 }
@@ -1875,7 +1882,8 @@ export function heartbeatService(db: Db) {
     const outputTokens = usage?.outputTokens ?? 0;
     const cachedInputTokens = usage?.cachedInputTokens ?? 0;
     const billingType = normalizeLedgerBillingType(result.billingType);
-    const additionalCostCents = normalizeBilledCostCents(result.costUsd, billingType);
+    const costEstimated = result.costEstimated === true;
+    const additionalCostCents = normalizeBilledCostCents(result.costUsd, billingType, costEstimated);
     const hasTokenUsage = inputTokens > 0 || outputTokens > 0 || cachedInputTokens > 0;
     const provider = result.provider ?? "unknown";
     const biller = resolveLedgerBiller(result);
@@ -1928,6 +1936,7 @@ export function heartbeatService(db: Db) {
         cachedInputTokens,
         outputTokens,
         costCents: additionalCostCents,
+        costEstimated,
         occurredAt: new Date(),
       });
     }
@@ -2828,6 +2837,7 @@ export function heartbeatService(db: Db) {
               biller: resolveLedgerBiller(adapterResult),
               model: readNonEmptyString(adapterResult.model) ?? "unknown",
               ...(adapterResult.costUsd != null ? { costUsd: adapterResult.costUsd } : {}),
+              ...(adapterResult.costEstimated === true ? { costEstimated: true } : {}),
               billingType: normalizeLedgerBillingType(adapterResult.billingType),
             } as Record<string, unknown>)
           : null;

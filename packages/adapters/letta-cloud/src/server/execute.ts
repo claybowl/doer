@@ -1,6 +1,7 @@
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import { StreamTokenBuffer } from "@doerai/adapter-utils/stream-buffer";
 import type { LettaCloudAdapterConfig } from "../shared/types.js";
+import { computeRunCost } from "../shared/cost.js";
 import {
   attachTool,
   attachToolsBatch,
@@ -692,6 +693,9 @@ async function executeStreaming(
   let outputTokens = 0;
   let cachedTokens = 0;
   let stepCount = 0;
+  // Cost reported by Letta itself, if it ever starts reporting one. When
+  // present it always wins over the rate-card estimate.
+  let providerCostUsd: number | null = null;
 
   // Accumulator for async-fire work triggered by tool calls we intercept
   // (notably `produce_deliverable`). We await all of these after the
@@ -912,6 +916,21 @@ async function executeStreaming(
         outputTokens = typeof rec.completion_tokens === "number" ? rec.completion_tokens : outputTokens;
         cachedTokens = typeof rec.cached_input_tokens === "number" ? rec.cached_input_tokens : cachedTokens;
         stepCount = typeof rec.step_count === "number" ? rec.step_count : stepCount;
+        // Prefer a provider-reported cost if Letta ever sends one.
+        const reportedCost =
+          typeof rec.cost_usd === "number" ? rec.cost_usd
+          : typeof rec.total_cost_usd === "number" ? rec.total_cost_usd
+          : null;
+        if (reportedCost != null && Number.isFinite(reportedCost)) {
+          providerCostUsd = reportedCost;
+        }
+        // Letta doesn't report cost — estimate from the rate card so the
+        // UI can show a live spend figure. Null when the model is unknown.
+        const runCost = computeRunCost({
+          model: config.model,
+          usage: { inputTokens, outputTokens, cachedTokens },
+          providerCostUsd,
+        });
         // Emit a result summary so the UI can show tokens/cost
         await emitTracked({
           type: "usage_statistics",
@@ -920,6 +939,10 @@ async function executeStreaming(
           cachedTokens,
           stepCount,
           totalTokens: typeof rec.total_tokens === "number" ? rec.total_tokens : inputTokens + outputTokens,
+          model: config.model,
+          ...(runCost
+            ? { costUsd: runCost.costUsd, costEstimated: runCost.costEstimated }
+            : {}),
         });
         break;
       }
@@ -963,6 +986,14 @@ async function executeStreaming(
     await Promise.allSettled(pendingSideEffects);
   }
 
+  // Final cost: provider-reported wins; otherwise estimate from the rate
+  // card. Unknown model → omit cost entirely (never fabricate spend).
+  const finalCost = computeRunCost({
+    model: config.model,
+    usage: { inputTokens, outputTokens, cachedTokens },
+    providerCostUsd,
+  });
+
   return {
     exitCode: 0,
     signal: null,
@@ -974,6 +1005,12 @@ async function executeStreaming(
       outputTokens,
       cachedInputTokens: cachedTokens,
     },
+    ...(finalCost
+      ? {
+          costUsd: finalCost.costUsd,
+          ...(finalCost.costEstimated ? { costEstimated: true } : {}),
+        }
+      : {}),
     resultJson: {
       exitCode: 0,
       stepCount,
