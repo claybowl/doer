@@ -10,6 +10,12 @@ import type { LettaCodeLlmProvider, LettaCodeSessionParams, ResolvedLettaCodeCon
 import { StreamTokenBuffer } from "@doerai/adapter-utils/stream-buffer";
 import { LLM_PROVIDER_PRESETS } from "./config.js";
 import { mapSdkMessage, type LettaCodeOutputEvent, type LettaCodeSdkSessionIdentity } from "./sdk-events.js";
+import {
+  isPendingApprovalError,
+  sweepStaleApprovals,
+  type StaleApprovalSweepOptions,
+  type StaleApprovalSweepResult,
+} from "./stale-approvals.js";
 
 export interface LettaSdkSessionLike {
   send(message: string): Promise<void>;
@@ -29,6 +35,13 @@ export interface LettaSdkClientLike {
 
 export interface LettaSdkRuntimeDependencies {
   createClient(options: LettaCodeClientOptions): LettaSdkClientLike;
+  /**
+   * Cloud-attached recovery hook: deny stale pending approvals left behind
+   * when a previous run died mid-approval. Injectable for tests.
+   */
+  sweepStaleApprovals?(
+    options: StaleApprovalSweepOptions,
+  ): Promise<StaleApprovalSweepResult | null>;
 }
 
 export interface LettaSdkTurnInput {
@@ -210,13 +223,38 @@ export async function runLettaSdkTurn(
     return /conversation.*(?:not found|missing|unknown)|(?:not found|missing|unknown).*conversation|\b404\b/i.test(message);
   };
 
+  // A cloud conversation holding a stale pending approval rejects every new
+  // message with 409 until the exact pending tool call IDs are denied. Sweep
+  // them once, then retry the turn on the same resume target.
+  const recoverStaleApproval = async (error: unknown): Promise<boolean> => {
+    if (input.config.backend !== "cloud_attached") return false;
+    if (!isPendingApprovalError(error)) return false;
+    if (!input.config.apiKey || !input.config.apiBaseUrl) return false;
+    const sweep = dependencies.sweepStaleApprovals ?? sweepStaleApprovals;
+    const result = await sweep({
+      agentId,
+      apiKey: input.config.apiKey,
+      apiBaseUrl: input.config.apiBaseUrl,
+    });
+    await input.onEvent({
+      type: "stale_approval_sweep",
+      toolCallIds: result?.swept ?? [],
+      outcome: result ? "swept" : "failed",
+    }).catch(() => undefined);
+    return result !== null;
+  };
+
   const resumeId = input.sessionParams?.conversationId || agentId;
   let turn;
   try {
     turn = await consume(resumeId);
   } catch (error) {
-    if (!input.sessionParams?.conversationId || resumeId === agentId || !staleConversation(error)) throw error;
-    turn = await consume(agentId);
+    if (await recoverStaleApproval(error)) {
+      turn = await consume(resumeId);
+    } else {
+      if (!input.sessionParams?.conversationId || resumeId === agentId || !staleConversation(error)) throw error;
+      turn = await consume(agentId);
+    }
   }
 
   const { identity, resultMessage } = turn;

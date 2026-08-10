@@ -330,4 +330,124 @@ describe("runLettaSdkTurn", () => {
     const resumeCall = (client.resumeSession as ReturnType<typeof vi.fn>).mock.calls[0][1];
     expect(resumeCall.env.GROQ_API_KEY).toBeUndefined();
   });
+
+  it("sweeps a stale cloud pending approval and retries the turn", async () => {
+    const wedgedSession: LettaSdkSessionLike = {
+      agentId: "agent-cloud-1",
+      sessionId: "session-wedged",
+      conversationId: "conversation-1",
+      send: vi.fn(async () => {
+        throw new Error("Request failed with status 409 PENDING_APPROVAL: the agent is waiting for approval on a tool call");
+      }),
+      stream: async function* () { /* never reached */ },
+      abort: vi.fn(async () => undefined),
+      close: vi.fn(),
+    };
+    const healthySession = sessionWith([
+      { type: "init", agentId: "agent-cloud-1", sessionId: "session-2", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => healthySession),
+      resumeSession: vi.fn()
+        .mockImplementationOnce(() => wedgedSession)
+        .mockImplementationOnce(() => healthySession),
+    };
+    const sweepStaleApprovals = vi.fn(async () => ({ swept: ["chatcmpl-tool-aaa"] }));
+    const onEvent = vi.fn(async () => undefined);
+
+    const result = await runLettaSdkTurn({
+      prompt: "continue",
+      config: resolveLettaCodeConfig({
+        backend: "cloud_attached",
+        lettaAgentId: "agent-cloud-1",
+        apiKey: "cloud-key",
+        apiBaseUrl: "https://api.letta.com",
+        cwd: "/work",
+      }),
+      sessionParams: { conversationId: "conversation-1", lettaAgentId: "agent-cloud-1", cwd: "/work", backend: "cloud_attached" },
+      env: {},
+      onEvent,
+    }, { createClient: () => client, sweepStaleApprovals });
+
+    expect(sweepStaleApprovals).toHaveBeenCalledWith({
+      agentId: "agent-cloud-1",
+      apiKey: "cloud-key",
+      apiBaseUrl: "https://api.letta.com",
+    });
+    expect(client.resumeSession).toHaveBeenCalledTimes(2);
+    expect(onEvent).toHaveBeenCalledWith({
+      type: "stale_approval_sweep",
+      toolCallIds: ["chatcmpl-tool-aaa"],
+      outcome: "swept",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("rethrows the original error when the sweep cannot clear the wedge", async () => {
+    const wedgedSession: LettaSdkSessionLike = {
+      agentId: "agent-cloud-1",
+      sessionId: "session-wedged",
+      conversationId: "conversation-1",
+      send: vi.fn(async () => {
+        throw new Error("Request failed with status 409 PENDING_APPROVAL: the agent is waiting for approval on a tool call");
+      }),
+      stream: async function* () { /* never reached */ },
+      abort: vi.fn(async () => undefined),
+      close: vi.fn(),
+    };
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => wedgedSession),
+      resumeSession: vi.fn(() => wedgedSession),
+    };
+    const sweepStaleApprovals = vi.fn(async () => null);
+
+    await expect(runLettaSdkTurn({
+      prompt: "continue",
+      config: resolveLettaCodeConfig({
+        backend: "cloud_attached",
+        lettaAgentId: "agent-cloud-1",
+        apiKey: "cloud-key",
+        apiBaseUrl: "https://api.letta.com",
+        cwd: "/work",
+      }),
+      env: {},
+      onEvent: async () => undefined,
+    }, { createClient: () => client, sweepStaleApprovals })).rejects.toThrow("409");
+
+    expect(sweepStaleApprovals).toHaveBeenCalledTimes(1);
+    // No blind retry against a conversation that is still wedged.
+    expect(client.resumeSession).toHaveBeenCalledTimes(1);
+  });
+
+  it("never sweeps for local-backend agents", async () => {
+    const failingSession: LettaSdkSessionLike = {
+      agentId: "agent-local-1",
+      sessionId: "session-1",
+      conversationId: "conversation-1",
+      send: vi.fn(async () => {
+        throw new Error("Request failed with status 409 PENDING_APPROVAL: the agent is waiting for approval on a tool call");
+      }),
+      stream: async function* () { /* never reached */ },
+      abort: vi.fn(async () => undefined),
+      close: vi.fn(),
+    };
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "agent-local-1"),
+      createSession: vi.fn(() => failingSession),
+      resumeSession: vi.fn(() => failingSession),
+    };
+    const sweepStaleApprovals = vi.fn(async () => ({ swept: ["chatcmpl-tool-aaa"] }));
+
+    await expect(runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({ backend: "local", lettaAgentId: "agent-local-1", cwd: "/work" }),
+      env: {},
+      onEvent: async () => undefined,
+    }, { createClient: () => client, sweepStaleApprovals })).rejects.toThrow("409");
+
+    expect(sweepStaleApprovals).not.toHaveBeenCalled();
+  });
 });
