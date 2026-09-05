@@ -47,6 +47,11 @@ import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { billingRoutes } from "./routes/billing.js";
 import { webhookRoutes } from "./routes/webhooks.js";
 import { runRoutes } from "./routes/runs.js";
+import { timeTrackingRoutes } from "./routes/time-tracking.js";
+import { notificationRoutes } from "./routes/notifications.js";
+import { createEmailProvider } from "./email/provider.js";
+import { loadConfig } from "./config.js";
+import type { Config } from "./config.js";
 import { applyUiBranding } from "./ui-branding.js";
 import { logger } from "./middleware/logger.js";
 import { DEFAULT_LOCAL_PLUGIN_DIR, pluginLoader } from "./services/plugin-loader.js";
@@ -92,6 +97,7 @@ export async function createApp(
     localPluginDir?: string;
     betterAuthHandler?: express.RequestHandler;
     resolveSession?: (req: ExpressRequest) => Promise<BetterAuthSessionResult | null>;
+    config?: Config;
   },
 ) {
   const app = express();
@@ -188,6 +194,9 @@ export async function createApp(
   api.use(billingRoutes(db));
   api.use(webhookRoutes(db));
   api.use(runRoutes(db));
+  api.use(timeTrackingRoutes(db));
+  const emailConfig = opts.config ?? loadConfig();
+  api.use(notificationRoutes(db, createEmailProvider(emailConfig), emailConfig));
   const hostServicesDisposers = new Map<string, () => void>();
   const workerManager = createPluginWorkerManager();
   const pluginRegistry = pluginRegistryService(db);

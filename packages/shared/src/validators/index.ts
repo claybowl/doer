@@ -316,3 +316,26 @@ export {
   type UpdateWebhookEndpoint,
   type ListWebhookDeliveries,
 } from "./webhook.js";
+
+export {
+  TIME_ENTRY_SOURCES,
+  TIME_ENTRY_STATUSES,
+  startTimeEntrySchema,
+  stopTimeEntrySchema,
+  updateTimeEntrySchema,
+  timeEntryListQuerySchema,
+  timesheetQuerySchema,
+  type StartTimeEntry,
+  type StopTimeEntry,
+  type UpdateTimeEntry,
+  type TimeEntryListQuery,
+  type TimesheetQuery,
+} from "./time-tracking.js";
+
+export {
+  upsertNotificationPreferencesSchema,
+  enqueueNotificationSchema,
+  unsubscribeSchema,
+  sendTestEmailSchema,
+  emailProviderConfigSchema,
+} from "./notification.js";

@@ -57,3 +57,5 @@ export {
 export { stripeBillingService, PLAN_LIMITS, type Plan, type PlanStatus } from "./stripe-billing.js";
 export { planEnforcementService, PlanLimitError } from "./plan-enforcement.js";
 export { webhookService } from "./webhooks.js";
+export { timeTrackingService } from "./time-tracking.js";
+export { notificationService } from "./notifications.js";

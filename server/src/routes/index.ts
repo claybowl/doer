@@ -20,3 +20,5 @@ export { memfsRoutes } from "./memfs.js";
 export { workspaceRoutes } from "./workspaces.js";
 export { agentMemoryRoutes } from "./agent-memory.js";
 export { agentToolRoutes } from "./agent-tools.js";
+export { timeTrackingRoutes } from "./time-tracking.js";
+export { notificationRoutes } from "./notifications.js";

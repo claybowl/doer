@@ -144,7 +144,21 @@ export {
   DELIVERABLE_CONTENT_TYPES,
   DELIVERABLE_DEFAULT_RETENTION_DAYS,
   PORTAL_BRANDING_DEFAULTS,
+  TIME_ENTRY_SOURCES,
+  TIME_ENTRY_STATUSES,
   type DeliverableKind,
+  type TimeEntrySource,
+  type TimeEntryStatus,
+  NOTIFICATION_TYPES,
+  NOTIFICATION_CHANNELS,
+  DIGEST_MODES,
+  EMAIL_PROVIDERS,
+  NOTIFICATION_QUEUE_STATUSES,
+  type NotificationType,
+  type NotificationChannel,
+  type DigestMode,
+  type EmailProvider,
+  type NotificationQueueStatus,
 } from "./constants.js";
 
 export type {
@@ -679,3 +693,52 @@ export type {
   CouncilSession,
   CouncilSessionContext,
 } from "./council.js";
+
+export type {
+  TimeEntry,
+  TimeEntryWithRelations,
+  TimeSummary,
+  TimeByAgent,
+  TimeByProject,
+  TimeByIssue,
+  TimesheetRow,
+  WeeklyTimesheet,
+} from "./types/time-tracking.js";
+
+export type {
+  NotificationPreferences,
+  UpsertNotificationPreferencesInput,
+  NotificationQueueItem,
+  EnqueueNotificationInput,
+  NotificationLogEntry,
+  EmailTemplateData,
+  RenderedEmail,
+  DigestEntry,
+  DigestPayload,
+  UnsubscribeToken,
+  NotificationPreferencesResponse,
+  NotificationQueueResponse,
+  UnsubscribeResponse,
+  SendTestEmailResponse,
+} from "./types/notification.js";
+
+export {
+  startTimeEntrySchema,
+  stopTimeEntrySchema,
+  updateTimeEntrySchema,
+  timeEntryListQuerySchema,
+  timesheetQuerySchema,
+  type StartTimeEntry,
+  type StopTimeEntry,
+  type UpdateTimeEntry,
+  type TimeEntryListQuery,
+  type TimesheetQuery,
+} from "./validators/time-tracking.js";
+
+export {
+  upsertNotificationPreferencesSchema,
+  enqueueNotificationSchema,
+  unsubscribeSchema,
+  sendTestEmailSchema,
+  emailProviderConfigSchema,
+} from "./validators/notification.js";

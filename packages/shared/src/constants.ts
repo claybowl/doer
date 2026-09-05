@@ -816,3 +816,42 @@ export const PORTAL_BRANDING_DEFAULTS = {
   fontFamily:
     "'Inter Tight', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
 } as const;
+
+/**
+ * Time tracking — source and status enums for time entries.
+ */
+export const TIME_ENTRY_SOURCES = ["agent_auto", "manual"] as const;
+export type TimeEntrySource = (typeof TIME_ENTRY_SOURCES)[number];
+
+export const TIME_ENTRY_STATUSES = ["running", "stopped"] as const;
+export type TimeEntryStatus = (typeof TIME_ENTRY_STATUSES)[number];
+
+// ---------------------------------------------------------------------------
+// Email Notifications — notification types, channels, digest modes, providers
+// ---------------------------------------------------------------------------
+
+export const NOTIFICATION_TYPES = [
+  "task_assigned",
+  "task_completed",
+  "comment_mention",
+  "blocker_flagged",
+  "deadline_approaching",
+] as const;
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number];
+
+export const NOTIFICATION_CHANNELS = ["email", "in_app", "both", "none"] as const;
+export type NotificationChannel = (typeof NOTIFICATION_CHANNELS)[number];
+
+export const DIGEST_MODES = ["none", "daily", "weekly"] as const;
+export type DigestMode = (typeof DIGEST_MODES)[number];
+
+export const EMAIL_PROVIDERS = ["smtp", "sendgrid", "resend", "mailgun"] as const;
+export type EmailProvider = (typeof EMAIL_PROVIDERS)[number];
+
+export const NOTIFICATION_QUEUE_STATUSES = [
+  "pending",
+  "sent",
+  "skipped",
+  "failed",
+] as const;
+export type NotificationQueueStatus = (typeof NOTIFICATION_QUEUE_STATUSES)[number];

@@ -241,3 +241,31 @@ export type {
   ResolvedPortalBranding,
   UpdateCompanyPortalBrandingPayload,
 } from "./branding.js";
+export type {
+  TimeEntrySource,
+  TimeEntryStatus,
+  TimeEntry,
+  TimeEntryWithRelations,
+  TimeSummary,
+  TimeByAgent,
+  TimeByProject,
+  TimeByIssue,
+  TimesheetRow,
+  WeeklyTimesheet,
+} from "./time-tracking.js";
+export type {
+  NotificationPreferences,
+  UpsertNotificationPreferencesInput,
+  NotificationQueueItem,
+  EnqueueNotificationInput,
+  NotificationLogEntry,
+  EmailTemplateData,
+  RenderedEmail,
+  DigestEntry,
+  DigestPayload,
+  UnsubscribeToken,
+  NotificationPreferencesResponse,
+  NotificationQueueResponse,
+  UnsubscribeResponse,
+  SendTestEmailResponse,
+} from "./notification.js";
