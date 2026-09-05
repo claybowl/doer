@@ -548,6 +548,7 @@ export async function startServer(): Promise<StartedServer> {
     companyDeletionEnabled: config.companyDeletionEnabled,
     betterAuthHandler,
     resolveSession,
+    config,
   });
   const server = createServer(app as unknown as Parameters<typeof createServer>[0]);
   
@@ -584,7 +585,9 @@ export async function startServer(): Promise<StartedServer> {
   
   if (config.heartbeatSchedulerEnabled) {
     const heartbeat = heartbeatService(db as any);
-    const routines = routineService(db as any);
+    const routines = routineService(db as any, {
+      circuitBreakerMaxOpenIssues: config.routineCircuitBreakerMaxOpenIssues,
+    });
   
     // Reap orphaned running runs at startup while in-memory execution state is empty,
     // then resume any persisted queued runs that were waiting on the previous process.
@@ -624,6 +627,31 @@ export async function startServer(): Promise<StartedServer> {
         .then(() => heartbeat.resumeQueuedRuns())
         .catch((err) => {
           logger.error({ err }, "periodic heartbeat recovery failed");
+        });
+
+      // Fleet self-healing sweeps: reset stale-error agents whose last run
+      // succeeded, and release issue execution locks stuck past the staleness
+      // threshold. Both are idempotent and log to the activity log.
+      void heartbeat
+        .resetStaleErrorAgents({ minErrorAgeMs: config.staleErrorResetMinAgeMs })
+        .then((result) => {
+          if (result.reset > 0) {
+            logger.info({ ...result }, "stale-error sweep reset agents to idle");
+          }
+        })
+        .catch((err) => {
+          logger.error({ err }, "stale-error agent sweep failed");
+        });
+
+      void heartbeat
+        .reapStaleExecutionLocks({ staleThresholdMs: config.executionLockStaleThresholdMs })
+        .then((result) => {
+          if (result.released > 0) {
+            logger.info({ ...result }, "stale execution-lock sweep released locks");
+          }
+        })
+        .catch((err) => {
+          logger.error({ err }, "stale execution-lock sweep failed");
         });
     }, config.heartbeatSchedulerIntervalMs);
   }

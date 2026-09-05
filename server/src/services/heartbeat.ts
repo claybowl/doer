@@ -2,7 +2,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { execFile as execFileCallback } from "node:child_process";
 import { promisify } from "node:util";
-import { and, asc, desc, eq, gt, inArray, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNotNull, lt, sql } from "drizzle-orm";
 import type { Db } from "@doerai/db";
 import type { BillingType } from "@doerai/shared";
 import {
@@ -25,6 +25,7 @@ import type { AdapterExecutionResult, AdapterInvocationMeta, AdapterSessionCodec
 import { createLocalAgentJwt } from "../agent-auth-jwt.js";
 import { parseObject, asBoolean, asNumber, appendWithCap, MAX_EXCERPT_BYTES } from "../adapters/utils.js";
 import { costService } from "./costs.js";
+import { logActivity } from "./activity-log.js";
 import { companySkillService } from "./company-skills.js";
 import { budgetService, type BudgetEnforcementScope } from "./budgets.js";
 import { secretService } from "./secrets.js";
@@ -67,6 +68,8 @@ const HEARTBEAT_MAX_CONCURRENT_RUNS_DEFAULT = 1;
 const HEARTBEAT_MAX_CONCURRENT_RUNS_MAX = 10;
 const DEFERRED_WAKE_CONTEXT_KEY = "_paperclipWakeContext";
 const DETACHED_PROCESS_ERROR_CODE = "process_detached";
+const DEFAULT_STALE_EXECUTION_LOCK_THRESHOLD_MS = 2 * 60 * 60 * 1000;
+const DEFAULT_STALE_ERROR_RESET_MIN_AGE_MS = 60 * 1000;
 const startLocksByAgent = new Map<string, Promise<void>>();
 const REPO_ONLY_CWD_SENTINEL = "/__paperclip_repo_only__";
 const MANAGED_WORKSPACE_GIT_CLONE_TIMEOUT_MS = 10 * 60 * 1000;
@@ -1855,6 +1858,182 @@ export function heartbeatService(db: Db) {
       logger.warn({ reapedCount: reaped.length, runIds: reaped }, "reaped orphaned heartbeat runs");
     }
     return { reaped: reaped.length, runIds: reaped };
+  }
+
+  // Fleet self-healing: agents stuck in "error" whose last completed run actually
+  // succeeded are false errors (2026-08-12 incident: 16 of 40 error agents were
+  // stale and had to be reset by hand). Return them to "idle" (error -> idle is an
+  // allowed transition per doc/SPEC-implementation.md 8.1).
+  async function resetStaleErrorAgents(opts?: { minErrorAgeMs?: number }) {
+    const minErrorAgeMs = Math.max(0, opts?.minErrorAgeMs ?? DEFAULT_STALE_ERROR_RESET_MIN_AGE_MS);
+    const cutoff = new Date(Date.now() - minErrorAgeMs);
+
+    const candidates = await db
+      .select({
+        agent: agents,
+        lastRunId: agentRuntimeState.lastRunId,
+      })
+      .from(agents)
+      .innerJoin(agentRuntimeState, eq(agentRuntimeState.agentId, agents.id))
+      .where(
+        and(
+          eq(agents.status, "error"),
+          eq(agentRuntimeState.lastRunStatus, "succeeded"),
+          lt(agents.updatedAt, cutoff),
+        ),
+      );
+
+    const resetAgentIds: string[] = [];
+    for (const { agent, lastRunId } of candidates) {
+      // Conditional update keeps the sweep idempotent and company-scoped: if the
+      // agent's status changed concurrently, no row is updated and nothing is logged.
+      const updated = await db
+        .update(agents)
+        .set({ status: "idle", updatedAt: new Date() })
+        .where(
+          and(
+            eq(agents.id, agent.id),
+            eq(agents.companyId, agent.companyId),
+            eq(agents.status, "error"),
+          ),
+        )
+        .returning({ id: agents.id })
+        .then((rows) => rows[0] ?? null);
+      if (!updated) continue;
+
+      resetAgentIds.push(agent.id);
+      await logActivity(db, {
+        companyId: agent.companyId,
+        actorType: "system",
+        actorId: "fleet-maintenance",
+        action: "agent.status_auto_reset",
+        entityType: "agent",
+        entityId: agent.id,
+        agentId: agent.id,
+        runId: lastRunId ?? null,
+        details: {
+          agentName: agent.name,
+          fromStatus: "error",
+          toStatus: "idle",
+          reason: "last_run_succeeded",
+        },
+      });
+      publishLiveEvent({
+        companyId: agent.companyId,
+        type: "agent.status",
+        payload: {
+          agentId: agent.id,
+          status: "idle",
+          lastHeartbeatAt: agent.lastHeartbeatAt
+            ? new Date(agent.lastHeartbeatAt).toISOString()
+            : null,
+          outcome: "auto_reset",
+        },
+      });
+    }
+
+    if (resetAgentIds.length > 0) {
+      logger.warn({ resetCount: resetAgentIds.length, agentIds: resetAgentIds }, "reset stale-error agents to idle");
+    }
+    return { reset: resetAgentIds.length, agentIds: resetAgentIds };
+  }
+
+  // Fleet self-healing: release issue execution locks held longer than the staleness
+  // threshold (known incidents: locks held 20h and 11h blocking issues). Mirrors the
+  // invariants of releaseIssueExecutionAndPromote / the interrupt path: the lock
+  // columns are cleared atomically under a row lock, and a lock is never reaped
+  // while its heartbeat run is genuinely live.
+  async function reapStaleExecutionLocks(opts?: { staleThresholdMs?: number }) {
+    const staleThresholdMs = Math.max(0, opts?.staleThresholdMs ?? DEFAULT_STALE_EXECUTION_LOCK_THRESHOLD_MS);
+    const cutoff = new Date(Date.now() - staleThresholdMs);
+
+    const staleLockedIssues = await db
+      .select()
+      .from(issues)
+      .where(and(isNotNull(issues.executionLockedAt), lt(issues.executionLockedAt, cutoff)));
+
+    const releasedIssueIds: string[] = [];
+    let skippedLive = 0;
+
+    for (const issue of staleLockedIssues) {
+      const executionRun = issue.executionRunId ? await getRun(issue.executionRunId) : null;
+      if (executionRun && (executionRun.status === "running" || executionRun.status === "queued")) {
+        skippedLive += 1;
+        continue;
+      }
+      const checkoutRun =
+        issue.checkoutRunId && issue.checkoutRunId !== issue.executionRunId
+          ? await getRun(issue.checkoutRunId)
+          : executionRun;
+      if (checkoutRun && (checkoutRun.status === "running" || checkoutRun.status === "queued")) {
+        skippedLive += 1;
+        continue;
+      }
+
+      const now = new Date();
+      const released = await db.transaction(async (tx) => {
+        await tx.execute(sql`select id from issues where id = ${issue.id} for update`);
+
+        const current = await tx
+          .select({
+            id: issues.id,
+            executionRunId: issues.executionRunId,
+            checkoutRunId: issues.checkoutRunId,
+            executionLockedAt: issues.executionLockedAt,
+          })
+          .from(issues)
+          .where(eq(issues.id, issue.id))
+          .then((rows) => rows[0] ?? null);
+
+        // Re-check under the row lock: bail if the lock was refreshed or released.
+        if (!current || !current.executionLockedAt || current.executionLockedAt > cutoff) return null;
+        if (current.executionRunId !== issue.executionRunId) return null;
+
+        return tx
+          .update(issues)
+          .set({
+            executionRunId: null,
+            executionAgentNameKey: null,
+            executionLockedAt: null,
+            checkoutRunId: null,
+            updatedAt: now,
+          })
+          .where(and(eq(issues.id, issue.id), eq(issues.executionLockedAt, current.executionLockedAt)))
+          .returning({ id: issues.id })
+          .then((rows) => rows[0] ?? null);
+      });
+      if (!released) continue;
+
+      releasedIssueIds.push(issue.id);
+      await logActivity(db, {
+        companyId: issue.companyId,
+        actorType: "system",
+        actorId: "fleet-maintenance",
+        action: "issue.execution_lock_reaped",
+        entityType: "issue",
+        entityId: issue.id,
+        agentId: issue.assigneeAgentId ?? null,
+        runId: issue.executionRunId ?? null,
+        details: {
+          identifier: issue.identifier,
+          issueTitle: issue.title,
+          previousExecutionRunId: issue.executionRunId,
+          previousCheckoutRunId: issue.checkoutRunId,
+          executionRunStatus: executionRun?.status ?? null,
+          lockedAt: issue.executionLockedAt ? new Date(issue.executionLockedAt).toISOString() : null,
+          lockAgeMs: issue.executionLockedAt ? now.getTime() - new Date(issue.executionLockedAt).getTime() : null,
+          staleThresholdMs,
+        },
+      });
+    }
+
+    if (releasedIssueIds.length > 0) {
+      logger.warn(
+        { releasedCount: releasedIssueIds.length, issueIds: releasedIssueIds, skippedLive },
+        "reaped stale issue execution locks",
+      );
+    }
+    return { released: releasedIssueIds.length, issueIds: releasedIssueIds, skippedLive };
   }
 
   async function resumeQueuedRuns() {
@@ -4040,6 +4219,10 @@ export function heartbeatService(db: Db) {
     reportRunActivity: refreshRunActivity,
 
     reapOrphanedRuns,
+
+    resetStaleErrorAgents,
+
+    reapStaleExecutionLocks,
 
     resumeQueuedRuns,
 

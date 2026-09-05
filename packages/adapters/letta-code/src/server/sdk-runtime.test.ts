@@ -319,7 +319,7 @@ describe("runLettaSdkTurn", () => {
       }),
       env: { LETTA_MEMFS_DIR: "/memory" },
       onEvent: async () => undefined,
-    }, { createClient: () => client });
+    }, { createClient: () => client, sweepStaleApprovals: vi.fn(async () => null) });
 
     // cloud-attached: env passed to resumeSession includes LETTA_API_KEY, NOT GROQ_API_KEY
     expect(client.resumeSession).toHaveBeenCalledWith("agent-cloud-1", expect.objectContaining({
@@ -417,7 +417,8 @@ describe("runLettaSdkTurn", () => {
       onEvent: async () => undefined,
     }, { createClient: () => client, sweepStaleApprovals })).rejects.toThrow("409");
 
-    expect(sweepStaleApprovals).toHaveBeenCalledTimes(1);
+    // Once proactively at turn start, once on the recovery path after the 409.
+    expect(sweepStaleApprovals).toHaveBeenCalledTimes(2);
     // No blind retry against a conversation that is still wedged.
     expect(client.resumeSession).toHaveBeenCalledTimes(1);
   });
@@ -449,6 +450,81 @@ describe("runLettaSdkTurn", () => {
     }, { createClient: () => client, sweepStaleApprovals })).rejects.toThrow("409");
 
     expect(sweepStaleApprovals).not.toHaveBeenCalled();
+  });
+
+  it("sweeps stale cloud approvals before the turn starts", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-cloud-1", sessionId: "session-1", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+    const sweepStaleApprovals = vi.fn(async () => ({ swept: ["chatcmpl-tool-old"] }));
+    const onEvent = vi.fn(async () => undefined);
+
+    const result = await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({
+        backend: "cloud_attached",
+        lettaAgentId: "agent-cloud-1",
+        apiKey: "cloud-key",
+        apiBaseUrl: "https://api.letta.com",
+        cwd: "/work",
+      }),
+      sessionParams: { conversationId: "conversation-1", lettaAgentId: "agent-cloud-1", cwd: "/work", backend: "cloud_attached" },
+      env: {},
+      onEvent,
+    }, { createClient: () => client, sweepStaleApprovals });
+
+    // One proactive sweep, no recovery retry — the turn starts clean even
+    // when the harness swallows the 409 into a bare result error.
+    expect(sweepStaleApprovals).toHaveBeenCalledTimes(1);
+    expect(sweepStaleApprovals).toHaveBeenCalledWith({
+      agentId: "agent-cloud-1",
+      apiKey: "cloud-key",
+      apiBaseUrl: "https://api.letta.com",
+    });
+    expect(client.resumeSession).toHaveBeenCalledTimes(1);
+    expect(onEvent).toHaveBeenCalledWith({
+      type: "stale_approval_sweep",
+      toolCallIds: ["chatcmpl-tool-old"],
+      outcome: "swept",
+      phase: "turn_start",
+    });
+    expect(result.success).toBe(true);
+  });
+
+  it("emits no sweep event at turn start when the agent is clean", async () => {
+    const sdkSession = sessionWith([
+      { type: "init", agentId: "agent-cloud-1", sessionId: "session-1", conversationId: "conversation-1", model: "gpt" },
+      { type: "result", success: true, result: "ok", durationMs: 1, conversationId: "conversation-1" },
+    ]);
+    const client: LettaSdkClientLike = {
+      createAgent: vi.fn(async () => "unused"),
+      createSession: vi.fn(() => sdkSession),
+      resumeSession: vi.fn(() => sdkSession),
+    };
+    const sweepStaleApprovals = vi.fn(async () => ({ swept: [] as string[] }));
+    const onEvent = vi.fn(async () => undefined);
+
+    await runLettaSdkTurn({
+      prompt: "work",
+      config: resolveLettaCodeConfig({
+        backend: "cloud_attached",
+        lettaAgentId: "agent-cloud-1",
+        apiKey: "cloud-key",
+        apiBaseUrl: "https://api.letta.com",
+        cwd: "/work",
+      }),
+      env: {},
+      onEvent,
+    }, { createClient: () => client, sweepStaleApprovals });
+
+    expect(sweepStaleApprovals).toHaveBeenCalledTimes(1);
+    expect(onEvent).not.toHaveBeenCalledWith(expect.objectContaining({ type: "stale_approval_sweep" }));
   });
 
   it("estimates cost from usage tokens when the provider reports none (known model)", async () => {

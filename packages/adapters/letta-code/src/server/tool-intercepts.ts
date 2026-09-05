@@ -939,6 +939,66 @@ export async function interceptWriteOutput(
   }
 }
 
+/** produce_deliverable — decode base64 file content and POST it to the company deliverables endpoint */
+export async function interceptProduceDeliverable(
+  ctx: AdapterExecutionContext,
+  args: Record<string, unknown>,
+): Promise<string> {
+  try {
+    const kind = String(args.kind ?? "");
+    const filename = String(args.filename ?? "");
+    const title = String(args.title ?? "");
+    const contentB64 = typeof args.file_content_base64 === "string" ? args.file_content_base64 : "";
+    if (!kind || !filename || !title || !contentB64) {
+      return JSON.stringify({ success: false, error: "kind, filename, title and file_content_base64 are required" });
+    }
+
+    let bytes: Buffer;
+    try {
+      bytes = Buffer.from(contentB64, "base64");
+    } catch {
+      return JSON.stringify({ success: false, error: "file_content_base64 is not valid base64" });
+    }
+    if (bytes.length === 0) return JSON.stringify({ success: false, error: "decoded content is empty" });
+
+    const base = getDoerApiUrl(ctx);
+    if (!base) throw new Error("No DOER_API_URL");
+
+    const form = new FormData();
+    // The server infers contentType from `kind` — octet-stream is the safe label.
+    form.append("file", new Blob([new Uint8Array(bytes)], { type: "application/octet-stream" }), filename);
+    form.append("kind", kind);
+    form.append("filename", filename);
+    form.append("title", title);
+    if (typeof args.description === "string" && args.description.trim()) form.append("description", args.description);
+    const issueId = args.issue_id ?? args.issueId;
+    if (typeof issueId === "string" && issueId.trim()) form.append("issueId", issueId);
+    const projectId = args.project_id ?? args.projectId;
+    if (typeof projectId === "string" && projectId.trim()) form.append("projectId", projectId);
+
+    const headers: Record<string, string> = {};
+    if (ctx.authToken) headers.Authorization = `Bearer ${ctx.authToken}`;
+    headers["X-Doer-Run-Id"] = ctx.runId;
+
+    const res = await fetch(`${base}/api/companies/${ctx.agent.companyId}/deliverables`, {
+      method: "POST",
+      headers,
+      body: form,
+    });
+    if (!res.ok) throw new Error(`POST deliverables -> ${res.status}`);
+    const deliverable = (await res.json()) as Record<string, unknown>;
+    await ctx.onLog(
+      "stdout",
+      `[produce_deliverable] Stored: ${String(deliverable.filename ?? filename)} (${String(deliverable.id ?? "")})\n`,
+    );
+    return JSON.stringify({ success: true, deliverableId: deliverable.id ?? null, filename: deliverable.filename ?? filename });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    await ctx.onLog("stderr", `[produce_deliverable] failed: ${msg}\n`);
+    return JSON.stringify({ success: false, error: msg });
+  }
+}
+
 // ── Tool name constants for execute.ts wiring ────────────────────────────
 
 export const CREATE_PAPERCLIP_ISSUE_TOOL_NAME = "create_paperclip_issue";
@@ -947,6 +1007,7 @@ export const READ_PAPERCLIP_ISSUE_TOOL_NAME = "read_paperclip_issue";
 export const UPDATE_PAPERCLIP_ISSUE_TOOL_NAME = "update_paperclip_issue";
 export const POST_ISSUE_COMMENT_TOOL_NAME = "post_issue_comment";
 export const WRITE_OUTPUT_TOOL_NAME = "write_output";
+export const PRODUCE_DELIVERABLE_TOOL_NAME = "produce_deliverable";
 
 export const READ_GOALS_TOOL_NAME = "read_goals";
 export const CREATE_GOAL_TOOL_NAME = "create_goal";

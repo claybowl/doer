@@ -1,5 +1,5 @@
 import crypto from "node:crypto";
-import { and, asc, desc, eq, inArray, isNotNull, isNull, lte, ne, or, sql } from "drizzle-orm";
+import { and, asc, desc, eq, gt, inArray, isNotNull, isNull, lte, ne, or, sql } from "drizzle-orm";
 import type { Db } from "@doerai/db";
 import {
   agents,
@@ -38,6 +38,7 @@ const OPEN_ISSUE_STATUSES = ["backlog", "todo", "in_progress", "in_review", "blo
 const LIVE_HEARTBEAT_RUN_STATUSES = ["queued", "running"];
 const TERMINAL_ISSUE_STATUSES = new Set(["done", "cancelled"]);
 const MAX_CATCH_UP_RUNS = 25;
+const DEFAULT_CIRCUIT_BREAKER_MAX_OPEN_ISSUES = 50;
 const WEEKDAY_INDEX: Record<string, number> = {
   Sun: 0,
   Mon: 1,
@@ -138,10 +139,14 @@ function normalizeWebhookTimestampMs(rawTimestamp: string) {
   return parsed > 1e12 ? parsed : parsed * 1000;
 }
 
-export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeupDeps } = {}) {
+export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeupDeps; circuitBreakerMaxOpenIssues?: number } = {}) {
   const issueSvc = issueService(db);
   const secretsSvc = secretService(db);
   const heartbeat = deps.heartbeat ?? heartbeatService(db);
+  const circuitBreakerMaxOpenIssues = Math.max(
+    1,
+    Math.floor(deps.circuitBreakerMaxOpenIssues ?? DEFAULT_CIRCUIT_BREAKER_MAX_OPEN_ISSUES),
+  );
 
   async function getRoutineById(id: string) {
     return db
@@ -510,6 +515,61 @@ export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeup
     return value;
   }
 
+  // Circuit breaker (2026-08-13: routine de053b46 spawned 1,461 duplicate issues
+  // because nothing stopped a routine whose issues never complete). When a routine
+  // has more than the configured number of open spawned issues and zero completions
+  // since its last spawn, auto-pause it and stop creating new issues.
+  async function evaluateCircuitBreaker(
+    routine: typeof routines.$inferSelect,
+    executor: Db,
+  ): Promise<
+    | { tripped: false; openIssueCount: number; completedSinceLastSpawn: number }
+    | { tripped: true; openIssueCount: number; completedSinceLastSpawn: number; threshold: number; reason: string }
+  > {
+    const openIssueCount = await executor
+      .select({ count: sql<number>`count(*)::int` })
+      .from(issues)
+      .where(
+        and(
+          eq(issues.companyId, routine.companyId),
+          eq(issues.originKind, "routine_execution"),
+          eq(issues.originId, routine.id),
+          inArray(issues.status, OPEN_ISSUE_STATUSES),
+          isNull(issues.hiddenAt),
+        ),
+      )
+      .then((rows) => Number(rows[0]?.count ?? 0));
+
+    const completedSinceLastSpawn = routine.lastEnqueuedAt
+      ? await executor
+        .select({ count: sql<number>`count(*)::int` })
+        .from(routineRuns)
+        .where(
+          and(
+            eq(routineRuns.companyId, routine.companyId),
+            eq(routineRuns.routineId, routine.id),
+            eq(routineRuns.status, "completed"),
+            isNotNull(routineRuns.completedAt),
+            gt(routineRuns.completedAt, routine.lastEnqueuedAt),
+          ),
+        )
+        .then((rows) => Number(rows[0]?.count ?? 0))
+      : 0;
+
+    if (openIssueCount <= circuitBreakerMaxOpenIssues || completedSinceLastSpawn > 0) {
+      return { tripped: false, openIssueCount, completedSinceLastSpawn };
+    }
+    return {
+      tripped: true,
+      openIssueCount,
+      completedSinceLastSpawn,
+      threshold: circuitBreakerMaxOpenIssues,
+      reason:
+        `circuit_breaker: ${openIssueCount} open spawned issues (threshold ${circuitBreakerMaxOpenIssues}) ` +
+        `with ${completedSinceLastSpawn} completions since last spawn; routine auto-paused`,
+    };
+  }
+
   async function dispatchRoutineRun(input: {
     routine: typeof routines.$inferSelect;
     trigger: typeof routineTriggers.$inferSelect | null;
@@ -517,6 +577,16 @@ export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeup
     payload?: Record<string, unknown> | null;
     idempotencyKey?: string | null;
   }) {
+    // Holder object so mutations inside the transaction closure are visible to
+    // TypeScript's control-flow analysis after the transaction returns.
+    const breakerTrip: {
+      current: {
+        openIssueCount: number;
+        completedSinceLastSpawn: number;
+        threshold: number;
+        pausedNow: boolean;
+      } | null;
+    } = { current: null };
     const run = await db.transaction(async (tx) => {
       const txDb = tx as unknown as Db;
       await tx.execute(
@@ -560,6 +630,36 @@ export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeup
       const nextRunAt = input.trigger?.kind === "schedule" && input.trigger.cronExpression && input.trigger.timezone
         ? nextCronTickInTimeZone(input.trigger.cronExpression, input.trigger.timezone, triggeredAt)
         : undefined;
+
+      const breaker = await evaluateCircuitBreaker(input.routine, txDb);
+      if (breaker.tripped) {
+        // Only transition from active -> paused; if already paused the breaker still
+        // blocks new issues, but we don't spam the activity log again.
+        const paused = await txDb
+          .update(routines)
+          .set({ status: "paused", updatedAt: new Date() })
+          .where(and(eq(routines.id, input.routine.id), eq(routines.status, "active")))
+          .returning({ id: routines.id })
+          .then((rows) => rows[0] ?? null);
+        breakerTrip.current = {
+          openIssueCount: breaker.openIssueCount,
+          completedSinceLastSpawn: breaker.completedSinceLastSpawn,
+          threshold: breaker.threshold,
+          pausedNow: !!paused,
+        };        const trippedRun = await finalizeRun(createdRun.id, {
+          status: "failed",
+          failureReason: breaker.reason,
+          completedAt: triggeredAt,
+        }, txDb);
+        await updateRoutineTouchedState({
+          routineId: input.routine.id,
+          triggerId: input.trigger?.id ?? null,
+          triggeredAt,
+          status: "failed",
+          nextRunAt,
+        }, txDb);
+        return trippedRun ?? createdRun;
+      }
 
       let createdIssue: Awaited<ReturnType<typeof issueSvc.create>> | null = null;
       try {
@@ -672,6 +772,31 @@ export function routineService(db: Db, deps: { heartbeat?: IssueAssignmentWakeup
         return failed ?? createdRun;
       }
     });
+
+    if (breakerTrip.current?.pausedNow) {
+      try {
+        await logActivity(db, {
+          companyId: input.routine.companyId,
+          actorType: "system",
+          actorId: "routine-circuit-breaker",
+          action: "routine.circuit_breaker_tripped",
+          entityType: "routine",
+          entityId: input.routine.id,
+          details: {
+            routineTitle: input.routine.title,
+            routineStatus: "paused",
+            openIssueCount: breakerTrip.current.openIssueCount,
+            completedSinceLastSpawn: breakerTrip.current.completedSinceLastSpawn,
+            threshold: breakerTrip.current.threshold,
+            source: input.source,
+            triggerId: input.trigger?.id ?? null,
+            runId: run.id,
+          },
+        });
+      } catch (err) {
+        logger.warn({ err, routineId: input.routine.id }, "failed to log routine circuit-breaker trip");
+      }
+    }
 
     if (input.source === "schedule" || input.source === "webhook") {
       const actorId = input.source === "schedule" ? "routine-scheduler" : "routine-webhook";

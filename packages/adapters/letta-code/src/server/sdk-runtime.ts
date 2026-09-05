@@ -274,6 +274,33 @@ export async function runLettaSdkTurn(
   };
 
   const resumeId = input.sessionParams?.conversationId || agentId;
+
+  // Proactive wedge prevention: a cloud agent holding a stale pending
+  // approval rejects every new message with 409 — and newer app-server
+  // builds swallow that 409 into a bare result=error, so the recovery path
+  // alone can't catch it. Sweep before the turn starts (one cheap GET when
+  // the agent is clean).
+  if (input.config.backend === "cloud_attached" && input.config.apiKey && input.config.apiBaseUrl) {
+    const sweep = dependencies.sweepStaleApprovals ?? sweepStaleApprovals;
+    try {
+      const result = await sweep({
+        agentId,
+        apiKey: input.config.apiKey,
+        apiBaseUrl: input.config.apiBaseUrl,
+      });
+      if (result && result.swept.length > 0) {
+        await input.onEvent({
+          type: "stale_approval_sweep",
+          toolCallIds: result.swept,
+          outcome: "swept",
+          phase: "turn_start",
+        }).catch(() => undefined);
+      }
+    } catch {
+      // Non-fatal — the turn's recovery path still applies if the sweep errors.
+    }
+  }
+
   let turn;
   try {
     turn = await consume(resumeId);

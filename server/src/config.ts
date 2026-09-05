@@ -84,7 +84,16 @@ export interface Config {
   storageS3ForcePathStyle: boolean;
   heartbeatSchedulerEnabled: boolean;
   heartbeatSchedulerIntervalMs: number;
+  staleErrorResetMinAgeMs: number;
+  executionLockStaleThresholdMs: number;
+  routineCircuitBreakerMaxOpenIssues: number;
   companyDeletionEnabled: boolean;
+  emailProvider: string;
+  sendgridApiKey: string | undefined;
+  resendApiKey: string | undefined;
+  mailgunApiKey: string | undefined;
+  mailgunDomain: string | undefined;
+  mailgunRegion: string | undefined;
 }
 
 export function loadConfig(): Config {
@@ -278,6 +287,21 @@ export function loadConfig(): Config {
     storageS3ForcePathStyle,
     heartbeatSchedulerEnabled: process.env.HEARTBEAT_SCHEDULER_ENABLED !== "false",
     heartbeatSchedulerIntervalMs: Math.max(10000, Number(process.env.HEARTBEAT_SCHEDULER_INTERVAL_MS) || 30000),
+    staleErrorResetMinAgeMs: Math.max(0, Number(process.env.DOER_STALE_ERROR_RESET_MIN_AGE_MS) || 60000),
+    executionLockStaleThresholdMs: Math.max(
+      60000,
+      Number(process.env.DOER_EXECUTION_LOCK_STALE_MS) || 2 * 60 * 60 * 1000,
+    ),
+    routineCircuitBreakerMaxOpenIssues: Math.max(
+      1,
+      Number(process.env.DOER_ROUTINE_CIRCUIT_BREAKER_MAX_OPEN_ISSUES) || 50,
+    ),
     companyDeletionEnabled,
+    emailProvider: process.env.DOER_EMAIL_PROVIDER ?? "smtp",
+    sendgridApiKey: process.env.DOER_SENDGRID_API_KEY ?? undefined,
+    resendApiKey: process.env.DOER_RESEND_API_KEY ?? undefined,
+    mailgunApiKey: process.env.DOER_MAILGUN_API_KEY ?? undefined,
+    mailgunDomain: process.env.DOER_MAILGUN_DOMAIN ?? undefined,
+    mailgunRegion: process.env.DOER_MAILGUN_REGION ?? "us",
   };
 }

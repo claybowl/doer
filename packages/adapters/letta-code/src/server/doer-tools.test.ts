@@ -82,3 +82,65 @@ describe("write_output tool", () => {
     }
   });
 });
+
+describe("produce_deliverable tool", () => {
+  function makeCtx(): AdapterExecutionContext {
+    return {
+      runId: "run-1",
+      authToken: "tok-1",
+      agent: { id: "agent-1", companyId: "company-1", name: "Builder", adapterType: "letta_code", adapterConfig: {} },
+      runtime: { sessionId: null, sessionParams: null, sessionDisplayId: null, taskKey: null },
+      config: {},
+      context: {},
+      onLog: vi.fn(async () => undefined),
+    } as AdapterExecutionContext;
+  }
+
+  function resultText(out: unknown): Record<string, unknown> {
+    const content = (out as { content: Array<{ text: string }> }).content;
+    return JSON.parse(content[0]!.text) as Record<string, unknown>;
+  }
+
+  it("decodes base64 content and posts it as multipart to the deliverables endpoint", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(JSON.stringify({ id: "d-9", filename: "note.md" }), { status: 201 })),
+    );
+    try {
+      const tool = buildDoerAgentTools(makeCtx()).find((t) => t.name === "produce_deliverable")!;
+      const out = await tool.execute("call-1", {
+        kind: "md",
+        filename: "note.md",
+        title: "Note",
+        file_content_base64: Buffer.from("hello file").toString("base64"),
+        issue_id: "123e4567-e89b-42d3-a456-426614174000",
+      });
+
+      const [url, init] = (fetch as unknown as ReturnType<typeof vi.fn>).mock.calls[0] as unknown as [string, RequestInit];
+      expect(url).toContain("/api/companies/company-1/deliverables");
+      expect((init.headers as Record<string, string>).Authorization).toBe("Bearer tok-1");
+      expect((init.headers as Record<string, string>)["X-Doer-Run-Id"]).toBe("run-1");
+      const form = init.body as FormData;
+      expect(form.get("kind")).toBe("md");
+      expect(form.get("filename")).toBe("note.md");
+      expect(form.get("title")).toBe("Note");
+      expect(form.get("issueId")).toBe("123e4567-e89b-42d3-a456-426614174000");
+      expect(await (form.get("file") as File).text()).toBe("hello file");
+      expect(resultText(out)).toMatchObject({ success: true, deliverableId: "d-9" });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it("rejects calls missing required fields without hitting the API", async () => {
+    vi.stubGlobal("fetch", vi.fn());
+    try {
+      const tool = buildDoerAgentTools(makeCtx()).find((t) => t.name === "produce_deliverable")!;
+      const out = await tool.execute("call-1", { kind: "md", filename: "note.md" });
+      expect(resultText(out)).toMatchObject({ success: false });
+      expect(fetch).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+});
