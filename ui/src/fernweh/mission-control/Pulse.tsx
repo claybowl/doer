@@ -443,8 +443,8 @@ function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueD
   const ring = selected ? "0 0 0 2px var(--accent)" : isErr ? "0 0 0 2px #e5484d" : "0 0 0 1px var(--line)";
 
   // Density-scaled dimensions
-  const boxW = Math.round(116 * Math.max(density, 0.72));
-  const labelMaxW = Math.round(120 * Math.max(density, 0.72));
+  const boxW = Math.round(116 * Math.max(density, 0.8));
+  const labelMaxW = Math.round(120 * Math.max(density, 0.8));
   const nameFS = (isRoot ? 13 : 11.5) * Math.max(density, 0.8);
   const toolFS = 9 * Math.max(density, 0.8);
   const focusFS = 8 * Math.max(density, 0.8);

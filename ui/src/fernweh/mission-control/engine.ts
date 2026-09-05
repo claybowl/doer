@@ -207,7 +207,6 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
   // Count max agents at any single depth to determine density
   const depthCounts: Record<number, number> = {};
   for (const a of all) {
-    // find depth by walking up parent chain
     let d = 0, cur: string | null = a.id;
     while (cur && cur !== rootId && d < 99) {
       const parent = all.find((x) => x.id === cur)?.reportsTo;
@@ -218,14 +217,15 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
   }
   const maxAgentsAtDepth = Math.max(1, ...Object.values(depthCounts));
 
-  // Dynamic stage width: widen when many agents need horizontal space
-  const MIN_NODE_SPACING = 90;
-  const neededW = Math.max(W, maxAgentsAtDepth * MIN_NODE_SPACING + SIDE_PAD * 2);
-  const stageW = Math.min(neededW, 3200);
-  const stageH = H;
+  // Keep stage close to the base size — physics repulsion spreads nodes
+  // naturally. Only widen modestly for very large fleets, and grow height
+  // proportionally so the aspect ratio doesn't stretch the scale mismatch.
+  const stageW = Math.min(Math.max(W, maxAgentsAtDepth * 70 + SIDE_PAD * 2), 1600);
+  const stageH = Math.round(H * (stageW / W));
 
-  // Density: shrink nodes/text when crowded
-  const density = maxAgentsAtDepth <= 20 ? 1 : maxAgentsAtDepth <= 40 ? 0.85 : maxAgentsAtDepth <= 80 ? 0.7 : 0.55;
+  // Density only kicks in for genuinely large fleets and never goes below 0.8
+  // so cards stay readable. The stage widening handles most of the spacing.
+  const density = maxAgentsAtDepth <= 30 ? 1 : maxAgentsAtDepth <= 60 ? 0.9 : 0.8;
 
   const ROW_H = (stageH - TOP_PAD - BOTTOM_PAD) / Math.max(MAX_DEPTH - 1, 1);
 
