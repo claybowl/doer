@@ -220,7 +220,7 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
   // Keep stage close to the base size — physics repulsion spreads nodes
   // naturally. Only widen modestly for very large fleets, and grow height
   // proportionally so the aspect ratio doesn't stretch the scale mismatch.
-  const stageW = Math.min(Math.max(W, maxAgentsAtDepth * 70 + SIDE_PAD * 2), 1600);
+  const stageW = Math.min(Math.max(W, maxAgentsAtDepth * 60 + SIDE_PAD * 2), 1200);
   const stageH = Math.round(H * (stageW / W));
 
   // Density only kicks in for genuinely large fleets and never goes below 0.8
