@@ -154,7 +154,7 @@ export function fmtAgo(s: number): string {
   return Math.floor(h / 24) + "d ago";
 }
 
-/* ---------- radial org layout (root center, reports on rings) ---------- */
+/* ---------- top-down org chart layout (root top-center, children fan below) ---------- */
 export interface MCLayout {
   pos: Record<string, { x: number; y: number; depth: number }>;
   kids: Record<string, string[]>;
@@ -190,29 +190,35 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
   };
   countLeaves(rootId);
 
-  const cx = W / 2, cy = H / 2;
-  const RING = [0, Math.min(W, H) * 0.27, Math.min(W, H) * 0.46, Math.min(W, H) * 0.6];
+  // Top-down tree: root at top center, each level a horizontal row below.
+  // Horizontal space allocated proportional to leaf count (like a Reingold-Tilford
+  // simplified layout). The physics simulation uses these as home positions.
   const pos: MCLayout["pos"] = {};
+  const TOP_PAD = 50;
+  const BOTTOM_PAD = 50;
+  const SIDE_PAD = 70;
+  const MAX_DEPTH = 4;
+  const ROW_H = (H - TOP_PAD - BOTTOM_PAD) / Math.max(MAX_DEPTH - 1, 1);
 
-  const place = (id: string, depth: number, a0: number, a1: number) => {
-    const ang = (a0 + a1) / 2;
-    const r = RING[Math.min(depth, RING.length - 1)]!;
+  const place = (id: string, depth: number, x0: number, x1: number) => {
+    const cx = (x0 + x1) / 2;
     pos[id] = {
-      x: cx + r * Math.cos(ang),
-      y: cy + r * Math.sin(ang) * 0.86,
+      x: cx,
+      y: TOP_PAD + depth * ROW_H,
       depth,
     };
     const ch = kids[id] ?? [];
     if (!ch.length) return;
-    let a = a0;
-    const span = a1 - a0;
+    let x = x0;
+    const span = x1 - x0;
+    const totalLeaves = leaves[id] ?? 1;
     for (const c of ch) {
-      const w = (leaves[c] ?? 1) / (leaves[id] ?? 1);
-      place(c, depth + 1, a, a + span * w);
-      a += span * w;
+      const w = (leaves[c] ?? 1) / totalLeaves;
+      place(c, depth + 1, x, x + span * w);
+      x += span * w;
     }
   };
-  place(rootId, 0, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2);
+  place(rootId, 0, SIDE_PAD, W - SIDE_PAD);
 
   return { pos, kids, rootId };
 }

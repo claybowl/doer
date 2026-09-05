@@ -4,13 +4,13 @@ import type { MCLayout, MCState, MCIssue } from "./engine";
 import type { MCSelect } from "./Stream";
 
 export const STAGE_W = 900;
-export const STAGE_H = 580;
+export const STAGE_H = 640;
 const CX = STAGE_W / 2;
 const CY = STAGE_H / 2;
 
-function nodeSize(depth: number) { return depth === 0 ? 60 : depth === 1 ? 42 : 34; }
-function restLen(depth: number) { return depth <= 1 ? 158 : 120; }
-function nodeRadius(depth: number) { return depth === 0 ? 58 : depth === 1 ? 48 : 42; }
+function nodeSize(depth: number) { return depth === 0 ? 56 : depth === 1 ? 40 : 32; }
+function restLen(depth: number) { return depth <= 1 ? 170 : 130; }
+function nodeRadius(depth: number) { return depth === 0 ? 54 : depth === 1 ? 44 : 38; }
 
 interface PNode { x: number; y: number; vx: number; vy: number; depth: number; home: { x: number; y: number }; }
 interface DragState { name: string; dx: number; dy: number; moved: number; lastx: number; lasty: number; }
@@ -108,20 +108,20 @@ function usePhysics(
         const fx = (dx / d) * f, fy = (dy / d) * f;
         A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
       }
-      // Per-depth home anchoring keeps the org hierarchy legible: the root owns
-      // the center, each level holds its concentric ring, while springs +
-      // repulsion + drag still give the web its flex. Inner rings are anchored
-      // harder so a big hub (e.g. Alfie) can't drift into the focal center.
+      // Per-depth home anchoring keeps the org hierarchy legible: the root
+      // sits at the top, each level holds its horizontal row, while springs +
+      // repulsion + drag still give the tree its flex. Upper levels are
+      // anchored harder so a big hub (e.g. Alfie) can't drift up into the root.
       for (const name in nodes) {
         const N = nodes[name]!;
-        const homeK = N.depth === 1 ? 0.024 : N.depth === 2 ? 0.018 : 0.013;
+        const homeK = N.depth === 1 ? 0.028 : N.depth === 2 ? 0.020 : 0.014;
         N.vx += (N.home.x - N.x) * homeK;
         N.vy += (N.home.y - N.y) * homeK;
       }
       for (const name in nodes) {
         const N = nodes[name]!;
         if (drag && drag.name === name) { N.vx = 0; N.vy = 0; continue; }
-        // The top of the org chart is the focal point: pin it dead center
+        // The top of the org chart is the anchor: pin it at its home position
         // (still draggable above, snaps back on release).
         if (N.depth === 0) { N.x = N.home.x; N.y = N.home.y; N.vx = 0; N.vy = 0; continue; }
         N.vx *= damp; N.vy *= damp;
@@ -621,7 +621,7 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
       <div ref={innerRef} style={{ position: "relative", width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "center" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none",
           backgroundImage: "linear-gradient(var(--line-soft) 1px, transparent 1px), linear-gradient(90deg, var(--line-soft) 1px, transparent 1px)",
-          backgroundSize: "40px 40px", maskImage: "radial-gradient(circle at 50% 50%, #000 30%, transparent 80%)", WebkitMaskImage: "radial-gradient(circle at 50% 50%, #000 30%, transparent 80%)" }} />
+          backgroundSize: "40px 40px", maskImage: "linear-gradient(to bottom, #000 5%, transparent 85%)", WebkitMaskImage: "linear-gradient(to bottom, #000 5%, transparent 85%)" }} />
 
         <svg width={STAGE_W} height={STAGE_H} style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
           {edges.map((e, i) => {
@@ -681,7 +681,7 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
         })}
 
         <div className="fw-mono" style={{ position: "absolute", left: 14, bottom: 12, display: "flex", alignItems: "center", gap: 6, fontSize: 9.5, color: "var(--ink-faint)", pointerEvents: "none" }}>
-          <Icon d={I.agents} size={11} /> drag any agent — the graph flexes
+          <Icon d={I.agents} size={11} /> drag any agent — the tree flexes
         </div>
       </div>
       <QuickActions state={state} onSelect={onSelect} />
