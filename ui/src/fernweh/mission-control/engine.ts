@@ -399,7 +399,7 @@ export function useMissionControlState(input: MissionControlInput): MCState {
     const id = window.setInterval(() => {
       const now = nowSec();
       setState((s) => {
-        const effects = s.effects.filter((e) => now - e.t < 4);
+        const effects = s.effects.filter((e) => now - e.t < (e.kind === "bloom" ? 8 : 4));
         const collabs = s.collabs.filter((c) => now - c.t < 18);
         if (effects.length === s.effects.length && collabs.length === s.collabs.length && Math.abs(now - s.clock) < 0.9) {
           return { ...s, clock: now };

@@ -21,7 +21,7 @@
   70% { opacity: 1; transform: translateY(0) scale(1); }
   100% { transform: translateY(-16px) scale(0.98); opacity: 0; }
 }
-.mc-bloom { animation: mc-bloom-k 3.6s var(--fw-ease) forwards; }
+.mc-bloom { animation: mc-bloom-k 7s var(--fw-ease) forwards; }
 
 /* handoff token traveling along the reporting edge */
 @keyframes mc-travel-k { from { offset-distance: 0%; } to { offset-distance: 100%; } }
@@ -45,8 +45,22 @@
 }
 .mc-arrow { display: inline-block; animation: mc-arrow-k 1s ease-in-out infinite; }
 
+/* stale issue alert — gentle red pulse */
+@keyframes mc-stale-k {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+.mc-stale-pulse { animation: mc-stale-k 1.6s ease-in-out infinite; }
+
+/* HUD entrance */
+@keyframes mc-hud-k {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: none; }
+}
+.mc-hud-in { animation: mc-hud-k 0.3s var(--fw-ease) forwards; }
+
 @media (prefers-reduced-motion: reduce) {
-  .mc-halo, .mc-arrow, .mc-flow, .mc-ripple, .mc-bloom, .mc-token, .mc-rise {
+  .mc-halo, .mc-arrow, .mc-flow, .mc-ripple, .mc-bloom, .mc-token, .mc-rise, .mc-stale-pulse, .mc-hud-in {
     animation: none !important;
   }
   .mc-token { offset-distance: 100%; }

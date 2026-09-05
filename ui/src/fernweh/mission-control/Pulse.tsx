@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Avatar, Icon, I, StatusDot } from "../utils";
-import type { MCLayout, MCState } from "./engine";
+import type { MCLayout, MCState, MCIssue } from "./engine";
 import type { MCSelect } from "./Stream";
 
 export const STAGE_W = 900;
@@ -178,12 +178,276 @@ function usePhysics(
   return { nodes: nodesRef.current!, edges, onNodeDown, dragRef };
 }
 
-function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown }: {
+/* ============================================================
+   Queue Health HUD — overlay showing queue stats + fleet health
+   ============================================================ */
+
+const STALE_THRESHOLD_SEC = 48 * 3600; // 48 hours
+
+interface QueueStats {
+  todo: number;
+  inProgress: number;
+  blocked: number;
+  done: number;
+  stale: number;
+  errorAgents: number;
+  totalAgents: number;
+  runningAgents: number;
+}
+
+function computeQueueStats(state: MCState): QueueStats {
+  const issues = Object.values(state.issues);
+  const agents = Object.values(state.agents).filter((a) => !a.synthetic);
+  let todo = 0, inProgress = 0, blocked = 0, done = 0, stale = 0;
+
+  for (const i of issues) {
+    if (i.status === "done") { done++; continue; }
+    if (i.status === "blocked") blocked++;
+    else if (i.status === "in_progress") inProgress++;
+    else todo++;
+
+    // stale: open issue with no activity in 48h
+    if (i.status !== "done" && state.clock - i.lastEventAt > STALE_THRESHOLD_SEC) {
+      stale++;
+    }
+  }
+
+  return {
+    todo,
+    inProgress,
+    blocked,
+    done,
+    stale,
+    errorAgents: agents.filter((a) => a.status === "error").length,
+    totalAgents: agents.length,
+    runningAgents: agents.filter((a) => a.status === "running").length,
+  };
+}
+
+function StatChip({ label, value, color, alert }: { label: string; value: number; color?: string; alert?: boolean }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1, minWidth: 44 }}>
+      <span className="fw-display" style={{
+        fontSize: 18, fontWeight: 600, lineHeight: 1, fontVariantNumeric: "tabular-nums",
+        color: color ?? "var(--ink)",
+        ...(alert ? { animation: "mc-stale-k 1.6s ease-in-out infinite" } : {}),
+      }}>{value}</span>
+      <span className="fw-mono fw-uc" style={{ fontSize: 7.5, color: "var(--ink-faint)" }}>{label}</span>
+    </div>
+  );
+}
+
+function QueueHUD({ state }: { state: MCState }) {
+  const [collapsed, setCollapsed] = React.useState(false);
+  const stats = React.useMemo(() => computeQueueStats(state), [state]);
+  const openTotal = stats.todo + stats.inProgress + stats.blocked;
+  const queueColor = openTotal > 30 ? "var(--warn)" : openTotal > 15 ? "var(--accent)" : "var(--pulse)";
+  const hasStale = stats.stale > 0;
+  const hasErrors = stats.errorAgents > 0;
+
+  if (collapsed) {
+    return (
+      <button onClick={() => setCollapsed(false)}
+        style={{
+          position: "absolute", top: 14, left: 14, zIndex: 12,
+          display: "flex", alignItems: "center", gap: 6, padding: "7px 11px",
+          background: "var(--bg-raised)", border: "1px solid var(--line)", borderRadius: 10,
+          cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+        }}>
+        <Icon d={I.activity} size={13} style={{ color: queueColor }} />
+        <span className="fw-mono fw-uc" style={{ fontSize: 9, color: "var(--ink-dim)" }}>{openTotal} open</span>
+        {(hasStale || hasErrors) && (
+          <span style={{ display: "flex", gap: 3 }}>
+            {hasStale && <span className="mc-stale-pulse" style={{ width: 7, height: 7, borderRadius: 999, background: "var(--warn)" }} />}
+            {hasErrors && <span style={{ width: 7, height: 7, borderRadius: 999, background: "#e5484d" }} />}
+          </span>
+        )}
+      </button>
+    );
+  }
+
+  return (
+    <div className="mc-hud-in" style={{
+      position: "absolute", top: 14, left: 14, zIndex: 12,
+      background: "var(--bg-raised)", border: "1px solid var(--line)", borderRadius: 12,
+      boxShadow: "0 8px 24px rgba(0,0,0,0.16)", overflow: "hidden",
+    }}>
+      {/* header row */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "8px 12px", borderBottom: "1px solid var(--line-soft)",
+      }}>
+        <span style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <Icon d={I.activity} size={12} style={{ color: "var(--ink-dim)" }} />
+          <span className="fw-mono fw-uc" style={{ fontSize: 9, color: "var(--ink-dim)" }}>Queue Health</span>
+        </span>
+        <button onClick={() => setCollapsed(true)}
+          style={{ border: "none", background: "transparent", cursor: "pointer", padding: 2, display: "grid", placeItems: "center" }}>
+          <Icon d={I.chevron} size={12} style={{ color: "var(--ink-faint)", transform: "rotate(-90deg)" }} />
+        </button>
+      </div>
+
+      {/* queue stats */}
+      <div style={{ display: "flex", gap: 4, padding: "10px 12px 8px", justifyContent: "space-between" }}>
+        <StatChip label="Todo" value={stats.todo} />
+        <StatChip label="Active" value={stats.inProgress} color="var(--pulse)" />
+        <StatChip label="Blocked" value={stats.blocked} color={stats.blocked > 0 ? "#e5484d" : undefined} alert={stats.blocked > 0} />
+        <StatChip label="Done" value={stats.done} color="var(--ink-dim)" />
+      </div>
+
+      {/* alerts row */}
+      {(hasStale || hasErrors) && (
+        <div style={{ padding: "0 12px 8px", display: "flex", flexDirection: "column", gap: 4 }}>
+          {hasStale && (
+            <div className="mc-stale-pulse" style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "4px 8px",
+              background: "rgba(229,72,77,0.08)", border: "1px solid rgba(229,72,77,0.2)", borderRadius: 7,
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: "var(--warn)", flexShrink: 0 }} />
+              <span className="fw-mono" style={{ fontSize: 9.5, color: "var(--ink-dim)" }}>
+                {stats.stale} stale {stats.stale === 1 ? "issue" : "issues"} (&gt;48h)
+              </span>
+            </div>
+          )}
+          {hasErrors && (
+            <div style={{
+              display: "flex", alignItems: "center", gap: 6, padding: "4px 8px",
+              background: "rgba(229,72,77,0.08)", border: "1px solid rgba(229,72,77,0.2)", borderRadius: 7,
+            }}>
+              <span style={{ width: 7, height: 7, borderRadius: 999, background: "#e5484d", flexShrink: 0 }} />
+              <span className="fw-mono" style={{ fontSize: 9.5, color: "var(--ink-dim)" }}>
+                {stats.errorAgents} {stats.errorAgents === 1 ? "agent" : "agents"} in error
+              </span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* fleet row */}
+      <div style={{
+        display: "flex", alignItems: "center", justifyContent: "space-between",
+        padding: "7px 12px", borderTop: "1px solid var(--line-soft)",
+      }}>
+        <span className="fw-mono fw-uc" style={{ fontSize: 8, color: "var(--ink-faint)" }}>Fleet</span>
+        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <StatusDot status="running" size={7} />
+            <span className="fw-mono" style={{ fontSize: 9.5, color: "var(--ink-dim)" }}>{stats.runningAgents}</span>
+          </span>
+          <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+            <StatusDot status="idle" size={7} />
+            <span className="fw-mono" style={{ fontSize: 9.5, color: "var(--ink-dim)" }}>{stats.totalAgents - stats.runningAgents - stats.errorAgents}</span>
+          </span>
+          {hasErrors && (
+            <span style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              <StatusDot status="error" size={7} />
+              <span className="fw-mono" style={{ fontSize: 9.5, color: "#e5484d" }}>{stats.errorAgents}</span>
+            </span>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================================================
+   Quick Actions bar — bottom center
+   ============================================================ */
+
+function QuickActions({ state, onSelect }: { state: MCState; onSelect: MCSelect }) {
+  const stats = React.useMemo(() => computeQueueStats(state), [state]);
+
+  // Find stale issue IDs to surface
+  const staleIssues = React.useMemo(() => {
+    return Object.values(state.issues)
+      .filter((i) => i.status !== "done" && state.clock - i.lastEventAt > STALE_THRESHOLD_SEC)
+      .sort((a, b) => a.lastEventAt - b.lastEventAt)
+      .slice(0, 5);
+  }, [state]);
+
+  const [staleOpen, setStaleOpen] = React.useState(false);
+
+  return (
+    <div style={{
+      position: "absolute", bottom: 14, left: "50%", transform: "translateX(-50%)",
+      zIndex: 12, display: "flex", alignItems: "center", gap: 8,
+    }}>
+      {staleOpen && staleIssues.length > 0 && (
+        <div style={{
+          position: "absolute", bottom: "100%", left: "50%", transform: "translateX(-50%)",
+          marginBottom: 8, background: "var(--bg-raised)", border: "1px solid var(--line)",
+          borderRadius: 12, boxShadow: "0 8px 24px rgba(0,0,0,0.16)", padding: "8px 10px",
+          display: "flex", flexDirection: "column", gap: 4, minWidth: 200,
+        }}>
+          <div className="fw-mono fw-uc" style={{ fontSize: 8.5, color: "var(--ink-faint)", marginBottom: 2 }}>
+            Stale issues (&gt;48h)
+          </div>
+          {staleIssues.map((i) => (
+            <button key={i.id} onClick={() => { onSelect(i.id, "issue"); setStaleOpen(false); }}
+              style={{
+                display: "flex", alignItems: "center", gap: 6, padding: "4px 7px",
+                border: "1px solid var(--line-soft)", borderRadius: 7, cursor: "pointer",
+                background: "transparent", textAlign: "left",
+              }}>
+              <span className="fw-mono" style={{ fontSize: 9, color: "var(--accent)", flexShrink: 0 }}>{i.id}</span>
+              <span style={{ fontSize: 10.5, color: "var(--ink-dim)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{i.title}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      <button
+        onClick={() => staleIssues.length > 0 ? setStaleOpen((o) => !o) : undefined}
+        style={{
+          display: "flex", alignItems: "center", gap: 6, padding: "7px 13px",
+          background: "var(--bg-raised)", border: "1px solid var(--line)", borderRadius: 10,
+          cursor: staleIssues.length > 0 ? "pointer" : "default",
+          opacity: staleIssues.length > 0 ? 1 : 0.5,
+          boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+        }}>
+        <Icon d={I.clock} size={13} style={{ color: stats.stale > 0 ? "var(--warn)" : "var(--ink-faint)" }} />
+        <span className="fw-mono fw-uc" style={{ fontSize: 9, color: "var(--ink-dim)" }}>
+          {stats.stale > 0 ? `${stats.stale} Stale` : "No Stale"}
+        </span>
+      </button>
+
+      <button
+        onClick={() => {
+          // Navigate to issues page — uses window.location since we don't have router here
+          const path = window.location.pathname.replace(/\/mission-control$/, "/issues");
+          window.location.href = path;
+        }}
+        style={{
+          display: "flex", alignItems: "center", gap: 6, padding: "7px 13px",
+          background: "var(--bg-raised)", border: "1px solid var(--line)", borderRadius: 10,
+          cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.12)",
+        }}>
+        <Icon d={I.plus} size={13} style={{ color: "var(--accent)" }} />
+        <span className="fw-mono fw-uc" style={{ fontSize: 9, color: "var(--ink-dim)" }}>New Issue</span>
+      </button>
+    </div>
+  );
+}
+
+/* ============================================================
+   PulseNode — agent node with queue badge on root
+   ============================================================ */
+
+function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueDepth }: {
   a: MCState["agents"][string]; n: PNode; sz: number; isRoot: boolean; dragging: boolean; selected: boolean;
   onPointerDown: (name: string, e: React.PointerEvent) => void;
+  queueDepth?: number;
 }) {
   const live = a.status === "running";
-  const ring = selected ? "0 0 0 2px var(--accent)" : "0 0 0 1px var(--line)";
+  const isErr = a.status === "error";
+  const ring = selected ? "0 0 0 2px var(--accent)" : isErr ? "0 0 0 2px #e5484d" : "0 0 0 1px var(--line)";
+
+  // Queue badge color for root node
+  const badgeColor = queueDepth === undefined ? undefined
+    : queueDepth > 30 ? "#e5484d"
+    : queueDepth > 15 ? "var(--warn)"
+    : "var(--pulse)";
+
   return (
     <div
       onPointerDown={(e) => onPointerDown(a.id, e)}
@@ -198,8 +462,22 @@ function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown }: {
       <div style={{ position: "relative", width: sz, height: sz, display: "grid", placeItems: "center", pointerEvents: "none" }}>
         {live && <span className="mc-halo" style={{ position: "absolute", inset: -7, borderRadius: 14, border: "1.5px solid var(--pulse)", pointerEvents: "none" }} />}
         {isRoot ? (
-          <img src="/brands/doer-logo.jpg" width={sz} height={sz} alt={a.name} draggable={false}
-            style={{ borderRadius: 12, objectFit: "cover", display: "block", boxShadow: ring }} />
+          <>
+            <img src="/brands/doer-logo.jpg" width={sz} height={sz} alt={a.name} draggable={false}
+              style={{ borderRadius: 12, objectFit: "cover", display: "block", boxShadow: ring }} />
+            {queueDepth !== undefined && queueDepth > 0 && (
+              <span style={{
+                position: "absolute", top: -6, right: -6,
+                minWidth: 22, height: 22, borderRadius: 999,
+                background: badgeColor, color: "#fff",
+                display: "grid", placeItems: "center",
+                fontSize: 11, fontWeight: 700, fontFamily: "var(--fw-font-mono)",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.25)",
+                border: "2px solid var(--bg)",
+                fontVariantNumeric: "tabular-nums",
+              }}>{queueDepth}</span>
+            )}
+          </>
         ) : (
           <div style={{ borderRadius: 11, boxShadow: ring, display: "grid", placeItems: "center" }}>
             <Avatar name={a.name} size={sz} />
@@ -212,14 +490,28 @@ function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown }: {
       <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.15, maxWidth: 120, pointerEvents: "none" }}>
         <span className={isRoot ? "fw-display" : undefined} style={{ fontSize: isRoot ? 13 : 11.5, fontWeight: 600, color: "var(--ink)" }}>{a.name}</span>
         {live && a.tool ? (
-          <span className="fw-mono" style={{ fontSize: 9, color: "var(--pulse)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{a.tool}()</span>
+          <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
+            <span className="fw-mono" style={{ fontSize: 9, color: "var(--pulse)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{a.tool}()</span>
+            {a.focus && (
+              <span className="fw-mono" style={{
+                fontSize: 8, color: "var(--accent)", whiteSpace: "nowrap",
+                overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120,
+                padding: "1px 5px", borderRadius: 4,
+                background: "var(--accent-soft)", border: "1px solid var(--line-soft)",
+              }}>{a.focus}</span>
+            )}
+          </div>
         ) : (
-          <span className="fw-mono fw-uc" style={{ fontSize: 8.5, color: "var(--ink-faint)" }}>{a.role}</span>
+          <span className="fw-mono fw-uc" style={{ fontSize: 8.5, color: isErr ? "#e5484d" : "var(--ink-faint)" }}>{a.role}</span>
         )}
       </div>
     </div>
   );
 }
+
+/* ============================================================
+   Legend (unchanged)
+   ============================================================ */
 
 function LegendRow({ glyph, label, desc }: { glyph: React.ReactNode; label: string; desc: string }) {
   return (
@@ -256,6 +548,7 @@ function Legend({ motion }: { motion: "calm" | "live" }) {
           <LegendHead>Agents</LegendHead>
           <LegendRow glyph={dot("var(--pulse)")} label="Working" desc="running a task now" />
           <LegendRow glyph={dot("var(--warn)")} label="Idle" desc="no active run" />
+          <LegendRow glyph={<span style={{ width: 9, height: 9, borderRadius: 999, background: "#e5484d" }} />} label="Error" desc="needs attention" />
           <LegendRow glyph={<span className={liveMotion ? "mc-halo" : ""} style={{ width: 17, height: 17, borderRadius: 6, border: "1.5px solid var(--pulse)" }} />} label="Live pulse" desc="executing right now" />
           <LegendHead>Events</LegendHead>
           <LegendRow glyph={<><span style={{ position: "absolute", width: 9, height: 9, borderRadius: 999, border: "1px solid var(--pulse)" }} /><span style={{ position: "absolute", width: 18, height: 18, borderRadius: 999, border: "1px solid var(--pulse)", opacity: 0.45 }} /></>} label="Tool call" desc="ring ripples out" />
@@ -263,11 +556,18 @@ function Legend({ motion }: { motion: "calm" | "live" }) {
           <LegendRow glyph={<svg width="26" height="14"><line className={liveMotion ? "mc-flow" : ""} x1="2" y1="7" x2="24" y2="7" stroke="var(--accent)" strokeWidth="1.6" strokeDasharray="3 4" strokeLinecap="round" /></svg>} label="Pairing" desc="agents share an issue" />
           <LegendRow glyph={<><span style={{ position: "absolute", left: 0, right: 0, height: 1, background: "var(--line)" }} /><span style={{ width: 11, height: 11, borderRadius: 999, background: "var(--warn)", boxShadow: "0 0 7px 1px var(--warn)" }} /></>} label="Handoff" desc="ownership passes" />
           <LegendRow glyph={<Icon d={I.check} size={13} style={{ color: "var(--pulse)" }} />} label="Shipped" desc="output delivered" />
+          <LegendHead>Queue HUD</LegendHead>
+          <LegendRow glyph={<span style={{ width: 18, height: 18, borderRadius: 999, background: "var(--pulse)", display: "grid", placeItems: "center", color: "#fff", fontSize: 9, fontWeight: 700 }}>N</span>} label="Queue badge" desc="open issues on root" />
+          <LegendRow glyph={<span className="mc-stale-pulse" style={{ width: 9, height: 9, borderRadius: 999, background: "var(--warn)" }} />} label="Stale alert" desc="issue stuck &gt;48h" />
         </div>
       )}
     </div>
   );
 }
+
+/* ============================================================
+   PulseView — main view with QueueHUD + QuickActions
+   ============================================================ */
 
 export function PulseView({ state, layout, onSelect, selected, motion }: {
   state: MCState; layout: MCLayout; onSelect: MCSelect; selected: string | null; motion: "calm" | "live";
@@ -309,8 +609,14 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
   const dragName = dragRef.current?.name;
   const P = (id: string) => nodes[id] ?? layout.pos[id];
 
+  // Compute queue depth for root badge
+  const queueDepth = React.useMemo(() => {
+    return Object.values(state.issues).filter((i) => i.status !== "done").length;
+  }, [state.issues]);
+
   return (
     <div ref={wrapRef} style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", overflow: "hidden" }}>
+      <QueueHUD state={state} />
       <Legend motion={motion} />
       <div ref={innerRef} style={{ position: "relative", width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "center" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none",
@@ -355,7 +661,7 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
 
         {Object.values(agents).map((a) => {
           const n = nodes[a.id]; if (!n) return null;
-          return <PulseNode key={a.id} a={a} n={n} sz={nodeSize(n.depth)} isRoot={n.depth === 0} dragging={dragName === a.id} selected={selected === a.id} onPointerDown={onNodeDown} />;
+          return <PulseNode key={a.id} a={a} n={n} sz={nodeSize(n.depth)} isRoot={n.depth === 0} dragging={dragName === a.id} selected={selected === a.id} onPointerDown={onNodeDown} queueDepth={n.depth === 0 ? queueDepth : undefined} />;
         })}
 
         {blooms.map((bl) => {
@@ -378,6 +684,7 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
           <Icon d={I.agents} size={11} /> drag any agent — the graph flexes
         </div>
       </div>
+      <QuickActions state={state} onSelect={onSelect} />
     </div>
   );
 }
