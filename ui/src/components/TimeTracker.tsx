@@ -32,9 +32,9 @@ function formatLiveDuration(startedAt: string): string {
 }
 
 export function TimeTracker({ issueId }: TimeTrackerProps) {
-  const { company } = useCompany();
+  const { selectedCompany: company } = useCompany();
   const companyId = company?.id;
-  const { toast } = useToast();
+  const { pushToast: toast } = useToast();
   const queryClient = useQueryClient();
   const [liveDuration, setLiveDuration] = useState<string>("");
   const [description, setDescription] = useState("");
@@ -67,7 +67,7 @@ export function TimeTracker({ issueId }: TimeTrackerProps) {
       toast({ title: "Timer started" });
       setDescription("");
     },
-    onError: () => toast({ title: "Failed to start timer", variant: "error" }),
+    onError: () => toast({ title: "Failed to start timer", tone: "error" }),
   });
 
   // Stop timer mutation
@@ -79,7 +79,7 @@ export function TimeTracker({ issueId }: TimeTrackerProps) {
       queryClient.invalidateQueries({ queryKey: ["running-timers", companyId] });
       toast({ title: "Timer stopped" });
     },
-    onError: () => toast({ title: "Failed to stop timer", variant: "error" }),
+    onError: () => toast({ title: "Failed to stop timer", tone: "error" }),
   });
 
   // Delete entry mutation

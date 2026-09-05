@@ -23,7 +23,7 @@ function formatDuration(ms: number): string {
  * Polls every 30 seconds for new running timers.
  */
 export function RunningTimerIndicator() {
-  const { company } = useCompany();
+  const { selectedCompany: company } = useCompany();
   const companyId = company?.id;
   const [liveDurations, setLiveDurations] = useState<Record<string, string>>({});
 

@@ -20,7 +20,7 @@ function formatDuration(ms: number): string {
 type Tab = "summary" | "agents" | "projects" | "issues" | "timesheet";
 
 export function TimeTracking() {
-  const { company } = useCompany();
+  const { selectedCompany: company } = useCompany();
   const companyId = company?.id;
   const [tab, setTab] = useState<Tab>("summary");
   const [from, setFrom] = useState("");

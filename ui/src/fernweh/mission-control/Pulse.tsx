@@ -8,9 +8,9 @@ export const STAGE_H = 640;
 const CX = STAGE_W / 2;
 const CY = STAGE_H / 2;
 
-function nodeSize(depth: number) { return depth === 0 ? 56 : depth === 1 ? 40 : 32; }
-function restLen(depth: number) { return depth <= 1 ? 170 : 130; }
-function nodeRadius(depth: number) { return depth === 0 ? 54 : depth === 1 ? 44 : 38; }
+function nodeSize(depth: number, density = 1) { return (depth === 0 ? 56 : depth === 1 ? 40 : 32) * density; }
+function restLen(depth: number, density = 1) { return (depth <= 1 ? 170 : 130) * Math.max(density, 0.7); }
+function nodeRadius(depth: number, density = 1) { return (depth === 0 ? 54 : depth === 1 ? 44 : 38) * density; }
 
 interface PNode { x: number; y: number; vx: number; vy: number; depth: number; home: { x: number; y: number }; }
 interface DragState { name: string; dx: number; dy: number; moved: number; lastx: number; lasty: number; }
@@ -22,7 +22,7 @@ function usePhysics(
   innerRef: React.RefObject<HTMLDivElement | null>,
   onClick: (id: string) => void,
 ) {
-  const { pos, kids } = layout;
+  const { pos, kids, stageW, stageH, density } = layout;
 
   const edges = React.useMemo(() => {
     const e: { a: string; b: string; depth: number }[] = [];
@@ -84,7 +84,7 @@ function usePhysics(
           let d2 = dx * dx + dy * dy;
           if (d2 < 1) { d2 = 1; dx = Math.random() - 0.5; dy = Math.random() - 0.5; }
           const d = Math.sqrt(d2);
-          const min = nodeRadius(A.depth) + nodeRadius(B.depth);
+          const min = nodeRadius(A.depth, density) + nodeRadius(B.depth, density);
           const f = repK / d2 + (d < min ? (min - d) * 0.18 : 0);
           const fx = (dx / d) * f, fy = (dy / d) * f;
           A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
@@ -95,7 +95,7 @@ function usePhysics(
         if (!A || !B) continue;
         const dx = B.x - A.x, dy = B.y - A.y;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
-        const f = (d - restLen(e.depth)) * springK;
+        const f = (d - restLen(e.depth, density)) * springK;
         const fx = (dx / d) * f, fy = (dy / d) * f;
         A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
       }
@@ -104,7 +104,7 @@ function usePhysics(
         if (!A || !B) continue;
         const dx = B.x - A.x, dy = B.y - A.y;
         const d = Math.sqrt(dx * dx + dy * dy) || 1;
-        const f = (d - 120) * 0.012;
+        const f = (d - 120 * Math.max(density, 0.7)) * 0.012;
         const fx = (dx / d) * f, fy = (dy / d) * f;
         A.vx += fx; A.vy += fy; B.vx -= fx; B.vy -= fy;
       }
@@ -128,11 +128,11 @@ function usePhysics(
         const sp = Math.hypot(N.vx, N.vy);
         if (sp > 40) { N.vx *= 40 / sp; N.vy *= 40 / sp; }
         N.x += N.vx; N.y += N.vy;
-        const pad = 72;
+        const pad = 72 * Math.max(density, 0.6);
         if (N.x < pad) { N.x = pad; N.vx *= -0.5; }
-        if (N.x > STAGE_W - pad) { N.x = STAGE_W - pad; N.vx *= -0.5; }
+        if (N.x > stageW - pad) { N.x = stageW - pad; N.vx *= -0.5; }
         if (N.y < pad) { N.y = pad; N.vy *= -0.5; }
-        if (N.y > STAGE_H - pad) { N.y = STAGE_H - pad; N.vy *= -0.5; }
+        if (N.y > stageH - pad) { N.y = stageH - pad; N.vy *= -0.5; }
       }
     }
 
@@ -433,14 +433,22 @@ function QuickActions({ state, onSelect }: { state: MCState; onSelect: MCSelect 
    PulseNode — agent node with queue badge on root
    ============================================================ */
 
-function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueDepth }: {
+function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueDepth, density = 1 }: {
   a: MCState["agents"][string]; n: PNode; sz: number; isRoot: boolean; dragging: boolean; selected: boolean;
   onPointerDown: (name: string, e: React.PointerEvent) => void;
-  queueDepth?: number;
+  queueDepth?: number; density?: number;
 }) {
   const live = a.status === "running";
   const isErr = a.status === "error";
   const ring = selected ? "0 0 0 2px var(--accent)" : isErr ? "0 0 0 2px #e5484d" : "0 0 0 1px var(--line)";
+
+  // Density-scaled dimensions
+  const boxW = Math.round(116 * Math.max(density, 0.72));
+  const labelMaxW = Math.round(120 * Math.max(density, 0.72));
+  const nameFS = (isRoot ? 13 : 11.5) * Math.max(density, 0.8);
+  const toolFS = 9 * Math.max(density, 0.8);
+  const focusFS = 8 * Math.max(density, 0.8);
+  const roleFS = 8.5 * Math.max(density, 0.8);
 
   // Queue badge color for root node
   const badgeColor = queueDepth === undefined ? undefined
@@ -455,7 +463,7 @@ function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueD
         position: "absolute", left: n.x, top: n.y, transform: "translate(-50%,-50%)",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 5,
         cursor: dragging ? "grabbing" : "grab", zIndex: dragging ? 9 : selected ? 6 : live ? 5 : 3,
-        width: 116, touchAction: "none", userSelect: "none",
+        width: boxW, touchAction: "none", userSelect: "none",
         transition: dragging ? "none" : "filter .2s", filter: dragging ? "drop-shadow(0 8px 18px rgba(0,0,0,0.22))" : "none",
       }}
     >
@@ -487,22 +495,22 @@ function PulseNode({ a, n, sz, isRoot, dragging, selected, onPointerDown, queueD
           <StatusDot status={a.status} size={9} />
         </span>
       </div>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.15, maxWidth: 120, pointerEvents: "none" }}>
-        <span className={isRoot ? "fw-display" : undefined} style={{ fontSize: isRoot ? 13 : 11.5, fontWeight: 600, color: "var(--ink)" }}>{a.name}</span>
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1.15, maxWidth: labelMaxW, pointerEvents: "none" }}>
+        <span className={isRoot ? "fw-display" : undefined} style={{ fontSize: nameFS, fontWeight: 600, color: "var(--ink)" }}>{a.name}</span>
         {live && a.tool ? (
           <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 1 }}>
-            <span className="fw-mono" style={{ fontSize: 9, color: "var(--pulse)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120 }}>{a.tool}()</span>
+            <span className="fw-mono" style={{ fontSize: toolFS, color: "var(--pulse)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis", maxWidth: labelMaxW }}>{a.tool}()</span>
             {a.focus && (
               <span className="fw-mono" style={{
-                fontSize: 8, color: "var(--accent)", whiteSpace: "nowrap",
-                overflow: "hidden", textOverflow: "ellipsis", maxWidth: 120,
+                fontSize: focusFS, color: "var(--accent)", whiteSpace: "nowrap",
+                overflow: "hidden", textOverflow: "ellipsis", maxWidth: labelMaxW,
                 padding: "1px 5px", borderRadius: 4,
                 background: "var(--accent-soft)", border: "1px solid var(--line-soft)",
               }}>{a.focus}</span>
             )}
           </div>
         ) : (
-          <span className="fw-mono fw-uc" style={{ fontSize: 8.5, color: isErr ? "#e5484d" : "var(--ink-faint)" }}>{a.role}</span>
+          <span className="fw-mono fw-uc" style={{ fontSize: roleFS, color: isErr ? "#e5484d" : "var(--ink-faint)" }}>{a.role}</span>
         )}
       </div>
     </div>
@@ -584,14 +592,15 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
 
   const { nodes, edges, onNodeDown, dragRef } = usePhysics(layout, collabs, motion, innerRef, handleClick);
 
+  const { stageW: lStageW, stageH: lStageH, density } = layout;
   const measure = React.useCallback(() => {
     const el = wrapRef.current; if (!el) return;
     const r = el.getBoundingClientRect();
     if (r.width && r.height) {
-      const next = Math.min(1, (r.width - 80) / STAGE_W, (r.height - 24) / STAGE_H);
+      const next = Math.min(1, (r.width - 80) / lStageW, (r.height - 24) / lStageH);
       setScale((prev) => (Math.abs(prev - next) > 0.002 ? next : prev));
     }
-  }, []);
+  }, [lStageW, lStageH]);
   React.useLayoutEffect(() => { measure(); });
   React.useEffect(() => {
     measure();
@@ -618,12 +627,12 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
     <div ref={wrapRef} style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center", overflow: "hidden" }}>
       <QueueHUD state={state} />
       <Legend motion={motion} />
-      <div ref={innerRef} style={{ position: "relative", width: STAGE_W, height: STAGE_H, transform: `scale(${scale})`, transformOrigin: "center" }}>
+      <div ref={innerRef} style={{ position: "relative", width: lStageW, height: lStageH, transform: `scale(${scale})`, transformOrigin: "center" }}>
         <div style={{ position: "absolute", inset: 0, opacity: 0.4, pointerEvents: "none",
           backgroundImage: "linear-gradient(var(--line-soft) 1px, transparent 1px), linear-gradient(90deg, var(--line-soft) 1px, transparent 1px)",
           backgroundSize: "40px 40px", maskImage: "linear-gradient(to bottom, #000 5%, transparent 85%)", WebkitMaskImage: "linear-gradient(to bottom, #000 5%, transparent 85%)" }} />
 
-        <svg width={STAGE_W} height={STAGE_H} style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
+        <svg width={lStageW} height={lStageH} style={{ position: "absolute", inset: 0, pointerEvents: "none", overflow: "visible" }}>
           {edges.map((e, i) => {
             const a = P(e.a), b = P(e.b);
             if (!a || !b) return null;
@@ -661,7 +670,7 @@ export function PulseView({ state, layout, onSelect, selected, motion }: {
 
         {Object.values(agents).map((a) => {
           const n = nodes[a.id]; if (!n) return null;
-          return <PulseNode key={a.id} a={a} n={n} sz={nodeSize(n.depth)} isRoot={n.depth === 0} dragging={dragName === a.id} selected={selected === a.id} onPointerDown={onNodeDown} queueDepth={n.depth === 0 ? queueDepth : undefined} />;
+          return <PulseNode key={a.id} a={a} n={n} sz={nodeSize(n.depth, density)} isRoot={n.depth === 0} dragging={dragName === a.id} selected={selected === a.id} onPointerDown={onNodeDown} queueDepth={n.depth === 0 ? queueDepth : undefined} density={density} />;
         })}
 
         {blooms.map((bl) => {

@@ -159,6 +159,9 @@ export interface MCLayout {
   pos: Record<string, { x: number; y: number; depth: number }>;
   kids: Record<string, string[]>;
   rootId: string;
+  stageW: number;
+  stageH: number;
+  density: number; // 1.0 = sparse, <1 = crowded (shrinks nodes/text)
 }
 
 export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout {
@@ -193,12 +196,38 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
   // Top-down tree: root at top center, each level a horizontal row below.
   // Horizontal space allocated proportional to leaf count (like a Reingold-Tilford
   // simplified layout). The physics simulation uses these as home positions.
+  // Stage widens dynamically when many agents share a depth level, and node
+  // density shrinks visual elements so the board stays legible at scale.
   const pos: MCLayout["pos"] = {};
   const TOP_PAD = 50;
   const BOTTOM_PAD = 50;
   const SIDE_PAD = 70;
   const MAX_DEPTH = 4;
-  const ROW_H = (H - TOP_PAD - BOTTOM_PAD) / Math.max(MAX_DEPTH - 1, 1);
+
+  // Count max agents at any single depth to determine density
+  const depthCounts: Record<number, number> = {};
+  for (const a of all) {
+    // find depth by walking up parent chain
+    let d = 0, cur: string | null = a.id;
+    while (cur && cur !== rootId && d < 99) {
+      const parent = all.find((x) => x.id === cur)?.reportsTo;
+      cur = parent && present(parent) ? parent : rootId;
+      d++;
+    }
+    depthCounts[d] = (depthCounts[d] ?? 0) + 1;
+  }
+  const maxAgentsAtDepth = Math.max(1, ...Object.values(depthCounts));
+
+  // Dynamic stage width: widen when many agents need horizontal space
+  const MIN_NODE_SPACING = 90;
+  const neededW = Math.max(W, maxAgentsAtDepth * MIN_NODE_SPACING + SIDE_PAD * 2);
+  const stageW = Math.min(neededW, 3200);
+  const stageH = H;
+
+  // Density: shrink nodes/text when crowded
+  const density = maxAgentsAtDepth <= 20 ? 1 : maxAgentsAtDepth <= 40 ? 0.85 : maxAgentsAtDepth <= 80 ? 0.7 : 0.55;
+
+  const ROW_H = (stageH - TOP_PAD - BOTTOM_PAD) / Math.max(MAX_DEPTH - 1, 1);
 
   const place = (id: string, depth: number, x0: number, x1: number) => {
     const cx = (x0 + x1) / 2;
@@ -218,9 +247,9 @@ export function computeLayout(agents: MCAgent[], W: number, H: number): MCLayout
       x += span * w;
     }
   };
-  place(rootId, 0, SIDE_PAD, W - SIDE_PAD);
+  place(rootId, 0, SIDE_PAD, stageW - SIDE_PAD);
 
-  return { pos, kids, rootId };
+  return { pos, kids, rootId, stageW, stageH, density };
 }
 
 /* ---------- small helpers for reading untyped payloads ---------- */
