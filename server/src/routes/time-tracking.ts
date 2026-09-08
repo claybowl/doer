@@ -58,7 +58,7 @@ export function timeTrackingRoutes(db: Db) {
       const companyId = req.params.companyId as string;
       assertCompanyAccess(req, companyId);
 
-      const entry = await svc.stopTimer(companyId, req.params.entryId, req.body.description);
+      const entry = await svc.stopTimer(companyId, req.params.entryId as string, req.body.description);
 
       const actor = getActorInfo(req);
       await logActivity(db, {
@@ -114,7 +114,7 @@ export function timeTrackingRoutes(db: Db) {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
 
-    const entry = await svc.getById(companyId, req.params.entryId);
+    const entry = await svc.getById(companyId, req.params.entryId as string);
     if (!entry) {
       res.status(404).json({ error: "Time entry not found" });
       return;
@@ -130,7 +130,7 @@ export function timeTrackingRoutes(db: Db) {
       const companyId = req.params.companyId as string;
       assertCompanyAccess(req, companyId);
 
-      const entry = await svc.updateEntry(companyId, req.params.entryId, req.body);
+      const entry = await svc.updateEntry(companyId, req.params.entryId as string, req.body);
       res.json(entry);
     },
   );
@@ -140,7 +140,7 @@ export function timeTrackingRoutes(db: Db) {
     const companyId = req.params.companyId as string;
     assertCompanyAccess(req, companyId);
 
-    const deleted = await svc.deleteEntry(companyId, req.params.entryId);
+    const deleted = await svc.deleteEntry(companyId, req.params.entryId as string);
     if (!deleted) {
       res.status(404).json({ error: "Time entry not found" });
       return;
