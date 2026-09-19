@@ -122,6 +122,24 @@ step("build bundled plugins", () => {
 	}
 });
 
+// 5b. Stage starter teams into <server>/teams so packaged installs can import
+//     them. resolveTeamsRoots() searches <moduleDir>/../../teams first, which in
+//     a packaged app is <app>/Contents/Resources/server/teams — so shipping them
+//     here makes bundled teams (e.g. The Donjon Core) available to every install.
+step("stage starter teams", () => {
+	const teamsSrc = path.join(repoRoot, "teams");
+	if (!existsSync(teamsSrc)) {
+		console.log(`[prebuild] teams/ not found at ${teamsSrc}, skipping`);
+		return;
+	}
+	const teamsDest = path.join(serverOut, "teams");
+	cpSync(teamsSrc, teamsDest, { recursive: true });
+	const teams = readdirSync(teamsSrc, { withFileTypes: true })
+		.filter((e) => e.isDirectory())
+		.map((e) => e.name);
+	console.log(`[prebuild] staged ${teams.length} team(s) → ${teamsDest}: ${teams.join(", ")}`);
+});
+
 // 6. Apply publishConfig to all workspace @doerai/* packages so they resolve
 //    to compiled dist/*.js instead of source dist/*.ts (the dev convention).
 //    Also follow pnpm's symlink to .pnpm/ to patch the real file.
