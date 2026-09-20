@@ -48,6 +48,12 @@ jobs:
     permissions:
       contents: write
 
+    # Job-level so the BUILD step sees it too — vite.main.config.mts bakes
+    # DOER_UPDATE_URL into the main bundle at build time. Setting it only on the
+    # publish step left the shipped app with an empty URL and a disabled updater.
+    env:
+      DOER_UPDATE_URL: ${{ secrets.DOER_UPDATE_URL }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
