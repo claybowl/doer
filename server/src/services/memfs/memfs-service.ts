@@ -87,14 +87,33 @@ function normalizeRootPath(input: string | undefined): string {
   return raw;
 }
 
+/**
+ * Letta agent IDs are `agent-<uuid>` (cloud) or `agent-local-<uuid>` (local
+ * backend). Adapter configs have historically carried junk here — most often a
+ * stringified SDK response object (e.g. `AgentImportFileResponse(agent_ids=[...])`)
+ * that slipped in where an ID was expected. Those values used to flow straight
+ * into binding path prefixes, creating directories like
+ * `agents/AgentImportFileResponse(...)/memory`. Validate the shape so a bad
+ * value can never become a memory path segment.
+ */
+const LETTA_AGENT_ID_PATTERN =
+  /^agent(-local)?-[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function isLettaAgentId(value: string): boolean {
+  return LETTA_AGENT_ID_PATTERN.test(value.trim());
+}
+
 export function extractLettaAgentId(agent: Pick<AgentRow, "adapterType" | "adapterConfig">): string | null {
   const config = asRecord(agent.adapterConfig);
   const directAgentId = asNonEmptyString(config?.lettaAgentId) ?? asNonEmptyString(config?.agentId);
-  if (agent.adapterType === "letta_cloud" && directAgentId) return directAgentId;
+  if (agent.adapterType === "letta_cloud" && directAgentId && isLettaAgentId(directAgentId)) {
+    return directAgentId;
+  }
 
   const env = asRecord(config?.env);
   const envAgentId = asNonEmptyString(env?.LETTA_AGENT_ID);
-  return directAgentId ?? envAgentId;
+  const candidate = directAgentId ?? envAgentId;
+  return candidate && isLettaAgentId(candidate) ? candidate : null;
 }
 
 function toMemfsRoot(row: MemfsRootRow): MemfsRootDTO {

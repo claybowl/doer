@@ -4,7 +4,7 @@ import type { Db } from "@doerai/db";
 import type { MemfsRootKind, ResolvedMemfsBinding } from "@doerai/shared";
 import { logger } from "../../middleware/logger.js";
 import { commitMemoryChanges } from "./git-history.js";
-import { memfsService } from "./memfs-service.js";
+import { isLettaAgentId, memfsService } from "./memfs-service.js";
 import { resolveMemfsStrategies } from "./strategies/index.js";
 import type { MemfsMountResult } from "./strategies/types.js";
 
@@ -102,8 +102,11 @@ export async function applyMemfsBindingsToWorkspace(
 
   // Back-compat: if no explicit bindings and LETTA_AGENT_ID is set, synthesize
   // a default fs-mount binding that targets the user's local Letta memory dir.
-  const fallbackLettaAgentId =
+  // The value is validated as a real Letta agent id so a malformed value (e.g. a
+  // stringified SDK response) can never become a memory path segment.
+  const rawFallbackLettaAgentId =
     (adapterEnv["LETTA_AGENT_ID"] ?? "").trim() || (lettaAgentId ?? "").trim();
+  const fallbackLettaAgentId = isLettaAgentId(rawFallbackLettaAgentId) ? rawFallbackLettaAgentId : "";
   if (bindings.length === 0 && fallbackLettaAgentId) {
     const synthetic = synthesizeLegacyLettaBinding(fallbackLettaAgentId);
     if (synthetic) {
