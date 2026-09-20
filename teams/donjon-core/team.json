@@ -2,7 +2,7 @@
   "id": "donjon-core",
   "name": "The Donjon Core",
   "description": "Orchestrator, task master, dispatcher — add a goal for the orchestrator and the chain does the rest.",
-  "defaultAdapterType": "letta_af_opencode",
+  "defaultAdapterType": "letta_code",
   "agents": [
     {
       "slug": "dondog",
@@ -10,7 +10,8 @@
       "af": "dondog.af",
       "role": "ceo",
       "title": "Lead Orchestrator",
-      "reportsTo": null
+      "reportsTo": null,
+      "adapterConfig": { "backend": "local", "model": "openai/gpt-5.6-luna" }
     },
     {
       "slug": "chef",
@@ -18,7 +19,8 @@
       "af": "chef.af",
       "role": "executor",
       "title": "Task Master",
-      "reportsTo": "dondog"
+      "reportsTo": "dondog",
+      "adapterConfig": { "backend": "local", "model": "openai/gpt-5.6-luna" }
     },
     {
       "slug": "alfie",
@@ -26,7 +28,8 @@
       "af": "alfie.af",
       "role": "executor",
       "title": "Dispatcher",
-      "reportsTo": "chef"
+      "reportsTo": "chef",
+      "adapterConfig": { "backend": "local", "model": "openai/gpt-5.6-luna" }
     }
   ],
   "sharedBlocks": ["council_notes", "kitchen_queue", "dispatch_state", "gremlin_results"],

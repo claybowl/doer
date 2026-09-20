@@ -16,6 +16,7 @@ import { agentService } from "./agents.js";
 import { logActivity } from "./activity-log.js";
 import { commitMemoryChanges } from "./memfs/git-history.js";
 import { memfsService } from "./memfs/memfs-service.js";
+import { parseAfSnapshot, writeCanonicalMemory } from "./memfs/af-memory.js";
 
 /**
  * Starter Team importer — capture-the-magic Phase 2.2.
@@ -29,6 +30,19 @@ import { memfsService } from "./memfs/memfs-service.js";
 
 const DEFAULT_ADAPTER_TYPE = "letta_af_opencode";
 const SHARED_PREFIX = "SHARED";
+
+/**
+ * Adapters whose runtime reads Letta-native MemFS (markdown + frontmatter).
+ *
+ * These need the canonical memory projection — one `.md` file per block with a
+ * `description`-only frontmatter — and their memory directory must be its own
+ * git repo. The runtime stamps per-agent identity (`letta.agentId`, `user.name`,
+ * `user.email`) into the memory repo's git config on every boot, so agents that
+ * share one repo race on `.git/config.lock` and fail to start.
+ *
+ * Everyone else keeps the flattened af-opencode layout.
+ */
+const MEMFS_NATIVE_ADAPTERS = new Set(["letta_code"]);
 
 /** Patterns that look like credentials. Imported memory must never carry keys. */
 const SECRET_PATTERNS: RegExp[] = [
@@ -173,12 +187,16 @@ export function teamImportService(db: Db) {
     const warnings: string[] = [];
     const afPath = path.join(teamDir, entry.af);
 
+    const adapterType =
+      entry.adapterType ?? manifest.defaultAdapterType ?? DEFAULT_ADAPTER_TYPE;
+    const isMemfsNative = MEMFS_NATIVE_ADAPTERS.has(adapterType);
+
     const created = await agents.create(companyId, {
       name: entry.name ?? entry.slug,
       role: entry.role,
       title: entry.title ?? null,
       reportsTo: reportsToId,
-      adapterType: entry.adapterType ?? manifest.defaultAdapterType ?? DEFAULT_ADAPTER_TYPE,
+      adapterType,
       adapterConfig: { afPath, ...(entry.adapterConfig ?? {}) },
       // Conservative by default: a freshly hired team must not burn budget
       // idle. The user enables heartbeats per agent when ready.
@@ -188,39 +206,103 @@ export function teamImportService(db: Db) {
       lastHeartbeatAt: null,
     });
 
-    // Memory home in the org's visible root: ~/Doer/<org>/memory/agents/<slug>
-    const binding = await memfs.ensureDefaultAgentMemoryBinding(companyId, created.id, {
-      agentSlug: entry.slug,
-    });
-    if (!binding) {
-      warnings.push(`No memory binding could be created for '${entry.slug}'.`);
-      return {
-        slug: entry.slug,
+    type MemoryBinding = { rootPath: string; pathPrefix: string };
+    type MemorySnapshot = {
+      name: string;
+      system: string;
+      model?: string;
+      blocks: Array<{ label: string; value: string }>;
+    };
+
+    let binding: MemoryBinding | null = null;
+    let snapshot: MemorySnapshot;
+    let memoryDir: string;
+
+    if (isMemfsNative) {
+      // Letta-native runtimes read canonical MemFS, and their memory directory
+      // must be its own git repo — the runtime stamps per-agent identity
+      // (`letta.agentId`, `user.name`, `user.email`) into that repo's git config
+      // on every boot, so agents sharing one repo race on `.git/config.lock`
+      // and fail to start. Give each agent a dedicated root instead.
+      const visibleRoot = await memfs.ensureDefaultVisibleRoot(companyId);
+      const agentsRootPath = path.join(path.dirname(visibleRoot.rootPath), "agents");
+      const existingRoot = (await memfs.listRoots(companyId)).find(
+        (root) => root.rootPath === agentsRootPath,
+      );
+      const agentsRoot =
+        existingRoot ??
+        (await memfs.createRoot(companyId, { rootPath: agentsRootPath, label: "agents" }));
+
+      binding = await memfs.createBinding(companyId, {
         agentId: created.id,
-        name: created.name,
-        memoryPathPrefix: "",
-        warnings,
-      };
-    }
+        rootId: agentsRoot.id,
+        pathPrefix: path.posix.join(entry.slug, "memory"),
+        strategy: "fs-mount",
+        permission: "read-write",
+        mountAs: "memory",
+        label: "memory",
+      });
 
-    const memoryDir = path.join(binding.rootPath, ...binding.pathPrefix.split("/"));
-    const { snapshot } = await unpackAgentFile(afPath, memoryDir);
+      memoryDir = path.join(binding.rootPath, ...binding.pathPrefix.split("/"));
+      const af = await parseAfSnapshot(afPath);
+      snapshot = { name: af.name, system: af.system, model: af.model, blocks: af.blocks };
 
-    // Never let imported memory carry credentials.
-    for (const block of snapshot.blocks) {
-      const filePath = path.join(memoryDir, blockFilename(block.label));
-      try {
-        const content = await fs.readFile(filePath, "utf8");
-        const scrubbed = scrubSecrets(content);
+      // Never let imported memory carry credentials — scrub before writing.
+      const scrubbedBlocks = af.blocks.map((block) => {
+        const scrubbed = scrubSecrets(block.value);
         if (scrubbed.found) {
-          await fs.writeFile(filePath, scrubbed.content, "utf8");
           warnings.push(
             `Memory block '${block.label}' of '${entry.slug}' contained something that looked like a credential — redacted on import.`,
           );
         }
-      } catch {
-        // unreadable block file — skip scrub
+        return { ...block, value: scrubbed.content };
+      });
+
+      await fs.mkdir(memoryDir, { recursive: true });
+      await writeCanonicalMemory(memoryDir, scrubbedBlocks);
+      await commitMemoryChanges(memoryDir, `hired ${created.name} (team ${manifest.id})`);
+    } else {
+      // Memory home in the org's visible root: ~/Doer/<org>/memory/agents/<slug>
+      binding = await memfs.ensureDefaultAgentMemoryBinding(companyId, created.id, {
+        agentSlug: entry.slug,
+      });
+      if (!binding) {
+        warnings.push(`No memory binding could be created for '${entry.slug}'.`);
+        return {
+          slug: entry.slug,
+          agentId: created.id,
+          name: created.name,
+          memoryPathPrefix: "",
+          warnings,
+        };
       }
+
+      memoryDir = path.join(binding.rootPath, ...binding.pathPrefix.split("/"));
+      const unpacked = await unpackAgentFile(afPath, memoryDir);
+      snapshot = { ...unpacked.snapshot, system: unpacked.snapshot.system ?? "" };
+
+      // Never let imported memory carry credentials.
+      for (const block of snapshot.blocks) {
+        const filePath = path.join(memoryDir, blockFilename(block.label));
+        try {
+          const content = await fs.readFile(filePath, "utf8");
+          const scrubbed = scrubSecrets(content);
+          if (scrubbed.found) {
+            await fs.writeFile(filePath, scrubbed.content, "utf8");
+            warnings.push(
+              `Memory block '${block.label}' of '${entry.slug}' contained something that looked like a credential — redacted on import.`,
+            );
+          }
+        } catch {
+          // unreadable block file — skip scrub
+        }
+      }
+
+      await commitMemoryChanges(
+        binding.rootPath,
+        `hired ${created.name} (team ${manifest.id})`,
+        binding.pathPrefix,
+      );
     }
 
     // Patch adapter config the same way the single-agent hire hook does, but
@@ -238,12 +320,6 @@ export function teamImportService(db: Db) {
         memoryBlockLabels: snapshot.blocks.map((b) => b.label),
       },
     });
-
-    await commitMemoryChanges(
-      binding.rootPath,
-      `hired ${created.name} (team ${manifest.id})`,
-      binding.pathPrefix,
-    );
 
     return {
       slug: entry.slug,
