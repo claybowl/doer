@@ -19,5 +19,7 @@ export { instanceSettingsRoutes } from "./instance-settings.js";
 export { lettaProxyRoutes } from "./letta-proxy.js";
 export { memfsRoutes } from "./memfs.js";
 export { workspaceRoutes } from "./workspaces.js";
+export { memberRoutes } from "./members.js";
 export { agentMemoryRoutes } from "./agent-memory.js";
 export { agentToolRoutes } from "./agent-tools.js";
+export { timeTrackingRoutes } from "./time-tracking.js";

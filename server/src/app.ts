@@ -37,7 +37,9 @@ import { lettaMigrationRoutes } from "./routes/letta-migration.js";
 import { teamRoutes } from "./routes/teams.js";
 import { agentMemoryRoutes } from "./routes/agent-memory.js";
 import { agentToolRoutes } from "./routes/agent-tools.js";
+import { timeTrackingRoutes } from "./routes/time-tracking.js";
 import { workspaceRoutes } from "./routes/workspaces.js";
+import { memberRoutes } from "./routes/members.js";
 import {
   deliverableRoutes,
   shareTokenRoutes,
@@ -167,6 +169,7 @@ export async function createApp(
   api.use(assetRoutes(db, opts.storageService));
   api.use(projectRoutes(db));
   api.use(workspaceRoutes(db));
+  api.use(memberRoutes(db));
   api.use(issueRoutes(db, opts.storageService));
   api.use(routineRoutes(db));
   api.use(executionWorkspaceRoutes(db));
@@ -183,6 +186,7 @@ export async function createApp(
   api.use(memfsRoutes(db));
   api.use(lettaMigrationRoutes(db));
   api.use(agentToolRoutes(db));
+  api.use(timeTrackingRoutes(db));
   api.use(teamRoutes(db));
   api.use(deliverableRoutes(db, opts.storageService));
   api.use(shareTokenRoutes(db));

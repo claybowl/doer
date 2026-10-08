@@ -20,13 +20,13 @@ describe("isOnboardingPath", () => {
 });
 
 describe("resolveRouteOnboardingOptions", () => {
-  it("opens company creation for the global onboarding route", () => {
+  it("opens welcome screen for the global onboarding route", () => {
     expect(
       resolveRouteOnboardingOptions({
         pathname: "/onboarding",
         companies: [],
       }),
-    ).toEqual({ initialStep: 1 });
+    ).toEqual({ initialStep: 0 });
   });
 
   it("opens agent creation when the prefixed company exists", () => {

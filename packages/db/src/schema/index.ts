@@ -67,3 +67,4 @@ export { companyPortalBranding } from "./company_branding.js";
 export { usageRecords } from "./billing_usage_records.js";
 export { processedStripeEvents } from "./processed_stripe_events.js";
 export { councilSessions } from "./council_sessions.js";
+export { timeEntries } from "./time_entries.js";

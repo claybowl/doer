@@ -91,6 +91,8 @@ function buildNav(prefix: string): NavSection[] {
       defaultOpen: false,
       items: [
         { to: `/${prefix}/companies`, label: "Companies", icon: I.org },
+        { to: `/${prefix}/company/settings`, label: "Settings", icon: I.sliders },
+        { to: `/${prefix}/company/members`, label: "Members", icon: I.shield },
         { to: `/${prefix}/company/skills`, label: "Skills", icon: I.brain },
         { to: `/${prefix}/company/webhooks`, label: "Webhooks", icon: I.bolt },
         { to: `/${prefix}/company/export`, label: "Export", icon: I.arrow },

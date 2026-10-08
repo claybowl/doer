@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { useNavigate } from "@/lib/router";
+import { useNavigate, useParams } from "@/lib/router";
+import { useNavigate as useRouterNavigate } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { agentsApi } from "../api/agents";
 import { queryKeys } from "../lib/queryKeys";
@@ -96,13 +97,7 @@ const TEMPLATES: Template[] = [
 
 const TONES = ["Professional", "Casual", "Technical", "Creative", "Direct"];
 
-const STEP_LABELS = [
-  "Purpose",
-  "Personality",
-  "Skills",
-  "Tasks",
-  "Review",
-];
+const STEP_LABELS = ["Name", "Persona / Role", "Capabilities", "First Task"];
 
 // ─── Wizard State ─────────────────────────────────────────────────────────────
 
@@ -110,32 +105,64 @@ type WizardState = {
   templateId: string;
   customDescription: string;
   tone: string;
+  role: string;
   agentName: string;
   customInstructions: string;
   toolToggles: Record<string, boolean>;
+  firstTask: string;
   taskReceipt: "manual" | "auto" | "scheduled";
   defaultPriority: "critical" | "high" | "medium" | "low";
 };
 
 const INITIAL_STATE: WizardState = {
-  templateId: "",
+  templateId: "researcher",
   customDescription: "",
-  tone: "Professional",
-  agentName: "",
+  tone: "Technical",
+  role: "general",
+  agentName: "Research Agent",
   customInstructions: "",
   toolToggles: { web_search: false, code_execution: false },
+  firstTask: "",
   taskReceipt: "manual",
   defaultPriority: "medium",
 };
 
 // ─── Step Components ──────────────────────────────────────────────────────────
 
+function StepName({ state, setState }: { state: WizardState; setState: (s: WizardState) => void }) {
+  return (
+    <div className="space-y-5">
+      <div>
+        <h2 className="text-lg font-semibold">Name your agent</h2>
+        <p className="mt-1 text-sm text-muted-foreground">
+          Give this agent a clear name people will recognize in the workspace.
+        </p>
+      </div>
+      <label className="block">
+        <span className="mb-2 block text-xs text-muted-foreground">Agent name</span>
+        <input
+          autoFocus
+          className="w-full rounded-md border border-border bg-transparent px-3 py-3 text-base outline-none focus:ring-1 focus:ring-ring"
+          placeholder="e.g. Research Agent"
+          value={state.agentName}
+          onChange={(event) => setState({ ...state, agentName: event.target.value })}
+        />
+      </label>
+      <p className="text-xs text-muted-foreground">
+        You can change the name later from the agent settings.
+      </p>
+    </div>
+  );
+}
+
 function StepPurpose({ state, setState }: { state: WizardState; setState: (s: WizardState) => void }) {
   return (
     <div className="space-y-4">
       <div>
-        <h2 className="text-lg font-semibold">What will this agent do?</h2>
-        <p className="text-sm text-muted-foreground mt-1">Pick a template or describe your own.</p>
+        <h2 className="text-lg font-semibold">Choose a persona and role</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Start with a proven persona, then tune how the agent works with your team.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -146,7 +173,8 @@ function StepPurpose({ state, setState }: { state: WizardState; setState: (s: Wi
             onClick={() => {
               const name = state.agentName || (t.id !== "custom" ? t.name : "");
               const tone = t.id !== "custom" ? t.tone : state.tone;
-              setState({ ...state, templateId: t.id, agentName: name, tone });
+              const role = t.id !== "custom" ? t.role : state.role;
+              setState({ ...state, templateId: t.id, agentName: name, tone, role });
             }}
             className={cn(
               "flex items-start gap-3 rounded-lg border p-4 text-left transition-colors",
@@ -179,6 +207,65 @@ function StepPurpose({ state, setState }: { state: WizardState; setState: (s: Wi
           />
         </div>
       )}
+
+      <div>
+        <label className="mb-2 block text-xs text-muted-foreground">Role</label>
+        <div className="flex flex-wrap gap-2">
+          {["general", "manager", "ceo"].map((role) => (
+            <button
+              key={role}
+              type="button"
+              onClick={() => setState({ ...state, role })}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium capitalize transition-colors",
+                state.role === role
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border hover:bg-muted",
+              )}
+            >
+              {role}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-2 block text-xs text-muted-foreground">Communication style</label>
+        <div className="flex flex-wrap gap-2">
+          {TONES.map((tone) => (
+            <button
+              key={tone}
+              type="button"
+              onClick={() => setState({ ...state, tone })}
+              className={cn(
+                "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                state.tone === tone
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border hover:bg-muted",
+              )}
+            >
+              {tone}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs text-muted-foreground">
+          Custom instructions <span className="text-muted-foreground/60">(optional)</span>
+        </label>
+        <textarea
+          className="w-full resize-none rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+          rows={3}
+          maxLength={500}
+          placeholder="Any specific behaviors or constraints for this agent..."
+          value={state.customInstructions}
+          onChange={(event) => setState({ ...state, customInstructions: event.target.value })}
+        />
+        <p className="mt-0.5 text-right text-xs text-muted-foreground/60">
+          {state.customInstructions.length}/500
+        </p>
+      </div>
     </div>
   );
 }
@@ -300,8 +387,25 @@ function StepTasks({ state, setState }: { state: WizardState; setState: (s: Wiza
   return (
     <div className="space-y-5">
       <div>
-        <h2 className="text-lg font-semibold">Task configuration</h2>
-        <p className="text-sm text-muted-foreground mt-1">How should this agent receive and handle work?</p>
+        <h2 className="text-lg font-semibold">Give it a first task</h2>
+        <p className="text-sm text-muted-foreground mt-1">
+          Add an optional starter task, then choose how future work should arrive.
+        </p>
+      </div>
+
+      <div>
+        <label className="mb-1 block text-xs text-muted-foreground">First task (optional)</label>
+        <textarea
+          className="w-full resize-none rounded-md border border-border bg-transparent px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-ring"
+          rows={3}
+          maxLength={1000}
+          placeholder="e.g. Research our top three competitors and summarize their positioning."
+          value={state.firstTask}
+          onChange={(event) => setState({ ...state, firstTask: event.target.value })}
+        />
+        <p className="mt-0.5 text-right text-xs text-muted-foreground/60">
+          {state.firstTask.length}/1000
+        </p>
       </div>
 
       <div>
@@ -431,9 +535,14 @@ function buildAgentPayload(state: WizardState): Record<string, unknown> {
     .filter(Boolean)
     .join("\n\n");
 
+  const enabledCapabilities = Object.entries(state.toolToggles)
+    .filter(([, enabled]) => enabled)
+    .map(([key]) => key.replaceAll("_", " "));
+
   return {
-    name: state.agentName || template?.name || "New Agent",
-    role: template?.role ?? "general",
+    name: state.agentName.trim() || template?.name || "New Agent",
+    role: state.role || template?.role || "general",
+    capabilities: enabledCapabilities.length > 0 ? enabledCapabilities.join(", ") : null,
     adapterType: "claude_local",
     adapterConfig: {
       cwd: "",
@@ -445,23 +554,54 @@ function buildAgentPayload(state: WizardState): Record<string, unknown> {
       intervalSec: 300,
       search: state.toolToggles["web_search"] ?? false,
     },
+    metadata: {
+      wizard: {
+        templateId: state.templateId,
+        tone: state.tone,
+        taskReceipt: state.taskReceipt,
+        defaultPriority: state.defaultPriority,
+        firstTask: state.firstTask.trim() || null,
+      },
+    },
   };
+}
+
+const STEP_COUNT = STEP_LABELS.length;
+
+function parseWizardStep(value: string | undefined): number | null {
+  const match = value?.match(/^step-(\\d+)$/);
+  if (!match) return null;
+  const step = Number(match[1]) - 1;
+  return Number.isInteger(step) && step >= 0 && step < STEP_COUNT ? step : null;
 }
 
 export function AgentWizard() {
   const { selectedCompanyId } = useCompany();
   const navigate = useNavigate();
+  const navigateUnscoped = useRouterNavigate();
+  const { step: stepParam } = useParams<{ step?: string }>();
   const queryClient = useQueryClient();
+  const parsedStep = parseWizardStep(stepParam);
+  const step = parsedStep ?? 0;
 
-  const [step, setStep] = useState(0);
   const [state, setState] = useState<WizardState>(INITIAL_STATE);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (parsedStep === null) {
+      navigateUnscoped("/onboarding/wizard/step-1", { replace: true });
+    }
+  }, [navigateUnscoped, parsedStep]);
+
   const createMutation = useMutation({
-    mutationFn: () =>
-      agentsApi.create(selectedCompanyId!, buildAgentPayload(state)),
+    mutationFn: () => {
+      if (!selectedCompanyId) throw new Error("Select a company before creating an agent.");
+      return agentsApi.create(selectedCompanyId, buildAgentPayload(state));
+    },
     onSuccess: (agent) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(selectedCompanyId!) });
+      if (selectedCompanyId) {
+        queryClient.invalidateQueries({ queryKey: queryKeys.agents.list(selectedCompanyId) });
+      }
       navigate(agentUrl(agent as { id: string; urlKey?: string | null }));
     },
     onError: (err) => {
@@ -470,99 +610,96 @@ export function AgentWizard() {
   });
 
   const canAdvance = () => {
-    if (step === 0) return Boolean(state.templateId);
-    if (step === 1) return state.agentName.trim().length > 0;
-    return true;
+    if (step === 0) return state.agentName.trim().length > 0;
+    if (step === 1) return Boolean(state.templateId);
+    return Boolean(selectedCompanyId);
   };
 
-  function advance() {
-    if (step < 4) setStep(step + 1);
-    else {
-      setError(null);
-      createMutation.mutate();
-    }
+  function goToStep(nextStep: number) {
+    navigateUnscoped(`/onboarding/wizard/step-${nextStep + 1}`);
+    setError(null);
   }
 
-  const STEPS = [
-    <StepPurpose key="purpose" state={state} setState={setState} />,
-    <StepPersonality key="personality" state={state} setState={setState} />,
-    <StepSkills key="skills" state={state} setState={setState} />,
-    <StepTasks key="tasks" state={state} setState={setState} />,
-    <StepReview key="review" state={state} onEdit={setStep} />,
+  function advance() {
+    if (!canAdvance()) return;
+    if (step < STEP_COUNT - 1) {
+      goToStep(step + 1);
+      return;
+    }
+    setError(null);
+    createMutation.mutate();
+  }
+
+  const steps = [
+    <StepName key="name" state={state} setState={setState} />,
+    <StepPurpose key="persona" state={state} setState={setState} />,
+    <StepSkills key="capabilities" state={state} setState={setState} />,
+    <StepTasks key="first-task" state={state} setState={setState} />,
   ];
 
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      {/* Header */}
-      <div className="border-b border-border px-6 py-4 flex items-center gap-3">
+    <div className="flex min-h-screen flex-col bg-background">
+      <div className="flex items-center gap-3 border-b border-border px-4 py-4 sm:px-6">
         <Bot className="h-5 w-5 text-muted-foreground" />
-        <span className="text-sm font-medium">New Agent</span>
+        <span className="text-sm font-medium">Create an agent</span>
       </div>
 
-      {/* Progress */}
-      <div className="border-b border-border px-6 py-3">
-        <div className="flex items-center gap-1 max-w-2xl mx-auto">
-          {STEP_LABELS.map((label, i) => (
-            <div key={label} className="flex items-center gap-1 flex-1">
-              <div className="flex items-center gap-1.5">
-                <div
+      <div className="border-b border-border px-4 py-3 sm:px-6">
+        <div className="mx-auto flex max-w-2xl items-center gap-1">
+          {STEP_LABELS.map((label, index) => (
+            <div key={label} className="flex min-w-0 flex-1 items-center gap-1">
+              <button
+                type="button"
+                className="flex min-w-0 items-center gap-1.5"
+                onClick={() => index < step && goToStep(index)}
+                disabled={index >= step || createMutation.isPending}
+              >
+                <span
                   className={cn(
-                    "h-5 w-5 rounded-full flex items-center justify-center text-xs font-medium shrink-0",
-                    i < step
+                    "flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-xs font-medium",
+                    index < step
                       ? "bg-primary text-primary-foreground"
-                      : i === step
+                      : index === step
                         ? "border-2 border-primary text-primary"
                         : "border border-muted-foreground/30 text-muted-foreground/50",
                   )}
                 >
-                  {i < step ? <Check className="h-3 w-3" /> : i + 1}
-                </div>
+                  {index < step ? <Check className="h-3 w-3" /> : index + 1}
+                </span>
                 <span
                   className={cn(
-                    "text-xs hidden sm:block",
-                    i === step ? "text-foreground font-medium" : "text-muted-foreground",
+                    "hidden truncate text-xs sm:block",
+                    index === step ? "font-medium text-foreground" : "text-muted-foreground",
                   )}
                 >
                   {label}
                 </span>
-              </div>
-              {i < STEP_LABELS.length - 1 && (
-                <div className={cn("h-px flex-1 mx-1", i < step ? "bg-primary" : "bg-border")} />
+              </button>
+              {index < STEP_LABELS.length - 1 && (
+                <div className={cn("mx-1 h-px flex-1", index < step ? "bg-primary" : "bg-border")} />
               )}
             </div>
           ))}
         </div>
       </div>
 
-      {/* Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-2xl mx-auto px-6 py-8">
-          {STEPS[step]}
-          {error && <p className="text-xs text-destructive mt-4">{error}</p>}
-        </div>
+        <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">{steps[step]}</div>
+        {error && <p className="mx-auto max-w-2xl px-4 pb-4 text-sm text-destructive sm:px-6">{error}</p>}
       </div>
 
-      {/* Footer */}
-      <div className="border-t border-border px-6 py-4 flex items-center justify-between max-w-2xl mx-auto w-full">
+      <div className="mx-auto flex w-full max-w-2xl items-center justify-between border-t border-border px-4 py-4 sm:px-6">
         <Button
           variant="outline"
-          onClick={() => (step === 0 ? navigate(-1) : setStep(step - 1))}
+          onClick={() => (step === 0 ? navigate(-1) : goToStep(step - 1))}
           disabled={createMutation.isPending}
         >
-          <ChevronLeft className="h-4 w-4 mr-1" />
+          <ChevronLeft className="mr-1 h-4 w-4" />
           {step === 0 ? "Cancel" : "Back"}
         </Button>
-        <Button
-          onClick={advance}
-          disabled={!canAdvance() || createMutation.isPending}
-          className={!canAdvance() ? "opacity-50" : ""}
-        >
-          {createMutation.isPending
-            ? "Creating…"
-            : step === 4
-              ? "Create Agent"
-              : "Next"}
-          {step < 4 && <ChevronRight className="h-4 w-4 ml-1" />}
+        <Button onClick={advance} disabled={!canAdvance() || createMutation.isPending}>
+          {createMutation.isPending ? "Creating…" : step === STEP_COUNT - 1 ? "Create Agent" : "Continue"}
+          {step < STEP_COUNT - 1 && <ChevronRight className="ml-1 h-4 w-4" />}
         </Button>
       </div>
     </div>

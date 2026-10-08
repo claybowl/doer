@@ -2456,6 +2456,11 @@ export function heartbeatService(db: Db) {
         if (stream === "stderr") stderrExcerpt = appendExcerpt(stderrExcerpt, sanitizedChunk);
         const ts = new Date().toISOString();
 
+        await db
+          .update(heartbeatRuns)
+          .set({ updatedAt: new Date() })
+          .where(and(eq(heartbeatRuns.id, run.id), eq(heartbeatRuns.status, "running")));
+
         if (handle) {
           await runLogStore.append(handle, {
             stream,

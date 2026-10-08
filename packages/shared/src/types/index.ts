@@ -249,3 +249,13 @@ export type {
   ResolvedPortalBranding,
   UpdateCompanyPortalBrandingPayload,
 } from "./branding.js";
+export type {
+  TimeEntry,
+  TimeEntryInput,
+  TimeEntryUpdate,
+  TimeSummary,
+  AgentTimeSummary,
+  ProjectTimeSummary,
+  TimesheetEntry,
+  Timesheet,
+} from "./time-tracking.js";

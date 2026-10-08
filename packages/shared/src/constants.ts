@@ -347,14 +347,79 @@ export const JOIN_REQUEST_STATUSES = ["pending_approval", "approved", "rejected"
 export type JoinRequestStatus = (typeof JOIN_REQUEST_STATUSES)[number];
 
 export const PERMISSION_KEYS = [
+  // Agent permissions
   "agents:create",
-  "users:invite",
-  "users:manage_permissions",
+  "agents:update",
+  "agents:delete",
+  "agents:view",
+  // Task/Issue permissions
+  "tasks:create",
+  "tasks:update",
+  "tasks:delete",
+  "tasks:comment",
   "tasks:assign",
   "tasks:assign_scope",
+  // Project permissions
+  "projects:create",
+  "projects:update",
+  "projects:delete",
+  "projects:view",
+  // User/Member permissions
+  "users:invite",
+  "users:manage_permissions",
+  "users:remove",
+  "users:change_role",
+  // Join request permissions
   "joins:approve",
+  // Workspace permissions
+  "workspace:update",
+  "workspace:delete",
+  "workspace:transfer_ownership",
+  "workspace:view_members",
+  // Billing permissions
+  "billing:manage",
+  // Deliverable permissions
+  "deliverables:create",
+  "deliverables:update",
+  "deliverables:delete",
+  // Goal permissions
+  "goals:create",
+  "goals:update",
+  "goals:delete",
+  // Secret permissions
+  "secrets:create",
+  "secrets:update",
+  "secrets:delete",
+  // Routine permissions
+  "routines:create",
+  "routines:update",
+  "routines:delete",
 ] as const;
 export type PermissionKey = (typeof PERMISSION_KEYS)[number];
+
+// ─── Workspace Roles ────────────────────────────────────────────
+
+export const WORKSPACE_ROLES = [
+  "owner",
+  "admin",
+  "member",
+  "viewer",
+] as const;
+export type WorkspaceRole = (typeof WORKSPACE_ROLES)[number];
+
+export const ROLE_RANK: Record<WorkspaceRole, number> = {
+  owner: 4,
+  admin: 3,
+  member: 2,
+  viewer: 1,
+};
+
+export const ROLE_LABELS: Record<WorkspaceRole, string> = {
+  owner: "Owner",
+  admin: "Admin",
+  member: "Member",
+  viewer: "Viewer",
+};
 
 // ---------------------------------------------------------------------------
 // Plugin System — see doc/plugins/PLUGIN_SPEC.md for the full specification
@@ -816,3 +881,14 @@ export const PORTAL_BRANDING_DEFAULTS = {
   fontFamily:
     "'Inter Tight', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif",
 } as const;
+
+// ─── Time Tracking ───────────────────────────────────────────────────────────
+
+export const TIME_ENTRY_SOURCES = ["agent", "human"] as const;
+export type TimeEntrySource = (typeof TIME_ENTRY_SOURCES)[number];
+
+export const TIME_ENTRY_STATUSES = ["running", "completed", "cancelled"] as const;
+export type TimeEntryStatus = (typeof TIME_ENTRY_STATUSES)[number];
+
+export const TIME_BILLING_TYPES = ["billable", "non_billable"] as const;
+export type TimeBillingType = (typeof TIME_BILLING_TYPES)[number];

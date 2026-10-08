@@ -6,6 +6,8 @@ import { readConfig } from "../../config/store.js";
 import { readContext, resolveProfile, type ClientContextProfile } from "../../client/context.js";
 import { ApiRequestError, PaperclipApiClient } from "../../client/http.js";
 
+export type OutputFormat = "json" | "table" | "text";
+
 export interface BaseClientOptions {
   config?: string;
   dataDir?: string;
@@ -15,6 +17,7 @@ export interface BaseClientOptions {
   apiKey?: string;
   companyId?: string;
   json?: boolean;
+  format?: string;
 }
 
 export interface ResolvedClientContext {
@@ -23,6 +26,7 @@ export interface ResolvedClientContext {
   profileName: string;
   profile: ClientContextProfile;
   json: boolean;
+  format: OutputFormat;
 }
 
 export function addCommonClientOptions(command: Command, opts?: { includeCompany?: boolean }): Command {
@@ -33,7 +37,8 @@ export function addCommonClientOptions(command: Command, opts?: { includeCompany
     .option("--profile <name>", "CLI context profile name")
     .option("--api-base <url>", "Base URL for the Doer API")
     .option("--api-key <token>", "Bearer token for agent-authenticated calls")
-    .option("--json", "Output raw JSON");
+    .option("--json", "Output raw JSON (shorthand for --format json)")
+    .option("-f, --format <format>", "Output format: json, table, or text", "text");
 
   if (opts?.includeCompany) {
     command.option("-C, --company-id <id>", "Company ID (overrides context default)");
@@ -94,12 +99,17 @@ export function resolveCommandContext(
           return login.token;
         },
   });
+  const format: OutputFormat = options.json
+    ? "json"
+    : (options.format as OutputFormat) || "text";
+
   return {
     api,
     companyId,
     profileName,
     profile,
-    json: Boolean(options.json),
+    json: format === "json",
+    format,
   };
 }
 
@@ -113,8 +123,13 @@ function canAttemptInteractiveBoardAuth(): boolean {
   return Boolean(process.stdin.isTTY && process.stdout.isTTY);
 }
 
-export function printOutput(data: unknown, opts: { json?: boolean; label?: string } = {}): void {
-  if (opts.json) {
+export function printOutput(
+  data: unknown,
+  opts: { json?: boolean; format?: OutputFormat; label?: string } = {},
+): void {
+  const fmt: OutputFormat = opts.json ? "json" : (opts.format ?? "text");
+
+  if (fmt === "json") {
     console.log(JSON.stringify(data, null, 2));
     return;
   }
@@ -128,6 +143,10 @@ export function printOutput(data: unknown, opts: { json?: boolean; label?: strin
       console.log(pc.dim("(empty)"));
       return;
     }
+    if (fmt === "table") {
+      printTable(data);
+      return;
+    }
     for (const item of data) {
       if (typeof item === "object" && item !== null) {
         console.log(formatInlineRecord(item as Record<string, unknown>));
@@ -139,6 +158,10 @@ export function printOutput(data: unknown, opts: { json?: boolean; label?: strin
   }
 
   if (typeof data === "object" && data !== null) {
+    if (fmt === "table") {
+      printTable([data]);
+      return;
+    }
     console.log(JSON.stringify(data, null, 2));
     return;
   }
@@ -149,6 +172,81 @@ export function printOutput(data: unknown, opts: { json?: boolean; label?: strin
   }
 
   console.log(String(data));
+}
+
+/**
+ * Print an array of records as a formatted table with column headers.
+ */
+function printTable(rows: unknown[]): void {
+  if (rows.length === 0) {
+    console.log(pc.dim("(empty)"));
+    return;
+  }
+
+  // Collect all keys across all rows, preserving insertion order
+  const keySet = new Set<string>();
+  for (const row of rows) {
+    if (typeof row === "object" && row !== null) {
+      for (const key of Object.keys(row as Record<string, unknown>)) {
+        keySet.add(key);
+      }
+    }
+  }
+
+  const keys = [...keySet];
+  if (keys.length === 0) {
+    for (const row of rows) console.log(String(row));
+    return;
+  }
+
+  // Build column widths
+  const widths: Record<string, number> = {};
+  for (const key of keys) {
+    widths[key] = key.length;
+  }
+  const cellTexts: string[][] = [];
+  for (const row of rows) {
+    const cells: string[] = [];
+    const record = (typeof row === "object" && row !== null ? row : {}) as Record<string, unknown>;
+    for (const key of keys) {
+      const text = renderTableCell(record[key]);
+      cells.push(text);
+      if (text.length > widths[key]) widths[key] = text.length;
+    }
+    cellTexts.push(cells);
+  }
+
+  // Cap column widths to keep the table readable
+  const MAX_COL_WIDTH = 40;
+  for (const key of keys) {
+    if (widths[key] > MAX_COL_WIDTH) widths[key] = MAX_COL_WIDTH;
+  }
+
+  // Print header
+  const headerCells = keys.map((key) => pc.bold(padOrTruncate(key, widths[key])));
+  console.log(headerCells.join("  "));
+  console.log(keys.map((key) => pc.dim("-".repeat(widths[key]))).join("  "));
+
+  // Print rows
+  for (const cells of cellTexts) {
+    const rowCells = cells.map((cell, i) => padOrTruncate(cell, widths[keys[i]]));
+    console.log(rowCells.join("  "));
+  }
+}
+
+function renderTableCell(value: unknown): string {
+  if (value === null || value === undefined) return "-";
+  if (typeof value === "string") {
+    const compact = value.replace(/\s+/g, " ").trim();
+    return compact.length > 40 ? `${compact.slice(0, 37)}...` : compact;
+  }
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  return "[object]";
+}
+
+function padOrTruncate(text: string, width: number): string {
+  if (text.length > width) return text.slice(0, width - 3) + "...";
+  return text + " ".repeat(width - text.length);
 }
 
 export function formatInlineRecord(record: Record<string, unknown>): string {

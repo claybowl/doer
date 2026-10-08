@@ -50,6 +50,9 @@ export {
   JOIN_REQUEST_TYPES,
   JOIN_REQUEST_STATUSES,
   PERMISSION_KEYS,
+  WORKSPACE_ROLES,
+  ROLE_RANK,
+  ROLE_LABELS,
   PLUGIN_API_VERSION,
   PLUGIN_STATUSES,
   PLUGIN_CATEGORIES,
@@ -116,6 +119,7 @@ export {
   type JoinRequestType,
   type JoinRequestStatus,
   type PermissionKey,
+  type WorkspaceRole,
   type PluginStatus,
   type PluginCategory,
   type PluginCapability,
@@ -695,3 +699,23 @@ export type {
   CouncilSession,
   CouncilSessionContext,
 } from "./council.js";
+
+// RBAC Role Templates
+export {
+  ROLE_TEMPLATES,
+  getRoleTemplate,
+  listRoleTemplates,
+  isValidRole,
+  applyRoleTemplate,
+  mergeRoles,
+  type RoleTemplate,
+  type PermissionGrantInput,
+} from "./role-templates.js";
+
+// RBAC Permission Matrix
+export {
+  ROLE_PERMISSIONS,
+  getPermissionsForRole,
+  roleHasPermission,
+  getAssignableRoles,
+} from "./permissions.js";

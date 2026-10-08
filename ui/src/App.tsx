@@ -93,11 +93,13 @@ import { FernwehWebhooks } from "./fernweh/FernwehWebhooks";
 import { FernwehExecutionWorkspaceDetail } from "./fernweh/FernwehExecutionWorkspaceDetail";
 import { FernwehRunDetail } from "./fernweh/FernwehRunDetail";
 import { FernwehCompanyBranding } from "./fernweh/FernwehCompanyBranding";
+import { FernwehCompanyMembers } from "./fernweh/FernwehCompanyMembers";
 import { PortalPage } from "./portal/PortalPage";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { ApiHealthBanner } from "./components/ApiHealthBanner";
 import { queryKeys } from "./lib/queryKeys";
 import { useCompany } from "./context/CompanyContext";
+import { Navigate as RouterNavigate } from "react-router-dom";
 import { useDialog } from "./context/DialogContext";
 import { loadLastInboxTab } from "./lib/inbox";
 import { shouldRedirectCompanylessRouteToOnboarding } from "./lib/onboarding-route";
@@ -381,6 +383,8 @@ export function App() {
 
         <Route element={<CloudAccessGate />}>
           <Route index element={<CompanyRootRedirect />} />
+          <Route path="onboarding/wizard" element={<RouterNavigate to="/onboarding/wizard/step-1" replace />} />
+          <Route path="onboarding/wizard/:step" element={<AgentWizard />} />
           <Route path="onboarding" element={<OnboardingRoutePage />} />
           <Route path="instance" element={<Navigate to="/instance/settings/general" replace />} />
           <Route path="instance/settings" element={<Layout />}>
@@ -421,6 +425,7 @@ export function App() {
             <Route path="org" element={<FernwehOrgChart />} />
             <Route path="agents" element={<FernwehAgents />} />
             <Route path="agents/new" element={<FernwehNewAgent />} />
+            <Route path="agents/wizard" element={<AgentWizard />} />
             <Route path="agents/hire-team" element={<HireTeam />} />
             <Route path="agents/:agentId" element={<FernwehAgentDetail />} />
             <Route path="agents/:agentId/:tab" element={<FernwehAgentDetail />} />
@@ -450,6 +455,7 @@ export function App() {
             <Route path="company/skills" element={<FernwehCompanySkills />} />
             <Route path="company/skills/:skillId" element={<FernwehCompanySkills />} />
             <Route path="company/webhooks" element={<FernwehWebhooks />} />
+            <Route path="company/members" element={<FernwehCompanyMembers />} />
             <Route path="company/export/*" element={<FernwehCompanyExport />} />
             <Route path="company/import" element={<FernwehCompanyImport />} />
             <Route path="preferences" element={<FernwehPreferences />} />

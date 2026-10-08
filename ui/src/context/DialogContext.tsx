@@ -21,7 +21,7 @@ interface NewRoutineDefaults {
 }
 
 interface OnboardingOptions {
-  initialStep?: 1 | 2 | 3 | 4;
+  initialStep?: 0 | 1 | 2 | 3 | 4;
   companyId?: string;
 }
 

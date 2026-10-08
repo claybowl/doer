@@ -1,6 +1,50 @@
 import type { AgentAdapterType, JoinRequest } from "@doerai/shared";
 import { api } from "./client";
 
+// ── Member & RBAC types ──────────────────────────────────────
+
+export type MembershipRole = "owner" | "admin" | "member" | "viewer";
+export type PrincipalType = "user" | "agent";
+export type MembershipStatus = "active" | "inactive";
+
+export type PermissionKey =
+  | "agents:create"
+  | "users:invite"
+  | "users:manage_permissions"
+  | "tasks:assign"
+  | "tasks:assign_scope"
+  | "joins:approve";
+
+export type PermissionGrant = {
+  id: string;
+  companyId: string;
+  principalType: PrincipalType;
+  principalId: string;
+  permissionKey: PermissionKey;
+  scope: Record<string, unknown> | null;
+  grantedByUserId: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CompanyMember = {
+  id: string;
+  companyId: string;
+  principalType: PrincipalType;
+  principalId: string;
+  status: MembershipStatus;
+  membershipRole: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type UpdateMemberPermissionsInput = {
+  grants: Array<{
+    permissionKey: PermissionKey;
+    scope?: Record<string, unknown> | null;
+  }>;
+};
+
 type InviteSummary = {
   id: string;
   companyId: string | null;
@@ -156,4 +200,12 @@ export const accessApi = {
 
   cancelCliAuthChallenge: (id: string, token: string) =>
     api.post<{ cancelled: boolean; status: string }>(`/cli-auth/challenges/${id}/cancel`, { token }),
+
+  // ── Members & RBAC ─────────────────────────────────────────
+
+  listMembers: (companyId: string) =>
+    api.get<CompanyMember[]>(`/companies/${companyId}/members`),
+
+  updateMemberPermissions: (companyId: string, memberId: string, input: UpdateMemberPermissionsInput) =>
+    api.patch<CompanyMember>(`/companies/${companyId}/members/${memberId}/permissions`, input),
 };
