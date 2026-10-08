@@ -50,7 +50,7 @@ const ADAPTER_LABEL: Record<AgentAdapterType, string> = {
   letta_cloud: "Letta Cloud",
   letta_code: "letta_code",
   letta_cli: "Letta CLI",
-  letta_af_opencode: "Letta .af (OpenCode)",
+  agent_file: "Letta .af (OpenCode)",
   gemini_local: "Gemini CLI",
 };
 

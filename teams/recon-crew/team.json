@@ -2,7 +2,7 @@
   "id": "recon-crew",
   "name": "The Recon Crew",
   "description": "Coordination and investigation — one sees the whole board, one digs until the truth surfaces.",
-  "defaultAdapterType": "letta_af_opencode",
+  "defaultAdapterType": "agent_file",
   "agents": [
     {
       "slug": "marshal",

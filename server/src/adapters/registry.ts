@@ -94,11 +94,11 @@ import {
   execute as lettaAfExecute,
   testEnvironment as lettaAfTestEnvironment,
   onHireApproved as lettaAfOnHireApproved,
-} from "@doerai/adapter-letta-af-opencode/server";
+} from "@doerai/adapter-agent-file/server";
 import {
   agentConfigurationDoc as lettaAfAgentConfigurationDoc,
   models as lettaAfModels,
-} from "@doerai/adapter-letta-af-opencode";
+} from "@doerai/adapter-agent-file";
 import {
   execute as lettaCodeExecute,
   testEnvironment as lettaCodeTestEnvironment,
@@ -254,7 +254,7 @@ const lettaCloudAdapter: ServerAdapterModule = {
 };
 
 const lettaAfOpenCodeAdapter: ServerAdapterModule = {
-  type: "letta_af_opencode",
+  type: "agent_file",
   execute: lettaAfExecute,
   testEnvironment: lettaAfTestEnvironment,
   onHireApproved: lettaAfOnHireApproved,
@@ -318,7 +318,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
 /** Retained for stored-agent execution only. New Letta agents use letta_code. */
 export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
   "letta_cloud",
-  "letta_af_opencode",
+  "agent_file",
 ]);
 
 export function getAdapterCreationRecommendation(type: string): string | null {

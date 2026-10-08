@@ -9,7 +9,7 @@ import type {
   TeamManifestAgent,
   TeamSummary,
 } from "@doerai/shared";
-import { blockFilename, unpackAgentFile } from "@doerai/adapter-letta-af-opencode/server";
+import { blockFilename, unpackAgentFile } from "@doerai/adapter-agent-file/server";
 import { badRequest, notFound } from "../errors.js";
 import { logger } from "../middleware/logger.js";
 import { agentService } from "./agents.js";
@@ -27,7 +27,7 @@ import { memfsService } from "./memfs/memfs-service.js";
  * never burns budget idle — the user flips them on when ready.
  */
 
-const DEFAULT_ADAPTER_TYPE = "letta_af_opencode";
+const DEFAULT_ADAPTER_TYPE = "agent_file";
 const SHARED_PREFIX = "SHARED";
 
 /** Patterns that look like credentials. Imported memory must never carry keys. */

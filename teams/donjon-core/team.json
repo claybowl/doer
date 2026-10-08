@@ -2,7 +2,7 @@
   "id": "donjon-core",
   "name": "The Donjon Core",
   "description": "Orchestrator, task master, dispatcher — add a goal for the orchestrator and the chain does the rest.",
-  "defaultAdapterType": "letta_af_opencode",
+  "defaultAdapterType": "agent_file",
   "agents": [
     {
       "slug": "dondog",

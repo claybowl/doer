@@ -2,7 +2,7 @@
   "id": "demo-crew",
   "name": "Demo Crew",
   "description": "A ready-to-import three-agent demo chain built from test fixtures — for smoke-testing team import end to end.",
-  "defaultAdapterType": "letta_af_opencode",
+  "defaultAdapterType": "agent_file",
   "agents": [
     {
       "slug": "tony",

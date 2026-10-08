@@ -2,7 +2,7 @@
   "id": "ship-crew",
   "name": "The Ship Crew",
   "description": "Strategy, creation, documentation — a chain that decides, builds, and writes it down. Done is better than perfect.",
-  "defaultAdapterType": "letta_af_opencode",
+  "defaultAdapterType": "agent_file",
   "agents": [
     {
       "slug": "godnode",

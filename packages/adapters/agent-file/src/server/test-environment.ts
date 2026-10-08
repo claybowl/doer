@@ -11,7 +11,7 @@ export async function testEnvironment(
 ): Promise<AdapterEnvironmentTestResult> {
   const config = ctx.config as unknown as LettaAfAdapterConfig;
   const testedAt = new Date().toISOString();
-  const adapterType = "letta_af_opencode";
+  const adapterType = "agent_file";
 
   // ── Check 1: afPath ─────────────────────────────────────────────────────
   const afError = await validateAfPath(config.afPath ?? "");

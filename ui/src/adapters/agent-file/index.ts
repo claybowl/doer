@@ -1,9 +1,9 @@
 import type { UIAdapterModule } from "../types";
-import { parseStdoutLine, buildLettaAfConfig } from "@doerai/adapter-letta-af-opencode/ui";
+import { parseStdoutLine, buildLettaAfConfig } from "@doerai/adapter-agent-file/ui";
 import { LettaAfOpenCodeConfigFields } from "./config-fields";
 
 export const lettaAfOpenCodeUIAdapter: UIAdapterModule = {
-  type: "letta_af_opencode",
+  type: "agent_file",
   label: "Letta .af (local via OpenCode)",
   parseStdoutLine,
   ConfigFields: LettaAfOpenCodeConfigFields,

@@ -5,8 +5,8 @@ export type {
   AfAgentSnapshot,
 } from "./shared/types.js";
 
-export const type = "letta_af_opencode";
-export const label = "Letta .af (local via OpenCode)";
+export const type = "agent_file";
+export const label = "Agent File (.af)";
 export const models: Array<{ id: string; label: string }> = [];
 
 /**

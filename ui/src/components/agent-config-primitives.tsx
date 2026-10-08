@@ -67,7 +67,7 @@ export const adapterLabels: Record<string, string> = {
   letta_cloud: "Letta Cloud",
   letta_code: "Letta Code",
   letta_cli: "Letta CLI",
-  letta_af_opencode: "Letta .af (OpenCode)",
+  agent_file: "Agent File (.af)",
   process: "Process",
   http: "HTTP",
 };

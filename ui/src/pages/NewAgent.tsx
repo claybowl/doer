@@ -37,7 +37,7 @@ const SUPPORTED_ADVANCED_ADAPTER_TYPES = new Set<CreateConfigValues["adapterType
   "cursor",
   "openclaw_gateway",
   "letta_cli",
-  "letta_af_opencode",
+  "agent_file",
 ]);
 
 function createValuesForAdapterType(

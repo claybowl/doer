@@ -104,8 +104,8 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
     description: "Headless Letta Code CLI runtime with its own session and provider flow",
     icon: Bot,
   },
-  letta_af_opencode: {
-    label: "Letta .af (Legacy)",
+  agent_file: {
+    label: "Agent File (.af)",
     description: "Existing agents remain supported; migrate to the unified Letta adapter",
     icon: Bot,
   },

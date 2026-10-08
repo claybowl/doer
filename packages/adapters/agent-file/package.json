@@ -1,7 +1,7 @@
 {
-  "name": "@doerai/adapter-letta-af-opencode",
+  "name": "@doerai/adapter-agent-file",
   "version": "0.1.0",
-  "description": "Letta .af import adapter for Doer — unpack agent files into memfs, run locally via OpenCode",
+  "description": "Agent File (.af) adapter for Doer — unpack agent files into memfs, run locally",
   "license": "MIT",
   "type": "module",
   "exports": {
