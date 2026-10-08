@@ -84,7 +84,19 @@ rm -rf ~/.doer/instances/default/db && pnpm dev
 - **Package manager:** pnpm 9.15.4 (enforced via `packageManager` in root package.json)
 - **Workspace:** `pnpm-workspace.yaml` covers `packages/*`, `packages/adapters/*`, `packages/plugins/*`, `packages/plugins/examples/*`, `server`, `ui`, `cli`
 - **TypeScript:** `NodeNext` module resolution, `ES2023` target, `strict` enabled. `tsconfig.base.json` excludes `* 2.*`, `* 3.*`, `* copy.*` files.
-- **Lockfile policy:** CI owns `pnpm-lock.yaml`. **Do not commit it in PRs.** PR CI blocks manual lockfile edits and validates dependency resolution when manifests change.
+- **Lockfile policy:** Do not **hand-edit** `pnpm-lock.yaml`. Let pnpm regenerate it.
+
+- Dependency **version** bumps: run `pnpm install`, commit the resulting lockfile.
+- If the lockfile changes for any reason, it ships in the **same commit** as the manifest change that caused it.
+
+**Renaming or adding a workspace package is the exception that breaks the rule above.** A rename changes the
+`workspace:*` specifier in every dependent `package.json`, and `Dockerfile` builds with
+`pnpm install --frozen-lockfile` — which *cannot* self-heal. Every Docker and Release job fails with
+`ERR_PNPM_OUTDATED_LOCKFILE`. For a package rename you MUST commit the regenerated lockfile, or run
+`pnpm install --no-frozen-lockfile` and commit the result.
+
+Verified failure mode: renaming `packages/adapters/letta-af-opencode` to `agent-file` without the
+lockfile broke `Docker` and `Release`; adding the 17-line lockfile diff fixed it.
 
 ## 6. Database Change Workflow
 
@@ -186,12 +198,12 @@ A change is done when all are true:
 2. Typecheck, tests, and build pass (or explicitly noted why not)
 3. Contracts are synced across db/shared/server/ui
 4. Docs updated when behavior or commands change
-5. No `pnpm-lock.yaml` committed (CI owns it)
+5. `pnpm-lock.yaml` is never hand-edited, and is committed alongside whatever manifest change caused it (see §5)
 
 ## 15. Commit Style
 
 - Co-author line: `Co-Authored-By: Doer <noreply@doer.donjon.agency>`
-- Do not commit `pnpm-lock.yaml`
+- Do not hand-edit `pnpm-lock.yaml`; commit pnpm's regenerated output
 
 ## 16. Hard-Won Lessons
 

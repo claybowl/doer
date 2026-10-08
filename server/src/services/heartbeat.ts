@@ -777,6 +777,53 @@ function resolveNextSessionState(input: {
   };
 }
 
+/**
+ * Promote a self-provisioned Letta identity from task session state into adapter_config.
+ *
+ * `letta_code` with `backend: "local"` is documented to leave `lettaAgentId` blank on the
+ * first run so the adapter creates its own `agent-local-*` identity. The resolved id comes
+ * back on the adapter result and was only ever persisted to `task_sessions.sessionParamsJson`.
+ *
+ * `extractLettaAgentId()` reads `agents.adapter_config` exclusively, so that id was never
+ * visible: agent-workspaces, memfs binding synthesis, and the agent detail UI all reported
+ * a permanent blank Letta ID even though the agent was running correctly off task_sessions.
+ *
+ * Only writes when the adapter has no identity of its own, so an explicitly configured
+ * agentId/lettaAgentId is never overwritten.
+ */
+async function promoteSelfProvisionedLettaAgentId(
+  db: Db,
+  agent: { id: string; adapterConfig: unknown },
+  sessionParams: Record<string, unknown> | null | undefined,
+  outcome: string,
+): Promise<void> {
+  if (outcome !== "succeeded") return;
+  const resolved = readNonEmptyString(sessionParams?.lettaAgentId);
+  if (!resolved) return;
+
+  const existing = (agent.adapterConfig ?? {}) as Record<string, unknown>;
+  if (readNonEmptyString(existing.lettaAgentId) || readNonEmptyString(existing.agentId)) return;
+  // env.LETTA_AGENT_ID is the documented escape hatch; treat it as already-configured too.
+  const env = existing.env;
+  if (env && typeof env === "object" && !Array.isArray(env)) {
+    if (readNonEmptyString((env as Record<string, unknown>).LETTA_AGENT_ID)) return;
+  }
+
+  const nextConfig = { ...existing, lettaAgentId: resolved };
+  try {
+    await db
+      .update(agents)
+      .set({ adapterConfig: nextConfig, updatedAt: new Date() })
+      .where(eq(agents.id, agent.id));
+  } catch (error) {
+    // Never fail a completed run over a bookkeeping write.
+    logger.warn(
+      { err: error, agentId: agent.id, lettaAgentId: resolved },
+      "failed to promote self-provisioned lettaAgentId into adapter_config",
+    );
+  }
+}
+
 export function heartbeatService(db: Db) {
   const instanceSettings = instanceSettingsService(db);
   const getCurrentUserRedactionOptions = async () => ({
@@ -2948,6 +2995,10 @@ export function heartbeatService(db: Db) {
             });
           }
         }
+
+        // A local-backend letta_code agent provisions its own identity on first run.
+        // Mirror it into adapter_config so the id is visible everywhere else.
+        await promoteSelfProvisionedLettaAgentId(db, agent, nextSessionState.params, outcome);
       }
       await finalizeAgentStatus(agent.id, outcome);
     } catch (err) {
