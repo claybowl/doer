@@ -19,7 +19,7 @@ const ACTION_KEY = "import-af-file";
  *
  * Pure functions (`parseAfFile`, `buildLecoFileMap`) are also exported
  * from `index.ts` for direct use without going through the action — the
- * adapter `letta-af-opencode` can keep using them internally.
+ * adapter `agent-file` can keep using them internally.
  */
 const plugin = definePlugin({
   async setup(ctx) {

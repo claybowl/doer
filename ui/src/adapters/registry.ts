@@ -9,7 +9,7 @@ import { piLocalUIAdapter } from "./pi-local";
 import { openClawGatewayUIAdapter } from "./openclaw-gateway";
 import { lettaCloudUIAdapter } from "./letta-cloud";
 import { lettaCodeUIAdapter } from "./letta-code";
-import { lettaAfOpenCodeUIAdapter } from "./letta-af-opencode";
+import { agentFileUIAdapter } from "./agent-file";
 import { lettaCliUIAdapter } from "./letta-cli";
 import { processUIAdapter } from "./process";
 import { httpUIAdapter } from "./http";
@@ -34,7 +34,6 @@ const activeExternalOverrides = new Set<string>();
 /** Parsers remain registered so existing agents keep working. */
 export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
   "letta_cloud",
-  "agent_file",
 ]);
 
 // Generation counter to discard stale dynamic parser loads. When an override
@@ -68,7 +67,7 @@ function registerBuiltInUIAdapters() {
     openClawGatewayUIAdapter,
     lettaCloudUIAdapter,
     lettaCodeUIAdapter,
-    lettaAfOpenCodeUIAdapter,
+    agentFileUIAdapter,
     lettaCliUIAdapter,
     a2aUIAdapter,
     processUIAdapter,

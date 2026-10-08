@@ -1,7 +1,7 @@
 import os from "node:os";
 import path from "node:path";
 import type { HireApprovedPayload, HireApprovedHookResult } from "@doerai/adapter-utils";
-import type { LettaAfAdapterConfig } from "../shared/types.js";
+import type { AgentFileAdapterConfig } from "../shared/types.js";
 import { unpackAgentFile, validateAfPath } from "./af-import.js";
 
 /**
@@ -23,7 +23,7 @@ export async function onHireApproved(
   payload: HireApprovedPayload,
   adapterConfig: Record<string, unknown>,
 ): Promise<HireApprovedHookResult> {
-  const config = adapterConfig as unknown as LettaAfAdapterConfig;
+  const config = adapterConfig as unknown as AgentFileAdapterConfig;
 
   const validationError = await validateAfPath(config.afPath ?? "");
   if (validationError) {
@@ -40,7 +40,7 @@ export async function onHireApproved(
 
     // eslint-disable-next-line no-console
     console.log(
-      `[letta-af-opencode] Unpacked agent "${snapshot.name}" (${snapshot.blocks.length} blocks) → ${memoryDir}`,
+      `[agent-file] Unpacked agent "${snapshot.name}" (${snapshot.blocks.length} blocks) → ${memoryDir}`,
     );
 
     return {
@@ -58,7 +58,7 @@ export async function onHireApproved(
   } catch (err) {
     const message = err instanceof Error ? err.message : String(err);
     // eslint-disable-next-line no-console
-    console.warn(`[letta-af-opencode] onHireApproved failed for agent ${payload.agentId}: ${message}`);
+    console.warn(`[agent-file] onHireApproved failed for agent ${payload.agentId}: ${message}`);
     return {
       ok: true,
       error: `Could not unpack .af: ${message}. Check the file path and try re-hiring.`,

@@ -10,7 +10,7 @@ import { ChoosePathButton } from "../../components/PathInstructionsModal";
 const inputClass =
   "w-full rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm font-mono placeholder:text-muted-foreground/40";
 
-export function LettaAfOpenCodeConfigFields({
+export function AgentFileConfigFields({
   isCreate,
   values,
   set,

@@ -253,7 +253,7 @@ const lettaCloudAdapter: ServerAdapterModule = {
   memfsCapability: lettaMemfsCapability,
 };
 
-const lettaAfOpenCodeAdapter: ServerAdapterModule = {
+const agentFileAdapter: ServerAdapterModule = {
   type: "agent_file",
   execute: lettaAfExecute,
   testEnvironment: lettaAfTestEnvironment,
@@ -306,7 +306,7 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     openclawGatewayAdapter,
     hermesLocalAdapter,
     lettaCloudAdapter,
-    lettaAfOpenCodeAdapter,
+    agentFileAdapter,
     lettaCodeAdapter,
     lettaCliAdapter,
     a2aAdapter,

@@ -3,13 +3,13 @@ import type {
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
 } from "@doerai/adapter-utils";
-import type { LettaAfAdapterConfig } from "../shared/types.js";
+import type { AgentFileAdapterConfig } from "../shared/types.js";
 import { validateAfPath } from "./af-import.js";
 
 export async function testEnvironment(
   ctx: AdapterEnvironmentTestContext,
 ): Promise<AdapterEnvironmentTestResult> {
-  const config = ctx.config as unknown as LettaAfAdapterConfig;
+  const config = ctx.config as unknown as AgentFileAdapterConfig;
   const testedAt = new Date().toISOString();
   const adapterType = "agent_file";
 

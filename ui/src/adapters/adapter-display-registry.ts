@@ -106,7 +106,7 @@ const adapterDisplayMap: Record<string, AdapterDisplayInfo> = {
   },
   agent_file: {
     label: "Agent File (.af)",
-    description: "Existing agents remain supported; migrate to the unified Letta adapter",
+    description: "Runs from a local .af agent file bundle; identity and memory live on disk",
     icon: Bot,
   },
   openclaw_gateway: {

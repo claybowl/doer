@@ -1,11 +1,11 @@
 import type { UIAdapterModule } from "../types";
-import { parseStdoutLine, buildLettaAfConfig } from "@doerai/adapter-agent-file/ui";
-import { LettaAfOpenCodeConfigFields } from "./config-fields";
+import { parseStdoutLine, buildAgentFileConfig } from "@doerai/adapter-agent-file/ui";
+import { AgentFileConfigFields } from "./config-fields";
 
-export const lettaAfOpenCodeUIAdapter: UIAdapterModule = {
+export const agentFileUIAdapter: UIAdapterModule = {
   type: "agent_file",
   label: "Letta .af (local via OpenCode)",
   parseStdoutLine,
-  ConfigFields: LettaAfOpenCodeConfigFields,
-  buildAdapterConfig: buildLettaAfConfig as unknown as UIAdapterModule["buildAdapterConfig"],
+  ConfigFields: AgentFileConfigFields,
+  buildAdapterConfig: buildAgentFileConfig as unknown as UIAdapterModule["buildAdapterConfig"],
 };

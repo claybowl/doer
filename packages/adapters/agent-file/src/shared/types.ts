@@ -1,6 +1,6 @@
 // ─── Letta .af → OpenCode Adapter — Shared Types ────────────────────────────
 
-export interface LettaAfAdapterConfig {
+export interface AgentFileAdapterConfig {
   /** Absolute path to the .af file on disk */
   afPath: string;
 

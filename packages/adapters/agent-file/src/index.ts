@@ -1,6 +1,6 @@
 export { agentConfigurationDoc } from "./shared/agent-config-doc.js";
 export type {
-  LettaAfAdapterConfig,
+  AgentFileAdapterConfig,
   AfMemoryBlock,
   AfAgentSnapshot,
 } from "./shared/types.js";

@@ -1,5 +1,5 @@
 /**
- * letta-af-opencode adapter — execute
+ * agent-file adapter — execute
  *
  * Delegates to opencode-local's execute function after enriching the config:
  *   1. Sets instructionsFilePath → <memoryDir>/AGENTS.md (agent identity + memory map)
@@ -15,13 +15,13 @@ import path from "node:path";
 import type { AdapterExecutionContext, AdapterExecutionResult } from "@doerai/adapter-utils";
 import { execute as openCodeExecute } from "@doerai/adapter-opencode-local/server";
 import { readMemoryBlocks } from "./af-import.js";
-import type { LettaAfAdapterConfig } from "../shared/types.js";
+import type { AgentFileAdapterConfig } from "../shared/types.js";
 
 /**
  * Build a memory-map note to inject into the agent's bootstrap prompt.
  * Tells the agent which block files exist and where they're mounted.
  */
-async function buildMemoryBootstrap(config: LettaAfAdapterConfig): Promise<string> {
+async function buildMemoryBootstrap(config: AgentFileAdapterConfig): Promise<string> {
   const { memoryDir, memoryBlockLabels } = config;
   if (!memoryDir) return "";
 
@@ -53,7 +53,7 @@ async function buildMemoryBootstrap(config: LettaAfAdapterConfig): Promise<strin
 }
 
 export async function execute(ctx: AdapterExecutionContext): Promise<AdapterExecutionResult> {
-  const config = ctx.config as unknown as LettaAfAdapterConfig;
+  const config = ctx.config as unknown as AgentFileAdapterConfig;
 
   const memoryBootstrap = await buildMemoryBootstrap(config);
 

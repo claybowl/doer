@@ -30,7 +30,7 @@ const INITIAL: FormState = {
   name: "",
   title: "",
   role: "general",
-  adapterType: "claude_local",
+  adapterType: "agent_file",
   budgetDollars: "100",
   description: "",
   model: "",
@@ -50,7 +50,7 @@ const ADAPTER_LABEL: Record<AgentAdapterType, string> = {
   letta_cloud: "Letta Cloud",
   letta_code: "letta_code",
   letta_cli: "Letta CLI",
-  agent_file: "Letta .af (OpenCode)",
+  agent_file: "Agent File (.af)",
   gemini_local: "Gemini CLI",
 };
 
@@ -80,6 +80,19 @@ export function FernwehNewAgent() {
         budgetMonthlyCents: Number.isFinite(budgetCents) ? budgetCents : 0,
         capabilities: form.description.trim() || null,
         adapterConfig: form.adapterType === "opencode_local" && form.model ? { model: form.model.trim() } : undefined,
+        // Always send a well-formed heartbeat block. Omitting runtimeConfig entirely
+        // persisted `{}`, which left the agent with no scheduler config and it never
+        // ran. Defaults to disabled so a fresh hire cannot burn budget idle — the
+        // same posture as team-import and the New agent form.
+        runtimeConfig: {
+          heartbeat: {
+            enabled: false,
+            intervalSec: 3600,
+            wakeOnDemand: true,
+            cooldownSec: 10,
+            maxConcurrentRuns: 1,
+          },
+        },
       });
     },
     onSuccess: (agent) => {
