@@ -121,6 +121,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/adapters/agent-file:
+    dependencies:
+      '@doerai/adapter-opencode-local':
+        specifier: workspace:*
+        version: link:../opencode-local
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/adapters/claude-local:
     dependencies:
       '@doerai/adapter-utils':
@@ -177,22 +193,6 @@ importers:
       picocolors:
         specifier: ^1.1.1
         version: 1.1.1
-    devDependencies:
-      '@types/node':
-        specifier: ^24.6.0
-        version: 24.12.2
-      typescript:
-        specifier: ^5.7.3
-        version: 5.9.3
-
-  packages/adapters/letta-af-opencode:
-    dependencies:
-      '@doerai/adapter-opencode-local':
-        specifier: workspace:*
-        version: link:../opencode-local
-      '@doerai/adapter-utils':
-        specifier: workspace:*
-        version: link:../../adapter-utils
     devDependencies:
       '@types/node':
         specifier: ^24.6.0
@@ -681,6 +681,9 @@ importers:
       '@doerai/adapter-a2a':
         specifier: workspace:*
         version: link:../packages/adapters/a2a
+      '@doerai/adapter-agent-file':
+        specifier: workspace:*
+        version: link:../packages/adapters/agent-file
       '@doerai/adapter-claude-local':
         specifier: workspace:*
         version: link:../packages/adapters/claude-local
@@ -693,9 +696,6 @@ importers:
       '@doerai/adapter-gemini-local':
         specifier: workspace:*
         version: link:../packages/adapters/gemini-local
-      '@doerai/adapter-letta-af-opencode':
-        specifier: workspace:*
-        version: link:../packages/adapters/letta-af-opencode
       '@doerai/adapter-letta-cli':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cli
@@ -856,6 +856,9 @@ importers:
       '@doerai/adapter-a2a':
         specifier: workspace:*
         version: link:../packages/adapters/a2a
+      '@doerai/adapter-agent-file':
+        specifier: workspace:*
+        version: link:../packages/adapters/agent-file
       '@doerai/adapter-claude-local':
         specifier: workspace:*
         version: link:../packages/adapters/claude-local
@@ -868,9 +871,6 @@ importers:
       '@doerai/adapter-gemini-local':
         specifier: workspace:*
         version: link:../packages/adapters/gemini-local
-      '@doerai/adapter-letta-af-opencode':
-        specifier: workspace:*
-        version: link:../packages/adapters/letta-af-opencode
       '@doerai/adapter-letta-cli':
         specifier: workspace:*
         version: link:../packages/adapters/letta-cli
