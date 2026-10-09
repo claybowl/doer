@@ -1,6 +1,11 @@
 FROM node:lts-trixie-slim AS base
+# python3/make/g++ are required by node-gyp for native modules. node-pty arrives
+# transitively via @letta-ai/letta-code (the letta-code adapter's SDK) and has no
+# prebuilt binary for this platform, so it compiles during `pnpm install`.
 RUN apt-get update \
-  && apt-get install -y --no-install-recommends ca-certificates curl git \
+  && apt-get install -y --no-install-recommends \
+    ca-certificates curl git \
+    python3 make g++ \
   && rm -rf /var/lib/apt/lists/*
 RUN corepack enable
 
