@@ -49,6 +49,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # Required for NODE_AUTH_TOKEN to be picked up by npm/pnpm publish.
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -91,6 +93,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # Required for NODE_AUTH_TOKEN to be picked up by npm/pnpm publish.
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -106,6 +110,7 @@ jobs:
       - name: Publish canary
         env:
           GITHUB_ACTIONS: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: ./scripts/release.sh canary --skip-verify
 
       - name: Push canary tag
@@ -141,6 +146,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # Required for NODE_AUTH_TOKEN to be picked up by npm/pnpm publish.
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -182,6 +189,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # Required for NODE_AUTH_TOKEN to be picked up by npm/pnpm publish.
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -223,6 +232,8 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+          # Required for NODE_AUTH_TOKEN to be picked up by npm/pnpm publish.
+          registry-url: 'https://registry.npmjs.org'
 
       - name: Install dependencies
         run: pnpm install --no-frozen-lockfile
@@ -238,6 +249,7 @@ jobs:
       - name: Publish stable
         env:
           GITHUB_ACTIONS: "true"
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
         run: |
           args=(stable --skip-verify)
           if [ -n "${{ inputs.stable_date }}" ]; then
