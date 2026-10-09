@@ -72,7 +72,7 @@
     "e2b": "^1.13.2",
     "embedded-postgres": "^18.1.0-beta.16",
     "express": "^5.1.0",
-    "hermes-paperclip-adapter": "0.1.1",
+    "hermes-paperclip-adapter": "0.2.1",
     "jsdom": "^28.1.0",
     "multer": "^2.0.2",
     "nodemailer": "^8.0.6",

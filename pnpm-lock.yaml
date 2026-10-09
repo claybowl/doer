@@ -772,8 +772,8 @@ importers:
         specifier: ^5.1.0
         version: 5.2.1
       hermes-paperclip-adapter:
-        specifier: 0.1.1
-        version: 0.1.1
+        specifier: 0.2.1
+        version: 0.2.1
       jsdom:
         specifier: ^28.1.0
         version: 28.1.0(@noble/hashes@2.2.0)
@@ -2473,9 +2473,6 @@ packages:
   '@opentelemetry/semantic-conventions@1.43.0':
     resolution: {integrity: sha512-eSYWTm620tTk45EKSedaUL8MFYI8hW164hIXsgIHyxu3VobUB3fFCu5t0hQby6OoWRPsG1KkKUG2M5UadiLiVg==}
     engines: {node: '>=14'}
-
-  '@paperclipai/adapter-utils@0.3.1':
-    resolution: {integrity: sha512-W66k+hJkQE8ma0asM/Sd90AC8HHy/BLG/sd0aOC+rDWw+gOasQyUkTnDoPv1zhQuTyKEEvLFV6ByOOKqEiAz/A==}
 
   '@paperclipai/adapter-utils@2026.416.0':
     resolution: {integrity: sha512-uSbrE2SOj6N3x0v5eW+bt0r+4hgJYoLawDM5oBJ+EG+CCZ9+g3wqr4M/GONy8Gx8U+pHLRnq+Z94p0biZrktSQ==}
@@ -5233,10 +5230,6 @@ packages:
 
   help-me@5.0.0:
     resolution: {integrity: sha512-7xgomUX6ADmcYzFik0HzAxh/73YlKR9bmFzf51CZwR+b6YtzU2m0u49hQCqV6SvlqIqsaxovfwdvbnsw3b/zpg==}
-
-  hermes-paperclip-adapter@0.1.1:
-    resolution: {integrity: sha512-kbdX349VxExSkVL8n4RwTpP9fUBf2yWpsTsJp02X12A9NynRJatlpYqt0vEkFyE/X7qEXqdJvpBm9tlvUHahsA==}
-    engines: {node: '>=20.0.0'}
 
   hermes-paperclip-adapter@0.2.1:
     resolution: {integrity: sha512-9D4SrmMXm4AhOZ08lnlGCZBzwfRnGjzZjkvPlkRfoPTODM2YeIAaEk+zO0vInh8DI4Qr3ySN8hLFxV1eKRYFaA==}
@@ -8978,8 +8971,6 @@ snapshots:
 
   '@opentelemetry/semantic-conventions@1.43.0': {}
 
-  '@paperclipai/adapter-utils@0.3.1': {}
-
   '@paperclipai/adapter-utils@2026.416.0': {}
 
   '@paralleldrive/cuid2@2.3.1':
@@ -11923,11 +11914,6 @@ snapshots:
       '@types/hast': 3.0.4
 
   help-me@5.0.0: {}
-
-  hermes-paperclip-adapter@0.1.1:
-    dependencies:
-      '@paperclipai/adapter-utils': 0.3.1
-      picocolors: 1.1.1
 
   hermes-paperclip-adapter@0.2.1:
     dependencies:
