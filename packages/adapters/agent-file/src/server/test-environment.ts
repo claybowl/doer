@@ -3,7 +3,8 @@ import type {
   AdapterEnvironmentTestContext,
   AdapterEnvironmentTestResult,
 } from "@doerai/adapter-utils";
-import type { AgentFileAdapterConfig } from "../shared/types.js";
+import type { AgentFileAdapterConfig, AgentFileHarness } from "../shared/types.js";
+import { resolveHarness } from "../shared/types.js";
 import { validateAfPath } from "./af-import.js";
 
 export async function testEnvironment(
@@ -74,23 +75,31 @@ export async function testEnvironment(
     }
   }
 
-  // ── Check 4: opencode available ──────────────────────────────────────────
+  // ── Check 4: the configured harness CLI is available ─────────────────────
+  const harness = resolveHarness(config.harness);
+  const HARNESS_CLI: Record<AgentFileHarness, { bin: string; hint: string }> = {
+    opencode: { bin: "opencode", hint: "Install OpenCode: https://opencode.ai/docs" },
+    pi: { bin: "pi", hint: "Install Pi, then ensure `pi` is on PATH." },
+    claude: { bin: "claude", hint: "Install Claude Code: https://docs.anthropic.com/en/docs/claude-code" },
+    codex: { bin: "codex", hint: "Install Codex CLI: https://developers.openai.com/codex/cli" },
+  };
+  const harnessCli = HARNESS_CLI[harness];
   try {
     const { execFile } = await import("node:child_process");
     const { promisify } = await import("node:util");
     const execFileAsync = promisify(execFile);
-    await execFileAsync("opencode", ["--version"]);
+    await execFileAsync(harnessCli.bin, ["--version"]);
     checks.push({
-      code: "opencode_available",
+      code: `${harness}_available`,
       level: "info",
-      message: "opencode CLI is available",
+      message: `${harness} CLI is available`,
     });
   } catch {
     checks.push({
-      code: "opencode_missing",
+      code: `${harness}_missing`,
       level: "error",
-      message: "opencode CLI not found",
-      hint: "Install OpenCode: https://opencode.ai/docs",
+      message: `${harness} CLI not found`,
+      hint: harnessCli.hint,
     });
   }
 

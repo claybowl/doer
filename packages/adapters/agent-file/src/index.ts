@@ -1,8 +1,15 @@
 export { agentConfigurationDoc } from "./shared/agent-config-doc.js";
 export type {
   AgentFileAdapterConfig,
+  AgentFileHarness,
   AfMemoryBlock,
   AfAgentSnapshot,
+} from "./shared/types.js";
+export {
+  AGENT_FILE_HARNESSES,
+  AGENT_FILE_HARNESS_LABELS,
+  HARNESS_SUPPORTS_SKIP_PERMISSIONS,
+  resolveHarness,
 } from "./shared/types.js";
 
 export const type = "agent_file";

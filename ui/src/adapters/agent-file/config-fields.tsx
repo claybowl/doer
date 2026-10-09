@@ -6,6 +6,10 @@ import {
   help,
 } from "../../components/agent-config-primitives";
 import { ChoosePathButton } from "../../components/PathInstructionsModal";
+import {
+  AGENT_FILE_HARNESSES,
+  AGENT_FILE_HARNESS_LABELS,
+} from "@doerai/adapter-agent-file/ui";
 
 const inputClass =
   "w-full rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm font-mono placeholder:text-muted-foreground/40";
@@ -20,6 +24,32 @@ export function AgentFileConfigFields({
 }: AdapterConfigFieldsProps) {
   return (
     <>
+      {/* Harness — which local CLI executes the unpacked .af agent */}
+      <Field
+        label="Execution harness"
+        hint="Which local agent CLI runs this agent's turns. The .af format, memory blocks, and identity are identical across all of them — only the process that executes the turn changes."
+      >
+        <select
+          className="w-full rounded-md border border-border px-2.5 py-1.5 bg-transparent outline-none text-sm"
+          value={
+            isCreate
+              ? (values!.harness as string) ?? "opencode"
+              : (eff("adapterConfig", "harness", String(config.harness ?? "opencode")) as string)
+          }
+          onChange={(e) =>
+            isCreate
+              ? set!({ harness: e.target.value })
+              : mark("adapterConfig", "harness", e.target.value)
+          }
+        >
+          {AGENT_FILE_HARNESSES.map((h) => (
+            <option key={h} value={h}>
+              {AGENT_FILE_HARNESS_LABELS[h]}
+            </option>
+          ))}
+        </select>
+      </Field>
+
       {/* .af file path — required */}
       <Field
         label="Agent file (.af)"

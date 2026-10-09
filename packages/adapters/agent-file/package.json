@@ -27,7 +27,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@doerai/adapter-claude-local": "workspace:*",
+    "@doerai/adapter-codex-local": "workspace:*",
     "@doerai/adapter-opencode-local": "workspace:*",
+    "@doerai/adapter-pi-local": "workspace:*",
     "@doerai/adapter-utils": "workspace:*"
   },
   "devDependencies": {

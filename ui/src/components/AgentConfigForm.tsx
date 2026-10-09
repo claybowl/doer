@@ -989,7 +989,29 @@ function AdapterEnvironmentResult({ result }: { result: AdapterEnvironmentTestRe
 
 /* ---- Internal sub-components ---- */
 
-const ENABLED_ADAPTER_TYPES = new Set(["claude_local", "codex_local", "gemini_local", "opencode_local", "pi_local", "cursor", "letta_code", "letta_cli"]);
+/**
+ * Adapters offered in the picker. Every entry here must be fully registered on the
+ * server AND have UI ConfigFields wired in `ui/src/adapters/<name>/config-fields.tsx`.
+ *
+ * Deliberately excluded:
+ *   - `process`, `http` — internal implementation adapters, not user-selectable
+ *   - `letta_cloud` — legacy; superseded by `letta_code` with backend "cloud_attached"
+ *   - `openclaw_gateway` — requires a separately configured OpenClaw app; enabling it
+ *     before that exists just produces a selectable option that always fails
+ */
+const ENABLED_ADAPTER_TYPES = new Set([
+  "a2a",
+  "agent_file",
+  "claude_local",
+  "codex_local",
+  "cursor",
+  "gemini_local",
+  "hermes_local",
+  "letta_cli",
+  "letta_code",
+  "opencode_local",
+  "pi_local",
+]);
 
 /** Display list includes all real adapter types plus UI-only coming-soon entries. */
 const ADAPTER_DISPLAY_LIST: { value: string; label: string; comingSoon: boolean }[] = [

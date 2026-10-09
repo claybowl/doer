@@ -403,4 +403,6 @@ export interface CreateConfigValues {
   afPath?: string;
   /** Heartbeat prompt injected on timer-triggered agent wakes */
   heartbeatPrompt?: string;
+  /** Which local agent CLI executes the unpacked .af agent */
+  harness?: string;
 }

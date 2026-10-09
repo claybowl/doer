@@ -1,4 +1,36 @@
-// ─── Letta .af → OpenCode Adapter — Shared Types ────────────────────────────
+// ─── Agent File (.af) Adapter — Shared Types ───────────────────────────────
+
+/**
+ * Local CLI harness that executes the unpacked .af agent.
+ *
+ * The .af format itself is harness-agnostic: unpacking to memfs, writing
+ * AGENTS.md, and building the memory bootstrap are identical regardless of
+ * which CLI runs the turn. Only the final execute delegate differs.
+ */
+export type AgentFileHarness = "opencode" | "pi" | "claude" | "codex";
+
+export const AGENT_FILE_HARNESSES: readonly AgentFileHarness[] = ["opencode", "pi", "claude", "codex"];
+
+/** Human-readable labels for the harness picker. */
+export const AGENT_FILE_HARNESS_LABELS: Record<AgentFileHarness, string> = {
+  opencode: "OpenCode",
+  pi: "Pi",
+  claude: "Claude Code",
+  codex: "Codex",
+};
+
+/** Harnesses that accept `dangerouslySkipPermissions` in their config. */
+export const HARNESS_SUPPORTS_SKIP_PERMISSIONS: ReadonlySet<AgentFileHarness> = new Set<AgentFileHarness>([
+  "opencode",
+  "claude",
+]);
+
+/** Resolve the configured harness, defaulting to opencode for pre-harness configs. */
+export function resolveHarness(value: unknown): AgentFileHarness {
+  return typeof value === "string" && (AGENT_FILE_HARNESSES as readonly string[]).includes(value)
+    ? (value as AgentFileHarness)
+    : "opencode";
+}
 
 export interface AgentFileAdapterConfig {
   /** Absolute path to the .af file on disk */
@@ -21,7 +53,17 @@ export interface AgentFileAdapterConfig {
   /** Memory block labels found in the .af, e.g. ["persona", "human"] */
   memoryBlockLabels?: string[];
 
-  // ── OpenCode execution settings ───────────────────────────────────────────
+  // ── Harness selection ─────────────────────────────────────────────────────
+  /**
+   * Which local CLI runs the turn. Defaults to "opencode", which is what every
+   * agent created before this field existed is already running.
+   */
+  harness?: AgentFileHarness;
+
+  /** Working directory for the harness process (non-opencode harnesses expect this) */
+  cwd?: string;
+
+  // ── Execution settings ────────────────────────────────────────────────────
   /**
    * Template for the user message sent on timer-triggered heartbeats.
    * Supports {{agent.id}}, {{agent.name}}, {{run.id}}, {{context.*}}.
@@ -30,8 +72,9 @@ export interface AgentFileAdapterConfig {
   heartbeatPrompt?: string;
 
   /**
-   * Skip OpenCode interactive permission prompts.
+   * Skip interactive permission prompts.
    * Defaults to true for unattended Doer runs.
+   * Only sent to harnesses that support it (opencode, claude).
    */
   dangerouslySkipPermissions?: boolean;
 
@@ -41,10 +84,10 @@ export interface AgentFileAdapterConfig {
   /** SIGTERM grace period in seconds */
   graceSec?: number;
 
-  /** Additional CLI args forwarded to opencode */
+  /** Additional CLI args forwarded to the harness */
   extraArgs?: string[];
 
-  /** Extra KEY=VALUE env vars forwarded to the opencode subprocess */
+  /** Extra KEY=VALUE env vars forwarded to the harness subprocess */
   env?: Record<string, string>;
 }
 

@@ -123,9 +123,18 @@ importers:
 
   packages/adapters/agent-file:
     dependencies:
+      '@doerai/adapter-claude-local':
+        specifier: workspace:*
+        version: link:../claude-local
+      '@doerai/adapter-codex-local':
+        specifier: workspace:*
+        version: link:../codex-local
       '@doerai/adapter-opencode-local':
         specifier: workspace:*
         version: link:../opencode-local
+      '@doerai/adapter-pi-local':
+        specifier: workspace:*
+        version: link:../pi-local
       '@doerai/adapter-utils':
         specifier: workspace:*
         version: link:../../adapter-utils
