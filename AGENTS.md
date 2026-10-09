@@ -250,7 +250,23 @@ gh workflow run desktop-release.yml  # builds mac/win/linux + GitHub Release
 gh release edit vX.Y.Z -R claybowl/doer --notes-file releases/vYYYY.MDD.P.md
 ```
 
-**Known gap:** `NPM_TOKEN` is not configured in GitHub repo secrets. The `publish_stable` job will fail until that's added. Desktop releases are unaffected.
+**npm publishing:** authenticated with the `NPM_TOKEN` GitHub secret (an npm **automation** token,
+Read & Write scope). `release.yml` sets `registry-url` on `setup-node` and passes
+`NODE_AUTH_TOKEN` to both publish steps.
+
+This replaced an OIDC trusted-publishing setup that never worked: the workflow declared
+`id-token: write` and the `npm-canary` / `npm-stable` environments, but no trusted publisher
+was ever configured on the npm side, so every publish failed with `ENEEDAUTH`. Nothing reached
+npm between 2026-08-10 and 2026-10-09. Configuring trusted publishing properly would mean 36
+manual npm configurations (18 public packages × 2 environments); the token is one secret.
+
+**If publishing fails with `ENEEDAUTH`, the token is missing, expired, or lacks publish scope
+for both `doerai` and `@doerai/*`.** It is not a permissions problem — the GitHub environments
+and repo permissions are fine. Desktop releases are unaffected by npm auth.
+
+**Known gap:** the Dockerfile's `deps` stage hand-lists every adapter's `package.json`. A new
+adapter that is not added there breaks the Docker build with a confusing workspace-resolution
+error. Verified 12-for-12 against `packages/adapters/*` as of 2026-10-09.
 
 ### DonDog agent specifics
 
