@@ -316,9 +316,18 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
 );
 
 /** Retained for stored-agent execution only. New Letta agents use letta_code. */
+/**
+ * Adapter types kept resolvable for existing agents but no longer offered as a
+ * creation target.
+ *
+ * `letta_cli` is deliberately absent from the UI's creatable list but lives
+ * here so the recommendation still nudges the 123 existing letta_cli agents
+ * toward letta_code without breaking their runtime. `agent_file` is NOT legacy —
+ * it is a supported first-class adapter.
+ */
 export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
   "letta_cloud",
-  "agent_file",
+  "letta_cli",
 ]);
 
 export function getAdapterCreationRecommendation(type: string): string | null {

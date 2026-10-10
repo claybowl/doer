@@ -995,7 +995,9 @@ function AdapterEnvironmentResult({ result }: { result: AdapterEnvironmentTestRe
  *
  * Deliberately excluded:
  *   - `process`, `http` — internal implementation adapters, not user-selectable
- *   - `letta_cloud` — legacy; superseded by `letta_code` with backend "cloud_attached"
+ *   - `letta_cli`, `letta_cloud` — legacy; superseded by `letta_code`. They stay
+ *     resolvable in the registry so existing agents keep running, but are no longer
+ *     offered as a creation target.
  *   - `openclaw_gateway` — requires a separately configured OpenClaw app; enabling it
  *     before that exists just produces a selectable option that always fails
  */
@@ -1007,7 +1009,6 @@ const ENABLED_ADAPTER_TYPES = new Set([
   "cursor",
   "gemini_local",
   "hermes_local",
-  "letta_cli",
   "letta_code",
   "opencode_local",
   "pi_local",
