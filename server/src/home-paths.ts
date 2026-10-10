@@ -26,6 +26,69 @@ export function resolvePaperclipInstanceId(): string {
   return raw;
 }
 
+/** Directories the packaged macOS app cannot read (com.apple.provenance / TCC). */
+const MACOS_SANDBOXED_DIRS = ["Desktop", "Documents", "Downloads"] as const;
+
+/**
+ * Adapter config keys that hold a filesystem path Doer hands to a subprocess.
+ * A packaged, provenance-signed Electron binary is denied `fs.readdir()` and
+ * `readFile()` under these locations (EPERM), which surfaces at run time as an
+ * unexplained permission failure rather than a configuration error.
+ */
+const PATH_BEARING_CONFIG_KEYS = [
+  "memoryDir",
+  "cwd",
+  "afPath",
+  "instructionsFilePath",
+  "instructionsRootPath",
+  "instructionsEntryFile",
+] as const;
+
+function isInside(child: string, parent: string): boolean {
+  const rel = path.relative(parent, child);
+  return rel === "" || (!rel.startsWith("..") && !path.isAbsolute(rel));
+}
+
+/**
+ * Report adapter config paths that the packaged app will not be able to read.
+ *
+ * Returns one message per offending path, or an empty array when the config is
+ * clean. Non-blocking by design: a dev build can legitimately use these paths,
+ * and rejecting outright would strand agents that already point at them. The
+ * caller surfaces the warning so the user learns about it at write time rather
+ * than from a run-time EPERM.
+ */
+export function findSandboxedAdapterPaths(adapterConfig: unknown): string[] {
+  if (!adapterConfig || typeof adapterConfig !== "object" || Array.isArray(adapterConfig)) {
+    return [];
+  }
+  const config = adapterConfig as Record<string, unknown>;
+  const warnings: string[] = [];
+
+  for (const key of PATH_BEARING_CONFIG_KEYS) {
+    const raw = config[key];
+    if (typeof raw !== "string" || !raw.trim()) continue;
+    const resolved = path.resolve(expandHomePrefix(raw.trim()));
+
+    // Only the packaged macOS app is sandboxed this way.
+    if (process.platform !== "darwin") continue;
+
+    for (const dir of MACOS_SANDBOXED_DIRS) {
+      if (isInside(resolved, path.join(os.homedir(), dir))) {
+        warnings.push(
+          `adapterConfig.${key} points inside ~/${dir}. The packaged Doer desktop app is ` +
+          `signed with com.apple.provenance and macOS denies it filesystem access there (EPERM), ` +
+          `so agent runs will fail at runtime. Use a path under ~/, under the Doer instance ` +
+          `directory, or a memfs fs-mount binding instead.`,
+        );
+        break;
+      }
+    }
+  }
+
+  return warnings;
+}
+
 export function resolvePaperclipInstanceRoot(): string {
   return path.resolve(resolvePaperclipHomeDir(), "instances", resolvePaperclipInstanceId());
 }

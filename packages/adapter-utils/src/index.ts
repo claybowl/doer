@@ -27,6 +27,7 @@ export type {
   ProviderQuotaResult,
   TranscriptEntry,
   StdoutLineParser,
+  StdoutParseContext,
   CLIAdapterModule,
   CreateConfigValues,
   ConfigFieldType,

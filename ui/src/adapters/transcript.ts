@@ -1,5 +1,5 @@
 import { redactHomePathUserSegments, redactTranscriptEntryPaths } from "@doerai/adapter-utils";
-import type { TranscriptEntry, StdoutLineParser } from "./types";
+import type { TranscriptEntry, StdoutLineParser, StdoutParseContext } from "./types";
 
 export type RunLogChunk = { ts: string; stream: "stdout" | "stderr" | "system"; chunk: string };
 type TranscriptBuildOptions = { censorUsernameInLogs?: boolean };
@@ -26,6 +26,7 @@ export function buildTranscript(
   chunks: RunLogChunk[],
   parser: StdoutLineParser,
   opts?: TranscriptBuildOptions,
+  parseContext?: StdoutParseContext,
 ): TranscriptEntry[] {
   const entries: TranscriptEntry[] = [];
   let stdoutBuffer = "";
@@ -47,14 +48,14 @@ export function buildTranscript(
     for (const line of lines) {
       const trimmed = line.trim();
       if (!trimmed) continue;
-      appendTranscriptEntries(entries, parser(trimmed, chunk.ts).map((entry) => redactTranscriptEntryPaths(entry, redactionOptions)));
+      appendTranscriptEntries(entries, parser(trimmed, chunk.ts, parseContext).map((entry) => redactTranscriptEntryPaths(entry, redactionOptions)));
     }
   }
 
   const trailing = stdoutBuffer.trim();
   if (trailing) {
     const ts = chunks.length > 0 ? chunks[chunks.length - 1]!.ts : new Date().toISOString();
-    appendTranscriptEntries(entries, parser(trailing, ts).map((entry) => redactTranscriptEntryPaths(entry, redactionOptions)));
+    appendTranscriptEntries(entries, parser(trailing, ts, parseContext).map((entry) => redactTranscriptEntryPaths(entry, redactionOptions)));
   }
 
   return entries;

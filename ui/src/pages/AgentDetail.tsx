@@ -1061,6 +1061,7 @@ export function AgentDetail() {
           agentRouteId={canonicalAgentRef}
           selectedRunId={urlRunId ?? null}
           adapterType={agent.adapterType}
+          adapterConfig={agent.adapterConfig}
         />
       )}
 
@@ -2984,6 +2985,7 @@ function RunsTab({
   agentRouteId,
   selectedRunId,
   adapterType,
+  adapterConfig,
 }: {
   runs: HeartbeatRun[];
   companyId: string;
@@ -2991,6 +2993,7 @@ function RunsTab({
   agentRouteId: string;
   selectedRunId: string | null;
   adapterType: string;
+  adapterConfig?: Record<string, unknown> | null;
 }) {
   const { isMobile } = useSidebar();
 
@@ -3019,7 +3022,7 @@ function RunsTab({
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to runs
           </Link>
-          <RunDetail key={selectedRun.id} run={selectedRun} agentRouteId={agentRouteId} adapterType={adapterType} />
+          <RunDetail key={selectedRun.id} run={selectedRun} agentRouteId={agentRouteId} adapterType={adapterType} adapterConfig={adapterConfig} />
         </div>
       );
     }
@@ -3050,7 +3053,7 @@ function RunsTab({
       {/* Right: run detail — natural height, page scrolls */}
       {selectedRun && (
         <div className="flex-1 min-w-0 pl-4">
-          <RunDetail key={selectedRun.id} run={selectedRun} agentRouteId={agentRouteId} adapterType={adapterType} />
+          <RunDetail key={selectedRun.id} run={selectedRun} agentRouteId={agentRouteId} adapterType={adapterType} adapterConfig={adapterConfig} />
         </div>
       )}
     </div>
@@ -3059,7 +3062,7 @@ function RunsTab({
 
 /* ---- Run Detail (expanded) ---- */
 
-function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: HeartbeatRun; agentRouteId: string; adapterType: string }) {
+function RunDetail({ run: initialRun, agentRouteId, adapterType, adapterConfig }: { run: HeartbeatRun; agentRouteId: string; adapterType: string; adapterConfig?: Record<string, unknown> | null }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const { data: hydratedRun } = useQuery({
@@ -3180,8 +3183,8 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
       .split("\n")
       .filter(Boolean)
       .map((line) => ({ ts: new Date(run.createdAt).toISOString(), stream: "stdout" as const, chunk: line }));
-    return buildTranscript(chunks, adapter.parseStdoutLine);
-  }, [run.stdoutExcerpt, run.logRef, run.createdAt, adapterType]);
+    return buildTranscript(chunks, adapter.parseStdoutLine, undefined, { adapterType, adapterConfig });
+  }, [run.stdoutExcerpt, run.logRef, run.createdAt, adapterType, adapterConfig]);
 
   const runClaudeLogin = useMutation({
     mutationFn: () => agentsApi.loginWithClaude(run.agentId, run.companyId),
@@ -3474,7 +3477,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
       )}
 
       {/* Log viewer */}
-      <LogViewer run={run} adapterType={adapterType} />
+      <LogViewer run={run} adapterType={adapterType} adapterConfig={adapterConfig} />
       <ScrollToBottom />
     </div>
   );
@@ -3482,7 +3485,7 @@ function RunDetail({ run: initialRun, agentRouteId, adapterType }: { run: Heartb
 
 /* ---- Log Viewer ---- */
 
-function LogViewer({ run, adapterType }: { run: HeartbeatRun; adapterType: string }) {
+function LogViewer({ run, adapterType, adapterConfig }: { run: HeartbeatRun; adapterType: string; adapterConfig?: Record<string, unknown> | null }) {
   const [events, setEvents] = useState<HeartbeatRunEvent[]>([]);
   const [logLines, setLogLines] = useState<Array<{ ts: string; stream: "stdout" | "stderr" | "system"; chunk: string }>>([]);
   const [loading, setLoading] = useState(true);
@@ -3854,8 +3857,8 @@ function LogViewer({ run, adapterType }: { run: HeartbeatRun; adapterType: strin
 
   const adapter = useMemo(() => getUIAdapter(adapterType), [adapterType]);
   const transcript = useMemo(
-    () => buildTranscript(logLines, adapter.parseStdoutLine, { censorUsernameInLogs }),
-    [adapter, censorUsernameInLogs, logLines],
+    () => buildTranscript(logLines, adapter.parseStdoutLine, { censorUsernameInLogs }, { adapterType, adapterConfig }),
+    [adapter, censorUsernameInLogs, logLines, adapterType, adapterConfig],
   );
 
   useEffect(() => {

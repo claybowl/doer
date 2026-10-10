@@ -12,6 +12,7 @@ import { parseCodexStdoutLine } from "@doerai/adapter-codex-local/ui";
 import { resolveHarness } from "../shared/types.js";
 
 export { parseOpenCodeStdoutLine as parseStdoutLine } from "@doerai/adapter-opencode-local/ui";
+export { parseOpenCodeStdoutLine } from "@doerai/adapter-opencode-local/ui";
 
 export type {
   AgentFileAdapterConfig,

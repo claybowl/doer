@@ -316,7 +316,25 @@ export type TranscriptEntry =
   | { kind: "stdout"; ts: string; text: string }
   | { kind: "diff"; ts: string; changeType: "context" | "add" | "remove" | "hunk" | "file_header" | "truncation"; text: string };
 
-export type StdoutLineParser = (line: string, ts: string) => TranscriptEntry[];
+/**
+ * Context handed to a stdout parser alongside each line.
+ *
+ * Optional and additive: existing parsers keep the `(line, ts)` signature and
+ * simply ignore it. Adapters whose output format depends on configuration — the
+ * Agent File adapter selects a parser per `adapterConfig.harness` — need this to
+ * choose correctly. Server-side parsing is unaffected; each delegated harness
+ * parses its own output there.
+ */
+export interface StdoutParseContext {
+  adapterType?: string | null;
+  adapterConfig?: Record<string, unknown> | null;
+}
+
+export type StdoutLineParser = (
+  line: string,
+  ts: string,
+  context?: StdoutParseContext,
+) => TranscriptEntry[];
 
 // ---------------------------------------------------------------------------
 // CLI types (moved from cli/src/adapters/types.ts)

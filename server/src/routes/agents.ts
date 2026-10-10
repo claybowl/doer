@@ -67,6 +67,7 @@ import {
   loadDefaultAgentInstructionsBundle,
   resolveDefaultAgentInstructionsBundleRole,
 } from "../services/default-agent-instructions.js";
+import { findSandboxedAdapterPaths } from "../home-paths.js";
 
 export function agentRoutes(db: Db) {
   const DEFAULT_INSTRUCTIONS_PATH_KEYS: Record<string, string> = {
@@ -1966,7 +1967,14 @@ export function agentRoutes(db: Db) {
       if (changingInstructionsPath) {
         await assertCanManageInstructionsPath(req, existing);
       }
+      // Surface macOS sandbox-incompatible paths at write time. Non-blocking:
+      // a dev build can use them, and existing agents must not be stranded.
+      const sandboxWarnings = findSandboxedAdapterPaths(adapterConfig);
+      for (const warning of sandboxWarnings) {
+        logger.warn({ companyId: existing.companyId, agentId: existing.id }, warning);
+      }
       patchData.adapterConfig = adapterConfig;
+      patchData.__sandboxWarnings = sandboxWarnings;
     }
 
     const requestedAdapterType =
@@ -2034,6 +2042,10 @@ export function agentRoutes(db: Db) {
     }
 
     const actor = getActorInfo(req);
+    const sandboxWarnings = Array.isArray(patchData.__sandboxWarnings)
+      ? (patchData.__sandboxWarnings as string[])
+      : [];
+    delete patchData.__sandboxWarnings;
     const agent = await svc.update(id, patchData, {
       recordRevision: {
         createdByAgentId: actor.agentId,
@@ -2059,7 +2071,7 @@ export function agentRoutes(db: Db) {
       details: summarizeAgentUpdateDetails(patchData),
     });
 
-    res.json(agent);
+    res.json(sandboxWarnings.length ? { ...agent, warnings: sandboxWarnings } : agent);
   });
 
   router.post("/agents/:id/pause", async (req, res) => {
