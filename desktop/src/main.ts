@@ -1,6 +1,6 @@
 import path from "node:path";
 import { createWriteStream, mkdirSync, type WriteStream } from "node:fs";
-import { app, BrowserWindow, nativeImage } from "electron";
+import { app, BrowserWindow, dialog, nativeImage } from "electron";
 import { type ServerHandle, startServer, stopServer } from "./server-process";
 import { startInAppUpdater } from "./updater";
 
@@ -107,9 +107,24 @@ async function bootstrap() {
 		if (serverHandle === null && (err as any)?.stderr) {
 			serverError += "\n\nServer stderr:\n" + (err as any).stderr;
 		}
+		// Show it. Previously this only reached a log file, so a failed start
+		// looked like an empty window with no explanation.
+		void dialog.showMessageBox({
+			type: "error",
+			title: "Doer could not start its server",
+			message: "Doer could not start its server",
+			detail: serverError,
+			buttons: ["Quit"],
+			defaultId: 0,
+			noLink: true,
+		}).then(() => app.quit());
 	}
 
-	createWindow(serverHandle?.url ?? null);
+	// With no server there is nothing to render. Opening a window against a null
+	// URL is what produced the "empty shell" report — show the dialog instead.
+	if (serverHandle) {
+		createWindow(serverHandle.url);
+	}
 
 	// Custom in-app updater — polls the R2 RELEASES.json feed and shows a dialog
 	// when a newer version exists. Works for unsigned builds (unlike Squirrel.Mac).

@@ -113,7 +113,62 @@ function log(msg: string, stream?: WriteStream | null): void {
 	try { stream?.write(`${msg}\n`); } catch { /* best effort */ }
 }
 
-export function startServer(options: StartOptions): Promise<ServerHandle> {
+/**
+ * Check for the MSVC runtime that embedded Postgres (and anything else linking
+ * the CRT) needs on Windows.
+ *
+ * Without it the server child dies on startup with 0xC0000135 before it can
+ * print anything, which previously left users staring at an empty window and a
+ * log file they had no reason to open.
+ *
+ * Fails OPEN: if the probe cannot run (reg.exe missing, key absent on an
+ * unusual image, permission denied) we assume the runtime is present rather than
+ * block startup on a check we cannot verify. The exit-code handler below is
+ * still the backstop.
+ */
+export async function checkWindowsVcRuntime(): Promise<{ ok: boolean; detail?: string }> {
+	if (process.platform !== "win32") return { ok: true };
+	try {
+		const { stdout } = await execFileAsync(
+			"reg",
+			[
+				"query",
+				"HKLM\\SOFTWARE\\Microsoft\\VisualStudio\\14.0\\VC\\Runtimes\\x64",
+				"/v",
+				"Installed",
+			],
+			{ timeout: 5_000, windowsHide: true },
+		);
+		const installed = /Installed\s+REG_DWORD\s+0x1/i.test(stdout);
+		return installed
+			? { ok: true }
+			: {
+					ok: false,
+					detail:
+						"The Microsoft Visual C++ 2015-2022 x64 runtime is not registered on this machine. " +
+						"The Doer server cannot start without it.",
+				};
+	} catch {
+		// Key absent or reg unavailable — do not block startup.
+		return { ok: true };
+	}
+}
+
+export async function startServer(options: StartOptions): Promise<ServerHandle> {
+	const vc = await checkWindowsVcRuntime();
+	if (!vc.ok) {
+		const msg = [
+			vc.detail ?? "The Microsoft Visual C++ runtime appears to be missing.",
+			"",
+			"Install it with one of:",
+			"  winget install Microsoft.VCRedist.2015.x64",
+			"  https://aka.ms/vs/17/release/vc_redist.x64.exe",
+			"",
+			"Then relaunch Doer.",
+		].join("\n");
+		log(`[main] Preflight failed: ${msg}`, options.logStream);
+		throw new ServerStartError(msg, "");
+	}
 	const target = resolveSpawnTarget(options);
 	log(`[main] spawn target: ${target.command} ${target.args.join(" ")} (cwd=${target.cwd})`, options.logStream);
 	log(`[main] platform=${process.platform} arch=${process.arch} packaged=${options.isPackaged}`, options.logStream);
