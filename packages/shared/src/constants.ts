@@ -36,8 +36,46 @@ export const AGENT_ADAPTER_TYPES = [
   "letta_cli",
   "agent_file",
   "gemini_local",
+  "a2a",
 ] as const;
 export type AgentAdapterType = (typeof AGENT_ADAPTER_TYPES)[number];
+
+/**
+ * Adapter types offered as a creation target in the agent config picker.
+ *
+ * Single source of truth: the UI picker and the server both read this. Previously
+ * the picker carried its own copy in AgentConfigForm.tsx and the legacy set had a
+ * second copy in each of ui/src/adapters/registry.ts and
+ * server/src/adapters/registry.ts, which drifted apart (agent_file was
+ * un-deprecated in one and not the other).
+ */
+export const CREATABLE_AGENT_ADAPTER_TYPES = [
+  "a2a",
+  "agent_file",
+  "claude_local",
+  "codex_local",
+  "cursor",
+  "gemini_local",
+  "hermes_local",
+  "letta_code",
+  "opencode_local",
+  "pi_local",
+] as const satisfies readonly AgentAdapterType[];
+
+/**
+ * Adapter types kept resolvable for existing agents but never offered for
+ * creation. `letta_cli` still backs 123 live agents; `letta_cloud` is superseded
+ * by `letta_code` with backend "cloud_attached".
+ *
+ * Deliberately excluded from the creatable list, with reasons:
+ *   - `process`, `http` — internal implementation adapters
+ *   - `letta_cli`, `letta_cloud` — legacy
+ *   - `openclaw_gateway` — needs a separately configured OpenClaw app
+ */
+export const LEGACY_AGENT_ADAPTER_TYPES = [
+  "letta_cloud",
+  "letta_cli",
+] as const satisfies readonly AgentAdapterType[];
 
 export const AGENT_ROLES = [
   "gm",

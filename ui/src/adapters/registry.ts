@@ -31,10 +31,10 @@ const builtinAdaptersByType = new Map<string, UIAdapterModule>();
 // Tracks which builtin types currently have an active external override.
 const activeExternalOverrides = new Set<string>();
 
-/** Parsers remain registered so existing agents keep working. */
-export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
-  "letta_cloud",
-]);
+import { CREATABLE_AGENT_ADAPTER_TYPES, LEGACY_AGENT_ADAPTER_TYPES } from "@doerai/shared";
+
+// Single source of truth lives in @doerai/shared, shared with the server.
+export const LEGACY_LETTA_ADAPTER_TYPES = new Set<string>(LEGACY_AGENT_ADAPTER_TYPES);
 
 // Generation counter to discard stale dynamic parser loads. When an override
 // is deactivated while a load is in-flight, the generation is bumped and the
@@ -274,6 +274,15 @@ export function listUIAdapters(): UIAdapterModule[] {
   return [...uiAdapters];
 }
 
+/**
+ * Adapters a user can actually choose when creating an agent.
+ *
+ * Driven by CREATABLE_AGENT_ADAPTER_TYPES in @doerai/shared — the same list the
+ * picker renders — rather than "everything that is not legacy". Excluding only
+ * legacy types leaked internal adapters (process, http) and openclaw_gateway
+ * into this result, so the function did not match what the UI offers.
+ */
 export function listCreatableUIAdapters(): UIAdapterModule[] {
-  return listUIAdapters().filter((adapter) => !LEGACY_LETTA_ADAPTER_TYPES.has(adapter.type));
+  const allowed = new Set<string>(CREATABLE_AGENT_ADAPTER_TYPES);
+  return listUIAdapters().filter((adapter) => allowed.has(adapter.type));
 }

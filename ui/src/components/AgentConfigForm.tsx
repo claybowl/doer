@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { AGENT_ADAPTER_TYPES } from "@doerai/shared";
+import { AGENT_ADAPTER_TYPES, CREATABLE_AGENT_ADAPTER_TYPES } from "@doerai/shared";
 import type {
   Agent,
   AdapterEnvironmentTestResult,
@@ -989,30 +989,10 @@ function AdapterEnvironmentResult({ result }: { result: AdapterEnvironmentTestRe
 
 /* ---- Internal sub-components ---- */
 
-/**
- * Adapters offered in the picker. Every entry here must be fully registered on the
- * server AND have UI ConfigFields wired in `ui/src/adapters/<name>/config-fields.tsx`.
- *
- * Deliberately excluded:
- *   - `process`, `http` — internal implementation adapters, not user-selectable
- *   - `letta_cli`, `letta_cloud` — legacy; superseded by `letta_code`. They stay
- *     resolvable in the registry so existing agents keep running, but are no longer
- *     offered as a creation target.
- *   - `openclaw_gateway` — requires a separately configured OpenClaw app; enabling it
- *     before that exists just produces a selectable option that always fails
- */
-const ENABLED_ADAPTER_TYPES = new Set([
-  "a2a",
-  "agent_file",
-  "claude_local",
-  "codex_local",
-  "cursor",
-  "gemini_local",
-  "hermes_local",
-  "letta_code",
-  "opencode_local",
-  "pi_local",
-]);
+// Single source of truth lives in @doerai/shared. Do not re-declare it here:
+// this list previously drifted from the server's legacy set and from the
+// canonical AGENT_ADAPTER_TYPES.
+const ENABLED_ADAPTER_TYPES = new Set<string>(CREATABLE_AGENT_ADAPTER_TYPES);
 
 /** Display list includes all real adapter types plus UI-only coming-soon entries. */
 const ADAPTER_DISPLAY_LIST: { value: string; label: string; comingSoon: boolean }[] = [

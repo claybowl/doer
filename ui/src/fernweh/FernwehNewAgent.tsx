@@ -52,6 +52,7 @@ const ADAPTER_LABEL: Record<AgentAdapterType, string> = {
   letta_cli: "Letta CLI",
   agent_file: "Agent File (.af)",
   gemini_local: "Gemini CLI",
+  a2a: "A2A (remote agent)",
 };
 
 export function FernwehNewAgent() {

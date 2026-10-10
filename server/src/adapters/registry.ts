@@ -129,6 +129,7 @@ import {
   agentConfigurationDoc as a2aAgentConfigurationDoc,
   memfsCapability as a2aMemfsCapability,
 } from "@doerai/adapter-a2a";
+import { CREATABLE_AGENT_ADAPTER_TYPES, LEGACY_AGENT_ADAPTER_TYPES } from "@doerai/shared";
 
 const claudeLocalAdapter: ServerAdapterModule = {
   type: "claude_local",
@@ -316,19 +317,11 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
 );
 
 /** Retained for stored-agent execution only. New Letta agents use letta_code. */
-/**
- * Adapter types kept resolvable for existing agents but no longer offered as a
- * creation target.
- *
- * `letta_cli` is deliberately absent from the UI's creatable list but lives
- * here so the recommendation still nudges the 123 existing letta_cli agents
- * toward letta_code without breaking their runtime. `agent_file` is NOT legacy —
- * it is a supported first-class adapter.
- */
-export const LEGACY_LETTA_ADAPTER_TYPES = new Set([
-  "letta_cloud",
-  "letta_cli",
-]);
+// Single source of truth lives in @doerai/shared. Do not re-declare it here:
+// this set previously diverged from the UI copy, so agent_file stayed
+// "legacy" on the server after being un-deprecated in the UI.
+export { LEGACY_AGENT_ADAPTER_TYPES };
+export const LEGACY_LETTA_ADAPTER_TYPES = new Set<string>(LEGACY_AGENT_ADAPTER_TYPES);
 
 export function getAdapterCreationRecommendation(type: string): string | null {
   return LEGACY_LETTA_ADAPTER_TYPES.has(type) ? "letta_code" : null;
@@ -357,8 +350,16 @@ export function listServerAdapters(): ServerAdapterModule[] {
   return Array.from(adaptersByType.values());
 }
 
+/**
+ * Adapters a user can actually choose when creating an agent.
+ *
+ * Uses the same CREATABLE_AGENT_ADAPTER_TYPES the UI picker renders, so the two
+ * cannot disagree. Excluding only legacy types leaked internal adapters
+ * (process, http) and openclaw_gateway into this result.
+ */
 export function listCreatableServerAdapters(): ServerAdapterModule[] {
-  return listServerAdapters().filter((adapter) => !LEGACY_LETTA_ADAPTER_TYPES.has(adapter.type));
+  const allowed = new Set<string>(CREATABLE_AGENT_ADAPTER_TYPES);
+  return listServerAdapters().filter((adapter) => allowed.has(adapter.type));
 }
 
 export function findServerAdapter(type: string): ServerAdapterModule | null {
