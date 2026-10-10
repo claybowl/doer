@@ -29,7 +29,7 @@ import { readdir, readFile, rm, stat } from "node:fs/promises";
 import { execFile } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
-import { fileURLToPath } from "node:url";
+import { fileURLToPath, pathToFileURL } from "node:url";
 import { promisify } from "node:util";
 import type { Db } from "@doerai/db";
 import type {
@@ -926,8 +926,12 @@ export function pluginLoader(
     let raw: unknown;
 
     try {
-      // Dynamic import works for both .js (ESM) and .cjs (CJS) manifests
-      const mod = await import(manifestPath) as Record<string, unknown>;
+      // Dynamic import works for both .js (ESM) and .cjs (CJS) manifests.
+      // The path MUST be converted to a file:// URL first: on Windows a raw
+      // path like `C:\...\manifest.js` is parsed by Node as a URL whose
+      // protocol is `c:`, which throws "absolute paths must be valid file://
+      // URLs. Received protocol c:" and fails every bundled plugin.
+      const mod = await import(pathToFileURL(manifestPath).href) as Record<string, unknown>;
       // The manifest may be the default export or the module itself
       raw = mod["default"] ?? mod;
     } catch (err) {

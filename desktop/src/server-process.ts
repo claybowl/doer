@@ -192,14 +192,15 @@ export function startServer(options: StartOptions): Promise<ServerHandle> {
 			log(`[main] ${msg}`, options.logStream);
 			if (stderrBuf) log(`[main] Server stderr:\n${stderrBuf}`, options.logStream);
 
-			// On Windows, exit code 3221225781 (0xC0000139) means missing DLL —
-			// typically VC++ runtime not installed.
+			// On Windows, exit code 3221225781 (0xC0000135, STATUS_DLL_NOT_FOUND) means a
+			// required DLL is missing — almost always the VC++ runtime.
 			if (process.platform === "win32" && code === 3221225781) {
 				const hint = [
 					"",
-					"Exit code 0xC0000139 means a required DLL is missing.",
+					"Exit code 0xC0000135 (STATUS_DLL_NOT_FOUND) means a required DLL is missing.",
 					"This is almost always the Visual C++ Redistributable.",
-					"Download: https://aka.ms/vs/17/release/vc_redist.x64.exe",
+					"winget install Microsoft.VCRedist.2015.x64",
+					"or download: https://aka.ms/vs/17/release/vc_redist.x64.exe",
 					"Install it, then relaunch Doer.",
 				].join("\n");
 				reject(new ServerStartError(msg + hint, stderrBuf));
