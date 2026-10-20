@@ -21,6 +21,7 @@ import { executionWorkspaceRoutes } from "./routes/execution-workspaces.js";
 import { goalRoutes } from "./routes/goals.js";
 import { approvalRoutes } from "./routes/approvals.js";
 import { secretRoutes } from "./routes/secrets.js";
+import { providerConnectionRoutes } from "./routes/provider-connections.js";
 import { costRoutes } from "./routes/costs.js";
 import { activityRoutes } from "./routes/activity.js";
 import { dashboardRoutes } from "./routes/dashboard.js";
@@ -36,7 +37,9 @@ import { lettaMigrationRoutes } from "./routes/letta-migration.js";
 import { teamRoutes } from "./routes/teams.js";
 import { agentMemoryRoutes } from "./routes/agent-memory.js";
 import { agentToolRoutes } from "./routes/agent-tools.js";
+import { timeTrackingRoutes } from "./routes/time-tracking.js";
 import { workspaceRoutes } from "./routes/workspaces.js";
+import { memberRoutes } from "./routes/members.js";
 import {
   deliverableRoutes,
   shareTokenRoutes,
@@ -47,7 +50,6 @@ import { pluginUiStaticRoutes } from "./routes/plugin-ui-static.js";
 import { billingRoutes } from "./routes/billing.js";
 import { webhookRoutes } from "./routes/webhooks.js";
 import { runRoutes } from "./routes/runs.js";
-import { timeTrackingRoutes } from "./routes/time-tracking.js";
 import { notificationRoutes } from "./routes/notifications.js";
 import { createEmailProvider } from "./email/provider.js";
 import { loadConfig } from "./config.js";
@@ -172,12 +174,14 @@ export async function createApp(
   api.use(assetRoutes(db, opts.storageService));
   api.use(projectRoutes(db));
   api.use(workspaceRoutes(db));
+  api.use(memberRoutes(db));
   api.use(issueRoutes(db, opts.storageService));
   api.use(routineRoutes(db));
   api.use(executionWorkspaceRoutes(db));
   api.use(goalRoutes(db));
   api.use(approvalRoutes(db));
   api.use(secretRoutes(db));
+  api.use(providerConnectionRoutes(db));
   api.use(costRoutes(db));
   api.use(activityRoutes(db));
   api.use(dashboardRoutes(db));
@@ -187,6 +191,7 @@ export async function createApp(
   api.use(memfsRoutes(db));
   api.use(lettaMigrationRoutes(db));
   api.use(agentToolRoutes(db));
+  api.use(timeTrackingRoutes(db));
   api.use(teamRoutes(db));
   api.use(deliverableRoutes(db, opts.storageService));
   api.use(shareTokenRoutes(db));
@@ -194,7 +199,6 @@ export async function createApp(
   api.use(billingRoutes(db));
   api.use(webhookRoutes(db));
   api.use(runRoutes(db));
-  api.use(timeTrackingRoutes(db));
   const emailConfig = opts.config ?? loadConfig();
   api.use(notificationRoutes(db, createEmailProvider(emailConfig), emailConfig));
   const hostServicesDisposers = new Map<string, () => void>();

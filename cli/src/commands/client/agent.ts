@@ -1,5 +1,6 @@
 import { Command } from "commander";
 import type { Agent } from "@doerai/shared";
+import { createAgentSchema } from "@doerai/shared";
 import {
   removeMaintainerOnlySkillSymlinks,
   resolvePaperclipSkillsDir,
@@ -15,6 +16,7 @@ import {
   printOutput,
   resolveCommandContext,
   type BaseClientOptions,
+  type OutputFormat,
 } from "./common.js";
 
 interface AgentListOptions extends BaseClientOptions {
@@ -25,6 +27,19 @@ interface AgentLocalCliOptions extends BaseClientOptions {
   companyId?: string;
   keyName?: string;
   installSkills?: boolean;
+}
+
+interface AgentCreateOptions extends BaseClientOptions {
+  companyId?: string;
+  name: string;
+  role?: string;
+  title?: string;
+  icon?: string;
+  reportsTo?: string;
+  capabilities?: string;
+  adapterType?: string;
+  budgetMonthlyCents?: string;
+  desiredSkills?: string;
 }
 
 interface CreatedAgentKey {
@@ -169,6 +184,11 @@ export function registerAgentCommands(program: Command): void {
           const ctx = resolveCommandContext(opts, { requireCompany: true });
           const rows = (await ctx.api.get<Agent[]>(`/api/companies/${ctx.companyId}/agents`)) ?? [];
 
+          if (ctx.format === "table") {
+            printOutput(rows, { format: "table" });
+            return;
+          }
+
           if (ctx.json) {
             printOutput(rows, { json: true });
             return;
@@ -208,11 +228,54 @@ export function registerAgentCommands(program: Command): void {
         try {
           const ctx = resolveCommandContext(opts);
           const row = await ctx.api.get<Agent>(`/api/agents/${agentId}`);
-          printOutput(row, { json: ctx.json });
+          printOutput(row, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
       }),
+  );
+
+  addCommonClientOptions(
+    agent
+      .command("create")
+      .description("Create a new agent")
+      .requiredOption("-C, --company-id <id>", "Company ID")
+      .requiredOption("--name <name>", "Agent name")
+      .option("--role <role>", "Agent role (gm, manager, sales, finance, engineer, designer, pm, support, admin, researcher, general)", "general")
+      .option("--title <title>", "Agent title/label")
+      .option("--icon <icon>", "Agent icon name")
+      .option("--reports-to <agentId>", "Agent ID this agent reports to")
+      .option("--capabilities <text>", "Agent capabilities description")
+      .option("--adapter-type <type>", "Adapter type (process, http, claude_local, codex_local, etc.)", "process")
+      .option("--budget-monthly-cents <cents>", "Monthly budget in cents", "0")
+      .option("--desired-skills <csv>", "Comma-separated list of desired skill names")
+      .action(async (opts: AgentCreateOptions) => {
+        try {
+          const ctx = resolveCommandContext(opts, { requireCompany: true });
+          const desiredSkills = opts.desiredSkills
+            ? opts.desiredSkills.split(",").map((s) => s.trim()).filter(Boolean)
+            : undefined;
+          const payload = createAgentSchema.parse({
+            name: opts.name,
+            role: opts.role,
+            title: opts.title,
+            icon: opts.icon,
+            reportsTo: opts.reportsTo,
+            capabilities: opts.capabilities,
+            adapterType: opts.adapterType,
+            budgetMonthlyCents: parseOptionalInt(opts.budgetMonthlyCents) ?? 0,
+            desiredSkills,
+          });
+          const created = await ctx.api.post<Agent>(
+            `/api/companies/${ctx.companyId}/agents`,
+            payload,
+          );
+          printOutput(created, { json: ctx.json, format: ctx.format });
+        } catch (err) {
+          handleCommandError(err);
+        }
+      }),
+    { includeCompany: false },
   );
 
   addCommonClientOptions(
@@ -312,4 +375,13 @@ export function registerAgentCommands(program: Command): void {
       }),
     { includeCompany: false },
   );
+}
+
+function parseOptionalInt(value: string | undefined): number | undefined {
+  if (value === undefined) return undefined;
+  const parsed = Number.parseInt(value, 10);
+  if (!Number.isFinite(parsed)) {
+    throw new Error(`Invalid integer value: ${value}`);
+  }
+  return parsed;
 }

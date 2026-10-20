@@ -37,6 +37,7 @@ import {
 import { DEFAULT_CURSOR_LOCAL_MODEL } from "@doerai/adapter-cursor-local";
 import { DEFAULT_GEMINI_LOCAL_MODEL } from "@doerai/adapter-gemini-local";
 import { resolveRouteOnboardingOptions } from "../lib/onboarding-route";
+import { onboardingAnalytics, clearOnboardingSessionId } from "../lib/onboarding-analytics";
 import { AsciiArtAnimation } from "./AsciiArtAnimation";
 import { OpenCodeLogoIcon } from "./OpenCodeLogoIcon";
 import {
@@ -57,10 +58,12 @@ import {
   Check,
   Loader2,
   ChevronDown,
-  X
+  X,
+  Clock,
+  Zap
 } from "lucide-react";
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 0 | 1 | 2 | 3 | 4;
 type AdapterType =
   | "claude_local"
   | "codex_local"
@@ -139,10 +142,56 @@ export function OnboardingWizard() {
     ? onboardingOptions
     : routeOnboardingOptions ?? {};
 
-  const initialStep = effectiveOnboardingOptions.initialStep ?? 1;
+  const initialStep = effectiveOnboardingOptions.initialStep ?? 0;
   const existingCompanyId = effectiveOnboardingOptions.companyId;
 
+  // Onboarding timer — tracks elapsed time for the 5-minute target
+  const [elapsedSec, setElapsedSec] = useState(0);
+  const startTimeRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    if (!effectiveOnboardingOpen) {
+      startTimeRef.current = null;
+      setElapsedSec(0);
+      return;
+    }
+    if (startTimeRef.current === null) {
+      startTimeRef.current = Date.now();
+    }
+    const interval = setInterval(() => {
+      if (startTimeRef.current !== null) {
+        setElapsedSec(Math.floor((Date.now() - startTimeRef.current) / 1000));
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [effectiveOnboardingOpen]);
+
+  const elapsedMin = Math.floor(elapsedSec / 60);
+  const elapsedRemSec = elapsedSec % 60;
+  const timerLabel = `${elapsedMin}:${String(elapsedRemSec).padStart(2, "0")}`;
+  const isOverTarget = elapsedSec >= 300; // 5 minutes
+
   const [step, setStep] = useState<Step>(initialStep);
+
+  // Onboarding analytics — track start, step transitions, and drop-off
+  const analyticsStartedRef = useRef(false);
+  useEffect(() => {
+    if (!effectiveOnboardingOpen) {
+      analyticsStartedRef.current = false;
+      return;
+    }
+    if (!analyticsStartedRef.current) {
+      analyticsStartedRef.current = true;
+      onboardingAnalytics.started();
+    }
+  }, [effectiveOnboardingOpen]);
+
+  useEffect(() => {
+    if (effectiveOnboardingOpen) {
+      onboardingAnalytics.stepReached(step, elapsedSec);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, effectiveOnboardingOpen]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [modelOpen, setModelOpen] = useState(false);
@@ -323,7 +372,7 @@ export function OnboardingWizard() {
   }, [filteredModels, adapterType]);
 
   function reset() {
-    setStep(1);
+    setStep(0);
     setLoading(false);
     setError(null);
     setCompanyName("");
@@ -347,11 +396,24 @@ export function OnboardingWizard() {
     setCreatedAgentId(null);
     setCreatedProjectId(null);
     setCreatedIssueRef(null);
+    startTimeRef.current = null;
+    setElapsedSec(0);
   }
 
   function handleClose() {
+    onboardingAnalytics.closed(step, elapsedSec);
+    clearOnboardingSessionId();
     reset();
     closeOnboarding();
+  }
+
+  function handleSkipOnboarding() {
+    onboardingAnalytics.skipped(step, elapsedSec);
+    clearOnboardingSessionId();
+    reset();
+    closeOnboarding();
+    setRouteDismissed(true);
+    navigate("/");
   }
 
   function buildAdapterConfig(): Record<string, unknown> {
@@ -449,9 +511,12 @@ export function OnboardingWizard() {
         setCreatedCompanyGoalId(null);
       }
 
+      onboardingAnalytics.stepCompleted(1, elapsedSec);
       setStep(2);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create company");
+      const msg = err instanceof Error ? err.message : "Failed to create company";
+      setError(msg);
+      onboardingAnalytics.error(1, msg);
     } finally {
       setLoading(false);
     }
@@ -519,9 +584,12 @@ export function OnboardingWizard() {
       queryClient.invalidateQueries({
         queryKey: queryKeys.agents.list(createdCompanyId)
       });
+      onboardingAnalytics.stepCompleted(2, elapsedSec);
       setStep(3);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create agent");
+      const msg = err instanceof Error ? err.message : "Failed to create agent";
+      setError(msg);
+      onboardingAnalytics.error(2, msg);
     } finally {
       setLoading(false);
     }
@@ -579,6 +647,7 @@ export function OnboardingWizard() {
   async function handleStep3Next() {
     if (!createdCompanyId || !createdAgentId) return;
     setError(null);
+    onboardingAnalytics.stepCompleted(3, elapsedSec);
     setStep(4);
   }
 
@@ -627,6 +696,8 @@ export function OnboardingWizard() {
       }
 
       setSelectedCompanyId(createdCompanyId);
+      onboardingAnalytics.completed(elapsedSec);
+      clearOnboardingSessionId();
       reset();
       closeOnboarding();
       navigate(
@@ -635,7 +706,9 @@ export function OnboardingWizard() {
           : `/work/${issueRef}`
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to create task");
+      const msg = err instanceof Error ? err.message : "Failed to create task";
+      setError(msg);
+      onboardingAnalytics.error(4, msg);
     } finally {
       setLoading(false);
     }
@@ -644,7 +717,11 @@ export function OnboardingWizard() {
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
       e.preventDefault();
-      if (step === 1 && companyName.trim()) handleStep1Next();
+      if (step === 0) {
+        onboardingAnalytics.stepCompleted(0, elapsedSec);
+        setStep(1);
+      }
+      else if (step === 1 && companyName.trim()) handleStep1Next();
       else if (step === 2 && agentName.trim()) handleStep2Next();
       else if (step === 3 && taskTitle.trim()) handleStep3Next();
       else if (step === 4) handleLaunch();
@@ -678,11 +755,34 @@ export function OnboardingWizard() {
             <span className="sr-only">Close</span>
           </button>
 
+          {/* Timer indicator */}
+          {step > 0 && (
+            <div className="absolute top-4 right-4 z-10 flex items-center gap-1.5 text-xs">
+              <Clock
+                className={cn(
+                  "h-3.5 w-3.5",
+                  isOverTarget ? "text-amber-500" : "text-muted-foreground/50"
+                )}
+              />
+              <span
+                className={cn(
+                  "font-mono tabular-nums",
+                  isOverTarget ? "text-amber-500" : "text-muted-foreground/50"
+                )}
+              >
+                {timerLabel}
+              </span>
+              {!isOverTarget && (
+                <span className="text-muted-foreground/30">/ 5:00</span>
+              )}
+            </div>
+          )}
+
           {/* Left half — form */}
           <div
             className={cn(
               "w-full flex flex-col overflow-y-auto transition-[width] duration-500 ease-in-out",
-              step === 1 ? "md:w-1/2" : "md:w-full"
+              step <= 1 ? "md:w-1/2" : "md:w-full"
             )}
           >
             <div className="w-full max-w-md mx-auto my-auto px-8 py-12 shrink-0">
@@ -690,6 +790,7 @@ export function OnboardingWizard() {
               <div className="flex items-center gap-0 mb-8 border-b border-border">
                 {(
                   [
+                    { step: 0 as Step, label: "Welcome", icon: Sparkles },
                     { step: 1 as Step, label: "Company", icon: Building2 },
                     { step: 2 as Step, label: "Agent", icon: Bot },
                     { step: 3 as Step, label: "Task", icon: ListTodo },
@@ -714,6 +815,48 @@ export function OnboardingWizard() {
               </div>
 
               {/* Step content */}
+              {step === 0 && (
+                <div className="space-y-6">
+                  <div className="text-center space-y-3">
+                    <div className="inline-flex items-center justify-center bg-muted/50 p-3 mb-2">
+                      <Sparkles className="h-7 w-7 text-muted-foreground" />
+                    </div>
+                    <h2 className="text-xl font-semibold tracking-tight">
+                      Welcome to Doer
+                    </h2>
+                    <p className="text-sm text-muted-foreground max-w-sm mx-auto">
+                      Set up your AI agent company in under 5 minutes.
+                      Create a workspace, add your first agent, and assign it a task.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2.5">
+                    {[
+                      { icon: Building2, label: "Create your company", desc: "Name your organization and set a goal" },
+                      { icon: Bot, label: "Add your first agent", desc: "Choose an adapter and configure it" },
+                      { icon: ListTodo, label: "Assign a first task", desc: "Pick a template or write your own" },
+                      { icon: Rocket, label: "Launch", desc: "Wake the agent and open the issue" },
+                    ].map((item, idx) => (
+                      <div
+                        key={idx}
+                        className="flex items-start gap-3 rounded-md border border-border px-3 py-2.5"
+                      >
+                        <div className="bg-muted/40 p-1.5 shrink-0">
+                          <item.icon className="h-3.5 w-3.5 text-muted-foreground" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium">{item.label}</p>
+                          <p className="text-xs text-muted-foreground">{item.desc}</p>
+                        </div>
+                        <span className="text-xs text-muted-foreground/50 font-mono mt-0.5">
+                          {idx + 1}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {step === 1 && (
                 <div className="space-y-5">
                   <div className="flex items-center gap-3 mb-1">
@@ -1336,7 +1479,15 @@ export function OnboardingWizard() {
               {/* Footer navigation */}
               <div className="flex items-center justify-between mt-8">
                 <div>
-                  {step > 1 && step > (onboardingOptions.initialStep ?? 1) && (
+                  {step === 0 && (
+                    <button
+                      onClick={handleSkipOnboarding}
+                      className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      Skip onboarding
+                    </button>
+                  )}
+                  {step > 1 && step > (onboardingOptions.initialStep ?? 0) && (
                     <Button
                       variant="ghost"
                       size="sm"
@@ -1347,21 +1498,58 @@ export function OnboardingWizard() {
                       Back
                     </Button>
                   )}
+                  {step === 1 && (onboardingOptions.initialStep ?? 0) === 0 && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setStep(0)}
+                      disabled={loading}
+                    >
+                      <ArrowLeft className="h-3.5 w-3.5 mr-1" />
+                      Back
+                    </Button>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {step === 1 && (
+                  {step === 0 && (
                     <Button
                       size="sm"
-                      disabled={!companyName.trim() || loading}
-                      onClick={handleStep1Next}
+                      onClick={() => {
+                        onboardingAnalytics.stepCompleted(0, elapsedSec);
+                        setStep(1);
+                      }}
                     >
-                      {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
-                      ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
-                      )}
-                      {loading ? "Creating..." : "Next"}
+                      <Zap className="h-3.5 w-3.5 mr-1" />
+                      Get Started
                     </Button>
+                  )}
+                  {step === 1 && (
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setCompanyName("My Company");
+                          handleStep1Next();
+                        }}
+                        disabled={loading}
+                        className="mr-1"
+                      >
+                        Use default
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={!companyName.trim() || loading}
+                        onClick={handleStep1Next}
+                      >
+                        {loading ? (
+                          <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        ) : (
+                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        )}
+                        {loading ? "Creating..." : "Next"}
+                      </Button>
+                    </>
                   )}
                   {step === 2 && (
                     <Button
@@ -1380,18 +1568,33 @@ export function OnboardingWizard() {
                     </Button>
                   )}
                   {step === 3 && (
-                    <Button
-                      size="sm"
-                      disabled={!taskTitle.trim() || loading}
-                      onClick={handleStep3Next}
-                    >
-                      {loading ? (
-                        <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
-                      ) : (
-                        <ArrowRight className="h-3.5 w-3.5 mr-1" />
-                      )}
-                      {loading ? "Creating..." : "Next"}
-                    </Button>
+                    <>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setTaskTitle("Hire your first engineer and create a hiring plan");
+                          setTaskDescription(DEFAULT_TASK_DESCRIPTION);
+                          setStep(4);
+                        }}
+                        disabled={loading}
+                        className="mr-1"
+                      >
+                        Use default
+                      </Button>
+                      <Button
+                        size="sm"
+                        disabled={!taskTitle.trim() || loading}
+                        onClick={handleStep3Next}
+                      >
+                        {loading ? (
+                          <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" />
+                        ) : (
+                          <ArrowRight className="h-3.5 w-3.5 mr-1" />
+                        )}
+                        {loading ? "Creating..." : "Next"}
+                      </Button>
+                    </>
                   )}
                   {step === 4 && (
                     <Button size="sm" disabled={loading} onClick={handleLaunch}>
@@ -1412,7 +1615,7 @@ export function OnboardingWizard() {
           <div
             className={cn(
               "hidden md:block overflow-hidden bg-[#1d1d1d] transition-[width,opacity] duration-500 ease-in-out",
-              step === 1 ? "w-1/2 opacity-100" : "w-0 opacity-0"
+              step <= 1 ? "w-1/2 opacity-100" : "w-0 opacity-0"
             )}
           >
             <AsciiArtAnimation />

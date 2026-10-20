@@ -132,6 +132,12 @@ export function createBetterAuthInstance(db: Db, config: Config, trustedOrigins?
         ? { github: { clientId: githubClientId, clientSecret: githubClientSecret } }
         : {}),
     },
+    accountLinking: {
+      enabled: true,
+      disableImplicitLinking: false,
+      trustedProviders: ["google", "github", "email-password"],
+      allowDifferentEmails: false,
+    },
     rateLimit: { enabled: true, window: 60, max: 10 },
     ...(isHttpOnly ? { advanced: { useSecureCookies: false } } : {}),
   };

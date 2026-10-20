@@ -50,6 +50,9 @@ export {
   JOIN_REQUEST_TYPES,
   JOIN_REQUEST_STATUSES,
   PERMISSION_KEYS,
+  WORKSPACE_ROLES,
+  ROLE_RANK,
+  ROLE_LABELS,
   PLUGIN_API_VERSION,
   PLUGIN_STATUSES,
   PLUGIN_CATEGORIES,
@@ -116,6 +119,7 @@ export {
   type JoinRequestType,
   type JoinRequestStatus,
   type PermissionKey,
+  type WorkspaceRole,
   type PluginStatus,
   type PluginCategory,
   type PluginCapability,
@@ -627,6 +631,22 @@ export {
 } from "./validators/index.js";
 
 export { API_PREFIX, API } from "./api.js";
+export type {
+  ProviderType,
+  ProviderAuthMode,
+  ProviderConnection,
+  DiscoveredProviderModel,
+  DiscoveredLettaAgent,
+  ProviderConnectionTestResult,
+} from "./types/provider-connection.js";
+export {
+  providerTypeSchema,
+  providerAuthModeSchema,
+  createProviderConnectionSchema,
+  updateProviderConnectionSchema,
+  type CreateProviderConnection,
+  type UpdateProviderConnection,
+} from "./validators/provider-connection.js";
 export { normalizeAgentUrlKey, deriveAgentUrlKey, isUuidLike } from "./agent-url-key.js";
 export { deriveProjectUrlKey, normalizeProjectUrlKey } from "./project-url-key.js";
 export {
@@ -742,3 +762,22 @@ export {
   sendTestEmailSchema,
   emailProviderConfigSchema,
 } from "./validators/notification.js";
+// RBAC Role Templates
+export {
+  ROLE_TEMPLATES,
+  getRoleTemplate,
+  listRoleTemplates,
+  isValidRole,
+  applyRoleTemplate,
+  mergeRoles,
+  type RoleTemplate,
+  type PermissionGrantInput,
+} from "./role-templates.js";
+
+// RBAC Permission Matrix
+export {
+  ROLE_PERMISSIONS,
+  getPermissionsForRole,
+  roleHasPermission,
+  getAssignableRoles,
+} from "./permissions.js";

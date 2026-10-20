@@ -111,6 +111,15 @@ export function FernwehCompanySettings() {
       href: `/${prefix}/company/webhooks`,
     },
     {
+      id: "members",
+      title: "Members",
+      icon: I.shield,
+      description:
+        "Manage roles and permissions for company members. Invite users, assign Admin/Member/Viewer roles, and control who can create agents, invite users, and manage tasks.",
+      stat: "Manage roles & permissions",
+      href: `/${prefix}/company/members`,
+    },
+    {
       id: "export",
       title: "Export",
       icon: I.arrow,
@@ -166,7 +175,7 @@ export function FernwehCompanySettings() {
 
       {/* Footer */}
       <p style={{ fontSize: 11, color: "var(--ink-faint)", margin: 0, lineHeight: 1.5 }}>
-        Export and Import open in the classic Doer UI. Branding, Skills, and Webhooks are fully native to Fernweh.
+        Export and Import open in the classic Doer UI. Branding, Skills, Webhooks, and Members are fully native to Fernweh.
       </p>
     </div>
   );

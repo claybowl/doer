@@ -1,11 +1,12 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, ne, sql } from "drizzle-orm";
 import type { Db } from "@doerai/db";
 import {
   companyMemberships,
   instanceUserRoles,
   principalPermissionGrants,
 } from "@doerai/db";
-import type { PermissionKey, PrincipalType } from "@doerai/shared";
+import type { PermissionKey, PrincipalType, WorkspaceRole } from "@doerai/shared";
+import { ROLE_RANK, ROLE_PERMISSIONS, getPermissionsForRole } from "@doerai/shared";
 
 type MembershipRow = typeof companyMemberships.$inferSelect;
 type GrantInput = {
@@ -359,6 +360,138 @@ export function accessService(db: Db) {
     });
   }
 
+  // ─── Workspace Role Management (DON-387) ──────────────────
+
+  async function getMemberRole(
+    companyId: string,
+    userId: string,
+  ): Promise<WorkspaceRole | null> {
+    const membership = await getMembership(companyId, "user", userId);
+    if (!membership || membership.status !== "active") return null;
+    return (membership.membershipRole as WorkspaceRole) ?? null;
+  }
+
+  async function changeMemberRole(
+    companyId: string,
+    userId: string,
+    newRole: WorkspaceRole,
+    changedByUserId: string | null,
+  ): Promise<MembershipRow | null> {
+    const membership = await getMembership(companyId, "user", userId);
+    if (!membership) return null;
+
+    // Update the membershipRole
+    const updated = await db
+      .update(companyMemberships)
+      .set({ membershipRole: newRole, updatedAt: new Date() })
+      .where(eq(companyMemberships.id, membership.id))
+      .returning()
+      .then((rows) => rows[0] ?? null);
+
+    if (!updated) return null;
+
+    // Sync permission grants to match the new role
+    const permissions = getPermissionsForRole(newRole);
+    const grants: GrantInput[] = permissions.map((key) => ({
+      permissionKey: key,
+      scope: null,
+    }));
+    await setPrincipalGrants(companyId, "user", userId, grants, changedByUserId);
+
+    return updated;
+  }
+
+  async function removeMember(
+    companyId: string,
+    userId: string,
+  ): Promise<MembershipRow | null> {
+    const membership = await getMembership(companyId, "user", userId);
+    if (!membership) return null;
+
+    // Deactivate membership
+    const updated = await db
+      .update(companyMemberships)
+      .set({ status: "removed", updatedAt: new Date() })
+      .where(eq(companyMemberships.id, membership.id))
+      .returning()
+      .then((rows) => rows[0] ?? null);
+
+    // Revoke all permission grants
+    await db
+      .delete(principalPermissionGrants)
+      .where(
+        and(
+          eq(principalPermissionGrants.companyId, companyId),
+          eq(principalPermissionGrants.principalType, "user"),
+          eq(principalPermissionGrants.principalId, userId),
+        ),
+      );
+
+    return updated;
+  }
+
+  async function transferOwnership(
+    companyId: string,
+    currentOwnerUserId: string,
+    newOwnerUserId: string,
+  ): Promise<{ oldOwner: MembershipRow | null; newOwner: MembershipRow | null }> {
+    // Demote current owner to admin
+    const oldOwner = await changeMemberRole(
+      companyId,
+      currentOwnerUserId,
+      "admin",
+      currentOwnerUserId,
+    );
+
+    // Promote new owner
+    const newOwner = await changeMemberRole(
+      companyId,
+      newOwnerUserId,
+      "owner",
+      currentOwnerUserId,
+    );
+
+    return { oldOwner, newOwner };
+  }
+
+  async function getOwnerCount(companyId: string): Promise<number> {
+    const owners = await db
+      .select({ id: companyMemberships.id })
+      .from(companyMemberships)
+      .where(
+        and(
+          eq(companyMemberships.companyId, companyId),
+          eq(companyMemberships.principalType, "user"),
+          eq(companyMemberships.status, "active"),
+          eq(companyMemberships.membershipRole, "owner"),
+        ),
+      );
+    return owners.length;
+  }
+
+  async function listMembersWithRoles(companyId: string) {
+    return db
+      .select({
+        id: companyMemberships.id,
+        companyId: companyMemberships.companyId,
+        principalType: companyMemberships.principalType,
+        principalId: companyMemberships.principalId,
+        status: companyMemberships.status,
+        role: companyMemberships.membershipRole,
+        createdAt: companyMemberships.createdAt,
+        updatedAt: companyMemberships.updatedAt,
+      })
+      .from(companyMemberships)
+      .where(
+        and(
+          eq(companyMemberships.companyId, companyId),
+          eq(companyMemberships.principalType, "user"),
+          ne(companyMemberships.status, "removed"),
+        ),
+      )
+      .orderBy(sql`${companyMemberships.createdAt} asc`);
+  }
+
   return {
     isInstanceAdmin,
     canUser,
@@ -376,5 +509,12 @@ export function accessService(db: Db) {
     setPrincipalGrants,
     listPrincipalGrants,
     setPrincipalPermission,
+    // Workspace role management (DON-387)
+    getMemberRole,
+    changeMemberRole,
+    removeMember,
+    transferOwnership,
+    getOwnerCount,
+    listMembersWithRoles,
   };
 }

@@ -126,6 +126,14 @@ export type {
   SecretProviderDescriptor,
 } from "./secrets.js";
 export type {
+  ProviderType,
+  ProviderAuthMode,
+  ProviderConnection,
+  DiscoveredProviderModel,
+  DiscoveredLettaAgent,
+  ProviderConnectionTestResult,
+} from "./provider-connection.js";
+export type {
   Routine,
   RoutineTrigger,
   RoutineRun,

@@ -9,6 +9,10 @@ import {
   PenLine,
   ShoppingCart,
   Code2,
+  Users,
+  FileCheck,
+  Workflow,
+  Star,
 } from "lucide-react";
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
@@ -77,6 +81,65 @@ function Hero() {
               </div>
             ))}
           </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Features ─────────────────────────────────────────────────────────────────
+
+function Features() {
+  const features = [
+    {
+      icon: <Bot className="h-6 w-6" />,
+      title: "Agent Creation",
+      description:
+        "Spin up specialised AI agents from templates or custom prompts. Researchers, writers, sales reps, project managers — each with their own skills, memory, and heartbeat schedule.",
+    },
+    {
+      icon: <ClipboardList className="h-6 w-6" />,
+      title: "Task Management",
+      description:
+        "Create issues, assign them to agents, and track progress in real time. Agents pick up work on heartbeats, report status, surface blockers, and hand off to humans when needed.",
+    },
+    {
+      icon: <FileCheck className="h-6 w-6" />,
+      title: "Deliverables",
+      description:
+        "Agents produce real outputs — reports, drafts, analyses, code — saved as downloadable deliverables. Review, approve, and ship without losing track of what was made.",
+    },
+    {
+      icon: <Workflow className="h-6 w-6" />,
+      title: "Multi-Agent Coordination",
+      description:
+        "Build an org chart of agents that work together. Route tasks, escalate approvals, and orchestrate complex workflows across multiple agents with shared context.",
+    },
+  ];
+
+  return (
+    <section id="features" className="border-b border-border">
+      <div className="max-w-5xl mx-auto px-6 py-20">
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-bold">Everything you need to run an AI workforce</h2>
+          <p className="mt-2 text-muted-foreground">
+            From a single agent to a full team — Doer handles the orchestration.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-8">
+          {features.map((feature) => (
+            <div key={feature.title} className="flex gap-4">
+              <div className="shrink-0 rounded-lg border border-border bg-muted/30 p-3 text-primary">
+                {feature.icon}
+              </div>
+              <div>
+                <h3 className="font-semibold">{feature.title}</h3>
+                <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -368,6 +431,86 @@ function UseCases() {
   );
 }
 
+// ─── Social Proof ─────────────────────────────────────────────────────────────
+
+function SocialProof() {
+  const testimonials = [
+    {
+      quote:
+        "We replaced three tools with Doer. Our agents handle research, content, and client reports — we just review and ship.",
+      author: "Sarah K.",
+      role: "Founder, B2B SaaS Startup",
+    },
+    {
+      quote:
+        "The multi-agent orchestration is a game-changer. Our research agent feeds findings to the writer agent, and the PM agent tracks it all.",
+      author: "Marcus T.",
+      role: "Head of Ops, Digital Agency",
+    },
+    {
+      quote:
+        "I had my first agent running in under 5 minutes. By the end of the day, it had cleared my entire backlog of research tasks.",
+      author: "Priya R.",
+      role: "Independent Consultant",
+    },
+  ];
+
+  const logos = ["Acme Corp", "Globex", "Initech", "Umbrella", "Soylent", "Hooli"];
+
+  return (
+    <section id="social-proof" className="border-b border-border">
+      <div className="max-w-5xl mx-auto px-6 py-20">
+        {/* Logos */}
+        <div className="text-center mb-16">
+          <p className="text-xs text-muted-foreground uppercase tracking-wider mb-6">
+            Trusted by teams at
+          </p>
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-4">
+            {logos.map((logo) => (
+              <span
+                key={logo}
+                className="text-lg font-bold text-muted-foreground/40 grayscale"
+              >
+                {logo}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {/* Testimonials */}
+        <div className="text-center mb-12">
+          <h2 className="text-2xl font-bold">What early users say</h2>
+          <p className="mt-2 text-muted-foreground">
+            Teams are already shipping faster with Doer.
+          </p>
+        </div>
+        <div className="grid sm:grid-cols-3 gap-6">
+          {testimonials.map((t) => (
+            <div
+              key={t.author}
+              className="rounded-xl border border-border p-6 flex flex-col gap-4"
+            >
+              <div className="flex gap-0.5">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Star
+                    key={i}
+                    className="h-4 w-4 fill-amber-400 text-amber-400"
+                  />
+                ))}
+              </div>
+              <p className="text-sm leading-relaxed flex-1">"{t.quote}"</p>
+              <div>
+                <div className="text-sm font-semibold">{t.author}</div>
+                <div className="text-xs text-muted-foreground">{t.role}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 // ─── CTA ──────────────────────────────────────────────────────────────────────
 
 function FinalCTA() {
@@ -425,6 +568,7 @@ export function LandingPage() {
             Doer
           </div>
           <nav className="hidden sm:flex items-center gap-5 text-sm text-muted-foreground">
+            <a href="#features" className="hover:text-foreground transition-colors">Features</a>
             <a href="#how-it-works" className="hover:text-foreground transition-colors">How it works</a>
             <a href="#pricing" className="hover:text-foreground transition-colors">Pricing</a>
             <a href="#comparison" className="hover:text-foreground transition-colors">Compare</a>
@@ -445,10 +589,12 @@ export function LandingPage() {
 
       <main>
         <Hero />
+        <Features />
         <HowItWorks />
         <Pricing />
         <Comparison />
         <UseCases />
+        <SocialProof />
         <FinalCTA />
       </main>
       <Footer />

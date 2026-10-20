@@ -86,6 +86,11 @@ export function registerIssueCommands(program: Command): void {
           const rows = (await ctx.api.get<Issue[]>(path)) ?? [];
 
           const filtered = filterIssueRows(rows, opts.match);
+          if (ctx.format === "table") {
+            printOutput(filtered, { format: "table" });
+            return;
+          }
+
           if (ctx.json) {
             printOutput(filtered, { json: true });
             return;
@@ -125,7 +130,7 @@ export function registerIssueCommands(program: Command): void {
         try {
           const ctx = resolveCommandContext(opts);
           const row = await ctx.api.get<Issue>(`/api/issues/${idOrIdentifier}`);
-          printOutput(row, { json: ctx.json });
+          printOutput(row, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
@@ -164,7 +169,7 @@ export function registerIssueCommands(program: Command): void {
           });
 
           const created = await ctx.api.post<Issue>(`/api/companies/${ctx.companyId}/issues`, payload);
-          printOutput(created, { json: ctx.json });
+          printOutput(created, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
@@ -208,7 +213,7 @@ export function registerIssueCommands(program: Command): void {
           });
 
           const updated = await ctx.api.patch<Issue & { comment?: IssueComment | null }>(`/api/issues/${issueId}`, payload);
-          printOutput(updated, { json: ctx.json });
+          printOutput(updated, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
@@ -230,7 +235,7 @@ export function registerIssueCommands(program: Command): void {
             reopen: opts.reopen,
           });
           const comment = await ctx.api.post<IssueComment>(`/api/issues/${issueId}/comments`, payload);
-          printOutput(comment, { json: ctx.json });
+          printOutput(comment, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
@@ -256,7 +261,7 @@ export function registerIssueCommands(program: Command): void {
             expectedStatuses: parseCsv(opts.expectedStatuses),
           });
           const updated = await ctx.api.post<Issue>(`/api/issues/${issueId}/checkout`, payload);
-          printOutput(updated, { json: ctx.json });
+          printOutput(updated, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
@@ -272,7 +277,7 @@ export function registerIssueCommands(program: Command): void {
         try {
           const ctx = resolveCommandContext(opts);
           const updated = await ctx.api.post<Issue>(`/api/issues/${issueId}/release`, {});
-          printOutput(updated, { json: ctx.json });
+          printOutput(updated, { json: ctx.json, format: ctx.format });
         } catch (err) {
           handleCommandError(err);
         }
