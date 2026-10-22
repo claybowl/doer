@@ -81,7 +81,6 @@ const DEFAULT_DEPENDENCIES: LettaSdkRuntimeDependencies = {
 function clientOptions(config: ResolvedLettaCodeConfig): LettaCodeClientOptions {
   return {
     backend: "local",
-    transport: "app-server",
     appServer: { harnessBackend: config.harnessBackend },
   };
 }

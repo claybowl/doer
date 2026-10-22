@@ -85,7 +85,6 @@ describe("runLettaSdkTurn", () => {
 
     expect(createClient).toHaveBeenCalledWith({
       backend: "local",
-      transport: "app-server",
       appServer: { harnessBackend: "local" },
     });
     expect(client.createAgent).toHaveBeenCalledWith(expect.objectContaining({

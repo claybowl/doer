@@ -27,7 +27,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@letta-ai/letta-agent-sdk": "^0.2.6",
+    "@letta-ai/letta-agent-sdk": "^0.8.50",
+    "@letta-ai/letta-code": "^0.34.20",
     "@doerai/adapter-utils": "workspace:*"
   },
   "devDependencies": {

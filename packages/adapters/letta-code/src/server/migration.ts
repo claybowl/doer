@@ -31,7 +31,6 @@ export async function createLocalAgentFromSnapshot(
   options: LettaLocalImportOptions,
   createClient: () => LettaLocalImportClient = () => new LettaAgentClient({
     backend: "local",
-    transport: "app-server",
     appServer: { harnessBackend: "local" },
   }),
 ): Promise<string> {
