@@ -108,7 +108,19 @@ export const fsMountStrategy: MemfsMountStrategy = {
         // migration). Never apply this replacement to directories or files.
         await fs.unlink(mountAbs);
         await fs.mkdir(path.dirname(mountAbs), { recursive: true });
-        await fs.symlink(sourceAbs, mountAbs, "dir");
+        if (process.platform === "win32") {
+          try {
+            await fs.symlink(sourceAbs, mountAbs, "junction");
+          } catch {
+            try {
+              await fs.symlink(sourceAbs, mountAbs, "dir");
+            } catch {
+              await fs.cp(sourceAbs, mountAbs, { recursive: true });
+            }
+          }
+        } else {
+          await fs.symlink(sourceAbs, mountAbs, "dir");
+        }
         return {
           ok: true,
           strategy: "fs-mount",
@@ -150,7 +162,23 @@ export const fsMountStrategy: MemfsMountStrategy = {
     }
 
     await fs.mkdir(path.dirname(mountAbs), { recursive: true });
-    await fs.symlink(sourceAbs, mountAbs, "dir");
+    // On Windows, try junction first (doesn't require elevated privileges),
+    // then fall back to directory symlink, then copy as last resort.
+    const isWindows = process.platform === "win32";
+    if (isWindows) {
+      try {
+        await fs.symlink(sourceAbs, mountAbs, "junction");
+      } catch (junctionErr) {
+        try {
+          await fs.symlink(sourceAbs, mountAbs, "dir");
+        } catch (symlinkErr) {
+          // Last resort: copy the directory tree
+          await fs.cp(sourceAbs, mountAbs, { recursive: true });
+        }
+      }
+    } else {
+      await fs.symlink(sourceAbs, mountAbs, "dir");
+    }
 
     return {
       ok: true,
@@ -168,7 +196,12 @@ export const fsMountStrategy: MemfsMountStrategy = {
     try {
       const stat = await fs.lstat(mountAbs);
       if (stat.isSymbolicLink()) {
-        await fs.unlink(mountAbs);
+        if (process.platform === "win32") {
+          // Junctions are unlinked like symlinks on Windows
+          await fs.unlink(mountAbs);
+        } else {
+          await fs.unlink(mountAbs);
+        }
       }
     } catch {
       // ENOENT or permissions — nothing to do.

@@ -756,7 +756,7 @@ function stripPortableProjectExecutionWorkspaceRefs(policy: Record<string, unkno
 }
 
 async function readGitOutput(cwd: string, args: string[]) {
-  const { stdout } = await execFileAsync("git", ["-C", cwd, ...args], { cwd });
+  const { stdout } = await execFileAsync("git", ["-C", cwd, "-c", "core.longpaths=true", ...args], { cwd });
   const trimmed = stdout.trim();
   return trimmed.length > 0 ? trimmed : null;
 }

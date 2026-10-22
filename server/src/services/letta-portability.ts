@@ -125,7 +125,7 @@ export function scrubAgentFileSecrets(value: unknown): unknown {
 
 async function resolveRepositoryLocation(repoDir: string): Promise<{ root: string; relativePath: string }> {
   const expected = await realpath(repoDir);
-  const { stdout } = await execFileAsync("git", ["-C", expected, "rev-parse", "--show-toplevel"]);
+  const { stdout } = await execFileAsync("git", ["-C", expected, "-c", "core.longpaths=true", "rev-parse", "--show-toplevel"]);
   const root = await realpath(stdout.trim());
   const relativePath = path.relative(root, expected);
   if (relativePath === ".." || relativePath.startsWith(`..${path.sep}`) || path.isAbsolute(relativePath)) {
@@ -143,7 +143,7 @@ export async function createMemfsBundle(
   const { root, relativePath } = await resolveRepositoryLocation(repoDir);
   await mkdir(path.dirname(outputPath), { recursive: true });
   if (!relativePath) {
-    await execFileAsync("git", ["-C", root, "bundle", "create", outputPath, "--all"]);
+    await execFileAsync("git", ["-C", root, "-c", "core.longpaths=true", "bundle", "create", outputPath, "--all"]);
   } else {
     const staging = await mkdtemp(path.join(path.dirname(outputPath), ".memfs-filter-"));
     const filtered = path.join(staging, "repo");
@@ -154,7 +154,7 @@ export async function createMemfsBundle(
         ["-C", filtered, "filter-branch", "--force", "--prune-empty", "--subdirectory-filter", relativePath, "--", "--all"],
         { env: { ...process.env, FILTER_BRANCH_SQUELCH_WARNING: "1" } },
       );
-      await execFileAsync("git", ["-C", filtered, "bundle", "create", outputPath, "--all"]);
+      await execFileAsync("git", ["-C", filtered, "-c", "core.longpaths=true", "bundle", "create", outputPath, "--all"]);
     } finally {
       await rm(staging, { recursive: true, force: true });
     }
@@ -183,7 +183,7 @@ export async function restoreMemfsBundle(
   const stagedRepo = path.join(stagingRoot, "repo");
   try {
     await execFileAsync("git", ["clone", bundlePath, stagedRepo]);
-    await execFileAsync("git", ["-C", stagedRepo, "bundle", "verify", bundlePath]);
+    await execFileAsync("git", ["-C", stagedRepo, "-c", "core.longpaths=true", "bundle", "verify", bundlePath]);
     await rename(stagedRepo, destination);
   } finally {
     await rm(stagingRoot, { recursive: true, force: true });

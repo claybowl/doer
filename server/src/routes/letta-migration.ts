@@ -173,9 +173,10 @@ export function lettaMigrationRoutes(db: Db): Router {
         `${JSON.stringify(scrubAgentFileSecrets(parsedAgentFile), null, 2)}\n`,
         { mode: 0o600 },
       );
-      await execFileAsync("git", ["-C", memoryDir, "add", "imports/source-agent.af"]);
+      await execFileAsync("git", ["-C", memoryDir, "-c", "core.longpaths=true", "add", "imports/source-agent.af"]);
       await execFileAsync("git", [
         "-C", memoryDir,
+        "-c", "core.longpaths=true",
         "-c", "user.name=Doer Letta Migration",
         "-c", "user.email=letta-migration@doer.local",
         "commit", "-m", "Archive source Letta AgentFile",

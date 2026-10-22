@@ -16,7 +16,7 @@ const exec = promisify(execFile);
 const GIT_TIMEOUT_MS = 10_000;
 
 async function git(rootPath: string, args: string[]): Promise<string> {
-  const { stdout } = await exec("git", ["-C", rootPath, ...args], {
+  const { stdout } = await exec("git", ["-C", rootPath, "-c", "core.longpaths=true", ...args], {
     timeout: GIT_TIMEOUT_MS,
     maxBuffer: 5 * 1024 * 1024,
   });
