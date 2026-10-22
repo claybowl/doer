@@ -19,6 +19,7 @@ import { useProjectOrder } from "../hooks/useProjectOrder";
 import { relativeTime, cn, formatTokens, visibleRunCostUsd } from "../lib/utils";
 import { InlineEditor } from "../components/InlineEditor";
 import { CommentThread } from "../components/CommentThread";
+import { HandoffTrail } from "../components/HandoffTrail";
 import { IssueDocumentsSection } from "../components/IssueDocumentsSection";
 import { IssueProperties } from "../components/IssueProperties";
 import { IssueWorkspaceCard } from "../components/IssueWorkspaceCard";
@@ -1043,6 +1044,10 @@ export function IssueDetail() {
             <ActivityIcon className="h-3.5 w-3.5" />
             Activity
           </TabsTrigger>
+          <TabsTrigger value="trail" className="gap-1.5">
+            <ListTree className="h-3.5 w-3.5" />
+            Trail
+          </TabsTrigger>
           {issuePluginTabItems.map((item) => (
             <TabsTrigger key={item.value} value={item.value}>
               {item.label}
@@ -1152,6 +1157,13 @@ export function IssueDetail() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="trail">
+          <HandoffTrail
+            issueId={issueId!}
+            isActive={issue.status === "in_progress" || (linkedRuns?.some((r) => r.status === "running") ?? false)}
+          />
         </TabsContent>
 
         {activePluginTab && (

@@ -21,6 +21,21 @@ export interface IssueForRun {
   priority: string;
 }
 
+export interface HandoffEvent {
+  id: string;
+  type: string;
+  timestamp: string;
+  agentId: string | null;
+  agentName: string | null;
+  agentIcon: string | null;
+  runId: string | null;
+  runStatus: string | null;
+  summary: string;
+  detail: string | null;
+  delegatedToAgentId: string | null;
+  delegatedToAgentName: string | null;
+}
+
 export const activityApi = {
   list: (companyId: string, filters?: { entityType?: string; entityId?: string; agentId?: string }) => {
     const params = new URLSearchParams();
@@ -32,5 +47,6 @@ export const activityApi = {
   },
   forIssue: (issueId: string) => api.get<ActivityEvent[]>(`/issues/${issueId}/activity`),
   runsForIssue: (issueId: string) => api.get<RunForIssue[]>(`/issues/${issueId}/runs`),
+  handoffTrail: (issueId: string) => api.get<HandoffEvent[]>(`/issues/${issueId}/handoff-trail`),
   issuesForRun: (runId: string) => api.get<IssueForRun[]>(`/heartbeat-runs/${runId}/issues`),
 };

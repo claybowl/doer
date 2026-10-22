@@ -78,6 +78,18 @@ export function activityRoutes(db: Db) {
     res.json(result);
   });
 
+  router.get("/issues/:id/handoff-trail", async (req, res) => {
+    const rawId = req.params.id as string;
+    const issue = await resolveIssueByRef(rawId);
+    if (!issue) {
+      res.status(404).json({ error: "Issue not found" });
+      return;
+    }
+    assertCompanyAccess(req, issue.companyId);
+    const result = await svc.handoffTrail(issue.id);
+    res.json(result);
+  });
+
   router.get("/heartbeat-runs/:runId/issues", async (req, res) => {
     const runId = req.params.runId as string;
     const result = await svc.issuesForRun(runId);
