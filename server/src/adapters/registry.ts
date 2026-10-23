@@ -122,6 +122,42 @@ import {
 import { processAdapter } from "./process/index.js";
 import { httpAdapter } from "./http/index.js";
 import {
+  execute as grokBotExecute,
+  testEnvironment as grokBotTestEnvironment,
+} from "@doerai/adapter-grok-bot/server";
+import {
+  agentConfigurationDoc as grokBotAgentConfigurationDoc,
+  models as grokBotModels,
+  memfsCapability as grokBotMemfsCapability,
+} from "@doerai/adapter-grok-bot";
+import {
+  execute as museExecute,
+  testEnvironment as museTestEnvironment,
+} from "@doerai/adapter-muse/server";
+import {
+  agentConfigurationDoc as museAgentConfigurationDoc,
+  models as museModels,
+  memfsCapability as museMemfsCapability,
+} from "@doerai/adapter-muse";
+import {
+  execute as claudeDuetExecute,
+  testEnvironment as claudeDuetTestEnvironment,
+} from "@doerai/adapter-claude-duet/server";
+import {
+  agentConfigurationDoc as claudeDuetAgentConfigurationDoc,
+  models as claudeDuetModels,
+  memfsCapability as claudeDuetMemfsCapability,
+} from "@doerai/adapter-claude-duet";
+import {
+  execute as openaiDotsExecute,
+  testEnvironment as openaiDotsTestEnvironment,
+} from "@doerai/adapter-openai-dots/server";
+import {
+  agentConfigurationDoc as openaiDotsAgentConfigurationDoc,
+  models as openaiDotsModels,
+  memfsCapability as openaiDotsMemfsCapability,
+} from "@doerai/adapter-openai-dots";
+import {
   execute as a2aExecute,
   testEnvironment as a2aTestEnvironment,
 } from "@doerai/adapter-a2a/server";
@@ -295,6 +331,46 @@ const a2aAdapter: ServerAdapterModule = {
   memfsCapability: a2aMemfsCapability,
 };
 
+const grokBotAdapter: ServerAdapterModule = {
+  type: "grok_bot",
+  execute: grokBotExecute,
+  testEnvironment: grokBotTestEnvironment,
+  models: grokBotModels,
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: grokBotAgentConfigurationDoc,
+  memfsCapability: grokBotMemfsCapability,
+};
+
+const museAdapter: ServerAdapterModule = {
+  type: "muse",
+  execute: museExecute,
+  testEnvironment: museTestEnvironment,
+  models: museModels,
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: museAgentConfigurationDoc,
+  memfsCapability: museMemfsCapability,
+};
+
+const claudeDuetAdapter: ServerAdapterModule = {
+  type: "claude_duet",
+  execute: claudeDuetExecute,
+  testEnvironment: claudeDuetTestEnvironment,
+  models: claudeDuetModels,
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: claudeDuetAgentConfigurationDoc,
+  memfsCapability: claudeDuetMemfsCapability,
+};
+
+const openaiDotsAdapter: ServerAdapterModule = {
+  type: "openai_dots",
+  execute: openaiDotsExecute,
+  testEnvironment: openaiDotsTestEnvironment,
+  models: openaiDotsModels,
+  supportsLocalAgentJwt: false,
+  agentConfigurationDoc: openaiDotsAgentConfigurationDoc,
+  memfsCapability: openaiDotsMemfsCapability,
+};
+
 const adaptersByType = new Map<string, ServerAdapterModule>(
   [
     claudeLocalAdapter,
@@ -312,6 +388,10 @@ const adaptersByType = new Map<string, ServerAdapterModule>(
     a2aAdapter,
     processAdapter,
     httpAdapter,
+    grokBotAdapter,
+    museAdapter,
+    claudeDuetAdapter,
+    openaiDotsAdapter,
   ].map((a) => [a.type, a]),
 );
 

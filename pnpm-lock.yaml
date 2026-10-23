@@ -121,6 +121,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/adapters/claude-duet:
+    dependencies:
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/adapters/claude-local:
     dependencies:
       '@doerai/adapter-utils':
@@ -185,6 +201,22 @@ importers:
         specifier: ^5.7.3
         version: 5.9.3
 
+  packages/adapters/grok-bot:
+    dependencies:
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
   packages/adapters/letta-af-opencode:
     dependencies:
       '@doerai/adapter-opencode-local':
@@ -241,6 +273,38 @@ importers:
       '@letta-ai/letta-code':
         specifier: ^0.34.20
         version: 0.34.20(@aws-sdk/credential-provider-node@3.972.88)(@smithy/signature-v4@5.7.4)(@types/node@24.12.2)(@types/react@19.2.14)(react-dom@19.2.5(react@18.2.0))(undici@7.25.0)(zod@4.3.6)
+    devDependencies:
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/adapters/muse:
+    dependencies:
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
+    devDependencies:
+      '@doerai/shared':
+        specifier: workspace:*
+        version: link:../../shared
+      '@types/node':
+        specifier: ^24.6.0
+        version: 24.12.2
+      typescript:
+        specifier: ^5.7.3
+        version: 5.9.3
+
+  packages/adapters/openai-dots:
+    dependencies:
+      '@doerai/adapter-utils':
+        specifier: workspace:*
+        version: link:../../adapter-utils
     devDependencies:
       '@doerai/shared':
         specifier: workspace:*
